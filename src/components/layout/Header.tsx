@@ -26,11 +26,8 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Global Brand Identity */}
             <div 
               onClick={() => setActiveTab('knowledge')}
-              className="flex items-center space-x-3 cursor-pointer group"
+              className="flex items-center cursor-pointer group"
             >
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#007AFF] via-[#0A84FF] to-[#5856D6] flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
-                <Compass className="w-5 h-5 text-white stroke-[2.2]" />
-              </div>
               <div>
                 <div className="flex items-center space-x-2">
                   <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white font-sans">

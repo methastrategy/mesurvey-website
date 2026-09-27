@@ -35,7 +35,7 @@ interface KnowledgeHubProps {
 export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedTopicId, setSelectedTopicId] = useState<string>(KNOWLEDGE_TOPICS[0].id);
+  const [selectedTopicId, setSelectedTopicId] = useState<string>(KNOWLEDGE_TOPICS[0]?.id || '');
   const [activeReaderTab, setActiveReaderTab] = useState<'overview' | 'sop' | 'math' | 'qaqc' | 'downstream'>('sop');
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
   const [copiedText, setCopiedText] = useState<boolean>(false);
@@ -73,8 +73,8 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
     return matchCategory && matchQuery;
   });
 
-  const activeTopic: KnowledgeTopic = KNOWLEDGE_TOPICS.find((t) => t.id === selectedTopicId) || KNOWLEDGE_TOPICS[0];
-  const deviceSteps: DeviceScreenStep[] = activeTopic.deviceWorkflow || [];
+  const activeTopic: KnowledgeTopic | undefined = KNOWLEDGE_TOPICS.find((t) => t.id === selectedTopicId) || KNOWLEDGE_TOPICS[0];
+  const deviceSteps: DeviceScreenStep[] = activeTopic?.deviceWorkflow || [];
   const currentStep: DeviceScreenStep | undefined = deviceSteps[activeStepIndex] || deviceSteps[0];
 
   const handleSelectTopic = (id: string) => {
@@ -243,39 +243,86 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
 
         {/* Right Reader Document Viewer (8 Cols) */}
         <div className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-7 shadow-sm space-y-6">
-          
-          {/* Document Header & Meta */}
-          <div className="space-y-3 border-b border-slate-100 dark:border-slate-800 pb-5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center space-x-2">
-                <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-ios-blue/10 text-ios-blue dark:text-ios-blueDark border border-ios-blue/20">
-                  {activeTopic.badge}
+          {!activeTopic ? (
+            <div className="py-16 px-6 text-center space-y-6 max-w-lg mx-auto">
+              <div className="w-16 h-16 mx-auto rounded-3xl bg-ios-blue/10 dark:bg-ios-blue/20 flex items-center justify-center text-ios-blue dark:text-ios-blueDark border border-ios-blue/20">
+                <BookOpen className="w-8 h-8" />
+              </div>
+              
+              <div className="space-y-2">
+                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                  Awaiting Course Materials • รอการนำเข้าเนื้อหา
                 </span>
-                <span className="text-xs text-slate-400">
-                  หมวด: {activeTopic.categoryName}
-                </span>
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                  คลังคู่มือพร้อมสำหรับการจัดโครงสร้างใหม่
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                  เนื้อหาเดิมถูกล้างออกเรียบร้อยแล้ว เพื่อเตรียมพร้อมนำไฟล์เอกสารประกอบการเรียนและคู่มือปฏิบัติการจริงมาแกะวิเคราะห์ จัดหมวดหมู่ และเรียบเรียงเป็นคู่มือมาตรฐาน (SOP)
+                </p>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={handleCopySummary}
-                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors"
-                  title="คัดลอกข้อความสรุป"
-                >
-                  {copiedText ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-emerald-500" />
-                      <span className="text-emerald-600 dark:text-emerald-400">คัดลอกแล้ว</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>คัดลอก SOP</span>
-                    </>
-                  )}
-                </button>
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-left space-y-3">
+                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  โครงสร้างหัวข้อที่เตรียมรองรับ
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-400">
+                  <div className="flex items-center gap-2">
+                    <Compass className="w-4 h-4 text-ios-blue shrink-0" />
+                    <span>กล้องประมวลผลรวม (Total Station)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Ruler className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>กล้องระดับ (Leveling & Two-Peg)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Radio className="w-4 h-4 text-purple-500 shrink-0" />
+                    <span>ดาวเทียม GNSS (RTK / Static / CORS)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Camera className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>โดรน UAV & ภาพถ่ายทางอากาศ</span>
+                  </div>
+                </div>
               </div>
+
+              <p className="text-xs text-slate-400 italic">
+                * คุณสามารถส่งไฟล์บทเรียน สไลด์ หรือข้อความสรุปเข้ามา เพื่อให้เริ่มกระบวนการสกัดเนื้อหาและขึ้นคู่มือตามมาตรฐานได้ทันที
+              </p>
             </div>
+          ) : (
+            <>
+              {/* Document Header & Meta */}
+              <div className="space-y-3 border-b border-slate-100 dark:border-slate-800 pb-5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-ios-blue/10 text-ios-blue dark:text-ios-blueDark border border-ios-blue/20">
+                      {activeTopic.badge}
+                    </span>
+                    <span className="text-xs text-slate-400">
+                      หมวด: {activeTopic.categoryName}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={handleCopySummary}
+                      className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors"
+                      title="คัดลอกข้อความสรุป"
+                    >
+                      {copiedText ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-500" />
+                          <span className="text-emerald-600 dark:text-emerald-400">คัดลอกแล้ว</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>คัดลอก SOP</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
 
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -689,8 +736,10 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
 
             </div>
           )}
+        </>
+      )}
 
-        </div>
+    </div>
 
       </div>
 
