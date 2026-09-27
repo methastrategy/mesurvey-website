@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Search, 
   Compass, 
@@ -7,23 +7,26 @@ import {
   Camera, 
   Boxes, 
   BookOpen, 
-  Layers, 
   CheckCircle2, 
   AlertTriangle, 
   Activity,
   ChevronRight,
   ChevronLeft,
   Terminal,
-  Cpu,
   ShieldCheck,
   Clock,
-  Sparkles,
   ArrowRight,
+  ArrowLeft,
   Copy,
   Check,
-  RotateCcw,
   SlidersHorizontal,
-  BookmarkCheck
+  BookmarkCheck,
+  Tag,
+  ExternalLink,
+  Layers,
+  Sparkles,
+  FileText,
+  Filter
 } from 'lucide-react';
 import { KNOWLEDGE_TOPICS } from '../../data/knowledge-topics';
 import { KnowledgeTopic, KnowledgeCategory, DeviceScreenStep } from '../../types/survey';
@@ -35,11 +38,11 @@ interface KnowledgeHubProps {
 export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedTopicId, setSelectedTopicId] = useState<string>(KNOWLEDGE_TOPICS[0]?.id || '');
-  const [activeReaderTab, setActiveReaderTab] = useState<'overview' | 'sop' | 'math' | 'qaqc' | 'downstream'>('sop');
+  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
   const [copiedText, setCopiedText] = useState<boolean>(false);
 
+  // Icon Resolver
   const getTopicIcon = (iconName: string, className: string = "w-4 h-4") => {
     switch (iconName) {
       case 'Compass': return <Compass className={className} />;
@@ -51,35 +54,78 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
     }
   };
 
-  const categories: { id: string; label: string; count: number; icon: React.ReactNode }[] = [
-    { id: 'all', label: 'ทั้งหมด (All SOPs)', count: KNOWLEDGE_TOPICS.length, icon: <BookOpen className="w-3.5 h-3.5" /> },
-    { id: 'total-station', label: 'กล้องประมวลผลรวม', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'total-station').length, icon: <Compass className="w-3.5 h-3.5" /> },
-    { id: 'differential-leveling', label: 'กล้องระดับ', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'differential-leveling').length, icon: <Ruler className="w-3.5 h-3.5" /> },
-    { id: 'gnss-geodesy', label: 'ดาวเทียม GNSS & Geodesy', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'gnss-geodesy').length, icon: <Radio className="w-3.5 h-3.5" /> },
-    { id: 'drone-photogrammetry', label: 'โดรน UAV & ภาพถ่าย', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'drone-photogrammetry').length, icon: <Camera className="w-3.5 h-3.5" /> },
-    { id: 'lidar-scan-bim', label: '3D LiDAR & BIM', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'lidar-scan-bim').length, icon: <Boxes className="w-3.5 h-3.5" /> },
-  ];
+  // Category Color Dot (GitHub Language Dot Style)
+  const getCategoryDotColor = (category: KnowledgeCategory) => {
+    switch (category) {
+      case 'differential-leveling': return 'bg-emerald-500';
+      case 'total-station': return 'bg-sky-500';
+      case 'gnss-geodesy': return 'bg-purple-500';
+      case 'drone-photogrammetry': return 'bg-amber-500';
+      case 'lidar-scan-bim': return 'bg-rose-500';
+      default: return 'bg-indigo-500';
+    }
+  };
 
-  const filteredTopics = KNOWLEDGE_TOPICS.filter((t) => {
-    const matchCategory = selectedCategory === 'all' || t.category === selectedCategory;
-    const q = searchQuery.toLowerCase().trim();
-    if (!q) return matchCategory;
-    const matchQuery = (
-      t.title.toLowerCase().includes(q) ||
-      t.titleEn.toLowerCase().includes(q) ||
-      t.summary.toLowerCase().includes(q) ||
-      (t.courseRelation && t.courseRelation.toLowerCase().includes(q))
-    );
-    return matchCategory && matchQuery;
-  });
+  // Dynamic GitHub-style Topic Tags
+  const getTopicTags = (topicId: string): string[] => {
+    switch (topicId) {
+      case 'differential-leveling-survey':
+        return ['Three-Wire Leveling', 'Two-Peg Test', 'Stadia D=100s', 'Curvature & Refraction', 'FGCC Standards', 'Turtle Plate'];
+      case 'theodolite-station-setup':
+        return ['Optical Plummet', 'Plate Level', 'Face Left / Face Right', '0-SET Backsight', 'Index Error', '3-Tie Station Sketch'];
+      case 'closed-loop-traverse':
+        return ['Closed Polygon', 'Angular Misclosure', 'Continuous Azimuth', 'Latitude & Departure', 'Bowditch Compass Rule', 'UTM Grid'];
+      case 'link-open-traverse':
+        return ['Link Traverse', 'Known Benchmark Tie-in', 'Azimuth Closure', 'Coordinate Delta Balancing', 'No Dead-End', 'Alignment Control'];
+      default:
+        return ['Field SOP', 'Survey Engineering', 'Geomatics'];
+    }
+  };
 
-  const activeTopic: KnowledgeTopic | undefined = KNOWLEDGE_TOPICS.find((t) => t.id === selectedTopicId) || KNOWLEDGE_TOPICS[0];
+  // Category Facets
+  const categories: { id: string; label: string; count: number; icon: React.ReactNode }[] = useMemo(() => [
+    { id: 'all', label: 'ทั้งหมด (All SOPs)', count: KNOWLEDGE_TOPICS.length, icon: <BookOpen className="w-4 h-4" /> },
+    { id: 'differential-leveling', label: 'กล้องระดับ (Leveling)', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'differential-leveling').length, icon: <Ruler className="w-4 h-4" /> },
+    { id: 'total-station', label: 'กล้องวัดมุม & วงรอบ', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'total-station').length, icon: <Compass className="w-4 h-4" /> },
+    { id: 'gnss-geodesy', label: 'ดาวเทียม GNSS & Geodesy', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'gnss-geodesy').length, icon: <Radio className="w-4 h-4" /> },
+    { id: 'drone-photogrammetry', label: 'โดรน UAV & ภาพถ่าย', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'drone-photogrammetry').length, icon: <Camera className="w-4 h-4" /> },
+    { id: 'lidar-scan-bim', label: '3D LiDAR & BIM', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'lidar-scan-bim').length, icon: <Boxes className="w-4 h-4" /> },
+  ], []);
+
+  // Filtered Topics
+  const filteredTopics = useMemo(() => {
+    return KNOWLEDGE_TOPICS.filter((t) => {
+      const matchCategory = selectedCategory === 'all' || t.category === selectedCategory;
+      const q = searchQuery.toLowerCase().trim();
+      if (!q) return matchCategory;
+      const matchQuery = (
+        t.title.toLowerCase().includes(q) ||
+        t.titleEn.toLowerCase().includes(q) ||
+        t.summary.toLowerCase().includes(q) ||
+        (t.courseRelation && t.courseRelation.toLowerCase().includes(q)) ||
+        getTopicTags(t.id).some(tag => tag.toLowerCase().includes(q))
+      );
+      return matchCategory && matchQuery;
+    });
+  }, [searchQuery, selectedCategory]);
+
+  const activeTopic: KnowledgeTopic | undefined = useMemo(() => {
+    if (!selectedTopicId) return undefined;
+    return KNOWLEDGE_TOPICS.find((t) => t.id === selectedTopicId);
+  }, [selectedTopicId]);
+
   const deviceSteps: DeviceScreenStep[] = activeTopic?.deviceWorkflow || [];
   const currentStep: DeviceScreenStep | undefined = deviceSteps[activeStepIndex] || deviceSteps[0];
 
   const handleSelectTopic = (id: string) => {
     setSelectedTopicId(id);
     setActiveStepIndex(0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleBackToSearch = () => {
+    setSelectedTopicId(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCopySummary = () => {
@@ -91,326 +137,429 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
     setTimeout(() => setCopiedText(false), 2000);
   };
 
+  const handleOpenDownstreamTool = () => {
+    if (!activeTopic?.downstreamWorkflow?.recommendedToolTab) {
+      onNavigateTab?.('calculator');
+      return;
+    }
+    const target = activeTopic.downstreamWorkflow.recommendedToolTab;
+    if (target === 'map') {
+      onNavigateTab?.('map');
+    } else {
+      onNavigateTab?.('calculator');
+    }
+  };
+
   return (
     <div className="space-y-6 pb-16">
-      
-      {/* Top Banner: Digital Knowledge Library Hero */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white p-6 sm:p-8 shadow-xl border border-slate-800">
-        <div className="relative z-10 max-w-4xl space-y-4">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/10 dark:bg-white/5 border border-white/15 text-xs font-semibold backdrop-blur-md">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span className="tracking-wide text-slate-200">DIGITAL FIELD VAULT • คลังหนังสือคู่มือวิศวกรรมสำรวจ</span>
-          </div>
 
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white">
-            คู่มือปฏิบัติการ & ขั้นตอนการใช้เครื่องมือสำรวจ
-          </h1>
+      {/* ========================================================================= */}
+      {/* 1. GITHUB SEARCH VIEW: When no manual is selected (Front Page Search List) */}
+      {/* ========================================================================= */}
+      {!activeTopic && (
+        <div className="space-y-6">
           
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
-            รวบรวมขั้นตอนมาตรฐาน (SOP) การใช้งานเครื่องมือสำรวจภาคสนาม ลำดับขั้นการกดปุ่มบนตัวเครื่อง (Keypad Sequences) หน้าจอกล้องจำลองจริง (Device Display Simulation) เกณฑ์การตรวจสอบความคลาดเคลื่อน (QA/QC) และขั้นตอนการนำข้อมูลไปใช้งานต่อ
-          </p>
+          {/* GitHub Search Header Bar */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0d1117] p-5 sm:p-6 shadow-sm">
+            <div className="max-w-4xl space-y-4">
+              
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                    <BookOpen className="w-6 h-6 text-[#0969da] dark:text-[#58a6ff]" />
+                    <span>ค้นหาคู่มือสำรวจ (Survey Engineering SOPs)</span>
+                  </h1>
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    คลังขั้นตอนปฏิบัติงานวิศวกรรมสำรวจ มาตรฐานการตั้งกล้อง เกณฑ์ความคลาดเคลื่อน และสูตรคำนวณ
+                  </p>
+                </div>
 
-          {/* Search Box */}
-          <div className="pt-2 relative max-w-xl">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ค้นหาตามชื่อกล้อง, รหัสปุ่มกด, ขั้นตอนรังวัด (เช่น Resection, Two-Peg, Backsight, RTK, NTRIP, GSD)..."
-              className="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-white/10 border border-white/15 text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-ios-blue backdrop-blur-md transition-all shadow-inner"
-            />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
-              >
-                ล้าง
-              </button>
-            )}
-          </div>
-        </div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 self-start sm:self-auto">
+                  <BookmarkCheck className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>{KNOWLEDGE_TOPICS.length} คู่มือมาตรฐาน</span>
+                </div>
+              </div>
 
-        {/* Background Ambient Glow */}
-        <div className="absolute -right-16 -top-16 w-80 h-80 bg-ios-blue/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute right-1/4 -bottom-16 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      </div>
+              {/* GitHub-style Search Input Box */}
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="ค้นหาตามชื่อกล้อง, คำสั่ง, ขั้นตอนรังวัด (เช่น Two-Peg, Bowditch, 0-SET, Azimuth, Three-Wire, Stadia)..."
+                  className="w-full pl-10 pr-24 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-[#161b22] text-slate-900 dark:text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0969da] dark:focus:ring-[#58a6ff] focus:bg-white dark:focus:bg-[#0d1117] transition-all shadow-inner"
+                />
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                  {searchQuery && (
+                    <button 
+                      onClick={() => setSearchQuery('')}
+                      className="px-2 py-0.5 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                    >
+                      ล้าง
+                    </button>
+                  )}
+                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-400 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                    /
+                  </span>
+                </div>
+              </div>
 
-      {/* Category Pills Shelf */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-        {categories.map((cat) => {
-          const isSelected = selectedCategory === cat.id;
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`inline-flex items-center space-x-2 px-3.5 py-2 rounded-2xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
-                isSelected
-                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md shadow-slate-950/10'
-                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <span>{cat.icon}</span>
-              <span>{cat.label}</span>
-              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                isSelected 
-                  ? 'bg-white/20 dark:bg-black/10' 
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-              }`}>
-                {cat.count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Master-Detail Digital Library Shelf & Reader View */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
-        {/* Left Bookshelf Directory (4 Cols) */}
-        <div className="lg:col-span-4 space-y-3 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
-          <div className="px-2 py-1 flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
-            <span className="flex items-center gap-1.5">
-              <BookOpen className="w-3.5 h-3.5 text-ios-blue" />
-              ชั้นหนังสือคู่มือ ({filteredTopics.length} เล่ม)
-            </span>
+            </div>
           </div>
 
-          <div className="space-y-2 max-h-[720px] overflow-y-auto pr-1">
-            {filteredTopics.map((topic) => {
-              const isActive = topic.id === activeTopic.id;
-              return (
-                <button
-                  key={topic.id}
-                  onClick={() => handleSelectTopic(topic.id)}
-                  className={`w-full text-left p-3.5 rounded-2xl transition-all duration-200 flex flex-col space-y-2 relative border ${
-                    isActive
-                      ? 'bg-gradient-to-br from-slate-900 to-slate-950 text-white border-slate-700 shadow-lg shadow-slate-950/20'
-                      : 'bg-slate-50/60 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200/60 dark:border-slate-800/60 text-slate-700 dark:text-slate-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className={`text-[10px] font-semibold tracking-wider px-2 py-0.5 rounded-md ${
-                      isActive 
-                        ? 'bg-ios-blue text-white' 
-                        : 'bg-slate-200/80 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
-                    }`}>
-                      {topic.badge}
-                    </span>
-                    <span className={`text-[11px] ${isActive ? 'text-slate-300' : 'text-slate-400'}`}>
-                      {getTopicIcon(topic.iconName)}
-                    </span>
-                  </div>
+          {/* GitHub Search Layout: Facets on Left, Result Cards on Right */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            {/* Left Column: Filter Facets (3 Cols) */}
+            <div className="lg:col-span-3 space-y-4">
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0d1117] p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                  <span className="flex items-center gap-1.5">
+                    <Filter className="w-3.5 h-3.5 text-[#0969da] dark:text-[#58a6ff]" />
+                    หมวดหมู่งานสำรวจ
+                  </span>
+                  <span className="text-[11px] font-mono text-slate-400">
+                    {filteredTopics.length}
+                  </span>
+                </div>
 
-                  <div>
-                    <h4 className="text-xs sm:text-sm font-bold leading-snug line-clamp-2">
-                      {topic.title}
-                    </h4>
-                    <p className={`text-[10px] sm:text-[11px] font-mono mt-1 line-clamp-1 ${
-                      isActive ? 'text-slate-300' : 'text-slate-400'
-                    }`}>
+                <div className="space-y-1">
+                  {categories.map((cat) => {
+                    const isSelected = selectedCategory === cat.id;
+                    return (
+                      <button
+                        key={cat.id}
+                        onClick={() => setSelectedCategory(cat.id)}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                          isSelected
+                            ? 'bg-[#0969da]/10 dark:bg-[#58a6ff]/15 text-[#0969da] dark:text-[#58a6ff] font-semibold border border-[#0969da]/25 dark:border-[#58a6ff]/30'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-transparent'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2 truncate">
+                          {cat.icon}
+                          <span className="truncate">{cat.label}</span>
+                        </span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono shrink-0 ${
+                          isSelected 
+                            ? 'bg-[#0969da]/20 dark:bg-[#58a6ff]/25 text-[#0969da] dark:text-[#58a6ff]' 
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                        }`}>
+                          {cat.count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Standard Reference Card */}
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0d1117] p-4 text-xs text-slate-600 dark:text-slate-400 space-y-2 shadow-sm">
+                <span className="font-bold text-slate-800 dark:text-slate-200 block text-xs flex items-center gap-1.5">
+                  <BookmarkCheck className="w-3.5 h-3.5 text-emerald-500" />
+                  เกณฑ์อ้างอิงวิชาการ
+                </span>
+                <p className="text-[11px] leading-relaxed">
+                  เนื้อหาถอดรหัสจากสไลด์และเอกสารการสอน ภาควิชาวิศวกรรมสำรวจ มหาวิทยาลัยเกษตรศาสตร์ (KU Geomatics) ร่วมกับมาตรฐานกรมแผนที่ทหาร (RTSD) และ FGCC
+                </p>
+              </div>
+            </div>
+
+            {/* Right Column: GitHub Search Result Cards (9 Cols) */}
+            <div className="lg:col-span-9 space-y-4">
+              
+              {/* Search Result Stats Header */}
+              <div className="flex items-center justify-between px-1 text-xs text-slate-500 dark:text-slate-400">
+                <span className="font-medium">
+                  แสดงผลลัพธ์ <strong className="text-slate-900 dark:text-white font-mono">{filteredTopics.length}</strong> คู่มือ
+                  {searchQuery && <span> สำหรับคำค้นหา "{searchQuery}"</span>}
+                </span>
+                <span className="text-[11px] font-mono">
+                  GitHub-style Vault Index
+                </span>
+              </div>
+
+              {/* Result List Items */}
+              <div className="space-y-3">
+                {filteredTopics.map((topic) => (
+                  <div
+                    key={topic.id}
+                    onClick={() => handleSelectTopic(topic.id)}
+                    className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0d1117] hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md transition-all duration-200 cursor-pointer group space-y-3"
+                  >
+                    {/* Item Header */}
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:text-[#0969da] dark:group-hover:text-[#58a6ff] transition-colors">
+                          {getTopicIcon(topic.iconName, "w-4 h-4")}
+                        </div>
+                        
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="font-bold text-sm sm:text-base text-[#0969da] dark:text-[#58a6ff] group-hover:underline tracking-tight">
+                            {topic.title}
+                          </h3>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 font-semibold">
+                            {topic.badge}
+                          </span>
+                        </div>
+                      </div>
+
+                      <span className="text-xs font-semibold text-[#0969da] dark:text-[#58a6ff] flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        เปิดอ่านคู่มือ <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
+                    </div>
+
+                    {/* Subtitle / English Code Identifier */}
+                    <p className="text-xs font-mono text-slate-400 dark:text-slate-500 pl-9">
                       {topic.titleEn}
                     </p>
-                  </div>
 
-                  <div className={`pt-1 flex items-center justify-between text-[10px] border-t ${
-                    isActive ? 'border-white/10 text-slate-400' : 'border-slate-200/60 dark:border-slate-700/60 text-slate-500'
-                  }`}>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      คู่มือขั้นตอนสนาม & ปุ่มกด
-                    </span>
-                    {isActive ? (
-                      <span className="font-semibold text-emerald-400 flex items-center gap-0.5">
-                        กำลังอ่าน <ChevronRight className="w-3 h-3" />
-                      </span>
-                    ) : (
-                      <span className="hover:underline">เปิดอ่าน</span>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
+                    {/* Summary Description */}
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed pl-9 line-clamp-2">
+                      {topic.summary}
+                    </p>
 
-            {filteredTopics.length === 0 && (
-              <div className="text-center py-12 px-4 text-slate-400 space-y-2">
-                <Search className="w-8 h-8 mx-auto stroke-1" />
-                <p className="text-xs">ไม่พบคู่มือที่ตรงกับคำค้นหา "{searchQuery}"</p>
+                    {/* Topic Tags (GitHub Repository Topics) */}
+                    <div className="flex flex-wrap gap-1.5 pl-9 pt-1">
+                      {getTopicTags(topic.id).map((tag, tIdx) => (
+                        <span 
+                          key={tIdx}
+                          className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#0969da]/10 dark:bg-[#58a6ff]/10 text-[#0969da] dark:text-[#58a6ff] hover:bg-[#0969da]/20 dark:hover:bg-[#58a6ff]/20 transition-colors"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* GitHub Search Result Footer Meta */}
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800/80 pl-9">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`w-2.5 h-2.5 rounded-full ${getCategoryDotColor(topic.category)}`} />
+                        <span>{topic.categoryName}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{topic.fieldProcedures.length} ขั้นตอนสนาม</span>
+                      </div>
+
+                      {topic.formulas && topic.formulas.length > 0 && (
+                        <div className="flex items-center gap-1">
+                          <Activity className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{topic.formulas.length} สูตรคำนวณ</span>
+                        </div>
+                      )}
+
+                      {topic.deviceWorkflow && topic.deviceWorkflow.length > 0 && (
+                        <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                          <Terminal className="w-3.5 h-3.5" />
+                          <span>จำลองหน้าจอกล้อง LCD</span>
+                        </div>
+                      )}
+
+                      {topic.courseRelation && (
+                        <div className="hidden md:flex items-center gap-1 text-slate-400">
+                          <BookmarkCheck className="w-3.5 h-3.5" />
+                          <span className="truncate max-w-[220px]">{topic.courseRelation}</span>
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+                ))}
+
+                {/* Empty State */}
+                {filteredTopics.length === 0 && (
+                  <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0d1117] p-12 text-center space-y-3">
+                    <Search className="w-10 h-10 mx-auto text-slate-400 stroke-1" />
+                    <h4 className="text-base font-bold text-slate-800 dark:text-slate-200">
+                      ไม่พบคู่มือที่ตรงกับคำค้นหา "{searchQuery}"
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                      ลองค้นหาด้วยคำสำคัญ เช่น "Two-Peg", "Bowditch", "0-SET", "Three-Wire", "Stadia" หรือเปลี่ยนตัวกรองหมวดหมู่
+                    </p>
+                    <button
+                      onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
+                      className="px-4 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-200 transition-colors"
+                    >
+                      ล้างคำค้นหาทั้งหมด
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
+
+            </div>
+
           </div>
-        </div>
 
-        {/* Right Reader Document Viewer (8 Cols) */}
-        <div className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-7 shadow-sm space-y-6">
-          {!activeTopic ? (
-            <div className="py-16 px-6 text-center space-y-6 max-w-lg mx-auto">
-              <div className="w-16 h-16 mx-auto rounded-3xl bg-ios-blue/10 dark:bg-ios-blue/20 flex items-center justify-center text-ios-blue dark:text-ios-blueDark border border-ios-blue/20">
-                <BookOpen className="w-8 h-8" />
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 2. MANUAL DOCUMENT READER VIEW: Rendered when a topic is selected        */}
+      {/* (Unified Flow: NO SEPARATE TAB for "คู่มือปุ่มกด & จอกล้อง"!)              */}
+      {/* ========================================================================= */}
+      {activeTopic && (
+        <div className="space-y-6 max-w-5xl mx-auto">
+
+          {/* Navigation Breadcrumb Bar */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0d1117] px-4 py-3 shadow-sm flex flex-wrap items-center justify-between gap-3 sticky top-16 z-40 backdrop-blur-md bg-white/95 dark:bg-[#0d1117]/95">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleBackToSearch}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all hover:-translate-x-0.5"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>กลับหน้ารายการค้นหา</span>
+              </button>
+
+              <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span>
+
+              <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-md">
+                <BookOpen className="w-3.5 h-3.5 text-[#0969da] dark:text-[#58a6ff] shrink-0" />
+                <span>คู่มือสำรวจ</span>
+                <span>/</span>
+                <span className="truncate">{activeTopic.categoryName}</span>
               </div>
-              
-              <div className="space-y-2">
-                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                  Awaiting Course Materials • รอการนำเข้าเนื้อหา
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleCopySummary}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors"
+                title="คัดลอกสรุปคู่มือ"
+              >
+                {copiedText ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">คัดลอกแล้ว</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>คัดลอก SOP</span>
+                  </>
+                )}
+              </button>
+
+              {activeTopic.downstreamWorkflow && (
+                <button
+                  onClick={handleOpenDownstreamTool}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#0969da] hover:bg-[#0854b0] text-white text-xs font-semibold shadow-sm transition-all"
+                >
+                  <span>{activeTopic.downstreamWorkflow.toolActionLabel || 'เปิดเครื่องมือคำนวณ'}</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Main Documentation Container (GitHub README / Technical SOP Style) */}
+          <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0d1117] p-6 sm:p-10 shadow-sm space-y-10">
+
+            {/* Document Header & Metadata */}
+            <div className="space-y-4 border-b border-slate-200 dark:border-slate-800 pb-6">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-3 py-0.5 text-xs font-semibold rounded-full bg-[#0969da]/10 text-[#0969da] dark:text-[#58a6ff] border border-[#0969da]/20 font-mono">
+                  {activeTopic.badge}
                 </span>
-                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                  คลังคู่มือพร้อมสำหรับการจัดโครงสร้างใหม่
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                  เนื้อหาเดิมถูกล้างออกเรียบร้อยแล้ว เพื่อเตรียมพร้อมนำไฟล์เอกสารประกอบการเรียนและคู่มือปฏิบัติการจริงมาแกะวิเคราะห์ จัดหมวดหมู่ และเรียบเรียงเป็นคู่มือมาตรฐาน (SOP)
+                <span className="text-xs text-slate-400 font-medium">
+                  หมวด: {activeTopic.categoryName}
+                </span>
+                {activeTopic.courseRelation && (
+                  <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 ml-auto">
+                    <BookmarkCheck className="w-3.5 h-3.5 text-emerald-500" />
+                    {activeTopic.courseRelation}
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+                  {activeTopic.title}
+                </h1>
+                <p className="text-xs sm:text-sm font-mono text-slate-500 dark:text-slate-400 mt-1">
+                  {activeTopic.titleEn}
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-left space-y-3">
-                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  โครงสร้างหัวข้อที่เตรียมรองรับ
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-400">
-                  <div className="flex items-center gap-2">
-                    <Compass className="w-4 h-4 text-ios-blue shrink-0" />
-                    <span>กล้องประมวลผลรวม (Total Station)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Ruler className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>กล้องระดับ (Leveling & Two-Peg)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Radio className="w-4 h-4 text-purple-500 shrink-0" />
-                    <span>ดาวเทียม GNSS (RTK / Static / CORS)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Camera className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span>โดรน UAV & ภาพถ่ายทางอากาศ</span>
-                  </div>
+              {/* GitHub Note Alert Box */}
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+                <div className="text-xs font-bold text-slate-900 dark:text-slate-200 flex items-center gap-1.5">
+                  <BookmarkCheck className="w-4 h-4 text-[#0969da] dark:text-[#58a6ff]" />
+                  <span>สรุปภาพรวมและวัตถุประสงค์ (Overview & Core Objective)</span>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                  {activeTopic.summary}
+                </p>
+              </div>
+            </div>
+
+            {/* SECTION 1: REQUIRED EQUIPMENT & INSTRUMENTS */}
+            {activeTopic.equipmentRequired && activeTopic.equipmentRequired.length > 0 && (
+              <div className="space-y-4">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <SlidersHorizontal className="w-5 h-5 text-[#0969da] dark:text-[#58a6ff]" />
+                  <span>1. รายการอุปกรณ์และเครื่องมือที่ต้องจัดเตรียม (Field Equipment Checklist)</span>
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800">
+                  {activeTopic.equipmentRequired.map((eq, eqIdx) => (
+                    <div key={eqIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                      <span>{eq}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
+            )}
 
-              <p className="text-xs text-slate-400 italic">
-                * คุณสามารถส่งไฟล์บทเรียน สไลด์ หรือข้อความสรุปเข้ามา เพื่อให้เริ่มกระบวนการสกัดเนื้อหาและขึ้นคู่มือตามมาตรฐานได้ทันที
-              </p>
-            </div>
-          ) : (
-            <>
-              {/* Document Header & Meta */}
-              <div className="space-y-3 border-b border-slate-100 dark:border-slate-800 pb-5">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-ios-blue/10 text-ios-blue dark:text-ios-blueDark border border-ios-blue/20">
-                      {activeTopic.badge}
-                    </span>
-                    <span className="text-xs text-slate-400">
-                      หมวด: {activeTopic.categoryName}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={handleCopySummary}
-                      className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors"
-                      title="คัดลอกข้อความสรุป"
-                    >
-                      {copiedText ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-emerald-500" />
-                          <span className="text-emerald-600 dark:text-emerald-400">คัดลอกแล้ว</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5" />
-                          <span>คัดลอก SOP</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-            <div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                {activeTopic.title}
+            {/* SECTION 2: WORKING PRINCIPLES & THEORY */}
+            <div className="space-y-4">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-[#0969da] dark:text-[#58a6ff]" />
+                <span>2. หลักการทำงานและทฤษฎีทางวิศวกรรม (Engineering Foundations & Working Principles)</span>
               </h2>
-              <p className="text-xs sm:text-sm font-mono text-slate-400 dark:text-slate-500 mt-1">
-                {activeTopic.titleEn}
-              </p>
-            </div>
 
-            {/* iOS Segmented Reader Tabs */}
-            <div className="pt-2">
-              <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl overflow-x-auto scrollbar-none gap-1 border border-slate-200/60 dark:border-slate-700/60">
-                <button
-                  onClick={() => setActiveReaderTab('sop')}
-                  className={`flex-1 min-w-[130px] py-2 px-3 rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center space-x-1.5 ${
-                    activeReaderTab === 'sop'
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  <Terminal className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>คู่มือปุ่มกด & จอกล้อง</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveReaderTab('overview')}
-                  className={`flex-1 min-w-[110px] py-2 px-3 rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center space-x-1.5 ${
-                    activeReaderTab === 'overview'
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  <BookOpen className="w-3.5 h-3.5 text-ios-blue" />
-                  <span>ภาพรวม & ทฤษฎี</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveReaderTab('math')}
-                  className={`flex-1 min-w-[100px] py-2 px-3 rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center space-x-1.5 ${
-                    activeReaderTab === 'math'
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  <Activity className="w-3.5 h-3.5 text-purple-500" />
-                  <span>สูตรคำนวณ</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveReaderTab('qaqc')}
-                  className={`flex-1 min-w-[90px] py-2 px-3 rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center space-x-1.5 ${
-                    activeReaderTab === 'qaqc'
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />
-                  <span>QA/QC ตรวจสอบ</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveReaderTab('downstream')}
-                  className={`flex-1 min-w-[110px] py-2 px-3 rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center space-x-1.5 ${
-                    activeReaderTab === 'downstream'
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  <ArrowRight className="w-3.5 h-3.5 text-sky-500" />
-                  <span>ผลลัพธ์ & ส่งต่อ</span>
-                </button>
+              <div className="space-y-3">
+                {activeTopic.workingPrinciple.map((wp, wpIdx) => (
+                  <div key={wpIdx} className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800">
+                    <div className="w-6 h-6 rounded-full bg-[#0969da]/10 text-[#0969da] dark:text-[#58a6ff] flex items-center justify-center text-xs font-mono font-bold shrink-0 mt-0.5">
+                      {wpIdx + 1}
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                      {wp}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
 
-          {/* TAB 1: SOP & SIMULATED DEVICE DISPLAY (The Core Highlight) */}
-          {activeReaderTab === 'sop' && (
+            {/* SECTION 3: FIELD PROCEDURES & DEVICE SIMULATOR (UNIFIED - NO SEPARATE TAB!) */}
             <div className="space-y-6">
-              
-              {/* Device Simulation Showcase */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                    <span>3. ลำดับขั้นการปฏิบัติงานภาคสนาม & การควบคุมเครื่องมือ (Field SOP & Instrument Operation)</span>
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    ขั้นตอนปฏิบัติงานอย่างละเอียด พร้อมจำลองหน้าจอดิจิทัลและลำดับการกดปุ่มบนตัวกล้อง
+                  </p>
+                </div>
+                <span className="text-xs font-mono text-slate-400 shrink-0">
+                  {activeTopic.fieldProcedures.length} ขั้นตอนมาตรฐาน
+                </span>
+              </div>
+
+              {/* Integrated Device LCD & Keypad Simulator */}
               {deviceSteps.length > 0 && currentStep && (
-                <div className="rounded-3xl border border-slate-700 bg-slate-950 text-white overflow-hidden shadow-2xl">
-                  
-                  {/* Instrument Chassis Header */}
-                  <div className="px-5 py-3.5 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-800 flex items-center justify-between">
+                <div className="rounded-2xl border border-slate-700 bg-slate-950 text-white overflow-hidden shadow-xl">
+                  {/* Chassis Top Bar */}
+                  <div className="px-5 py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-800 flex items-center justify-between">
                     <div className="flex items-center space-x-2.5">
-                      <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 animate-pulse" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 animate-pulse" />
                       <span className="text-xs font-mono font-bold tracking-wider text-slate-200">
                         {currentStep.targetHardware}
                       </span>
@@ -424,15 +573,10 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                     </div>
                   </div>
 
-                  {/* Instrument Screen & Keypad Mockup */}
+                  {/* Simulator Screen & Keypad Controls */}
                   <div className="p-5 sm:p-6 space-y-4">
-                    
                     {/* Simulated High-Contrast Screen Display */}
-                    <div className="rounded-2xl border-2 border-emerald-950/80 bg-black/90 p-4 sm:p-5 font-mono shadow-inner relative overflow-hidden">
-                      <div className="absolute top-2 right-3 text-[10px] text-emerald-600 tracking-widest uppercase">
-                        MONOCHROME LCD • 240x128
-                      </div>
-
+                    <div className="rounded-xl border-2 border-emerald-950/80 bg-black/90 p-4 font-mono shadow-inner relative overflow-hidden">
                       <div className="text-xs font-bold text-emerald-400 border-b border-emerald-900/60 pb-1.5 mb-2.5 flex items-center justify-between">
                         <span>▶ {currentStep.screenTitle}</span>
                         <span className="text-[10px] text-emerald-500/80">BAT 100% | TILT ON</span>
@@ -446,7 +590,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                         ))}
                       </div>
 
-                      {/* Sub-display soft keys */}
                       <div className="mt-4 pt-2 border-t border-emerald-950 flex items-center justify-between text-[11px] text-emerald-400/90 font-mono font-bold">
                         <span>[F1: DIST]</span>
                         <span>[F2: COORD]</span>
@@ -455,7 +598,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                       </div>
                     </div>
 
-                    {/* Step Stepper Navigation Bar */}
+                    {/* Step Stepper Navigation */}
                     <div className="flex items-center justify-between gap-2 pt-1">
                       <button
                         onClick={() => setActiveStepIndex((prev) => Math.max(0, prev - 1))}
@@ -491,8 +634,8 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                       </button>
                     </div>
 
-                    {/* Step Action Breakdown Box */}
-                    <div className="rounded-2xl bg-slate-900/90 border border-slate-800 p-4 space-y-3">
+                    {/* Keypad Action Detail Box */}
+                    <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-4 space-y-2">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
                           <Terminal className="w-4 h-4" />
@@ -521,123 +664,48 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
 
               {/* Complete Step-by-Step Field Operating Procedures Checklist */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                    ลำดับขั้นการปฏิบัติงานภาคสนามอย่างละเอียด (Field Operating Procedures)
-                  </h3>
-                  <span className="text-xs text-slate-400">
-                    {activeTopic.fieldProcedures.length} ขั้นตอนมาตรฐาน
-                  </span>
-                </div>
+                {activeTopic.fieldProcedures.map((proc, pIdx) => (
+                  <div 
+                    key={pIdx}
+                    className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/40 space-y-2.5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
+                  >
+                    <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2.5">
+                      <span className="w-6 h-6 rounded-full bg-slate-900 dark:bg-slate-700 text-white flex items-center justify-center text-xs font-mono shrink-0">
+                        {pIdx + 1}
+                      </span>
+                      <span>{proc.title}</span>
+                    </h3>
 
-                <div className="space-y-3">
-                  {activeTopic.fieldProcedures.map((proc, pIdx) => (
-                    <div 
-                      key={pIdx}
-                      className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
-                    >
-                      <h4 className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-slate-900 dark:bg-slate-700 text-white flex items-center justify-center text-[11px] font-mono shrink-0">
-                          {pIdx + 1}
-                        </span>
-                        <span>{proc.title}</span>
-                      </h4>
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed pl-7">
-                        {proc.details}
-                      </p>
-                      {proc.criticalCaution && (
-                        <div className="ml-7 mt-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2">
-                          <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                          <span><strong>ข้อควรระวังภาคสนาม:</strong> {proc.criticalCaution}</span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed pl-8">
+                      {proc.details}
+                    </p>
 
-              {/* Equipment Checklist */}
-              {activeTopic.equipmentRequired && activeTopic.equipmentRequired.length > 0 && (
-                <div className="p-4 rounded-2xl bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-2.5">
-                  <h4 className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm flex items-center gap-1.5">
-                    <SlidersHorizontal className="w-4 h-4 text-ios-blue" />
-                    รายการอุปกรณ์และเครื่องมือที่ต้องจัดเตรียม (Field Equipment Checklist)
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                    {activeTopic.equipmentRequired.map((eq, eqIdx) => (
-                      <div key={eqIdx} className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                        <span>{eq}</span>
+                    {proc.criticalCaution && (
+                      <div className="ml-8 mt-2 p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2.5">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                        <span><strong>ข้อควรระวังภาคสนาม:</strong> {proc.criticalCaution}</span>
                       </div>
-                    ))}
+                    )}
                   </div>
-                </div>
-              )}
-
-            </div>
-          )}
-
-          {/* TAB 2: OVERVIEW & THEORY */}
-          {activeReaderTab === 'overview' && (
-            <div className="space-y-6">
-              
-              {/* Summary Card */}
-              <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/60 dark:from-slate-800/50 dark:to-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-2">
-                <h4 className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5 text-xs sm:text-sm">
-                  <BookOpen className="w-4 h-4 text-ios-blue" />
-                  สรุปภาพรวมและวัตถุประสงค์ (Overview & Objectives)
-                </h4>
-                <p className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm leading-relaxed">
-                  {activeTopic.summary}
-                </p>
-                {activeTopic.courseRelation && (
-                  <div className="text-xs text-slate-500 dark:text-slate-400 font-medium pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center gap-1.5">
-                    <BookmarkCheck className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>มาตรฐานอ้างอิง: {activeTopic.courseRelation}</span>
-                  </div>
-                )}
+                ))}
               </div>
-
-              {/* Working Principles */}
-              <div className="space-y-3">
-                <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-sm sm:text-base">
-                  <Layers className="w-4 h-4 text-ios-blue" />
-                  หลักการทางวิศวกรรมและทฤษฎียีโอเดซี (Working Principles)
-                </h3>
-                <div className="space-y-2.5">
-                  {activeTopic.workingPrinciple.map((wp, wpIdx) => (
-                    <div key={wpIdx} className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-800/60">
-                      <div className="w-5 h-5 rounded-full bg-ios-blue/10 text-ios-blue dark:text-ios-blueDark flex items-center justify-center text-xs font-mono font-bold shrink-0 mt-0.5">
-                        {wpIdx + 1}
-                      </div>
-                      <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                        {wp}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
             </div>
-          )}
 
-          {/* TAB 3: FORMULAS & MATH */}
-          {activeReaderTab === 'math' && (
-            <div className="space-y-5">
-              <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-sm sm:text-base">
-                <Activity className="w-4 h-4 text-purple-500" />
-                สูตรคำนวณและสมการความถูกต้องทางวิศวกรรม (Formulas & Equations)
-              </h3>
+            {/* SECTION 4: MATHEMATICAL FORMULAS & REDUCTION */}
+            {activeTopic.formulas && activeTopic.formulas.length > 0 && (
+              <div className="space-y-4">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-purple-500" />
+                  <span>4. สูตรการคำนวณและสมการความถูกต้องทางวิศวกรรม (Engineering Formulas & Equations)</span>
+                </h2>
 
-              {activeTopic.formulas && activeTopic.formulas.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-3.5">
                   {activeTopic.formulas.map((f, fIdx) => (
-                    <div key={fIdx} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-2">
-                      <span className="text-xs font-bold text-slate-900 dark:text-slate-100 block">
+                    <div key={fIdx} className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 space-y-2">
+                      <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 block">
                         {f.label}
                       </span>
-                      <div className="font-mono text-xs sm:text-sm font-bold text-slate-900 dark:text-emerald-400 bg-white dark:bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto">
+                      <div className="font-mono text-xs sm:text-sm font-bold text-slate-900 dark:text-emerald-400 bg-white dark:bg-slate-950 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto">
                         {f.formula}
                       </div>
                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -646,102 +714,97 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="p-8 text-center text-xs text-slate-400">
-                  ไม่มีสูตรคำนวณเฉพาะในหัวข้อนี้
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* TAB 4: QA/QC & MITIGATION */}
-          {activeReaderTab === 'qaqc' && (
-            <div className="space-y-5">
-              <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-sm sm:text-base">
-                <ShieldCheck className="w-4 h-4 text-amber-500" />
-                แหล่งความคลาดเคลื่อนและการควบคุมคุณภาพ (QA/QC & Error Mitigation)
-              </h3>
-
-              <div className="space-y-3">
-                {activeTopic.errorSourcesAndMitigation.map((err, eIdx) => (
-                  <div key={eIdx} className="p-3.5 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 flex items-start gap-3">
-                    <span className="w-2 h-2 rounded-full bg-amber-500 mt-2 shrink-0" />
-                    <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                      {err}
-                    </p>
-                  </div>
-                ))}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* TAB 5: DATA OUTPUT & DOWNSTREAM ACTIONS */}
-          {activeReaderTab === 'downstream' && (
-            <div className="space-y-6">
-              
-              {activeTopic.downstreamWorkflow ? (
-                <div className="space-y-5">
-                  <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-3">
-                    <h4 className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm flex items-center gap-2">
-                      <Terminal className="w-4 h-4 text-sky-500" />
-                      รูปแบบไฟล์และข้อมูลที่ได้จากกล้อง (Data Output Formats)
-                    </h4>
-                    <div className="font-mono text-xs text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                      {activeTopic.downstreamWorkflow.outputDataFormat}
+            {/* SECTION 5: QA/QC & ERROR MITIGATION */}
+            {activeTopic.errorSourcesAndMitigation && activeTopic.errorSourcesAndMitigation.length > 0 && (
+              <div className="space-y-4">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-amber-500" />
+                  <span>5. แหล่งความคลาดเคลื่อนและการควบคุมคุณภาพ (QA/QC & Error Mitigation)</span>
+                </h2>
+
+                <div className="space-y-2.5">
+                  {activeTopic.errorSourcesAndMitigation.map((err, eIdx) => (
+                    <div key={eIdx} className="p-3.5 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 flex items-start gap-3">
+                      <span className="w-2 h-2 rounded-full bg-amber-500 mt-2 shrink-0" />
+                      <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                        {err}
+                      </p>
                     </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      {activeTopic.downstreamWorkflow.outputDescription}
-                    </p>
-                  </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-                  <div className="p-5 rounded-2xl bg-gradient-to-br from-ios-blue/5 to-emerald-500/5 border border-ios-blue/20 dark:border-ios-blue/30 space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <span className="px-2.5 py-0.5 rounded-full bg-ios-blue/15 text-ios-blue dark:text-ios-blueDark text-[11px] font-bold">
-                        NEXT STEP DIRECTIVE
+            {/* SECTION 6: DOWNSTREAM WORKFLOW & TOOL HANDOFF */}
+            {activeTopic.downstreamWorkflow && (
+              <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <ArrowRight className="w-5 h-5 text-sky-500" />
+                  <span>6. ผลลัพธ์และการส่งต่อข้อมูลสู่เครื่องมือคำนวณ (Downstream Data Integration)</span>
+                </h2>
+
+                <div className="p-5 rounded-2xl bg-sky-50/60 dark:bg-sky-950/20 border border-sky-200/80 dark:border-sky-900/40 space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-xs font-bold text-sky-900 dark:text-sky-300 block mb-1">
+                        รูปแบบข้อมูลที่ได้ (Output Data Format):
                       </span>
+                      <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-mono">
+                        {activeTopic.downstreamWorkflow.outputDataFormat}
+                      </p>
                     </div>
+                    <div>
+                      <span className="text-xs font-bold text-sky-900 dark:text-sky-300 block mb-1">
+                        ขั้นตอนถัดไปในระบบ (Next Step):
+                      </span>
+                      <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                        {activeTopic.downstreamWorkflow.nextStepTitle}
+                      </p>
+                    </div>
+                  </div>
 
-                    <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                      {activeTopic.downstreamWorkflow.nextStepTitle}
-                    </h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed border-t border-sky-200/60 dark:border-sky-900/40 pt-3">
+                    {activeTopic.downstreamWorkflow.nextStepProcedure}
+                  </p>
 
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                      {activeTopic.downstreamWorkflow.nextStepProcedure}
-                    </p>
-
-                    {activeTopic.downstreamWorkflow.toolActionLabel && (
-                      <div className="pt-2">
-                        <button
-                          onClick={() => {
-                            if (activeTopic.downstreamWorkflow?.recommendedToolTab === 'map') {
-                              onNavigateTab?.('map');
-                            } else {
-                              onNavigateTab?.('calculator');
-                            }
-                          }}
-                          className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs sm:text-sm font-bold shadow-md transition-all group"
-                        >
-                          <span>{activeTopic.downstreamWorkflow.toolActionLabel}</span>
-                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                        </button>
-                      </div>
-                    )}
+                  <div className="pt-2">
+                    <button
+                      onClick={handleOpenDownstreamTool}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0969da] hover:bg-[#0854b0] text-white text-xs sm:text-sm font-semibold shadow-md transition-all hover:scale-[1.02]"
+                    >
+                      <span>{activeTopic.downstreamWorkflow.toolActionLabel || 'เปิดใช้งานเครื่องมือคำนวณ'}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-              ) : (
-                <div className="p-8 text-center text-xs text-slate-400">
-                  ไม่มีข้อกำหนดการส่งต่อเฉพาะ
-                </div>
-              )}
+              </div>
+            )}
 
+            {/* Document Bottom Navigation Back to Search */}
+            <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <button
+                onClick={handleBackToSearch}
+                className="inline-flex items-center gap-2 text-xs font-semibold text-[#0969da] dark:text-[#58a6ff] hover:underline"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>กลับสู่หน้ารายการค้นหาคู่มือทั้งหมด</span>
+              </button>
+
+              <button
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                เลื่อนขึ้นบนสุด ↑
+              </button>
             </div>
-          )}
-        </>
+
+          </div>
+
+        </div>
       )}
-
-    </div>
-
-      </div>
 
     </div>
   );
