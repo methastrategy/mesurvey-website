@@ -28,25 +28,9 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setActiveTab('knowledge')}
               className="flex items-center cursor-pointer group select-none"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                <span className="font-black text-xl tracking-tight bg-gradient-to-r from-blue-600 via-sky-500 to-indigo-600 dark:from-sky-400 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent font-sans group-hover:opacity-95 transition-opacity">
-                  MESURV
-                </span>
-
-                {/* Creator Credit with Luminous Badge */}
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/40 border border-sky-200/90 dark:border-sky-800/60 shadow-[0_1px_4px_rgba(2,132,199,0.08)] hover:shadow-[0_2px_10px_rgba(2,132,199,0.18)] hover:border-sky-400 dark:hover:border-sky-500 transition-all duration-300 hover:scale-[1.02]">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-sky-500"></span>
-                  </span>
-                  <span className="text-[10px] sm:text-[11px] font-medium tracking-wide text-sky-800 dark:text-sky-300">
-                    Created by{' '}
-                    <span className="font-bold text-sky-950 dark:text-white group-hover:text-blue-600 dark:group-hover:text-sky-300 transition-colors">
-                      Metha Treepraphankij
-                    </span>
-                  </span>
-                </div>
-              </div>
+              <span className="font-black text-xl tracking-tight bg-gradient-to-r from-blue-600 via-sky-500 to-indigo-600 dark:from-sky-400 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent font-sans group-hover:opacity-95 transition-opacity">
+                MESURV
+              </span>
             </div>
 
             {/* Desktop iOS Native Segmented Bar */}

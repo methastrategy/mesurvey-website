@@ -226,21 +226,14 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
           <div className="rounded-3xl border border-slate-200/90 dark:border-slate-800/80 bg-gradient-to-br from-white via-sky-50/40 to-blue-50/20 dark:from-[#131b2c] dark:to-[#0b0f17] p-5 sm:p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)]">
             <div className="max-w-4xl space-y-4">
               
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div>
-                  <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
-                    <BookOpen className="w-6 h-6 text-sky-600 dark:text-sky-400" />
-                    <span>ค้นหาคู่มือสำรวจ (Survey Engineering SOPs)</span>
-                  </h1>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-                    คลังขั้นตอนปฏิบัติงานวิศวกรรมสำรวจ มาตรฐานการตั้งกล้อง เกณฑ์ความคลาดเคลื่อน และสูตรคำนวณ
-                  </p>
-                </div>
-
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium bg-white/80 dark:bg-slate-800/80 text-sky-800 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/60 shadow-xs self-start sm:self-auto">
-                  <BookmarkCheck className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>{KNOWLEDGE_TOPICS.length} คู่มือมาตรฐาน</span>
-                </div>
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
+                  <BookOpen className="w-6 h-6 text-sky-600 dark:text-sky-400" />
+                  <span>ค้นหาคู่มือสำรวจ (Survey Engineering SOPs)</span>
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                  คลังขั้นตอนปฏิบัติงานวิศวกรรมสำรวจ มาตรฐานการตั้งกล้อง เกณฑ์ความคลาดเคลื่อน และสูตรคำนวณ
+                </p>
               </div>
 
               {/* GitHub-style Search Input Box */}
@@ -368,9 +361,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
                 <span className="font-medium">
                   แสดงผลลัพธ์ <strong className="text-slate-800 dark:text-white font-mono">{filteredTopics.length}</strong> คู่มือ
                   {searchQuery && <span> สำหรับคำค้นหา "{searchQuery}"</span>}
-                </span>
-                <span className="text-[11px] font-mono text-slate-400">
-                  Engineering Vault Index
                 </span>
               </div>
 
