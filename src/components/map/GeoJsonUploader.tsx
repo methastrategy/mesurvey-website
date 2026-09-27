@@ -1,0 +1,119 @@
+import React, { useState } from 'react';
+import { Upload, X, FileCode } from 'lucide-react';
+
+interface GeoJsonUploaderProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onGeoJsonLoaded: (data: any, fileName: string) => void;
+}
+
+export const GeoJsonUploader: React.FC<GeoJsonUploaderProps> = ({
+  isOpen,
+  onClose,
+  onGeoJsonLoaded
+}) => {
+  const [dragActive, setDragActive] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  if (!isOpen) return null;
+
+  const handleFileProcess = (file: File) => {
+    setErrorMsg(null);
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string;
+        const parsed = JSON.parse(text);
+        if (!parsed.type) {
+          throw new Error('โครงสร้างไฟล์ไม่ใช่ GeoJSON ที่ถูกต้อง (Missing type)');
+        }
+        onGeoJsonLoaded(parsed, file.name);
+        onClose();
+      } catch (err: any) {
+        setErrorMsg('ไม่สามารถอ่านไฟล์ได้: กรุณาใช้ไฟล์ GeoJSON หรือ KML ที่แปลงเป็น GeoJSON แล้ว');
+      }
+    };
+
+    reader.onerror = () => {
+      setErrorMsg('เกิดข้อผิดพลาดในการเปิดไฟล์');
+    };
+
+    reader.readAsText(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileProcess(e.dataTransfer.files[0]);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[2000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+          <FileCode className="w-5 h-5 text-survey-600 dark:text-survey-400" />
+          นำเข้าข้อมูลเชิงพื้นที่ (Import Spatial Data)
+        </h3>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+          รองรับไฟล์ GeoJSON (.geojson, .json) เพื่อแสดงผลขอบเขตแปลงที่ดิน หมุดสำรวจ หรือเส้นแนวทางบนแผนที่
+        </p>
+
+        {errorMsg && (
+          <div className="mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs">
+            {errorMsg}
+          </div>
+        )}
+
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragActive(true);
+          }}
+          onDragLeave={() => setDragActive(false)}
+          onDrop={handleDrop}
+          className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all ${
+            dragActive
+              ? 'border-survey-500 bg-survey-50/50 dark:bg-survey-950/30'
+              : 'border-slate-300 dark:border-slate-700 hover:border-survey-500'
+          }`}
+        >
+          <Upload className="w-10 h-10 text-survey-600 dark:text-survey-400 mx-auto mb-2.5 stroke-[1.8]" />
+          <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">
+            ลากและวางไฟล์ GeoJSON ลงที่นี่
+          </p>
+          <p className="text-[11px] text-slate-400 mt-1">หรือคลิกเพื่อเลือกไฟล์จากคอมพิวเตอร์</p>
+
+          <input
+            type="file"
+            accept=".geojson,.json"
+            onChange={(e) => {
+              if (e.target.files && e.target.files[0]) {
+                handleFileProcess(e.target.files[0]);
+              }
+            }}
+            className="absolute inset-0 opacity-0 cursor-pointer"
+          />
+        </div>
+
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium text-xs hover:bg-slate-200 transition-colors"
+          >
+            ยกเลิก
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
