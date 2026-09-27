@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-28T01:44:00+07:00",
+  "title": "Design System: MESURV",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Cadastral Sky",
+        "canonical": "#0284c7",
+        "tonalRamp": [
+          "#082f49",
+          "#0c4a6e",
+          "#075985",
+          "#0369a1",
+          "#0284c7",
+          "#38bdf8",
+          "#7dd3fc",
+          "#e0f2fe"
+        ]
+      },
+      "neutral-surface": {
+        "role": "neutral",
+        "displayName": "Field Canvas",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0f17",
+          "#131b2c",
+          "#1e293b",
+          "#334155",
+          "#64748b",
+          "#cbd5e1",
+          "#f1f5f9",
+          "#ffffff"
+        ]
+      },
+      "accent-gnss": {
+        "role": "tertiary",
+        "displayName": "GNSS Purple",
+        "canonical": "#a855f7",
+        "tonalRamp": [
+          "#3b0764",
+          "#581c87",
+          "#7e22ce",
+          "#9333ea",
+          "#a855f7",
+          "#c084fc",
+          "#e9d5ff",
+          "#faf5ff"
+        ]
+      },
+      "accent-laser": {
+        "role": "tertiary",
+        "displayName": "Laser Emerald",
+        "canonical": "#10b981",
+        "tonalRamp": [
+          "#022c22",
+          "#064e3b",
+          "#047857",
+          "#059669",
+          "#10b981",
+          "#34d399",
+          "#a7f3d0",
+          "#ecfdf5"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display ExtraBold",
+        "purpose": "Primary page title and terminal banner headlines."
+      },
+      "headline": {
+        "displayName": "Section Headline",
+        "purpose": "Module dividers and modal sheet headers."
+      },
+      "title": {
+        "displayName": "Card Title",
+        "purpose": "Individual SOP cards and data group labels."
+      },
+      "body": {
+        "displayName": "Body Technical",
+        "purpose": "Procedures, steps, field notes, and documentation."
+      },
+      "label": {
+        "displayName": "Monospace Metric",
+        "purpose": "Survey coordinates, angles, tolerances, and tags."
+      }
+    },
+    "shadows": [
+      {
+        "name": "resting-card",
+        "value": "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
+        "purpose": "Standard resting container depth."
+      },
+      {
+        "name": "hover-lift",
+        "value": "0 4px 14px -2px rgba(2, 132, 199, 0.12)",
+        "purpose": "Tactile elevation on card and button hover."
+      },
+      {
+        "name": "modal-float",
+        "value": "0 12px 36px -6px rgba(0, 0, 0, 0.2)",
+        "purpose": "Floating dialogs and bottom sheets."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Natural state and tab transitions."
+      },
+      {
+        "name": "duration-fast",
+        "value": "150ms",
+        "purpose": "Button taps and hover color shifts."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary CTA and computation trigger button.",
+      "html": "<button class=\"ds-btn-primary\">คำนวณและปรับแก้วงรอบ</button>",
+      "css": ".ds-btn-primary { background: #0284c7; color: #ffffff; padding: 9px 18px; font-family: Inter, Prompt, sans-serif; font-size: 13px; font-weight: 600; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.15s ease; box-shadow: 0 1px 3px rgba(2,132,199,0.2); } .ds-btn-primary:hover { background: #0369a1; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(2,132,199,0.25); }"
+    },
+    {
+      "name": "Category Filter Chip",
+      "kind": "chip",
+      "refersTo": "chip-selected",
+      "description": "Horizontal swipeable category filter badge.",
+      "html": "<button class=\"ds-chip-selected\"><span class=\"ds-chip-dot\"></span>กล้องสำรวจ <span class=\"ds-chip-count\">4</span></button>",
+      "css": ".ds-chip-selected { display: inline-flex; align-items: center; gap: 8px; background: #e0f2fe; color: #0369a1; padding: 7px 14px; font-family: Inter, Prompt, sans-serif; font-size: 12px; font-weight: 600; border-radius: 12px; border: 1px solid #7dd3fc; cursor: pointer; } .ds-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: #0284c7; } .ds-chip-count { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 1px 5px; border-radius: 9999px; background: rgba(2,132,199,0.15); }"
+    },
+    {
+      "name": "Coordinate Input Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "High-precision coordinate entry box with fixed-width numerals.",
+      "html": "<input class=\"ds-input-coord\" type=\"text\" value=\"674520.125\" placeholder=\"Easting (m)\" />",
+      "css": ".ds-input-coord { width: 100%; max-width: 220px; background: #ffffff; color: #0f172a; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 500; border-radius: 12px; border: 1px solid #cbd5e1; outline: none; transition: border-color 0.15s, box-shadow 0.15s; } .ds-input-coord:focus { border-color: #0284c7; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }"
+    },
+    {
+      "name": "SOP Result Card",
+      "kind": "card",
+      "refersTo": "card-surface",
+      "description": "Engineering manual topic item with hover lift.",
+      "html": "<div class=\"ds-card-sop\"><div class=\"ds-card-title\">การทำระดับแบบตรีโกณมิติ (Trigonometric Leveling)</div><div class=\"ds-card-desc\">ขั้นตอนการวัดระยะทางลาด มุมดิ่ง และการคำนวณชดเชยค่าความโค้งของโลก</div></div>",
+      "css": ".ds-card-sop { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px 20px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.02); } .ds-card-sop:hover { border-color: #7dd3fc; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(2,132,199,0.08); } .ds-card-title { font-family: Inter, Prompt, sans-serif; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 4px; } .ds-card-desc { font-family: Inter, Prompt, sans-serif; font-size: 12px; color: #64748b; line-height: 1.5; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Field Engineering Terminal",
+    "overview": "MESURV is engineered as a robust, high-fidelity field terminal for geomatics, civil engineering, and land surveying practitioners. The visual language mirrors the precision instrumentation of high-end total stations, digital levels, and GNSS RTK controllers: razor-sharp line weights, zero visual frivolity, high information density, and instant sunlight readability.",
+    "keyCharacteristics": [
+      "Terminal-Grade Rigor: Information is structured into deliberate modules and data matrices with clear hierarchical boundaries.",
+      "Sunlight & Glare Resilience: Avoids washed-out low-contrast tints; uses authoritative solid slate-900 / white surfaces with 1px structural framing.",
+      "Bilingual Typographic Harmony: Inter delivers crisp Latin numbers; Prompt provides seamless Thai field terminology.",
+      "Tactile Confidence: Interactive cards and control elements exhibit subtle hover elevations (Card Lift) that confirm touch readiness."
+    ],
+    "rules": [
+      {
+        "name": "The Instrument Rarity Rule",
+        "body": "Domain accent colors are semantic beacons, not decorative paint. Any single screen should contain at most one dominant domain accent, reserved strictly for its contextual discipline.",
+        "section": "colors"
+      },
+      {
+        "name": "The No-Gradient Rule",
+        "body": "Text never wears a gradient. Legibility and contrast under sunlight dictate solid, high-contrast typography at all times.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Precision Rule",
+        "body": "Every number representing latitude, longitude, Northing, Easting, elevation, misclosure, or azimuth MUST render in JetBrains Mono with font-variant-numeric: tabular-nums to guarantee vertical column alignment.",
+        "section": "typography"
+      },
+      {
+        "name": "The Diacritic Headroom Rule",
+        "body": "Thai body and navigation text must never use line-height below leading-normal (1.5) to prevent ascender and descender clipping of tone marks.",
+        "section": "typography"
+      },
+      {
+        "name": "The Rested Surface Rule",
+        "body": "Cards and data containers sit flush at rest. Elevated shadows only manifest in response to direct user interaction.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Format all survey coordinates, angles, azimuths, and elevations in font-mono tabular-nums.",
+      "Preserve 1px structural borders around all cards and input modules for sunlight readability.",
+      "Keep Thai line height at leading-normal or leading-relaxed to protect tone marks.",
+      "Use semantic domain colors (Purple for GNSS, Emerald for Laser, Amber for Drone) exclusively where relevant."
+    ],
+    "donts": [
+      "Don't use gradient text on titles, headings, or metrics.",
+      "Don't use low-contrast gray text on colored backgrounds (avoid text-slate-500 on bg-rose-50).",
+      "Don't introduce heavy, opaque drop shadows on resting field cards.",
+      "Don't let outer page scroll bars activate during WebGIS map mode."
+    ]
+  }
+}
