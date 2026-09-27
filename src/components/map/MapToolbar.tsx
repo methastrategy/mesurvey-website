@@ -45,12 +45,12 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
       {/* Left: Tools & Controls */}
       <div className="flex flex-wrap items-center gap-1.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl pointer-events-auto">
         
-        {/* Inspect Coordinate Crosshair Tool (Prevents accidental mobile touch-traps) */}
+        {/* Inspect Coordinate Crosshair Tool */}
         <button
           onClick={() => onSetMeasureMode(measureMode === 'inspect' ? 'none' : 'inspect')}
           className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors flex items-center space-x-1.5 ${
             measureMode === 'inspect'
-              ? 'bg-emerald-600 text-white font-semibold shadow-sm animate-pulse'
+              ? 'bg-ios-blue text-white font-semibold shadow-sm'
               : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
           title="เป้าเล็งตรวจสอบพิกัด (คลิกบนแผนที่เพื่อดูพิกัด)"
