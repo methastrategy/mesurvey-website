@@ -7,7 +7,19 @@
     height: 100%;
     margin: 0;
     padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+}
+
+.ios-glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.dark .ios-glass {
+  background: rgba(28, 28, 30, 0.75);
 }
 
 /* Custom scrollbar */

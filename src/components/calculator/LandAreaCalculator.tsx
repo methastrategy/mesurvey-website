@@ -154,48 +154,48 @@ export const LandAreaCalculator: React.FC = () => {
       </div>
 
       {/* Cadastral Valuation Calculator */}
-      <div className="bg-gradient-to-br from-survey-900 to-survey-950 rounded-3xl border border-survey-700/60 p-5 sm:p-6 text-white shadow-geo">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-survey-800">
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:bg-gradient-to-br dark:from-[#1c1c1e] dark:to-[#121214] rounded-3xl border border-black/[0.08] dark:border-white/[0.08] p-5 sm:p-6 text-white shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-white/10">
           <div>
             <h4 className="font-bold text-base flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-amber-400" />
               การประเมินราคาที่ดินเบื้องต้น (Land Valuation Estimator)
             </h4>
-            <p className="text-xs text-survey-200/80 mt-0.5">
+            <p className="text-xs text-slate-300 mt-0.5">
               คำนวณมูลค่าที่ดินรวมจากราคาประเมินหรือราคาตลาดต่อตารางวา
             </p>
           </div>
 
           <div className="w-full sm:w-60">
-            <label className="text-[11px] font-semibold text-survey-200 block mb-1">
+            <label className="text-[11px] font-semibold text-slate-300 block mb-1">
               ราคาประเมินต่อตารางวา (บาท/ตร.ว.)
             </label>
             <input
               type="number"
               value={pricePerWah}
               onChange={(e) => setPricePerWah(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-survey-400"
+              className="w-full px-3.5 py-2 rounded-2xl bg-white/10 border border-white/20 text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ios-blue"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs sm:text-sm">
-          <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
-            <span className="text-survey-300 block text-[11px] font-sans">จำนวนตารางวารวม:</span>
-            <span className="font-bold text-base">
+          <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10">
+            <span className="text-slate-400 block text-[11px] font-sans">จำนวนตารางวารวม:</span>
+            <span className="font-bold text-base text-white">
               {totalWah.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ตร.ว.
             </span>
           </div>
 
-          <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
-            <span className="text-survey-300 block text-[11px] font-sans">ราคาเฉลี่ยต่อไร่:</span>
+          <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10">
+            <span className="text-slate-400 block text-[11px] font-sans">ราคาเฉลี่ยต่อไร่:</span>
             <span className="font-bold text-base text-amber-300">
               {(unitPrice * 400).toLocaleString('en-US')} บาท/ไร่
             </span>
           </div>
 
-          <div className="p-3 rounded-2xl bg-white/10 border border-survey-400/40">
-            <span className="text-survey-300 block text-[11px] font-sans">มูลค่ารวมโดยประมาณ:</span>
+          <div className="p-3.5 rounded-2xl bg-white/10 border border-ios-blue/40 shadow-sm">
+            <span className="text-slate-300 block text-[11px] font-sans">มูลค่ารวมโดยประมาณ:</span>
             <span className="font-bold text-lg text-emerald-400">
               {estimatedTotalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท
             </span>

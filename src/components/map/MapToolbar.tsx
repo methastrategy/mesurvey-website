@@ -148,7 +148,7 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
             defaultValue=""
             className="px-2.5 py-1.5 rounded-xl border-none bg-transparent text-xs text-slate-700 dark:text-slate-300 font-semibold focus:outline-none cursor-pointer"
           >
-            <option value="" disabled>📌 จุดอ้างอิงรังวัด...</option>
+            <option value="" disabled>📍 หมุดพิกัดอ้างอิงที่มี...</option>
             {SURVEY_BOOKMARKS.map((b) => (
               <option key={b.id} value={b.id}>
                 {b.name}

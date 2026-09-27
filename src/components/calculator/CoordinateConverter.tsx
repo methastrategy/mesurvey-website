@@ -8,7 +8,6 @@ import {
   forwardWgs84ToIndian1975,
   inverseIndian1975ToWgs84
 } from '../../core/projections';
-import { SURVEY_BOOKMARKS } from '../../data/survey-presets';
 import { Copy, Check, MapPin, ArrowRightLeft } from 'lucide-react';
 
 interface CoordinateConverterProps {
@@ -129,12 +128,6 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
     }
   };
 
-  const handlePresetSelect = (preset: typeof SURVEY_BOOKMARKS[0]) => {
-    setDdLat(preset.lat.toFixed(6));
-    setDdLng(preset.lng.toFixed(6));
-    calculateFromDD(preset.lat, preset.lng);
-  };
-
   const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
@@ -149,31 +142,12 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
   return (
     <div className="space-y-6">
       
-      {/* Preset Benchmarks Selector */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
-        <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-2">
-          📍 โหลดหมุดหลักฐานอ้างอิงรวดเร็ว (Preset Reference Benchmarks)
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {SURVEY_BOOKMARKS.map((bm) => (
-            <button
-              key={bm.id}
-              onClick={() => handlePresetSelect(bm)}
-              className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-survey-50 dark:hover:bg-survey-950/60 hover:text-survey-700 dark:hover:text-survey-300 text-xs font-medium text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors flex items-center space-x-1.5"
-            >
-              <MapPin className="w-3.5 h-3.5 text-survey-600 dark:text-survey-400" />
-              <span>{bm.name.split(' ')[0]}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Input Mode Selector */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm">
-        <div className="flex items-center justify-between flex-wrap gap-3 mb-5 border-b border-slate-100 dark:border-slate-800 pb-4">
+      {/* Input Mode Selector & Coordinate Input Card */}
+      <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-xl rounded-3xl border border-black/[0.06] dark:border-white/[0.08] p-5 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-5 border-b border-black/[0.05] dark:border-white/[0.06] pb-4">
           <div>
             <h3 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
-              <ArrowRightLeft className="w-5 h-5 text-survey-600 dark:text-survey-400" />
+              <ArrowRightLeft className="w-5 h-5 text-ios-blue" />
               ป้อนค่าพิกัดต้นทาง (Coordinate Input)
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -181,43 +155,44 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
             </p>
           </div>
 
-          <div className="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs">
+          {/* iOS Segmented Control */}
+          <div className="inline-flex p-1 rounded-2xl bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.04] dark:border-white/[0.06] text-xs">
             <button
               onClick={() => setInputMode('dd')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all ${
                 inputMode === 'dd'
-                  ? 'bg-white dark:bg-slate-900 text-survey-700 dark:text-survey-300 shadow-sm font-semibold'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white dark:bg-[#2c2c2e] text-ios-blue shadow-[0_1px_3px_rgba(0,0,0,0.08)] font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               WGS84 (DD)
             </button>
             <button
               onClick={() => setInputMode('dms')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all ${
                 inputMode === 'dms'
-                  ? 'bg-white dark:bg-slate-900 text-survey-700 dark:text-survey-300 shadow-sm font-semibold'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white dark:bg-[#2c2c2e] text-ios-blue shadow-[0_1px_3px_rgba(0,0,0,0.08)] font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               WGS84 (DMS)
             </button>
             <button
               onClick={() => setInputMode('utm')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all ${
                 inputMode === 'utm'
-                  ? 'bg-white dark:bg-slate-900 text-survey-700 dark:text-survey-300 shadow-sm font-semibold'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white dark:bg-[#2c2c2e] text-ios-blue shadow-[0_1px_3px_rgba(0,0,0,0.08)] font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               WGS84 UTM (E, N)
             </button>
             <button
               onClick={() => setInputMode('indian')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-xl font-medium transition-all ${
                 inputMode === 'indian'
-                  ? 'bg-white dark:bg-slate-900 text-survey-700 dark:text-survey-300 shadow-sm font-semibold'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white dark:bg-[#2c2c2e] text-ios-blue shadow-[0_1px_3px_rgba(0,0,0,0.08)] font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Indian 1975
@@ -252,13 +227,13 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                   value={ddLng}
                   onChange={(e) => setDdLng(e.target.value)}
                   placeholder="เช่น 100.569820"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-sm focus:ring-2 focus:ring-survey-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] font-mono text-sm focus:bg-white dark:focus:bg-black/40 focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                 />
               </div>
             </div>
             <button
               onClick={handleApplyDD}
-              className="px-5 py-2.5 rounded-xl bg-survey-700 hover:bg-survey-600 text-white font-semibold text-xs sm:text-sm shadow-sm transition-colors"
+              className="px-6 py-2.5 rounded-2xl bg-ios-blue hover:bg-ios-blueDark text-white font-semibold text-xs sm:text-sm shadow-sm shadow-blue-500/25 active:scale-[0.98] transition-all"
             >
               คำนวณแปลงค่าพิกัด
             </button>
@@ -279,14 +254,14 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                     value={dmsLatDeg}
                     onChange={(e) => setDmsLatDeg(e.target.value)}
                     placeholder="Deg"
-                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-xs sm:text-sm"
+                    className="px-3 py-2 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] font-mono text-xs sm:text-sm focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                   />
                   <input
                     type="number"
                     value={dmsLatMin}
                     onChange={(e) => setDmsLatMin(e.target.value)}
                     placeholder="Min"
-                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-xs sm:text-sm"
+                    className="px-3 py-2 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] font-mono text-xs sm:text-sm focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                   />
                   <input
                     type="number"
@@ -294,12 +269,12 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                     value={dmsLatSec}
                     onChange={(e) => setDmsLatSec(e.target.value)}
                     placeholder="Sec"
-                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-xs sm:text-sm"
+                    className="px-3 py-2 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] font-mono text-xs sm:text-sm focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                   />
                   <select
                     value={dmsLatDir}
                     onChange={(e) => setDmsLatDir(e.target.value as 'N' | 'S')}
-                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold text-xs sm:text-sm"
+                    className="px-3 py-2 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] font-semibold text-xs sm:text-sm focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                   >
                     <option value="N">N (เหนือ)</option>
                     <option value="S">S (ใต้)</option>
@@ -317,14 +292,14 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                     value={dmsLngDeg}
                     onChange={(e) => setDmsLngDeg(e.target.value)}
                     placeholder="Deg"
-                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-xs sm:text-sm"
+                    className="px-3 py-2 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] font-mono text-xs sm:text-sm focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                   />
                   <input
                     type="number"
                     value={dmsLngMin}
                     onChange={(e) => setDmsLngMin(e.target.value)}
                     placeholder="Min"
-                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-xs sm:text-sm"
+                    className="px-3 py-2 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] font-mono text-xs sm:text-sm focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                   />
                   <input
                     type="number"
@@ -332,12 +307,12 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                     value={dmsLngSec}
                     onChange={(e) => setDmsLngSec(e.target.value)}
                     placeholder="Sec"
-                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-xs sm:text-sm"
+                    className="px-3 py-2 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] font-mono text-xs sm:text-sm focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                   />
                   <select
                     value={dmsLngDir}
                     onChange={(e) => setDmsLngDir(e.target.value as 'E' | 'W')}
-                    className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold text-xs sm:text-sm"
+                    className="px-3 py-2 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] font-semibold text-xs sm:text-sm focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                   >
                     <option value="E">E (ออก)</option>
                     <option value="W">W (ตก)</option>
@@ -347,7 +322,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
             </div>
             <button
               onClick={handleApplyDMS}
-              className="px-5 py-2.5 rounded-xl bg-survey-700 hover:bg-survey-600 text-white font-semibold text-xs sm:text-sm shadow-sm transition-colors"
+              className="px-6 py-2.5 rounded-2xl bg-ios-blue hover:bg-ios-blueDark text-white font-semibold text-xs sm:text-sm shadow-sm shadow-blue-500/25 active:scale-[0.98] transition-all"
             >
               คำนวณแปลงค่าพิกัด
             </button>
@@ -365,7 +340,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                 <select
                   value={utmZone}
                   onChange={(e) => setUtmZone(parseInt(e.target.value) as 47 | 48)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm font-semibold"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] text-xs sm:text-sm font-semibold focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                 >
                   <option value={47}>Zone 47N (ภาคกลาง, เหนือ, ใต้, ตะวันตก)</option>
                   <option value={48}>Zone 48N (ภาคตะวันออกเฉียงเหนือ, ตะวันออก)</option>
@@ -381,7 +356,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                   value={utmEasting}
                   onChange={(e) => setUtmEasting(e.target.value)}
                   placeholder="เช่น 669735.24"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] font-mono text-sm focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                 />
               </div>
               <div>
@@ -394,13 +369,13 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                   value={utmNorthing}
                   onChange={(e) => setUtmNorthing(e.target.value)}
                   placeholder="เช่น 1531520.18"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] font-mono text-sm focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                 />
               </div>
             </div>
             <button
               onClick={handleApplyUTM}
-              className="px-5 py-2.5 rounded-xl bg-survey-700 hover:bg-survey-600 text-white font-semibold text-xs sm:text-sm shadow-sm transition-colors"
+              className="px-6 py-2.5 rounded-2xl bg-ios-blue hover:bg-ios-blueDark text-white font-semibold text-xs sm:text-sm shadow-sm shadow-blue-500/25 active:scale-[0.98] transition-all"
             >
               คำนวณแปลงค่าพิกัด
             </button>
@@ -418,7 +393,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                 <select
                   value={indZone}
                   onChange={(e) => setIndZone(parseInt(e.target.value) as 47 | 48)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm font-semibold"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] text-xs sm:text-sm font-semibold focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                 >
                   <option value={47}>Zone 47N (EPSG:24047)</option>
                   <option value={48}>Zone 48N (EPSG:24048)</option>
@@ -434,7 +409,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                   value={indEasting}
                   onChange={(e) => setIndEasting(e.target.value)}
                   placeholder="เช่น 669939.24"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] font-mono text-sm focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                 />
               </div>
               <div>
@@ -447,13 +422,13 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                   value={indNorthing}
                   onChange={(e) => setIndNorthing(e.target.value)}
                   placeholder="เช่น 1532357.18"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.04] font-mono text-sm focus:ring-2 focus:ring-ios-blue/30 focus:border-ios-blue focus:outline-none transition-all"
                 />
               </div>
             </div>
             <button
               onClick={handleApplyIndian}
-              className="px-5 py-2.5 rounded-xl bg-survey-700 hover:bg-survey-600 text-white font-semibold text-xs sm:text-sm shadow-sm transition-colors"
+              className="px-6 py-2.5 rounded-2xl bg-ios-blue hover:bg-ios-blueDark text-white font-semibold text-xs sm:text-sm shadow-sm shadow-blue-500/25 active:scale-[0.98] transition-all"
             >
               คำนวณแปลงค่าพิกัด
             </button>
@@ -579,15 +554,15 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
         </div>
 
         {/* Action Panel */}
-        <div className="bg-gradient-to-br from-survey-900 to-survey-950 rounded-3xl border border-survey-700/60 p-5 sm:p-6 text-white flex flex-col justify-between shadow-geo">
+        <div className="bg-gradient-to-br from-[#007AFF] via-[#0066D6] to-[#0052B3] rounded-3xl p-5 sm:p-6 text-white flex flex-col justify-between shadow-[0_10px_25px_-5px_rgba(0,122,255,0.3)]">
           <div>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-survey-500/20 text-survey-300 border border-survey-400/40">
+            <span className="px-2.5 py-0.5 text-[11px] font-semibold tracking-wider uppercase rounded-full bg-white/20 text-white border border-white/30 backdrop-blur-md">
               WebGIS Action
             </span>
-            <h4 className="text-lg font-bold mt-2">
+            <h4 className="text-lg font-bold mt-2 tracking-tight">
               ส่งพิกัดไปยังแผนที่ WebGIS
             </h4>
-            <p className="text-xs text-survey-200/80 mt-1 leading-relaxed">
+            <p className="text-xs text-white/85 mt-1 leading-relaxed">
               คลิกเพื่อนำค่าพิกัดปัจจุบันไปแสดงเป็นหมุด (Marker) บนแผนที่ พร้อมเปิดมุมมองและตรวจสอบพื้นที่จริงรอบหมุด
             </p>
           </div>
@@ -599,7 +574,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                   onPlotOnMap(activeLat, activeLng, `จุดพิกัด (${activeLat.toFixed(5)}, ${activeLng.toFixed(5)})`);
                 }
               }}
-              className="w-full py-3 rounded-xl bg-survey-500 hover:bg-survey-400 text-survey-950 font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center space-x-2"
+              className="w-full py-3 rounded-2xl bg-white text-ios-blue hover:bg-slate-50 font-bold text-xs sm:text-sm shadow-md transition-all active:scale-[0.98] flex items-center justify-center space-x-2"
             >
               <MapPin className="w-4 h-4 stroke-[2.5]" />
               <span>แสดงพิกัดนี้บนแผนที่ WebMap ทันที</span>

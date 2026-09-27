@@ -4,7 +4,7 @@ import { TraverseLegInput, LevelingRowInput } from '../types/survey';
 export const SURVEY_BOOKMARKS: BookmarkPreset[] = [
   {
     id: 'ku-survey-dept',
-    name: 'ภาควิชาวิศวกรรมสำรวจ มหาวิทยาลัยเกษตรศาสตร์',
+    name: 'KU1 • ภาควิชาวิศวกรรมสำรวจ มก. บางเขน',
     description: 'อาคารชูชาติ กำภู คณะวิศวกรรมศาสตร์ มก. บางเขน (KU Survey & Geomatics Hub)',
     lat: 13.84664,
     lng: 100.56982,
@@ -13,7 +13,7 @@ export const SURVEY_BOOKMARKS: BookmarkPreset[] = [
   },
   {
     id: 'rtsd-zero-point',
-    name: 'หมุดหลักฐานอ้างอิง กรมแผนที่ทหาร (RTSD Main Datum)',
+    name: 'RTSD • หมุดหลักฐานปฐมภูมิ กรมแผนที่ทหาร',
     description: 'กรมแผนที่ทหาร กรุงเทพมหานคร หมุดหลักฐานปฐมภูมิแห่งชาติ',
     lat: 13.75235,
     lng: 100.49392,
@@ -22,7 +22,7 @@ export const SURVEY_BOOKMARKS: BookmarkPreset[] = [
   },
   {
     id: 'ku-survey-camp',
-    name: 'ค่ายฝึกสำรวจภาคสนาม มก. (Survey Camp Base)',
+    name: 'CAMP • ค่ายฝึกสำรวจภาคสนาม มก.',
     description: 'ศูนย์ฝึกภาคปฏิบัติการสำรวจภาคสนาม คณะวิศวกรรมศาสตร์ มก.',
     lat: 14.0195,
     lng: 99.9678,
@@ -31,7 +31,7 @@ export const SURVEY_BOOKMARKS: BookmarkPreset[] = [
   },
   {
     id: 'chiangmai-center',
-    name: 'ศูนย์สารสนเทศภูมิศาสตร์ภาคเหนือ (เชียงใหม่)',
+    name: 'GIS-N • ศูนย์สารสนเทศภูมิศาสตร์ภาคเหนือ (เชียงใหม่)',
     description: 'จุดตรวจสอบพิกัด UTM Zone 47 ภาคเหนือ',
     lat: 18.7904,
     lng: 98.9853,
@@ -40,7 +40,7 @@ export const SURVEY_BOOKMARKS: BookmarkPreset[] = [
   },
   {
     id: 'khonkaen-center',
-    name: 'ศูนย์สารสนเทศภูมิศาสตร์ภาคตะวันออกเฉียงเหนือ (ขอนแก่น)',
+    name: 'GIS-NE • ศูนย์สารสนเทศภูมิศาสตร์ภาคอีสาน (ขอนแก่น)',
     description: 'จุดตรวจสอบพิกัดรอยต่อ UTM Zone 47/48',
     lat: 16.4397,
     lng: 102.8276,
@@ -49,7 +49,7 @@ export const SURVEY_BOOKMARKS: BookmarkPreset[] = [
   },
   {
     id: 'songkhla-center',
-    name: 'ศูนย์สารสนเทศภูมิศาสตร์ภาคใต้ (สงขลา)',
+    name: 'GIS-S • ศูนย์สารสนเทศภูมิศาสตร์ภาคใต้ (สงขลา)',
     description: 'จุดตรวจสอบพิกัดชายฝั่งทะเลภาคใต้ UTM Zone 47',
     lat: 7.1898,
     lng: 100.5954,

@@ -19,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-survey-950 via-survey-900 to-survey-800 text-white shadow-lg border-b border-survey-600/40">
+      <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#16181d]/85 backdrop-blur-2xl border-b border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_15px_-3px_rgba(0,0,0,0.04)] transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             
@@ -28,75 +28,75 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setActiveTab('knowledge')}
               className="flex items-center space-x-3 cursor-pointer group"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-survey-500 to-survey-300 flex items-center justify-center shadow-md shadow-survey-900/50 group-hover:scale-105 transition-transform duration-200">
-                <Compass className="w-6 h-6 text-survey-950 stroke-[2.2]" />
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#007AFF] via-[#0A84FF] to-[#5856D6] flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
+                <Compass className="w-5 h-5 text-white stroke-[2.2]" />
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="font-bold text-lg tracking-tight text-white font-sans">
+                  <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white font-sans">
                     MESURV
                   </span>
-                  <span className="px-2 py-0.5 text-[10px] font-semibold tracking-wider uppercase rounded-full bg-survey-500/20 text-survey-300 border border-survey-500/40">
-                    Geomatics Suite
+                  <span className="px-2 py-0.5 text-[10px] font-semibold tracking-wider uppercase rounded-full bg-ios-blue/10 dark:bg-ios-blue/20 text-ios-blue dark:text-ios-blueDark border border-ios-blue/25">
+                    Tools Suite
                   </span>
                 </div>
-                <p className="text-xs text-survey-200/80 hidden sm:block">
-                  Universal Survey Engineering & Geoinformatics Platform
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block font-medium">
+                  Universal Geomatics & Survey Engineering
                 </p>
               </div>
             </div>
 
-            {/* Desktop Navigation Links */}
-            <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
+            {/* Desktop iOS Native Segmented Bar */}
+            <nav className="hidden md:flex items-center p-1 rounded-2xl bg-black/[0.05] dark:bg-white/[0.07] border border-black/[0.04] dark:border-white/[0.06] backdrop-blur-md">
               <button
                 onClick={() => setActiveTab('knowledge')}
-                className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-1.5 rounded-xl text-xs sm:text-sm transition-all duration-200 ${
                   activeTab === 'knowledge'
-                    ? 'bg-survey-700/80 text-white shadow-sm border border-survey-400/40 font-semibold'
-                    : 'text-survey-200 hover:text-white hover:bg-survey-800/60'
+                    ? 'bg-white dark:bg-[#2c2d33] text-slate-900 dark:text-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
                 }`}
               >
-                คลังความรู้ & คู่มืออุปกรณ์
+                คู่มือสำรวจ
               </button>
               <button
                 onClick={() => setActiveTab('calculator')}
-                className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-1.5 rounded-xl text-xs sm:text-sm transition-all duration-200 ${
                   activeTab === 'calculator'
-                    ? 'bg-survey-700/80 text-white shadow-sm border border-survey-400/40 font-semibold'
-                    : 'text-survey-200 hover:text-white hover:bg-survey-800/60'
+                    ? 'bg-white dark:bg-[#2c2d33] text-ios-blue dark:text-ios-blueDark shadow-[0_2px_8px_rgba(0,0,0,0.08)] font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
                 }`}
               >
-                เครื่องมือคำนวณสำรวจ
+                Tools
               </button>
               <button
                 onClick={() => setActiveTab('map')}
-                className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-1.5 rounded-xl text-xs sm:text-sm transition-all duration-200 ${
                   activeTab === 'map'
-                    ? 'bg-survey-700/80 text-white shadow-sm border border-survey-400/40 font-semibold'
-                    : 'text-survey-200 hover:text-white hover:bg-survey-800/60'
+                    ? 'bg-white dark:bg-[#2c2d33] text-slate-900 dark:text-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
                 }`}
               >
-                ระบบแผนที่ WebGIS
+                แผนที่ WebGIS
               </button>
             </nav>
 
-            {/* Controls: About, Status & Theme */}
-            <div className="flex items-center space-x-2 sm:space-x-3">
+            {/* Controls: About & Theme Toggle */}
+            <div className="flex items-center space-x-2">
               <button
                 onClick={() => setIsAboutOpen(true)}
-                className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-survey-200 hover:text-white bg-survey-950/60 hover:bg-survey-800 border border-survey-700/50 transition-colors flex items-center space-x-1"
+                className="px-3 py-1.5 rounded-2xl text-xs font-medium text-slate-700 dark:text-slate-300 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] border border-black/[0.04] dark:border-white/[0.06] transition-all flex items-center space-x-1.5"
                 title="เกี่ยวกับระบบและมาตรฐานอ้างอิง"
               >
-                <Info className="w-3.5 h-3.5" />
+                <Info className="w-3.5 h-3.5 text-ios-blue" />
                 <span className="hidden sm:inline">เกี่ยวกับ</span>
               </button>
 
               <button
                 onClick={toggleTheme}
                 aria-label="Toggle Theme"
-                className="p-2 rounded-lg bg-survey-950/60 hover:bg-survey-800 text-survey-200 hover:text-white border border-survey-700/50 transition-colors"
+                className="p-2 rounded-2xl bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-slate-700 dark:text-slate-300 border border-black/[0.04] dark:border-white/[0.06] transition-all"
               >
-                {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-survey-200" />}
+                {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
               </button>
             </div>
 
