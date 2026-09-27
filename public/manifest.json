@@ -1,0 +1,19 @@
+{
+  "name": "MESURV Geomatics Platform",
+  "short_name": "MESURV",
+  "description": "Survey & Geomatics Engineering Knowledge Base, Field Calculators & Interactive WebGIS Map",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#064e3b",
+  "theme_color": "#064e3b",
+  "categories": ["utilities", "education", "engineering"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
