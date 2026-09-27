@@ -48,7 +48,7 @@ export function App() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-6 pb-20 md:pb-8">
-        {activeTab === 'knowledge' && <KnowledgeHub />}
+        {activeTab === 'knowledge' && <KnowledgeHub onNavigateTab={setActiveTab} />}
         {activeTab === 'calculator' && <CalculatorHub onPlotOnMap={handlePlotOnMap} />}
         {activeTab === 'map' && <WebMap externalPoint={externalMapPoint} />}
       </main>

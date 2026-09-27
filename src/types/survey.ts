@@ -132,6 +132,28 @@ export interface FieldChecklistStep {
   criticalCaution?: string;
 }
 
+export interface DeviceScreenStep {
+  stepNumber: number;
+  stageName: string;
+  targetHardware: string; // e.g. "Topcon / Sokkia / Leica / Trimble"
+  buttonKey: string;      // Keypad button to press, e.g. "[MENU] -> [F1:COORD] -> [1.OCC.ORIENT]"
+  actionLabel: string;
+  screenTitle: string;
+  screenLines: string[];  // Simulated LCD/OLED display text
+  explanation: string;
+  qaCheck?: string;
+  downstreamUsage?: string;
+}
+
+export interface DownstreamWorkflow {
+  outputDataFormat: string; // e.g. "CSV (PT,N,E,Z,CD), SDR33, GSI-8, DXF"
+  outputDescription: string;
+  nextStepTitle: string;
+  nextStepProcedure: string;
+  recommendedToolTab?: 'converter' | 'traverse' | 'leveling' | 'map';
+  toolActionLabel?: string;
+}
+
 export interface KnowledgeTopic {
   id: string;
   title: string;
@@ -141,8 +163,11 @@ export interface KnowledgeTopic {
   summary: string;
   badge: string;
   iconName: string;
+  equipmentRequired?: string[];
   workingPrinciple: string[];
   fieldProcedures: FieldChecklistStep[];
+  deviceWorkflow?: DeviceScreenStep[];
+  downstreamWorkflow?: DownstreamWorkflow;
   errorSourcesAndMitigation: string[];
   courseRelation?: string;
   formulas?: { label: string; formula: string; explanation: string }[];
