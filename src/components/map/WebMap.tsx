@@ -1,57 +1,54 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { BasemapProvider, TelemetryState, DistancePoint } from '../../types/map';
-import { forwardWgs84ToUtm, calculateUtmZone } from '../../core/projections';
+import { BasemapProvider, DistancePoint } from '../../types/map';
+import { 
+  forwardWgs84ToUtm, 
+  forwardWgs84ToIndian1975, 
+  calculateUtmZone,
+  decimalToDms,
+  formatDms
+} from '../../core/projections';
 import { sqMetersToThaiLand, formatThaiLandString } from '../../core/land-units';
 import { SURVEY_BOOKMARKS } from '../../data/survey-presets';
 import { MapToolbar } from './MapToolbar';
-import { TelemetryHud } from './TelemetryHud';
 import { GeoJsonUploader } from './GeoJsonUploader';
 
 interface WebMapProps {
   externalPoint?: { lat: number; lng: number; label: string } | null;
+  onSendToCalculator?: (lat: number, lng: number) => void;
 }
 
-export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
+export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculator }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const measureLayerRef = useRef<L.LayerGroup | null>(null);
   const vectorLayerRef = useRef<L.GeoJSON | null>(null);
   const markerGroupRef = useRef<L.LayerGroup | null>(null);
+  const clickPopupRef = useRef<L.Popup | null>(null);
 
   const [currentBasemap, setCurrentBasemap] = useState<BasemapProvider>('satellite');
   const [measureMode, setMeasureMode] = useState<'none' | 'distance' | 'area' | 'marker'>('none');
   const [measurePoints, setMeasurePoints] = useState<DistancePoint[]>([]);
   const [isUploaderOpen, setIsUploaderOpen] = useState(false);
-
-  const [telemetry, setTelemetry] = useState<TelemetryState>({
-    lat: 13.84664,
-    lng: 100.56982,
-    easting: 669735.2,
-    northing: 1531520.2,
-    zone: 47,
-    zoom: 16
-  });
-
   const [measurementResultText, setMeasurementResultText] = useState<string | null>(null);
 
-  // Basemap URLs
+  // Basemap Tile Providers
   const basemapUrls: { [key in BasemapProvider]: { url: string; maxZoom: number; attr: string } } = {
     osm: {
       url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
       maxZoom: 19,
-      attr: '&copy; OpenStreetMap contributors'
+      attr: '&copy; OpenStreetMap'
     },
     satellite: {
       url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       maxZoom: 19,
-      attr: 'Tiles &copy; Esri, Maxar, Earthstar Geographics'
+      attr: 'Tiles &copy; Esri, Maxar'
     },
     topo: {
       url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
       maxZoom: 17,
-      attr: '&copy; OpenTopoMap contributors'
+      attr: '&copy; OpenTopoMap'
     },
     dark: {
       url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
@@ -70,20 +67,18 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
     const map = L.map(mapContainerRef.current, {
       center: [initialLat, initialLng],
       zoom: 16,
-      zoomControl: false // Custom placement if needed
+      zoomControl: false
     });
 
-    // Add Zoom Control to bottom right
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Initial tile layer (Satellite default)
+    // Initial tile layer (High-Res Satellite default)
     const baseConfig = basemapUrls['satellite'];
     const tileLayer = L.tileLayer(baseConfig.url, {
       maxZoom: baseConfig.maxZoom,
       attribution: baseConfig.attr
     }).addTo(map);
 
-    // Layer groups for measurements and custom markers
     const measureGroup = L.layerGroup().addTo(map);
     const markerGroup = L.layerGroup().addTo(map);
 
@@ -92,7 +87,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
     markerGroupRef.current = markerGroup;
     mapInstanceRef.current = map;
 
-    // Drop initial marker at KU Survey Department
+    // Initial reference landmark
     const customPinIcon = L.divIcon({
       className: 'custom-map-pin',
       html: `<div style="background-color: #10b981; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid #ffffff; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>`,
@@ -104,7 +99,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
       .bindPopup(`
         <div style="font-family: sans-serif; font-size: 12px; line-height: 1.4;">
           <strong style="color: #047857;">ภาควิชาวิศวกรรมสำรวจ มก.</strong><br/>
-          อาคารชูชาติ กำภู (KU Surveying & Geomatics Hub)<br/>
+          อาคารชูชาติ กำภู (KU Geomatics Hub)<br/>
           <span style="font-family: monospace; font-size: 11px; color: #555;">
             13.846640° N, 100.569820° E
           </span>
@@ -112,33 +107,74 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
       `)
       .addTo(markerGroup);
 
-    // Telemetry Mousemove listener
-    map.on('mousemove', (e: L.LeafletMouseEvent) => {
+    // Click handler: "คลิกก่อนค่อยแสดงผล" (Click-to-Inspect Native Popup)
+    map.on('click', (e: L.LeafletMouseEvent) => {
+      // If currently measuring, don't show the point popup
+      if (measureMode === 'distance' || measureMode === 'area') {
+        return;
+      }
+
       const { lat, lng } = e.latlng;
       const zone = calculateUtmZone(lng);
       const utm = forwardWgs84ToUtm(lat, lng, zone);
-      setTelemetry({
-        lat,
-        lng,
-        easting: utm.easting,
-        northing: utm.northing,
-        zone,
-        zoom: map.getZoom()
-      });
-    });
+      const ind = forwardWgs84ToIndian1975(lat, lng, zone);
+      const dmsLat = decimalToDms(lat, true);
+      const dmsLng = decimalToDms(lng, false);
 
-    map.on('zoomend', () => {
-      const center = map.getCenter();
-      const zone = calculateUtmZone(center.lng);
-      const utm = forwardWgs84ToUtm(center.lat, center.lng, zone);
-      setTelemetry((prev) => ({
-        ...prev,
-        zoom: map.getZoom(),
-        lat: center.lat,
-        lng: center.lng,
-        easting: utm.easting,
-        northing: utm.northing
-      }));
+      const popupHtml = `
+        <div style="font-family: 'Prompt', sans-serif; font-size: 12px; min-width: 230px; line-height: 1.5; color: #1e293b;">
+          <div style="font-weight: 700; color: #047857; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+            📍 พิกัดจุดรังวัดที่เลือก
+          </div>
+          
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #f8fafc; padding: 6px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 6px;">
+            <div style="color: #64748b; font-size: 10px;">WGS84 (DD):</div>
+            <strong>${lat.toFixed(6)}°, ${lng.toFixed(6)}°</strong>
+            
+            <div style="color: #64748b; font-size: 10px; margin-top: 4px;">WGS84 (DMS):</div>
+            <div>${formatDms(dmsLat)}</div>
+            <div>${formatDms(dmsLng)}</div>
+            
+            <div style="color: #047857; font-size: 10px; margin-top: 4px;">UTM Zone ${zone}N (m):</div>
+            <div>E: ${utm.easting.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            <div>N: ${utm.northing.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+
+            <div style="color: #b45309; font-size: 10px; margin-top: 4px;">Indian 1975 (RTSD):</div>
+            <div>E: ${ind.easting.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            <div>N: ${ind.northing.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+          </div>
+
+          <div style="display: flex; gap: 4px; margin-top: 6px;">
+            <button 
+              id="btn-copy-popup-coord"
+              style="flex: 1; padding: 5px 8px; background: #047857; color: white; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;"
+              onclick="
+                navigator.clipboard.writeText('${lat.toFixed(6)}, ${lng.toFixed(6)}');
+                this.innerText = 'คัดลอกแล้ว ✓';
+                setTimeout(() => { this.innerText = 'คัดลอกพิกัด'; }, 1500);
+              "
+            >
+              คัดลอกพิกัด
+            </button>
+          </div>
+        </div>
+      `;
+
+      if (clickPopupRef.current) {
+        map.closePopup(clickPopupRef.current);
+      }
+
+      const popup = L.popup({
+        closeButton: true,
+        autoClose: true,
+        closeOnClick: false,
+        className: 'custom-survey-popup'
+      })
+        .setLatLng([lat, lng])
+        .setContent(popupHtml)
+        .openOn(map);
+
+      clickPopupRef.current = popup;
     });
 
     return () => {
@@ -189,49 +225,25 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
     }, 600);
   }, [externalPoint]);
 
-  // Handle Measurement and Marker Click Events
+  // Handle Measurement Clicks
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
 
-    const handleMapClick = (e: L.LeafletMouseEvent) => {
-      const { lat, lng } = e.latlng;
-
-      if (measureMode === 'marker') {
-        const zone = calculateUtmZone(lng);
-        const utm = forwardWgs84ToUtm(lat, lng, zone);
-
-        const pinIcon = L.divIcon({
-          className: 'custom-user-pin',
-          html: `<div style="background-color: #06b6d4; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid #ffffff; box-shadow: 0 0 8px rgba(6, 182, 212, 0.7);"></div>`,
-          iconSize: [14, 14],
-          iconAnchor: [7, 7]
-        });
-
-        if (markerGroupRef.current) {
-          L.marker([lat, lng], { icon: pinIcon })
-            .bindPopup(`
-              <div style="font-family: sans-serif; font-size: 12px;">
-                <strong style="color: #0891b2;">หมุดสำรวจใหม่ (User Waypoint)</strong><br/>
-                WGS84: ${lat.toFixed(6)}°, ${lng.toFixed(6)}°<br/>
-                UTM Zone ${zone}N: E ${utm.easting.toFixed(2)}, N ${utm.northing.toFixed(2)}
-              </div>
-            `)
-            .addTo(markerGroupRef.current)
-            .openPopup();
-        }
-      } else if (measureMode === 'distance' || measureMode === 'area') {
+    const handleMeasureClick = (e: L.LeafletMouseEvent) => {
+      if (measureMode === 'distance' || measureMode === 'area') {
+        const { lat, lng } = e.latlng;
         setMeasurePoints((prev) => [...prev, { lat, lng }]);
       }
     };
 
-    map.on('click', handleMapClick);
+    map.on('click', handleMeasureClick);
     return () => {
-      map.off('click', handleMapClick);
+      map.off('click', handleMeasureClick);
     };
   }, [measureMode]);
 
-  // Render Measurement Layers (Polylines and Polygons)
+  // Render Measurement Polylines & Polygons
   useEffect(() => {
     const measureGroup = measureLayerRef.current;
     if (!measureGroup) return;
@@ -244,10 +256,9 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
 
     const latlngs = measurePoints.map((p) => [p.lat, p.lng] as [number, number]);
 
-    // Draw vertex dots
     latlngs.forEach((pt) => {
       L.circleMarker(pt, {
-        radius: 4,
+        radius: 4.5,
         color: '#ffffff',
         fillColor: '#10b981',
         fillOpacity: 1,
@@ -263,7 +274,6 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
           dashArray: '6, 6'
         }).addTo(measureGroup);
 
-        // Compute total distance
         let totalMeters = 0;
         for (let i = 0; i < latlngs.length - 1; i++) {
           totalMeters += L.latLng(latlngs[i]).distanceTo(L.latLng(latlngs[i + 1]));
@@ -283,7 +293,6 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
           weight: 2.5
         }).addTo(measureGroup);
 
-        // Approximate Polygon Area using geodesic projection
         const utmCoords = measurePoints.map((p) => {
           const u = forwardWgs84ToUtm(p.lat, p.lng);
           return [u.easting, u.northing];
@@ -305,7 +314,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
     }
   }, [measurePoints, measureMode]);
 
-  // Geolocation Handler
+  // Geolocation
   const handleLocateMe = () => {
     if (!navigator.geolocation || !mapInstanceRef.current) {
       alert('เบราว์เซอร์ไม่รองรับการระบุพิกัด Geolocation');
@@ -386,10 +395,10 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
   return (
     <div className="relative w-full h-[calc(100vh-140px)] min-h-[500px] rounded-3xl overflow-hidden shadow-geo border border-slate-200 dark:border-slate-800 bg-slate-900">
       
-      {/* Leaflet Map DOM Root */}
+      {/* Leaflet Map DOM Canvas */}
       <div ref={mapContainerRef} className="w-full h-full z-0" />
 
-      {/* Floating Toolbar */}
+      {/* Modern Floating Toolbar */}
       <MapToolbar
         currentBasemap={currentBasemap}
         onSelectBasemap={setCurrentBasemap}
@@ -404,7 +413,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
         onOpenUploader={() => setIsUploaderOpen(true)}
       />
 
-      {/* Measurement Result Pill */}
+      {/* Floating Dynamic Measurement Result Pill */}
       {measurementResultText && (
         <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[1000] bg-survey-950/90 backdrop-blur-md text-survey-200 border border-survey-500/50 px-4 py-2 rounded-full shadow-2xl text-xs font-semibold flex items-center space-x-2 animate-in fade-in slide-in-from-top-2">
           <span className="w-2 h-2 rounded-full bg-survey-400 animate-pulse" />
@@ -412,8 +421,12 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
         </div>
       )}
 
-      {/* Live Coordinate Telemetry HUD */}
-      <TelemetryHud telemetry={telemetry} />
+      {/* Minimal Helper Hint when in default clean view */}
+      {measureMode === 'none' && !measurementResultText && (
+        <div className="absolute bottom-4 left-4 z-[990] bg-slate-900/80 backdrop-blur-sm text-slate-300 px-3 py-1.5 rounded-full border border-slate-700/60 shadow-md text-[11px] pointer-events-none flex items-center space-x-1.5 opacity-80 hover:opacity-100 transition-opacity">
+          <span>💡 คลิกจุดใดบนแผนที่เพื่อดูและคัดลอกค่าพิกัด</span>
+        </div>
+      )}
 
       {/* GeoJSON Import Modal */}
       <GeoJsonUploader
