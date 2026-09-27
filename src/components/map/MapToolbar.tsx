@@ -105,7 +105,7 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
         {measureMode !== 'none' && (
           <button
             onClick={onClearMeasurements}
-            className="p-1.5 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+            className="p-1.5 rounded-xl text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
             title="ล้างค่าการวัดและออกจากโหมด"
           >
             <RotateCcw className="w-4 h-4" />

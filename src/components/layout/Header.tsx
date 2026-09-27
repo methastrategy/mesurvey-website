@@ -28,7 +28,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setActiveTab('knowledge')}
               className="flex items-center cursor-pointer group select-none"
             >
-              <span className="font-black text-xl tracking-tight bg-gradient-to-r from-blue-600 via-sky-500 to-indigo-600 dark:from-sky-400 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent font-sans group-hover:opacity-95 transition-opacity">
+              <span className="font-black text-xl tracking-tight text-blue-600 dark:text-sky-400 font-sans group-hover:text-blue-700 dark:group-hover:text-sky-300 transition-colors">
                 MESURV
               </span>
             </div>

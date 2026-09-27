@@ -492,7 +492,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleBackToSearch}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-sky-50 hover:text-sky-700 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all hover:-translate-x-0.5 border border-slate-200/80 dark:border-slate-700"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-100 hover:text-sky-700 dark:hover:text-sky-300 transition-all hover:-translate-x-0.5 border border-slate-200/80 dark:border-slate-700"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>กลับหน้ารายการค้นหา</span>
