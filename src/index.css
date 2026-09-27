@@ -91,3 +91,12 @@
   touch-action: none !important;
   -webkit-overflow-scrolling: auto !important;
 }
+
+/* Hide scrollbar for clean horizontal touch carousels */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

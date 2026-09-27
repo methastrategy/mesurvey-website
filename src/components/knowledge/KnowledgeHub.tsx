@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   Search, 
   Compass, 
@@ -37,14 +37,16 @@ import { KnowledgeTopic, KnowledgeCategory, DeviceScreenStep } from '../../types
 
 interface KnowledgeHubProps {
   onNavigateTab?: (tab: 'calculator' | 'map') => void;
+  initialTopicId?: string | null;
 }
 
-export const KnowledgeHub: React.FC<KnowledgeHubProps> = () => {
+export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
+  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(initialTopicId || null);
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
   const [copiedText, setCopiedText] = useState<boolean>(false);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   // Icon Resolver
   const getTopicIcon = (iconName: string, className: string = "w-4 h-4") => {
@@ -148,14 +150,57 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = () => {
   const deviceSteps: DeviceScreenStep[] = activeTopic?.deviceWorkflow || [];
   const currentStep: DeviceScreenStep | undefined = deviceSteps[activeStepIndex] || deviceSteps[0];
 
+  // Hash-based Topic Synchronization
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace(/^#\/?/, '').trim();
+      const parts = hash.split('/').filter(Boolean);
+      if (parts[0] === 'knowledge') {
+        if (parts[1]) {
+          const match = KNOWLEDGE_TOPICS.some((t) => t.id === parts[1]);
+          if (match) {
+            setSelectedTopicId(parts[1]);
+            return;
+          }
+        }
+        setSelectedTopicId(null);
+      }
+    };
+
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Keyboard shortcut: Pressing '/' focuses the search box
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (selectedTopicId) return;
+      const target = document.activeElement;
+      const isInput = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || (target as HTMLElement)?.isContentEditable;
+      if (e.key === '/' && !isInput) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      if (e.key === 'Escape' && isInput && target === searchInputRef.current) {
+        searchInputRef.current?.blur();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedTopicId]);
+
   const handleSelectTopic = (id: string) => {
     setSelectedTopicId(id);
     setActiveStepIndex(0);
+    window.location.hash = `#/knowledge/${id}`;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleBackToSearch = () => {
     setSelectedTopicId(null);
+    window.location.hash = '#/knowledge';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -202,6 +247,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = () => {
               <div className="relative">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
+                  ref={searchInputRef}
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -226,11 +272,41 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = () => {
             </div>
           </div>
 
+          {/* Mobile & Tablet Horizontal Swipeable Category Chips (< 1024px) */}
+          <div className="lg:hidden">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-3 px-3 sm:mx-0 sm:px-0">
+              {categories.map((cat) => {
+                const isSelected = selectedCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold shrink-0 transition-all ${
+                      isSelected
+                        ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-300 dark:border-sky-800 shadow-sm shadow-sky-500/10'
+                        : 'bg-white dark:bg-[#131b2c] text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                    }`}
+                  >
+                    <span className="shrink-0">{cat.icon}</span>
+                    <span>{cat.label}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+                      isSelected
+                        ? 'bg-sky-200/70 dark:bg-sky-900/60 text-sky-800 dark:text-sky-200'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                    }`}>
+                      {cat.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* GitHub Search Layout: Facets on Left, Result Cards on Right */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            {/* Left Column: Filter Facets (3 Cols) */}
-            <div className="lg:col-span-3 space-y-4">
+            {/* Left Column: Filter Facets (3 Cols) - Desktop Only */}
+            <div className="hidden lg:block lg:col-span-3 space-y-4">
               <div className="rounded-3xl border border-slate-200/90 dark:border-slate-800/80 bg-white dark:bg-[#131b2c] p-4 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.02)] space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   <span className="flex items-center gap-1.5">

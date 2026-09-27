@@ -6,8 +6,38 @@ import { KnowledgeHub } from './components/knowledge/KnowledgeHub';
 import { CalculatorHub } from './components/calculator/CalculatorHub';
 import { WebMap } from './components/map/WebMap';
 
+function parseRouteHash(rawHash: string) {
+  const hash = rawHash.replace(/^#\/?/, '').trim();
+  const parts = hash.split('/').filter(Boolean);
+  const first = parts[0];
+
+  if (first === 'calculator') {
+    const validSubs = ['coord', 'traverse', 'leveling', 'area'] as const;
+    const sub = validSubs.includes(parts[1] as any) ? (parts[1] as 'coord' | 'traverse' | 'leveling' | 'area') : undefined;
+    return {
+      tab: 'calculator' as const,
+      subTab: sub,
+      topicId: undefined
+    };
+  }
+  if (first === 'map') {
+    return {
+      tab: 'map' as const,
+      subTab: undefined,
+      topicId: undefined
+    };
+  }
+  return {
+    tab: 'knowledge' as const,
+    subTab: undefined,
+    topicId: first === 'knowledge' ? parts[1] : undefined
+  };
+}
+
 export function App() {
-  const [activeTab, setActiveTab] = useState<'knowledge' | 'calculator' | 'map'>('knowledge');
+  const [route, setRoute] = useState(() => parseRouteHash(window.location.hash));
+  const activeTab = route.tab;
+
   const [isDark, setIsDark] = useState<boolean>(() => {
     const saved = localStorage.getItem('mesurv_theme');
     if (saved !== null) {
@@ -45,6 +75,22 @@ export function App() {
     };
   }, [activeTab]);
 
+  // Sync hash routing and browser back/forward
+  useEffect(() => {
+    const handleHashChange = () => {
+      setRoute(parseRouteHash(window.location.hash));
+    };
+
+    if (!window.location.hash) {
+      window.location.hash = '#/knowledge';
+    } else {
+      handleHashChange();
+    }
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   const toggleTheme = () => {
     setIsDark((prev) => {
       const next = !prev;
@@ -53,9 +99,19 @@ export function App() {
     });
   };
 
+  const handleTabChange = (tab: 'knowledge' | 'calculator' | 'map') => {
+    if (tab === 'knowledge') {
+      window.location.hash = '#/knowledge';
+    } else if (tab === 'calculator') {
+      window.location.hash = '#/calculator';
+    } else if (tab === 'map') {
+      window.location.hash = '#/map';
+    }
+  };
+
   const handlePlotOnMap = (lat: number, lng: number, label: string) => {
     setExternalMapPoint({ lat, lng, label });
-    setActiveTab('map');
+    window.location.hash = '#/map';
   };
 
   return (
@@ -66,7 +122,7 @@ export function App() {
       {/* Sticky Header */}
       <Header
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleTabChange}
         isDark={isDark}
         toggleTheme={toggleTheme}
       />
@@ -77,13 +133,25 @@ export function App() {
           ? 'h-[calc(100vh-4rem)] h-[calc(100dvh-4rem)] p-0 m-0 overflow-hidden relative' 
           : 'max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-6 pb-20 md:pb-8'
       }`}>
-        {activeTab === 'knowledge' && <KnowledgeHub onNavigateTab={setActiveTab} />}
-        {activeTab === 'calculator' && <CalculatorHub onPlotOnMap={handlePlotOnMap} />}
-        {activeTab === 'map' && <WebMap externalPoint={externalMapPoint} />}
+        {activeTab === 'knowledge' && (
+          <KnowledgeHub 
+            onNavigateTab={handleTabChange} 
+            initialTopicId={route.topicId} 
+          />
+        )}
+        {activeTab === 'calculator' && (
+          <CalculatorHub 
+            onPlotOnMap={handlePlotOnMap} 
+            initialSubTab={route.subTab} 
+          />
+        )}
+        {activeTab === 'map' && (
+          <WebMap externalPoint={externalMapPoint} />
+        )}
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navigation activeTab={activeTab} setActiveTab={handleTabChange} />
 
       {/* Footer: Hidden on map mode to lock full-screen interactive canvas without page scrolling */}
       {activeTab !== 'map' && <Footer />}

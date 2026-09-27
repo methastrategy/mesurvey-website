@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRightLeft, Compass, Ruler, Layers } from 'lucide-react';
 import { CoordinateConverter } from './CoordinateConverter';
 import { TraverseCalculator } from './TraverseCalculator';
@@ -7,10 +7,34 @@ import { LandAreaCalculator } from './LandAreaCalculator';
 
 interface CalculatorHubProps {
   onPlotOnMap?: (lat: number, lng: number, label: string) => void;
+  initialSubTab?: 'coord' | 'traverse' | 'leveling' | 'area';
 }
 
-export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'coord' | 'traverse' | 'leveling' | 'area'>('coord');
+export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initialSubTab }) => {
+  const [activeSubTab, setActiveSubTab] = useState<'coord' | 'traverse' | 'leveling' | 'area'>(initialSubTab || 'coord');
+
+  useEffect(() => {
+    const handleHashSync = () => {
+      const hash = window.location.hash.replace(/^#\/?/, '').trim();
+      const parts = hash.split('/').filter(Boolean);
+      if (parts[0] === 'calculator') {
+        const sub = parts[1] as any;
+        const validSubs = ['coord', 'traverse', 'leveling', 'area'];
+        if (validSubs.includes(sub)) {
+          setActiveSubTab(sub);
+        }
+      }
+    };
+
+    handleHashSync();
+    window.addEventListener('hashchange', handleHashSync);
+    return () => window.removeEventListener('hashchange', handleHashSync);
+  }, []);
+
+  const handleSubTabChange = (sub: 'coord' | 'traverse' | 'leveling' | 'area') => {
+    setActiveSubTab(sub);
+    window.location.hash = `#/calculator/${sub}`;
+  };
 
   const tabs = [
     {
@@ -68,7 +92,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap }) => 
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveSubTab(tab.id as any)}
+              onClick={() => handleSubTabChange(tab.id as any)}
               className={`p-3 rounded-xl text-left transition-all duration-200 flex items-center space-x-3 ${
                 isActive
                   ? 'bg-white dark:bg-[#1a2436] text-blue-600 dark:text-sky-300 shadow-[0_2px_10px_rgba(0,122,255,0.12)] border border-blue-100 dark:border-blue-900/40 font-semibold'
