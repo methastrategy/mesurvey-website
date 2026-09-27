@@ -211,7 +211,19 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
       clickPopupRef.current = popup;
     });
 
+    // Invalidate size after layout settles to guarantee 100% full-screen canvas fill
+    const resizeTimer = setTimeout(() => {
+      map.invalidateSize();
+    }, 150);
+
+    const handleResize = () => {
+      map.invalidateSize();
+    };
+    window.addEventListener('resize', handleResize);
+
     return () => {
+      clearTimeout(resizeTimer);
+      window.removeEventListener('resize', handleResize);
       map.remove();
       mapInstanceRef.current = null;
     };
@@ -414,12 +426,12 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
   };
 
   return (
-    <div className={`relative w-full h-[calc(100vh-140px)] min-h-[500px] rounded-3xl overflow-hidden shadow-geo border border-slate-200 dark:border-slate-800 bg-slate-900 ${
+    <div className={`relative w-full h-full min-h-0 overflow-hidden bg-slate-900 select-none map-locked-viewport ${
       measureMode === 'inspect' ? 'cursor-crosshair' : ''
     }`}>
       
       {/* Leaflet Map DOM Canvas */}
-      <div ref={mapContainerRef} className="w-full h-full z-0" />
+      <div ref={mapContainerRef} className="w-full h-full z-0 touch-none overscroll-none" />
 
       {/* Modern Floating Toolbar */}
       <MapToolbar
@@ -459,9 +471,9 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
         </div>
       )}
 
-      {/* Minimal Helper Hint when in default clean view */}
+      {/* Minimal Helper Hint when in default clean view (Lifted on mobile so bottom nav bar doesn't obscure it) */}
       {measureMode === 'none' && !measurementResultText && (
-        <div className="absolute bottom-4 left-4 z-[990] bg-slate-900/80 dark:bg-[#1c1c1e]/80 backdrop-blur-md text-slate-300 px-3.5 py-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] shadow-md text-[11px] pointer-events-none flex items-center space-x-1.5 opacity-80 hover:opacity-100 transition-opacity">
+        <div className="absolute bottom-20 md:bottom-4 left-4 z-[990] bg-slate-900/80 dark:bg-[#1c1c1e]/80 backdrop-blur-md text-slate-300 px-3.5 py-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] shadow-md text-[11px] pointer-events-none flex items-center space-x-1.5 opacity-80 hover:opacity-100 transition-opacity">
           <span>📍 คลิกจุดใดๆ บนแผนที่เพื่อดูและคัดลอกพิกัด</span>
         </div>
       )}

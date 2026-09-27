@@ -26,6 +26,21 @@ export function App() {
     }
   }, [isDark]);
 
+  // Lock outer page scrolling when in WebGIS map mode
+  useEffect(() => {
+    if (activeTab === 'map') {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [activeTab]);
+
   const toggleTheme = () => {
     setIsDark((prev) => !prev);
   };
@@ -36,7 +51,9 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-200">
+    <div className={`flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-200 ${
+      activeTab === 'map' ? 'h-screen h-[100dvh] overflow-hidden' : 'min-h-screen'
+    }`}>
       
       {/* Sticky Header */}
       <Header
@@ -47,7 +64,11 @@ export function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-6 pb-20 md:pb-8">
+      <main className={`flex-1 w-full ${
+        activeTab === 'map' 
+          ? 'h-[calc(100vh-4rem)] h-[calc(100dvh-4rem)] p-0 m-0 overflow-hidden relative' 
+          : 'max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-6 pb-20 md:pb-8'
+      }`}>
         {activeTab === 'knowledge' && <KnowledgeHub onNavigateTab={setActiveTab} />}
         {activeTab === 'calculator' && <CalculatorHub onPlotOnMap={handlePlotOnMap} />}
         {activeTab === 'map' && <WebMap externalPoint={externalMapPoint} />}
@@ -56,8 +77,8 @@ export function App() {
       {/* Mobile Bottom Navigation */}
       <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer: Hidden on map mode to lock full-screen interactive canvas without page scrolling */}
+      {activeTab !== 'map' && <Footer />}
 
     </div>
   );
