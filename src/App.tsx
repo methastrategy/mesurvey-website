@@ -9,7 +9,11 @@ import { WebMap } from './components/map/WebMap';
 export function App() {
   const [activeTab, setActiveTab] = useState<'knowledge' | 'calculator' | 'map'>('knowledge');
   const [isDark, setIsDark] = useState<boolean>(() => {
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const saved = localStorage.getItem('mesurv_theme');
+    if (saved !== null) {
+      return saved === 'dark';
+    }
+    return false; // Default to luminous, bright, eye-friendly light theme
   });
 
   const [externalMapPoint, setExternalMapPoint] = useState<{
@@ -42,7 +46,11 @@ export function App() {
   }, [activeTab]);
 
   const toggleTheme = () => {
-    setIsDark((prev) => !prev);
+    setIsDark((prev) => {
+      const next = !prev;
+      localStorage.setItem('mesurv_theme', next ? 'dark' : 'light');
+      return next;
+    });
   };
 
   const handlePlotOnMap = (lat: number, lng: number, label: string) => {
@@ -51,7 +59,7 @@ export function App() {
   };
 
   return (
-    <div className={`flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-200 ${
+    <div className={`flex flex-col bg-[#f8fafc] dark:bg-[#0b0f17] text-slate-800 dark:text-slate-100 font-sans transition-colors duration-200 ${
       activeTab === 'map' ? 'h-screen h-[100dvh] overflow-hidden' : 'min-h-screen'
     }`}>
       

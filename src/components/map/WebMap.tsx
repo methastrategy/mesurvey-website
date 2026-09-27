@@ -450,12 +450,12 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
 
       {/* Floating Inspect Mode Guidance Banner */}
       {measureMode === 'inspect' && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/90 dark:bg-[#1c1c1e]/90 backdrop-blur-xl text-white border border-ios-blue/40 px-4 py-2 rounded-full shadow-2xl text-xs font-semibold flex items-center space-x-2 animate-in fade-in slide-in-from-top-2">
-          <Crosshair className="w-4 h-4 text-ios-blue animate-pulse" />
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/90 dark:bg-[#131b2c]/95 backdrop-blur-xl text-white border border-sky-400/40 px-4 py-2 rounded-full shadow-2xl text-xs font-semibold flex items-center space-x-2 animate-in fade-in slide-in-from-top-2">
+          <Crosshair className="w-4 h-4 text-sky-400 animate-pulse" />
           <span>แตะจุดใดๆ บนแผนที่เพื่อดูและคัดลอกพิกัด</span>
           <button 
             onClick={() => setMeasureMode('none')}
-            className="ml-2 px-2.5 py-0.5 rounded-full bg-ios-blue hover:bg-ios-blueDark text-white text-[11px] font-medium flex items-center gap-1 shadow-xs transition-colors"
+            className="ml-2 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white text-[11px] font-medium flex items-center gap-1 shadow-xs transition-colors"
           >
             <Check className="w-3 h-3" />
             เสร็จสิ้น
@@ -465,15 +465,15 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
 
       {/* Floating Dynamic Measurement Result Pill */}
       {measurementResultText && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/90 dark:bg-[#1c1c1e]/90 backdrop-blur-xl text-white border border-ios-blue/40 px-4 py-2 rounded-full shadow-2xl text-xs font-semibold flex items-center space-x-2 animate-in fade-in slide-in-from-top-2">
-          <span className="w-2 h-2 rounded-full bg-ios-blue animate-pulse" />
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/90 dark:bg-[#131b2c]/95 backdrop-blur-xl text-white border border-sky-400/40 px-4 py-2 rounded-full shadow-2xl text-xs font-semibold flex items-center space-x-2 animate-in fade-in slide-in-from-top-2">
+          <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
           <span>{measurementResultText}</span>
         </div>
       )}
 
       {/* Minimal Helper Hint when in default clean view (Lifted on mobile so bottom nav bar doesn't obscure it) */}
       {measureMode === 'none' && !measurementResultText && (
-        <div className="absolute bottom-20 md:bottom-4 left-4 z-[990] bg-slate-900/80 dark:bg-[#1c1c1e]/80 backdrop-blur-md text-slate-300 px-3.5 py-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] shadow-md text-[11px] pointer-events-none flex items-center space-x-1.5 opacity-80 hover:opacity-100 transition-opacity">
+        <div className="absolute bottom-20 md:bottom-4 left-4 z-[990] bg-white/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-slate-700 dark:text-slate-300 px-3.5 py-1.5 rounded-full border border-slate-200/80 dark:border-slate-800 shadow-md text-[11px] pointer-events-none flex items-center space-x-1.5 opacity-90 transition-opacity">
           <span>📍 คลิกจุดใดๆ บนแผนที่เพื่อดูและคัดลอกพิกัด</span>
         </div>
       )}

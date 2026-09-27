@@ -160,21 +160,21 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
         <div className="space-y-6">
           
           {/* GitHub Search Header Bar */}
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0d1117] p-5 sm:p-6 shadow-sm">
+          <div className="rounded-3xl border border-slate-200/90 dark:border-slate-800/80 bg-gradient-to-br from-white via-sky-50/40 to-blue-50/20 dark:from-[#131b2c] dark:to-[#0b0f17] p-5 sm:p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)]">
             <div className="max-w-4xl space-y-4">
               
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                    <BookOpen className="w-6 h-6 text-[#0969da] dark:text-[#58a6ff]" />
+                  <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
+                    <BookOpen className="w-6 h-6 text-sky-600 dark:text-sky-400" />
                     <span>ค้นหาคู่มือสำรวจ (Survey Engineering SOPs)</span>
                   </h1>
-                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
                     คลังขั้นตอนปฏิบัติงานวิศวกรรมสำรวจ มาตรฐานการตั้งกล้อง เกณฑ์ความคลาดเคลื่อน และสูตรคำนวณ
                   </p>
                 </div>
 
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 self-start sm:self-auto">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium bg-white/80 dark:bg-slate-800/80 text-sky-800 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/60 shadow-xs self-start sm:self-auto">
                   <BookmarkCheck className="w-3.5 h-3.5 text-emerald-500" />
                   <span>{KNOWLEDGE_TOPICS.length} คู่มือมาตรฐาน</span>
                 </div>
@@ -188,7 +188,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="ค้นหาตามชื่อกล้อง, คำสั่ง, ขั้นตอนรังวัด (เช่น Two-Peg, Bowditch, 0-SET, Azimuth, Three-Wire, Stadia)..."
-                  className="w-full pl-10 pr-24 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-[#161b22] text-slate-900 dark:text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0969da] dark:focus:ring-[#58a6ff] focus:bg-white dark:focus:bg-[#0d1117] transition-all shadow-inner"
+                  className="w-full pl-10 pr-24 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#161f30] text-slate-800 dark:text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-xs transition-all"
                 />
                 <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                   {searchQuery && (
@@ -199,7 +199,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                       ล้าง
                     </button>
                   )}
-                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-400 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-400 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                     /
                   </span>
                 </div>
@@ -213,10 +213,10 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
             
             {/* Left Column: Filter Facets (3 Cols) */}
             <div className="lg:col-span-3 space-y-4">
-              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0d1117] p-4 shadow-sm space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+              <div className="rounded-3xl border border-slate-200/90 dark:border-slate-800/80 bg-white dark:bg-[#131b2c] p-4 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.02)] space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   <span className="flex items-center gap-1.5">
-                    <Filter className="w-3.5 h-3.5 text-[#0969da] dark:text-[#58a6ff]" />
+                    <Filter className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                     หมวดหมู่งานสำรวจ
                   </span>
                   <span className="text-[11px] font-mono text-slate-400">
@@ -233,8 +233,8 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                         onClick={() => setSelectedCategory(cat.id)}
                         className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                           isSelected
-                            ? 'bg-[#0969da]/10 dark:bg-[#58a6ff]/15 text-[#0969da] dark:text-[#58a6ff] font-semibold border border-[#0969da]/25 dark:border-[#58a6ff]/30'
-                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-transparent'
+                            ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 font-bold border border-sky-200/80 dark:border-sky-800/60 shadow-xs'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60 border border-transparent'
                         }`}
                       >
                         <span className="flex items-center gap-2 truncate">
@@ -243,7 +243,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                         </span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono shrink-0 ${
                           isSelected 
-                            ? 'bg-[#0969da]/20 dark:bg-[#58a6ff]/25 text-[#0969da] dark:text-[#58a6ff]' 
+                            ? 'bg-sky-200/60 dark:bg-sky-900/60 text-sky-800 dark:text-sky-200 font-semibold' 
                             : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
                         }`}>
                           {cat.count}
@@ -255,7 +255,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
               </div>
 
               {/* Standard Reference Card */}
-              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0d1117] p-4 text-xs text-slate-600 dark:text-slate-400 space-y-2 shadow-sm">
+              <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/70 dark:bg-[#131b2c] p-4 text-xs text-slate-600 dark:text-slate-400 space-y-2 shadow-xs">
                 <span className="font-bold text-slate-800 dark:text-slate-200 block text-xs flex items-center gap-1.5">
                   <BookmarkCheck className="w-3.5 h-3.5 text-emerald-500" />
                   เกณฑ์อ้างอิงวิชาการ
@@ -272,11 +272,11 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
               {/* Search Result Stats Header */}
               <div className="flex items-center justify-between px-1 text-xs text-slate-500 dark:text-slate-400">
                 <span className="font-medium">
-                  แสดงผลลัพธ์ <strong className="text-slate-900 dark:text-white font-mono">{filteredTopics.length}</strong> คู่มือ
+                  แสดงผลลัพธ์ <strong className="text-slate-800 dark:text-white font-mono">{filteredTopics.length}</strong> คู่มือ
                   {searchQuery && <span> สำหรับคำค้นหา "{searchQuery}"</span>}
                 </span>
-                <span className="text-[11px] font-mono">
-                  GitHub-style Vault Index
+                <span className="text-[11px] font-mono text-slate-400">
+                  Engineering Vault Index
                 </span>
               </div>
 
@@ -286,54 +286,54 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                   <div
                     key={topic.id}
                     onClick={() => handleSelectTopic(topic.id)}
-                    className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0d1117] hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md transition-all duration-200 cursor-pointer group space-y-3"
+                    className="p-5 sm:p-6 rounded-2xl border border-slate-200/90 dark:border-slate-800/80 bg-white dark:bg-[#131b2c] hover:border-sky-300 dark:hover:border-sky-600 hover:shadow-md hover:shadow-sky-500/5 transition-all duration-200 cursor-pointer group space-y-3"
                   >
                     {/* Item Header */}
                     <div className="flex flex-wrap items-start justify-between gap-2">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:text-[#0969da] dark:group-hover:text-[#58a6ff] transition-colors">
+                      <div className="flex items-center space-x-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-950/60 flex items-center justify-center text-sky-600 dark:text-sky-400 group-hover:text-blue-600 transition-colors shadow-xs">
                           {getTopicIcon(topic.iconName, "w-4 h-4")}
                         </div>
                         
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="font-bold text-sm sm:text-base text-[#0969da] dark:text-[#58a6ff] group-hover:underline tracking-tight">
+                          <h3 className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-sky-300 transition-colors tracking-tight">
                             {topic.title}
                           </h3>
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 font-semibold">
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-sky-200/80 dark:border-sky-800/80 text-sky-800 dark:text-sky-300 bg-sky-50/80 dark:bg-sky-950/60 font-semibold">
                             {topic.badge}
                           </span>
                         </div>
                       </div>
 
-                      <span className="text-xs font-semibold text-[#0969da] dark:text-[#58a6ff] flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-xs font-semibold text-sky-600 dark:text-sky-400 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         เปิดอ่านคู่มือ <ArrowRight className="w-3.5 h-3.5" />
                       </span>
                     </div>
 
                     {/* Subtitle / English Code Identifier */}
-                    <p className="text-xs font-mono text-slate-400 dark:text-slate-500 pl-9">
+                    <p className="text-xs font-mono text-slate-400 dark:text-slate-500 pl-10">
                       {topic.titleEn}
                     </p>
 
                     {/* Summary Description */}
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed pl-9 line-clamp-2">
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed pl-10 line-clamp-2">
                       {topic.summary}
                     </p>
 
-                    {/* Topic Tags (GitHub Repository Topics) */}
-                    <div className="flex flex-wrap gap-1.5 pl-9 pt-1">
+                    {/* Topic Tags */}
+                    <div className="flex flex-wrap gap-1.5 pl-10 pt-1">
                       {getTopicTags(topic.id).map((tag, tIdx) => (
                         <span 
                           key={tIdx}
-                          className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#0969da]/10 dark:bg-[#58a6ff]/10 text-[#0969da] dark:text-[#58a6ff] hover:bg-[#0969da]/20 dark:hover:bg-[#58a6ff]/20 transition-colors"
+                          className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200/70 dark:border-sky-800/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 transition-colors"
                         >
                           {tag}
                         </span>
                       ))}
                     </div>
 
-                    {/* GitHub Search Result Footer Meta */}
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800/80 pl-9">
+                    {/* Footer Meta */}
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800/80 pl-10">
                       <div className="flex items-center gap-1.5">
                         <span className={`w-2.5 h-2.5 rounded-full ${getCategoryDotColor(topic.category)}`} />
                         <span>{topic.categoryName}</span>
@@ -404,11 +404,11 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
         <div className="space-y-6 max-w-5xl mx-auto">
 
           {/* Navigation Breadcrumb Bar */}
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0d1117] px-4 py-3 shadow-sm flex flex-wrap items-center justify-between gap-3 sticky top-16 z-40 backdrop-blur-md bg-white/95 dark:bg-[#0d1117]/95">
+          <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800/80 bg-white/95 dark:bg-[#131b2c]/95 px-4 py-3 shadow-xs flex flex-wrap items-center justify-between gap-3 sticky top-16 z-40 backdrop-blur-md">
             <div className="flex items-center gap-2">
               <button
                 onClick={handleBackToSearch}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all hover:-translate-x-0.5"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-sky-50 hover:text-sky-700 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all hover:-translate-x-0.5 border border-slate-200/80 dark:border-slate-700"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>กลับหน้ารายการค้นหา</span>
@@ -417,7 +417,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
               <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span>
 
               <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-md">
-                <BookOpen className="w-3.5 h-3.5 text-[#0969da] dark:text-[#58a6ff] shrink-0" />
+                <BookOpen className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
                 <span>คู่มือสำรวจ</span>
                 <span>/</span>
                 <span className="truncate">{activeTopic.categoryName}</span>
@@ -427,7 +427,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCopySummary}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors border border-slate-200/60 dark:border-slate-700/60"
                 title="คัดลอกสรุปคู่มือ"
               >
                 {copiedText ? (
@@ -437,7 +437,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3.5 h-3.5" />
+                    <Copy className="w-3.5 h-3.5 text-slate-500" />
                     <span>คัดลอก SOP</span>
                   </>
                 )}
@@ -446,7 +446,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
               {activeTopic.downstreamWorkflow && (
                 <button
                   onClick={handleOpenDownstreamTool}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#0969da] hover:bg-[#0854b0] text-white text-xs font-semibold shadow-sm transition-all"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold shadow-xs transition-all"
                 >
                   <span>{activeTopic.downstreamWorkflow.toolActionLabel || 'เปิดเครื่องมือคำนวณ'}</span>
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -455,16 +455,16 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
             </div>
           </div>
 
-          {/* Main Documentation Container (GitHub README / Technical SOP Style) */}
-          <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0d1117] p-6 sm:p-10 shadow-sm space-y-10">
+          {/* Main Documentation Container */}
+          <div className="rounded-3xl border border-slate-200/90 dark:border-slate-800/80 bg-white dark:bg-[#131b2c] p-6 sm:p-10 shadow-sm space-y-10">
 
             {/* Document Header & Metadata */}
             <div className="space-y-4 border-b border-slate-200 dark:border-slate-800 pb-6">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="px-3 py-0.5 text-xs font-semibold rounded-full bg-[#0969da]/10 text-[#0969da] dark:text-[#58a6ff] border border-[#0969da]/20 font-mono">
+                <span className="px-3 py-0.5 text-xs font-semibold rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/80 font-mono">
                   {activeTopic.badge}
                 </span>
-                <span className="text-xs text-slate-400 font-medium">
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                   หมวด: {activeTopic.categoryName}
                 </span>
                 {activeTopic.courseRelation && (
@@ -484,10 +484,10 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                 </p>
               </div>
 
-              {/* GitHub Note Alert Box */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
-                <div className="text-xs font-bold text-slate-900 dark:text-slate-200 flex items-center gap-1.5">
-                  <BookmarkCheck className="w-4 h-4 text-[#0969da] dark:text-[#58a6ff]" />
+              {/* Luminous Note Alert Box */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-sky-50/80 via-blue-50/40 to-sky-50/30 dark:from-[#162032] dark:to-[#131b2c] border border-sky-200/80 dark:border-sky-800/60 space-y-2">
+                <div className="text-xs font-bold text-sky-900 dark:text-sky-300 flex items-center gap-1.5">
+                  <BookmarkCheck className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                   <span>สรุปภาพรวมและวัตถุประสงค์ (Overview & Core Objective)</span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -500,11 +500,11 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
             {activeTopic.equipmentRequired && activeTopic.equipmentRequired.length > 0 && (
               <div className="space-y-4">
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <SlidersHorizontal className="w-5 h-5 text-[#0969da] dark:text-[#58a6ff]" />
+                  <SlidersHorizontal className="w-5 h-5 text-sky-600 dark:text-sky-400" />
                   <span>1. รายการอุปกรณ์และเครื่องมือที่ต้องจัดเตรียม (Field Equipment Checklist)</span>
                 </h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-4 rounded-2xl bg-slate-50/80 dark:bg-[#162032]/60 border border-slate-200/80 dark:border-slate-800">
                   {activeTopic.equipmentRequired.map((eq, eqIdx) => (
                     <div key={eqIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
@@ -518,14 +518,14 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
             {/* SECTION 2: WORKING PRINCIPLES & THEORY */}
             <div className="space-y-4">
               <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-[#0969da] dark:text-[#58a6ff]" />
+                <BookOpen className="w-5 h-5 text-sky-600 dark:text-sky-400" />
                 <span>2. หลักการทำงานและทฤษฎีทางวิศวกรรม (Engineering Foundations & Working Principles)</span>
               </h2>
 
               <div className="space-y-3">
                 {activeTopic.workingPrinciple.map((wp, wpIdx) => (
-                  <div key={wpIdx} className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800">
-                    <div className="w-6 h-6 rounded-full bg-[#0969da]/10 text-[#0969da] dark:text-[#58a6ff] flex items-center justify-center text-xs font-mono font-bold shrink-0 mt-0.5">
+                  <div key={wpIdx} className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50/80 dark:bg-[#162032]/60 border border-slate-200/80 dark:border-slate-800">
+                    <div className="w-6 h-6 rounded-full bg-sky-100 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 flex items-center justify-center text-xs font-mono font-bold shrink-0 mt-0.5">
                       {wpIdx + 1}
                     </div>
                     <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -773,7 +773,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                   <div className="pt-2">
                     <button
                       onClick={handleOpenDownstreamTool}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0969da] hover:bg-[#0854b0] text-white text-xs sm:text-sm font-semibold shadow-md transition-all hover:scale-[1.02]"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white text-xs sm:text-sm font-semibold shadow-md shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
                       <span>{activeTopic.downstreamWorkflow.toolActionLabel || 'เปิดใช้งานเครื่องมือคำนวณ'}</span>
                       <ArrowRight className="w-4 h-4" />
@@ -787,7 +787,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
             <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <button
                 onClick={handleBackToSearch}
-                className="inline-flex items-center gap-2 text-xs font-semibold text-[#0969da] dark:text-[#58a6ff] hover:underline"
+                className="inline-flex items-center gap-2 text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 hover:underline"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>กลับสู่หน้ารายการค้นหาคู่มือทั้งหมด</span>

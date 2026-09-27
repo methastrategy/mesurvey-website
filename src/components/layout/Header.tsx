@@ -19,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#16181d]/85 backdrop-blur-2xl border-b border-black/[0.06] dark:border-white/[0.08] shadow-[0_2px_15px_-3px_rgba(0,0,0,0.04)] transition-colors">
+      <header className="sticky top-0 z-50 bg-white/90 dark:bg-[#0f172a]/90 backdrop-blur-2xl border-b border-slate-200/80 dark:border-slate-800/80 shadow-[0_1px_15px_-3px_rgba(0,0,0,0.03)] transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             
@@ -29,19 +29,19 @@ export const Header: React.FC<HeaderProps> = ({
               className="flex items-center cursor-pointer group select-none"
             >
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                <span className="font-black text-xl tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent font-sans group-hover:opacity-90 transition-opacity">
+                <span className="font-black text-xl tracking-tight bg-gradient-to-r from-blue-600 via-sky-500 to-indigo-600 dark:from-sky-400 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent font-sans group-hover:opacity-95 transition-opacity">
                   MESURV
                 </span>
 
-                {/* Creator Credit with Interactive Dynamic Badge */}
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100/90 dark:bg-white/[0.06] border border-slate-200/90 dark:border-white/[0.1] shadow-[0_1px_4px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_8px_rgba(0,122,255,0.12)] hover:border-ios-blue/40 dark:hover:border-ios-blue/40 transition-all duration-300 hover:scale-[1.02]">
+                {/* Creator Credit with Luminous Badge */}
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/40 border border-sky-200/90 dark:border-sky-800/60 shadow-[0_1px_4px_rgba(2,132,199,0.08)] hover:shadow-[0_2px_10px_rgba(2,132,199,0.18)] hover:border-sky-400 dark:hover:border-sky-500 transition-all duration-300 hover:scale-[1.02]">
                   <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-ios-blue opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-ios-blue"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-sky-500"></span>
                   </span>
-                  <span className="text-[10px] sm:text-[11px] font-medium tracking-wide text-slate-500 dark:text-slate-400">
+                  <span className="text-[10px] sm:text-[11px] font-medium tracking-wide text-sky-800 dark:text-sky-300">
                     Created by{' '}
-                    <span className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-ios-blue dark:group-hover:text-ios-blueDark transition-colors">
+                    <span className="font-bold text-sky-950 dark:text-white group-hover:text-blue-600 dark:group-hover:text-sky-300 transition-colors">
                       Metha Treepraphankij
                     </span>
                   </span>
@@ -50,13 +50,13 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Desktop iOS Native Segmented Bar */}
-            <nav className="hidden md:flex items-center p-1 rounded-2xl bg-black/[0.05] dark:bg-white/[0.07] border border-black/[0.04] dark:border-white/[0.06] backdrop-blur-md">
+            <nav className="hidden md:flex items-center p-1 rounded-2xl bg-slate-100/90 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/60 backdrop-blur-md">
               <button
                 onClick={() => setActiveTab('knowledge')}
                 className={`px-4 py-1.5 rounded-xl text-xs sm:text-sm transition-all duration-200 ${
                   activeTab === 'knowledge'
-                    ? 'bg-white dark:bg-[#2c2d33] text-slate-900 dark:text-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] font-semibold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
+                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-sky-400 shadow-[0_2px_8px_rgba(0,122,255,0.12)] font-bold border border-blue-100 dark:border-slate-600'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium hover:bg-white/60 dark:hover:bg-slate-700/40'
                 }`}
               >
                 คู่มือสำรวจ
@@ -65,8 +65,8 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => setActiveTab('calculator')}
                 className={`px-4 py-1.5 rounded-xl text-xs sm:text-sm transition-all duration-200 ${
                   activeTab === 'calculator'
-                    ? 'bg-white dark:bg-[#2c2d33] text-ios-blue dark:text-ios-blueDark shadow-[0_2px_8px_rgba(0,0,0,0.08)] font-semibold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
+                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-sky-400 shadow-[0_2px_8px_rgba(0,122,255,0.12)] font-bold border border-blue-100 dark:border-slate-600'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium hover:bg-white/60 dark:hover:bg-slate-700/40'
                 }`}
               >
                 Tools
@@ -75,8 +75,8 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => setActiveTab('map')}
                 className={`px-4 py-1.5 rounded-xl text-xs sm:text-sm transition-all duration-200 ${
                   activeTab === 'map'
-                    ? 'bg-white dark:bg-[#2c2d33] text-slate-900 dark:text-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] font-semibold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
+                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-sky-400 shadow-[0_2px_8px_rgba(0,122,255,0.12)] font-bold border border-blue-100 dark:border-slate-600'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium hover:bg-white/60 dark:hover:bg-slate-700/40'
                 }`}
               >
                 แผนที่ WebGIS

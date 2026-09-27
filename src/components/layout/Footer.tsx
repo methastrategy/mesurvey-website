@@ -7,14 +7,14 @@ export const Footer: React.FC = () => {
 
   return (
     <>
-      <footer className="bg-slate-900/95 dark:bg-[#121214] text-slate-400 text-xs py-5 px-4 sm:px-6 border-t border-black/[0.06] dark:border-white/[0.08]">
+      <footer className="bg-slate-100/70 dark:bg-[#0b0f17] text-slate-500 dark:text-slate-400 text-xs py-5 px-4 sm:px-6 border-t border-slate-200/80 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div className="flex items-center space-x-2">
-            <Compass className="w-4 h-4 text-ios-blue shrink-0" />
-            <span className="font-semibold text-slate-200">MESURV Platform</span>
-            <span className="text-slate-600">|</span>
-            <span className="text-slate-400">
-              Universal Geomatics & Survey Engineering Suite
+            <Compass className="w-4 h-4 text-blue-600 dark:text-sky-400 shrink-0" />
+            <span className="font-bold text-slate-800 dark:text-slate-200">MESURV</span>
+            <span className="text-slate-400">|</span>
+            <span className="text-slate-600 dark:text-slate-400">
+              Open Geomatics & Survey Engineering
             </span>
           </div>
 
