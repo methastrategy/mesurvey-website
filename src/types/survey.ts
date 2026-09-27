@@ -119,6 +119,12 @@ export interface ThaiLandArea {
 
 // Knowledge Hub Types
 export type KnowledgeCategory = 
+  | 'survey-instrument'
+  | 'gnss-gps'
+  | 'drone-uav'
+  | 'scanner-slam'
+  | 'hydrographic'
+  | 'tbm-tunnel'
   | 'total-station'
   | 'gnss-geodesy'
   | 'differential-leveling'

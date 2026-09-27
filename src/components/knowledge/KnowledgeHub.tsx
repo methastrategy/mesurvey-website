@@ -22,11 +22,15 @@ import {
   SlidersHorizontal,
   BookmarkCheck,
   Tag,
-  ExternalLink,
   Layers,
   Sparkles,
   FileText,
-  Filter
+  Filter,
+  Ship,
+  HardHat,
+  Satellite,
+  Scan,
+  Plane
 } from 'lucide-react';
 import { KNOWLEDGE_TOPICS } from '../../data/knowledge-topics';
 import { KnowledgeTopic, KnowledgeCategory, DeviceScreenStep } from '../../types/survey';
@@ -35,7 +39,7 @@ interface KnowledgeHubProps {
   onNavigateTab?: (tab: 'calculator' | 'map') => void;
 }
 
-export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => {
+export const KnowledgeHub: React.FC<KnowledgeHubProps> = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
@@ -47,9 +51,14 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
     switch (iconName) {
       case 'Compass': return <Compass className={className} />;
       case 'Ruler': return <Ruler className={className} />;
-      case 'Radio': return <Radio className={className} />;
-      case 'Camera': return <Camera className={className} />;
-      case 'Boxes': return <Boxes className={className} />;
+      case 'Radio':
+      case 'Satellite': return <Satellite className={className} />;
+      case 'Camera':
+      case 'Plane': return <Plane className={className} />;
+      case 'Boxes':
+      case 'Scan': return <Scan className={className} />;
+      case 'Ship': return <Ship className={className} />;
+      case 'HardHat': return <HardHat className={className} />;
       default: return <BookOpen className={className} />;
     }
   };
@@ -57,11 +66,17 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
   // Category Color Dot (GitHub Language Dot Style)
   const getCategoryDotColor = (category: KnowledgeCategory) => {
     switch (category) {
-      case 'differential-leveling': return 'bg-emerald-500';
-      case 'total-station': return 'bg-sky-500';
+      case 'survey-instrument':
+      case 'total-station':
+      case 'differential-leveling': return 'bg-sky-500';
+      case 'gnss-gps':
       case 'gnss-geodesy': return 'bg-purple-500';
+      case 'drone-uav':
       case 'drone-photogrammetry': return 'bg-amber-500';
-      case 'lidar-scan-bim': return 'bg-rose-500';
+      case 'scanner-slam':
+      case 'lidar-scan-bim': return 'bg-emerald-500';
+      case 'hydrographic': return 'bg-cyan-500';
+      case 'tbm-tunnel': return 'bg-rose-500';
       default: return 'bg-indigo-500';
     }
   };
@@ -77,6 +92,16 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
         return ['Closed Polygon', 'Angular Misclosure', 'Continuous Azimuth', 'Latitude & Departure', 'Bowditch Compass Rule', 'UTM Grid'];
       case 'link-open-traverse':
         return ['Link Traverse', 'Known Benchmark Tie-in', 'Azimuth Closure', 'Coordinate Delta Balancing', 'No Dead-End', 'Alignment Control'];
+      case 'gnss-rtk-static-survey':
+        return ['RTK CORS', 'Static Geodesy', 'TGM2017 Geoid', 'NTRIP VRS', 'PDOP < 2.5', 'Carrier Phase'];
+      case 'uav-drone-photogrammetry':
+        return ['UAV Photogrammetry', 'GSD Calculation', 'GCP / Check Points', 'SfM Reconstruction', 'Forward 80% / Side 70%', 'Orthomosaic'];
+      case 'terrestrial-lidar-slam':
+        return ['Terrestrial LiDAR (TLS)', 'Mobile SLAM', 'Point Cloud Registration', 'Iterative Closest Point (ICP)', 'Sphere Targets', 'Scan-to-BIM'];
+      case 'hydrographic-bathymetric-survey':
+        return ['Multi-Beam Echo Sounder', 'Bathymetric Survey', 'MRU Roll/Pitch/Heave', 'Sound Velocity Profile (SVP)', 'Tide Reduction', 'IHO Standards'];
+      case 'tbm-tunnel-guidance-survey':
+        return ['TBM Guidance System', 'Motorized Total Station', 'DTA Alignment Deviations', 'ELS Target Sensor', 'Segment Ring Convergence', 'Gyrotheodolite'];
       default:
         return ['Field SOP', 'Survey Engineering', 'Geomatics'];
     }
@@ -85,17 +110,23 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
   // Category Facets
   const categories: { id: string; label: string; count: number; icon: React.ReactNode }[] = useMemo(() => [
     { id: 'all', label: 'ทั้งหมด (All SOPs)', count: KNOWLEDGE_TOPICS.length, icon: <BookOpen className="w-4 h-4" /> },
-    { id: 'differential-leveling', label: 'กล้องระดับ (Leveling)', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'differential-leveling').length, icon: <Ruler className="w-4 h-4" /> },
-    { id: 'total-station', label: 'กล้องวัดมุม & วงรอบ', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'total-station').length, icon: <Compass className="w-4 h-4" /> },
-    { id: 'gnss-geodesy', label: 'ดาวเทียม GNSS & Geodesy', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'gnss-geodesy').length, icon: <Radio className="w-4 h-4" /> },
-    { id: 'drone-photogrammetry', label: 'โดรน UAV & ภาพถ่าย', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'drone-photogrammetry').length, icon: <Camera className="w-4 h-4" /> },
-    { id: 'lidar-scan-bim', label: '3D LiDAR & BIM', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'lidar-scan-bim').length, icon: <Boxes className="w-4 h-4" /> },
+    { id: 'survey-instrument', label: 'กล้องสำรวจ', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'survey-instrument' || t.category === 'total-station' || t.category === 'differential-leveling').length, icon: <Compass className="w-4 h-4" /> },
+    { id: 'gnss-gps', label: 'GNSS,GPS', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'gnss-gps' || t.category === 'gnss-geodesy').length, icon: <Satellite className="w-4 h-4" /> },
+    { id: 'drone-uav', label: 'DRONE/UAV', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'drone-uav' || t.category === 'drone-photogrammetry').length, icon: <Plane className="w-4 h-4" /> },
+    { id: 'scanner-slam', label: 'SCANNER/SLAM', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'scanner-slam' || t.category === 'lidar-scan-bim').length, icon: <Scan className="w-4 h-4" /> },
+    { id: 'hydrographic', label: 'เรือสำรวจ', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'hydrographic').length, icon: <Ship className="w-4 h-4" /> },
+    { id: 'tbm-tunnel', label: 'เครื่องเจาะTBM', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'tbm-tunnel').length, icon: <HardHat className="w-4 h-4" /> },
   ], []);
 
   // Filtered Topics
   const filteredTopics = useMemo(() => {
     return KNOWLEDGE_TOPICS.filter((t) => {
-      const matchCategory = selectedCategory === 'all' || t.category === selectedCategory;
+      const matchCategory = selectedCategory === 'all' || 
+        t.category === selectedCategory ||
+        (selectedCategory === 'survey-instrument' && (t.category === 'total-station' || t.category === 'differential-leveling')) ||
+        (selectedCategory === 'gnss-gps' && t.category === 'gnss-geodesy') ||
+        (selectedCategory === 'drone-uav' && t.category === 'drone-photogrammetry') ||
+        (selectedCategory === 'scanner-slam' && t.category === 'lidar-scan-bim');
       const q = searchQuery.toLowerCase().trim();
       if (!q) return matchCategory;
       const matchQuery = (
@@ -135,19 +166,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
     navigator.clipboard.writeText(textToCopy);
     setCopiedText(true);
     setTimeout(() => setCopiedText(false), 2000);
-  };
-
-  const handleOpenDownstreamTool = () => {
-    if (!activeTopic?.downstreamWorkflow?.recommendedToolTab) {
-      onNavigateTab?.('calculator');
-      return;
-    }
-    const target = activeTopic.downstreamWorkflow.recommendedToolTab;
-    if (target === 'map') {
-      onNavigateTab?.('map');
-    } else {
-      onNavigateTab?.('calculator');
-    }
   };
 
   return (
@@ -217,7 +235,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                 <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   <span className="flex items-center gap-1.5">
                     <Filter className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-                    หมวดหมู่งานสำรวจ
+                    หมวดหมู่
                   </span>
                   <span className="text-[11px] font-mono text-slate-400">
                     {filteredTopics.length}
@@ -442,16 +460,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                   </>
                 )}
               </button>
-
-              {activeTopic.downstreamWorkflow && (
-                <button
-                  onClick={handleOpenDownstreamTool}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold shadow-xs transition-all"
-                >
-                  <span>{activeTopic.downstreamWorkflow.toolActionLabel || 'เปิดเครื่องมือคำนวณ'}</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </button>
-              )}
             </div>
           </div>
 
@@ -734,51 +742,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ onNavigateTab }) => 
                       </p>
                     </div>
                   ))}
-                </div>
-              </div>
-            )}
-
-            {/* SECTION 6: DOWNSTREAM WORKFLOW & TOOL HANDOFF */}
-            {activeTopic.downstreamWorkflow && (
-              <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
-                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <ArrowRight className="w-5 h-5 text-sky-500" />
-                  <span>6. ผลลัพธ์และการส่งต่อข้อมูลสู่เครื่องมือคำนวณ (Downstream Data Integration)</span>
-                </h2>
-
-                <div className="p-5 rounded-2xl bg-sky-50/60 dark:bg-sky-950/20 border border-sky-200/80 dark:border-sky-900/40 space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <span className="text-xs font-bold text-sky-900 dark:text-sky-300 block mb-1">
-                        รูปแบบข้อมูลที่ได้ (Output Data Format):
-                      </span>
-                      <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-mono">
-                        {activeTopic.downstreamWorkflow.outputDataFormat}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-sky-900 dark:text-sky-300 block mb-1">
-                        ขั้นตอนถัดไปในระบบ (Next Step):
-                      </span>
-                      <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                        {activeTopic.downstreamWorkflow.nextStepTitle}
-                      </p>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed border-t border-sky-200/60 dark:border-sky-900/40 pt-3">
-                    {activeTopic.downstreamWorkflow.nextStepProcedure}
-                  </p>
-
-                  <div className="pt-2">
-                    <button
-                      onClick={handleOpenDownstreamTool}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white text-xs sm:text-sm font-semibold shadow-md shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                      <span>{activeTopic.downstreamWorkflow.toolActionLabel || 'เปิดใช้งานเครื่องมือคำนวณ'}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
                 </div>
               </div>
             )}
