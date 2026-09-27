@@ -49,9 +49,8 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'SF Pro Display', 'Prompt', 'Inter', 'Segoe UI', 'Roboto', 'sans-serif'],
-        mono: ['SF Mono', 'JetBrains Mono', 'Fira Code', 'Courier New', 'monospace'],
-        sarabun: ['Sarabun', 'sans-serif'],
+        sans: ['Inter', 'Prompt', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['JetBrains Mono', 'SF Mono', 'Fira Code', 'Courier New', 'monospace'],
       },
       boxShadow: {
         'ios-sm': '0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03)',

@@ -9,6 +9,12 @@
     padding: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Survey coordinates, calculation tables, and metrics tabular numeric alignment */
+  table, .font-mono, [data-tabular] {
+    font-variant-numeric: tabular-nums;
   }
 }
 
