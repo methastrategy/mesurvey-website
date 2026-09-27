@@ -26,20 +26,26 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Global Brand Identity */}
             <div 
               onClick={() => setActiveTab('knowledge')}
-              className="flex items-center cursor-pointer group"
+              className="flex items-center cursor-pointer group select-none"
             >
-              <div>
-                <div className="flex items-center space-x-2">
-                  <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white font-sans">
-                    MESURV
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                <span className="font-black text-xl tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent font-sans group-hover:opacity-90 transition-opacity">
+                  MESURV
+                </span>
+
+                {/* Creator Credit with Interactive Dynamic Badge */}
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100/90 dark:bg-white/[0.06] border border-slate-200/90 dark:border-white/[0.1] shadow-[0_1px_4px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_8px_rgba(0,122,255,0.12)] hover:border-ios-blue/40 dark:hover:border-ios-blue/40 transition-all duration-300 hover:scale-[1.02]">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-ios-blue opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-ios-blue"></span>
                   </span>
-                  <span className="px-2 py-0.5 text-[10px] font-semibold tracking-wider uppercase rounded-full bg-ios-blue/10 dark:bg-ios-blue/20 text-ios-blue dark:text-ios-blueDark border border-ios-blue/25">
-                    Tools Suite
+                  <span className="text-[10px] sm:text-[11px] font-medium tracking-wide text-slate-500 dark:text-slate-400">
+                    Created by{' '}
+                    <span className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-ios-blue dark:group-hover:text-ios-blueDark transition-colors">
+                      Metha Treepraphankij
+                    </span>
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block font-medium">
-                  Universal Geomatics & Survey Engineering
-                </p>
               </div>
             </div>
 
