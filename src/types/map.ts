@@ -1,5 +1,7 @@
 export type BasemapProvider = 'osm' | 'satellite' | 'topo' | 'dark';
 
+export type MapInteractionMode = 'none' | 'inspect' | 'distance' | 'area' | 'marker';
+
 export interface BasemapConfig {
   id: BasemapProvider;
   name: string;
@@ -39,7 +41,7 @@ export interface DistancePoint {
 }
 
 export interface MeasurementState {
-  mode: 'none' | 'distance' | 'area';
+  mode: MapInteractionMode;
   points: DistancePoint[];
   totalDistanceMeters: number;
   totalAreaSqMeters: number;

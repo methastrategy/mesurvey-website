@@ -1,21 +1,21 @@
 import React from 'react';
-import { BasemapProvider } from '../../types/map';
+import { BasemapProvider, MapInteractionMode } from '../../types/map';
 import { SURVEY_BOOKMARKS } from '../../data/survey-presets';
 import { 
-  Layers, 
   Ruler, 
   Square, 
   MapPin, 
   RotateCcw, 
   LocateFixed, 
-  FolderUp 
+  FolderUp,
+  Crosshair 
 } from 'lucide-react';
 
 interface MapToolbarProps {
   currentBasemap: BasemapProvider;
   onSelectBasemap: (provider: BasemapProvider) => void;
-  measureMode: 'none' | 'distance' | 'area' | 'marker';
-  onSetMeasureMode: (mode: 'none' | 'distance' | 'area' | 'marker') => void;
+  measureMode: MapInteractionMode;
+  onSetMeasureMode: (mode: MapInteractionMode) => void;
   onClearMeasurements: () => void;
   onLocateMe: () => void;
   onSelectBookmark: (bm: typeof SURVEY_BOOKMARKS[0]) => void;
@@ -33,8 +33,8 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
   onOpenUploader
 }) => {
   const basemaps: { id: BasemapProvider; label: string }[] = [
-    { id: 'osm', label: 'ถนน (OSM)' },
     { id: 'satellite', label: 'ดาวเทียม (Satellite)' },
+    { id: 'osm', label: 'ถนน (OSM)' },
     { id: 'topo', label: 'ภูมิประเทศ (Topo)' },
     { id: 'dark', label: 'มืด (Dark)' }
   ];
@@ -45,6 +45,20 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
       {/* Left: Tools & Controls */}
       <div className="flex flex-wrap items-center gap-1.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl pointer-events-auto">
         
+        {/* Inspect Coordinate Crosshair Tool (Prevents accidental mobile touch-traps) */}
+        <button
+          onClick={() => onSetMeasureMode(measureMode === 'inspect' ? 'none' : 'inspect')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors flex items-center space-x-1.5 ${
+            measureMode === 'inspect'
+              ? 'bg-emerald-600 text-white font-semibold shadow-sm animate-pulse'
+              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+          title="เป้าเล็งตรวจสอบพิกัด (คลิกบนแผนที่เพื่อดูพิกัด)"
+        >
+          <Crosshair className="w-4 h-4" />
+          <span className="hidden sm:inline">เป้าเล็งพิกัด</span>
+        </button>
+
         {/* Distance Tool */}
         <button
           onClick={() => onSetMeasureMode(measureMode === 'distance' ? 'none' : 'distance')}
@@ -92,7 +106,7 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
           <button
             onClick={onClearMeasurements}
             className="p-1.5 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
-            title="ล้างค่าการวัด"
+            title="ล้างค่าการวัดและออกจากโหมด"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -141,23 +155,21 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
               </option>
             ))}
           </select>
-          <div className="w-[1px] h-5 bg-slate-200 dark:bg-slate-700 mx-1" />
         </div>
 
-        {/* Basemap Icons / Buttons */}
-        <div className="flex items-center space-x-1">
-          <Layers className="w-4 h-4 text-slate-400 ml-1 mr-0.5 hidden md:block" />
+        {/* Basemap Selection Pills */}
+        <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
           {basemaps.map((b) => (
             <button
               key={b.id}
               onClick={() => onSelectBasemap(b.id)}
-              className={`px-2.5 py-1 rounded-xl text-xs font-medium transition-colors whitespace-nowrap ${
+              className={`px-2 py-1 rounded-lg text-[11px] font-medium transition-all ${
                 currentBasemap === b.id
-                  ? 'bg-survey-600 text-white font-semibold shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-semibold'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              {b.label}
+              {b.label.split(' ')[0]}
             </button>
           ))}
         </div>
