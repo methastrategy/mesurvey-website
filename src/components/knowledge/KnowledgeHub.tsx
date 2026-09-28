@@ -388,7 +388,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                   <div
                     key={topic.id}
                     onClick={() => handleSelectTopic(topic.id)}
-                    className="p-5 sm:p-6 rounded-2xl border border-slate-200/90 dark:border-slate-800/80 bg-white dark:bg-[#131b2c] hover:border-sky-300 dark:hover:border-sky-600 hover:shadow-md hover:shadow-sky-500/5 transition-all duration-200 cursor-pointer group space-y-3"
+                    className="relative p-5 sm:p-6 rounded-2xl border border-slate-200/90 dark:border-slate-800/80 bg-white dark:bg-[#131b2c] hover:border-sky-300 dark:hover:border-sky-600 hover:shadow-md hover:shadow-sky-500/5 transition-all duration-200 cursor-pointer group space-y-3"
                   >
                     {/* Item Header */}
                     <div className="flex flex-wrap items-start justify-between gap-2">
@@ -407,31 +407,30 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                         </div>
                       </div>
 
-                      {/* Top-Right Corner Stamp Badge */}
-                      <div className="flex items-center gap-2 ml-auto">
-                        {topic.verificationStatus === 'verified' ? (
-                          <div 
-                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-semibold tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
-                            title={topic.verificationProof ? `VERIFIED / ตรวจสอบแล้ว: ${topic.verificationProof}` : 'VERIFIED / ตรวจสอบแล้ว'}
-                          >
-                            <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                            <span>VERIFIED / ตรวจสอบแล้ว</span>
-                          </div>
-                        ) : (
-                          <div 
-                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-semibold tracking-wider bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30"
-                            title="DRAFT / รอดำเนินการตรวจสอบ: เอกสารทางเทคนิคฉบับร่าง อยู่ระหว่างการทวนสอบและ peer review ทางวิชาการและภาคสนาม"
-                          >
-                            <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0" />
-                            <span>DRAFT / รอดำเนินการตรวจสอบ</span>
-                          </div>
-                        )}
-
-                        <span className="text-xs font-semibold text-sky-600 dark:text-sky-400 hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          เปิดอ่าน <ArrowRight className="w-3.5 h-3.5" />
-                        </span>
-                      </div>
+                      {/* "เปิดอ่าน" hover hint — stays in flex row */}
+                      <span className="text-xs font-semibold text-sky-600 dark:text-sky-400 hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-auto">
+                        เปิดอ่าน <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
                     </div>
+
+                    {/* Absolute Corner Stamp Badge — top-right of card */}
+                    {topic.verificationStatus === 'verified' ? (
+                      <div
+                        className="absolute top-0 right-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-bl-xl rounded-tr-2xl text-[10px] font-mono font-semibold tracking-widest bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-b border-l border-emerald-500/30"
+                        title={topic.verificationProof ? `VERIFIED: ${topic.verificationProof}` : 'VERIFIED'}
+                      >
+                        <ShieldCheck className="w-3 h-3 shrink-0" />
+                        <span>VERIFIED</span>
+                      </div>
+                    ) : (
+                      <div
+                        className="absolute top-0 right-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-bl-xl rounded-tr-2xl text-[10px] font-mono font-semibold tracking-widest bg-amber-500/10 text-amber-700 dark:text-amber-400 border-b border-l border-amber-500/30"
+                        title="DRAFT — เอกสารฉบับร่าง รอการตรวจสอบ"
+                      >
+                        <Clock className="w-3 h-3 shrink-0" />
+                        <span>DRAFT</span>
+                      </div>
+                    )}
 
                     {/* Subtitle / English Code Identifier */}
                     <p className="text-xs font-mono text-slate-400 dark:text-slate-500 pl-10">
