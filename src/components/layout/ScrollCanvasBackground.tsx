@@ -2,68 +2,121 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 interface ScrollCanvasBackgroundProps {
   activeTab: 'knowledge' | 'calculator' | 'map';
-  isDark: boolean;
 }
 
-const TOTAL_FRAMES = 120;
-const LERP_FACTOR = 0.08; // Smooth inertia easing
+const TOTAL_FRAMES = 240;
+const LERP_FACTOR = 0.065; // Silky-smooth inertia factor
 
 export const ScrollCanvasBackground: React.FC<ScrollCanvasBackgroundProps> = ({
   activeTab,
-  isDark
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const imagesRef = useRef<HTMLImageElement[]>([]);
-  const targetProgressRef = useRef<number>(0);
-  const currentProgressRef = useRef<number>(0);
+  const imagesRef = useRef<HTMLImageElement[]>(new Array(TOTAL_FRAMES));
+  const targetScrollRef = useRef<number>(0);
+  const currentScrollRef = useRef<number>(0);
   const animFrameIdRef = useRef<number | null>(null);
-  const lastDrawnFrameRef = useRef<number>(-1);
   const [isFirstFrameReady, setIsFirstFrameReady] = useState(false);
 
-  // Preload frames
+  // Tiered Progressive Frame Preloader (240 frames)
   useEffect(() => {
-    const images: HTMLImageElement[] = [];
+    const images: HTMLImageElement[] = new Array(TOTAL_FRAMES);
+    let isCancelled = false;
 
-    // Preload first frame immediately with priority
-    const firstImg = new Image();
-    firstImg.src = '/bg-frames/frame_000.webp';
-    firstImg.onload = () => {
-      setIsFirstFrameReady(true);
+    const loadFrame = (idx: number): Promise<void> => {
+      return new Promise((resolve) => {
+        if (isCancelled) {
+          resolve();
+          return;
+        }
+        const img = new Image();
+        img.decoding = 'async';
+        const numStr = String(idx).padStart(3, '0');
+        img.src = `/bg-frames/frame_${numStr}.webp`;
+        img.onload = () => {
+          if (!isCancelled) {
+            images[idx] = img;
+            if (idx === 0) setIsFirstFrameReady(true);
+          }
+          resolve();
+        };
+        img.onerror = () => resolve();
+      });
     };
-    images[0] = firstImg;
 
-    // Load remaining frames
-    for (let i = 1; i < TOTAL_FRAMES; i++) {
-      const img = new Image();
-      const numStr = String(i).padStart(3, '0');
-      img.src = `/bg-frames/frame_${numStr}.webp`;
-      images[i] = img;
-    }
+    // Tier 1: Frame 0 immediately
+    loadFrame(0).then(async () => {
+      // Tier 2: Every 6th keyframe for instant full-range scrubbing
+      const keyframes: number[] = [];
+      const infillFrames: number[] = [];
+      for (let i = 1; i < TOTAL_FRAMES; i++) {
+        if (i % 6 === 0) keyframes.push(i);
+        else infillFrames.push(i);
+      }
+
+      // Load keyframes in parallel batches of 8
+      for (let i = 0; i < keyframes.length; i += 8) {
+        if (isCancelled) return;
+        await Promise.all(keyframes.slice(i, i + 8).map(loadFrame));
+      }
+
+      // Tier 3: Load remaining 200 sub-frames in batches of 12
+      for (let i = 0; i < infillFrames.length; i += 12) {
+        if (isCancelled) return;
+        await Promise.all(infillFrames.slice(i, i + 12).map(loadFrame));
+      }
+    });
 
     imagesRef.current = images;
 
     return () => {
-      imagesRef.current = [];
+      isCancelled = true;
     };
   }, []);
 
-  // Responsive Canvas Sizing & Draw Cover
-  const drawFrame = useCallback((frameIdx: number) => {
+  // Find nearest loaded frame fallback if a frame is still streaming
+  const getNearestLoadedImage = (targetIdx: number): HTMLImageElement | null => {
+    const imgs = imagesRef.current;
+    const direct = imgs[targetIdx];
+    if (direct && direct.complete && direct.naturalWidth > 0) {
+      return direct;
+    }
+    for (let offset = 1; offset < 12; offset++) {
+      const prev = targetIdx - offset;
+      if (prev >= 0 && imgs[prev] && imgs[prev].complete && imgs[prev].naturalWidth > 0) {
+        return imgs[prev];
+      }
+      const next = targetIdx + offset;
+      if (next < TOTAL_FRAMES && imgs[next] && imgs[next].complete && imgs[next].naturalWidth > 0) {
+        return imgs[next];
+      }
+    }
+    return imgs[0] && imgs[0].complete ? imgs[0] : null;
+  };
+
+  // Sub-frame Alpha Crossfade Renderer (60fps smooth interpolation)
+  const drawBlendedFrame = useCallback((exactFrame: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
-    const img = imagesRef.current[frameIdx];
-    if (!img || !img.complete || img.naturalWidth === 0) return;
+    const frameFloor = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.floor(exactFrame)));
+    const frameCeil = Math.max(0, Math.min(TOTAL_FRAMES - 1, frameFloor + 1));
+    const frac = exactFrame - frameFloor;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const imgA = getNearestLoadedImage(frameFloor);
+    if (!imgA) return;
+    const imgB = frac > 0.02 ? getNearestLoadedImage(frameCeil) : null;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
     const displayWidth = window.innerWidth;
     const displayHeight = window.innerHeight;
+    const targetW = Math.round(displayWidth * dpr);
+    const targetH = Math.round(displayHeight * dpr);
 
-    if (canvas.width !== displayWidth * dpr || canvas.height !== displayHeight * dpr) {
-      canvas.width = displayWidth * dpr;
-      canvas.height = displayHeight * dpr;
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
     }
 
     ctx.save();
@@ -71,7 +124,7 @@ export const ScrollCanvasBackground: React.FC<ScrollCanvasBackgroundProps> = ({
 
     const w = displayWidth;
     const h = displayHeight;
-    const imgRatio = img.naturalWidth / img.naturalHeight;
+    const imgRatio = imgA.naturalWidth / imgA.naturalHeight;
     const canvasRatio = w / h;
 
     let renderW = w;
@@ -79,7 +132,6 @@ export const ScrollCanvasBackground: React.FC<ScrollCanvasBackgroundProps> = ({
     let offsetX = 0;
     let offsetY = 0;
 
-    // Object-fit: cover calculation
     if (canvasRatio > imgRatio) {
       renderW = w;
       renderH = w / imgRatio;
@@ -90,24 +142,27 @@ export const ScrollCanvasBackground: React.FC<ScrollCanvasBackgroundProps> = ({
       offsetX = (w - renderW) / 2;
     }
 
-    ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
-    ctx.restore();
+    // Draw base frame A at 100% opacity
+    ctx.globalAlpha = 1;
+    ctx.drawImage(imgA, offsetX, offsetY, renderW, renderH);
 
-    lastDrawnFrameRef.current = frameIdx;
+    // Crossfade frame B on top with fractional alpha for butter-smooth motion
+    if (imgB && imgB !== imgA && frac > 0.02) {
+      ctx.globalAlpha = frac;
+      ctx.drawImage(imgB, offsetX, offsetY, renderW, renderH);
+    }
+
+    ctx.restore();
   }, []);
 
-  // Update target progress on scroll
+  // Track scroll progress
   useEffect(() => {
     if (activeTab === 'map') return;
 
     const handleScroll = () => {
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      if (maxScroll <= 0) {
-        targetProgressRef.current = 0;
-      } else {
-        const current = window.scrollY;
-        targetProgressRef.current = Math.min(1, Math.max(0, current / maxScroll));
-      }
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const current = window.scrollY;
+      targetScrollRef.current = Math.min(1, Math.max(0, current / maxScroll));
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -120,7 +175,7 @@ export const ScrollCanvasBackground: React.FC<ScrollCanvasBackgroundProps> = ({
     };
   }, [activeTab]);
 
-  // Smooth Lerp Animation Loop
+  // 60fps Continuous Lerp + Subtle Ambient Drift Loop
   useEffect(() => {
     if (activeTab === 'map') {
       if (animFrameIdRef.current) {
@@ -129,24 +184,24 @@ export const ScrollCanvasBackground: React.FC<ScrollCanvasBackgroundProps> = ({
       return;
     }
 
-    const tick = () => {
-      // Lerp easing: current = current + (target - current) * factor
-      const diff = targetProgressRef.current - currentProgressRef.current;
-      if (Math.abs(diff) > 0.0001) {
-        currentProgressRef.current += diff * LERP_FACTOR;
+    const tick = (now: number) => {
+      // Smooth Lerp towards scroll target
+      const diff = targetScrollRef.current - currentScrollRef.current;
+      if (Math.abs(diff) > 0.00005) {
+        currentScrollRef.current += diff * LERP_FACTOR;
       } else {
-        currentProgressRef.current = targetProgressRef.current;
+        currentScrollRef.current = targetScrollRef.current;
       }
 
-      const progress = currentProgressRef.current;
-      const targetFrame = Math.min(
-        TOTAL_FRAMES - 1,
-        Math.max(0, Math.round(progress * (TOTAL_FRAMES - 1)))
+      // Gentle ambient underwater breathing drift (±3.5% of timeline) so it's alive even when idle
+      const ambientWave = (Math.sin(now * 0.00045) + 1) * 0.5 * 0.07;
+      const combinedProgress = Math.min(
+        1,
+        Math.max(0, currentScrollRef.current * 0.93 + ambientWave)
       );
 
-      if (targetFrame !== lastDrawnFrameRef.current || !lastDrawnFrameRef.current) {
-        drawFrame(targetFrame);
-      }
+      const exactFrame = combinedProgress * (TOTAL_FRAMES - 1);
+      drawBlendedFrame(exactFrame);
 
       animFrameIdRef.current = requestAnimationFrame(tick);
     };
@@ -158,25 +213,7 @@ export const ScrollCanvasBackground: React.FC<ScrollCanvasBackgroundProps> = ({
         cancelAnimationFrame(animFrameIdRef.current);
       }
     };
-  }, [activeTab, drawFrame, isFirstFrameReady]);
-
-  // Initial draw when first frame is ready
-  useEffect(() => {
-    if (isFirstFrameReady && activeTab !== 'map') {
-      drawFrame(0);
-    }
-  }, [isFirstFrameReady, activeTab, drawFrame]);
-
-  // Handle window resize
-  useEffect(() => {
-    const handleResize = () => {
-      if (lastDrawnFrameRef.current >= 0) {
-        drawFrame(lastDrawnFrameRef.current);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [drawFrame]);
+  }, [activeTab, drawBlendedFrame, isFirstFrameReady]);
 
   if (activeTab === 'map') {
     return null;
@@ -185,30 +222,22 @@ export const ScrollCanvasBackground: React.FC<ScrollCanvasBackgroundProps> = ({
   return (
     <div 
       aria-hidden="true"
-      className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
+      className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none bg-[#07080a]"
     >
-      {/* Scroll-Driven Dynamic Canvas */}
+      {/* 60fps Crossfade Underwater Canvas */}
       <canvas
         ref={canvasRef}
-        className="w-full h-full object-cover block"
+        className="w-full h-full object-cover block opacity-90"
       />
 
-      {/* Atmospheric Contrast Overlays for Glassmorphism & Readability */}
-      {/* Dark Mode Overlay */}
+      {/* Deep Ocean Raycast × Linear Dark Glassmorphic Scrim */}
       <div 
-        className="absolute inset-0 bg-slate-950/60 dark:bg-[#07090e]/75 backdrop-blur-[0.5px] transition-colors duration-300"
+        className="absolute inset-0 bg-gradient-to-b from-[#07080a]/70 via-[#07090f]/65 to-[#07080a]/85"
       />
 
-      {/* Light Mode Soft Contrast Overlay */}
-      {!isDark && (
-        <div 
-          className="absolute inset-0 bg-white/70 backdrop-blur-[0.5px] mix-blend-soft-light transition-opacity duration-300"
-        />
-      )}
-
-      {/* Vignette Depth Gradient */}
+      {/* Subtle Ambient Top Indigo/Cyan Specular Glow */}
       <div 
-        className="absolute inset-0 bg-radial-vignette opacity-50 dark:opacity-70 pointer-events-none"
+        className="absolute -top-48 left-1/2 -translate-x-1/2 w-[900px] h-[360px] rounded-full bg-indigo-500/[0.08] blur-[120px]"
       />
     </div>
   );
