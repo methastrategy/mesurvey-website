@@ -1,239 +1,160 @@
 ---
 name: MESURV
-description: Survey & Geomatics Engineering Field Terminal
+description: Survey & Geomatics Engineering Field Terminal (Linear x Vercel Aesthetic)
 colors:
-  primary: "#0284c7"
-  primary-hover: "#0369a1"
-  primary-subtle: "#e0f2fe"
-  neutral-bg: "#f8fafc"
-  neutral-surface: "#ffffff"
-  neutral-surface-dark: "#131b2c"
-  neutral-border: "#e2e8f0"
-  neutral-border-dark: "#1e293b"
-  text-primary: "#0f172a"
-  text-secondary: "#475569"
-  text-muted: "#94a3b8"
-  text-inverse: "#f8fafc"
-  accent-gnss: "#a855f7"
-  accent-drone: "#f59e0b"
-  accent-laser: "#10b981"
-  accent-sonar: "#06b6d4"
-  accent-tbm: "#f43f5e"
-  success: "#10b981"
-  warning: "#f59e0b"
-  danger: "#ef4444"
+  primary: "#6366f1"
+  primary-hover: "#818cf8"
+  primary-pressed: "#4f46e5"
+  primary-subtle: "rgba(99, 102, 241, 0.08)"
+  neutral-bg-dark: "#0a0a0b"
+  neutral-surface-1-dark: "#111113"
+  neutral-surface-2-dark: "#161618"
+  neutral-surface-3-dark: "#1c1c1f"
+  neutral-bg-light: "#ffffff"
+  neutral-surface-1-light: "#f9fafb"
+  neutral-surface-2-light: "#f3f4f6"
+  neutral-surface-3-light: "#e5e7eb"
+  hairline-dark: "rgba(255, 255, 255, 0.08)"
+  hairline-light: "rgba(0, 0, 0, 0.08)"
+  semantic-amber: "#f59e0b"
+  semantic-emerald: "#10b981"
+  semantic-rose: "#f43f5e"
 typography:
   display:
-    fontFamily: "Inter, Prompt, sans-serif"
+    fontFamily: "'DM Sans', Prompt, -apple-system, sans-serif"
     fontSize: "1.875rem"
     fontWeight: 800
     lineHeight: 1.25
     letterSpacing: "-0.025em"
   headline:
-    fontFamily: "Inter, Prompt, sans-serif"
+    fontFamily: "'DM Sans', Prompt, -apple-system, sans-serif"
     fontSize: "1.25rem"
     fontWeight: 700
     lineHeight: 1.35
     letterSpacing: "-0.015em"
   title:
-    fontFamily: "Inter, Prompt, sans-serif"
+    fontFamily: "'DM Sans', Prompt, -apple-system, sans-serif"
     fontSize: "1rem"
     fontWeight: 600
     lineHeight: 1.4
     letterSpacing: "normal"
   body:
-    fontFamily: "Inter, Prompt, sans-serif"
+    fontFamily: "'DM Sans', Prompt, -apple-system, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.625
     letterSpacing: "normal"
   label:
-    fontFamily: "JetBrains Mono, monospace"
+    fontFamily: "'JetBrains Mono', monospace"
     fontSize: "0.75rem"
     fontWeight: 500
     lineHeight: 1.4
     letterSpacing: "0.025em"
 rounded:
-  sm: "8px"
-  md: "12px"
+  micro: "2px"
+  sm: "6px"
+  md: "10px"
   lg: "16px"
   xl: "24px"
   full: "9999px"
-spacing:
-  xs: "4px"
-  sm: "8px"
-  md: "16px"
-  lg: "24px"
-  xl: "32px"
-components:
-  button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.text-inverse}"
-    rounded: "{rounded.md}"
-    padding: "8px 16px"
-  button-primary-hover:
-    backgroundColor: "{colors.primary-hover}"
-    textColor: "{colors.text-inverse}"
-    rounded: "{rounded.md}"
-    padding: "8px 16px"
-  button-secondary:
-    backgroundColor: "{colors.neutral-surface}"
-    textColor: "{colors.text-secondary}"
-    rounded: "{rounded.md}"
-    padding: "8px 16px"
-  button-secondary-hover:
-    backgroundColor: "{colors.primary-subtle}"
-    textColor: "{colors.primary}"
-    rounded: "{rounded.md}"
-    padding: "8px 16px"
-  card-surface:
-    backgroundColor: "{colors.neutral-surface}"
-    textColor: "{colors.text-primary}"
-    rounded: "{rounded.lg}"
-    padding: "20px"
-  card-surface-hover:
-    backgroundColor: "{colors.neutral-surface}"
-    textColor: "{colors.text-primary}"
-    rounded: "{rounded.lg}"
-    padding: "20px"
-  input-field:
-    backgroundColor: "{colors.neutral-surface}"
-    textColor: "{colors.text-primary}"
-    rounded: "{rounded.md}"
-    padding: "10px 14px"
 ---
 
-# Design System: MESURV
+# Design System: MESURV (Linear × Vercel Precision Instrument)
 
 ## Overview
 
-**Creative North Star: "The Field Engineering Terminal"**
+**Creative North Star: "Precision Engineering Field Terminal"**
 
-MESURV is engineered as a robust, high-fidelity field terminal for geomatics, civil engineering, and land surveying practitioners. The visual language mirrors the precision instrumentation of high-end total stations, digital levels, and GNSS RTK controllers: razor-sharp line weights, zero visual frivolity, high information density, and instant sunlight readability.
+MESURV is an advanced geomatics, civil engineering, and land surveying terminal for field surveyors and engineering students in Thailand. The visual system fuses the ultra-clean, near-black, hairline-bordered clarity of **Linear** with the typography, focus mechanics, and **Electric Indigo** accents of **Vercel** and **Supabase**.
 
-The interface balances outdoor field resilience with desktop engineering precision. Under intense field glare, high-contrast borders and structured card containers prevent visual bleed. In the office, a refined typographic scale and quiet spatial rhythm allow engineers to audit dense traverse misclosures, coordinate transformations, and leveling sheets without visual fatigue.
+The interface balances outdoor field resilience with desktop engineering precision:
+- **Zero Blurry Drop Shadows:** Depth is achieved through flat, rested surfaces separated by crisp 1px hairline borders (`rgba(255,255,255,0.08)` in dark, `rgba(0,0,0,0.08)` in light).
+- **Single Primary Accent:** Electric Indigo (`#6366f1`) is the authoritative focal point across buttons, active tab indicators, and selection rings.
+- **Instrument Rarity Rule:** Functional accents strictly signify operational state:
+  - **Electric Indigo (`#6366f1`)**: Primary actions, active navigation, focus rings.
+  - **Emerald (`#10b981`)**: Verified SOP badges, online telemetry ("RTSD READY"), closed traverses.
+  - **Amber (`#f59e0b`)**: DRAFT provenance badges, warning thresholds, misclosure flags.
+  - **Rose (`#f43f5e`)**: Destructive resets, gross errors, boundary check failures.
 
-**Key Characteristics:**
-- **Terminal-Grade Rigor:** Information is structured into deliberate modules, cards, and data matrices with clear hierarchical boundaries.
-- **Sunlight & Glare Resilience:** Avoids washed-out low-contrast tints; uses authoritative solid slate-900 / white surfaces with 1px structural framing.
-- **Bilingual Typographic Harmony:** Inter delivers crisp Latin numbers and geodetic terms; Prompt provides seamless, unclipped Thai field terminology.
-- **Tactile Confidence:** Interactive cards and control elements exhibit subtle hover elevations (Card Lift) that confirm touch readiness under active field conditions.
+---
 
-## Colors
+## 1. Design Token System
 
-The palette draws from physical geodetic hardware (cadastral blue, optical instrument slate, and safety/geomatic spectrum accents).
+### 1.1 Color Tokens
 
-### Primary
-- **Cadastral Sky** (`#0284c7`): The signature brand and active focal color. Used for active navigation tabs, interactive primary buttons, and selected category indicators.
-- **Deep Marine** (`#0369a1`): Hover state for primary interactions, ensuring decisive feedback upon tap or click.
-- **Glacial Tinge** (`#e0f2fe`): Subtle background tint for selected chips and active badges in light mode.
+| Token | Light Mode | Dark Mode | Usage |
+|---|---|---|---|
+| `--canvas` | `#ffffff` | `#0a0a0b` | Base viewport substrate |
+| `--surface-1` | `#f9fafb` | `#111113` | Primary cards, sidebars, modals |
+| `--surface-2` | `#f3f4f6` | `#161618` | Inset wells, table headers, hovered rows |
+| `--surface-3` | `#e5e7eb` | `#1c1c1f` | Tertiary elevation, badge backgrounds |
+| `--border-hairline`| `rgba(0,0,0,0.08)` | `rgba(255,255,255,0.08)` | 1px precision boundary |
+| `--border-subtle`  | `rgba(0,0,0,0.12)` | `rgba(255,255,255,0.12)` | Interactive borders, focus boundaries |
+| `--accent-indigo`  | `#6366f1` | `#6366f1` | Primary brand accent |
+| `--accent-indigo-hover` | `#818cf8` | `#818cf8` | Hover state for buttons/links |
+| `--accent-indigo-pressed` | `#4f46e5` | `#4f46e5` | Active/pressed micro-interaction |
+| `--semantic-amber` | `#f59e0b` | `#f59e0b` | DRAFT status, warnings |
+| `--semantic-emerald` | `#10b981` | `#10b981` | VERIFIED status, RTSD online |
+| `--semantic-rose`  | `#f43f5e` | `#f43f5e` | Errors, misclosures |
 
-### Secondary
-- **Slate Frame** (`#475569`): Secondary labels, field notes, supporting descriptions, and inactive icon strokes.
-- **Instrument Dark** (`#0b0f17`): Deep nocturnal backdrop for the night/tunnel mode, minimizing optical distraction.
-- **Chamber Navy** (`#131b2c`): Elevated dark card surface providing contrast against the dark background.
+### 1.2 Typography Tokens
 
-### Domain Accents
-- **GNSS Satellite Purple** (`#a855f7`): Geodetic coordinate systems, CORS networks, and orbital satellite topics.
-- **UAV Amber** (`#f59e0b`): Drone photogrammetry, flight lines, ground sample distance (GSD), and warning limits.
-- **Laser Emerald** (`#10b981`): Terrestrial LiDAR, SLAM point clouds, and successful closure tolerances.
-- **Bathymetric Cyan** (`#06b6d4`): Hydrographic sounding, sonar transducers, and water depth contours.
-- **Tunnel Rose** (`#f43f5e`): TBM guidance, laser targets, shield alignment, and critical reset/danger actions.
+- **UI / Body Font**: `DM Sans` (Google Fonts, weights 400, 500, 600, 700). Modern, geometric, clean Latin letterforms.
+- **Thai Headroom Fallback**: `Prompt` (Google Fonts). Retains natural diacritic headroom (leading-normal: 1.5) preventing Thai tone mark clipping.
+- **Mathematical & Coordinate Mono**: `JetBrains Mono` with `font-variant-numeric: tabular-nums`. Used for all latitudes, longitudes, UTM coordinates, elevations, and misclosure ratios.
 
-### Neutral
-- **Field Canvas Light** (`#f8fafc`): High-luminosity, eye-friendly light background.
-- **Field Canvas Dark** (`#0b0f17`): Low-glare tunnel and night operations canvas.
-- **Structural Border Light** (`#e2e8f0`): 1px boundary separating coordinate cards and list rows.
-- **Structural Border Dark** (`#1e293b`): Subtle dark mode separator.
+### 1.3 Precision Radius Scale
 
-### Named Rules
-**The Instrument Rarity Rule.** Domain accent colors are semantic beacons, not decorative paint. Any single screen should contain at most one dominant domain accent, reserved strictly for its contextual discipline.
+- `micro: 2px` — Inline badges, code snippets, tags
+- `sm: 6px` — Compact dropdown items, micro-buttons
+- `md: 10px` — Form inputs, standard buttons, tabs
+- `lg: 16px` — Content cards, popups, modals
+- `xl: 24px` — Hero containers, floating overlays
+- `full: 9999px` — Status pills, circular icon buttons
 
-**The No-Gradient Rule.** Text never wears a gradient. Legibility and contrast under sunlight dictate solid, high-contrast typography at all times.
+### 1.4 Micro-Interactions
 
-## Typography
+- **Hover Lift (`.micro-lift`)**: `transform: translateY(-1px)` with subtle 150ms ease.
+- **Press Scale (`.micro-press`)**: `transform: scale(0.97)` on `:active`.
+- **Focus Ring (`.focus-ring`)**: `outline: none; box-shadow: 0 0 0 2px #6366f1;`.
+- **Precision Card (`.card-precision`)**: Rests flat with `var(--border-hairline)`. On hover, border shifts to `rgba(99, 102, 241, 0.4)` with `box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08)`.
 
-**Display Font:** Inter & Prompt (fallback: `-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif`)
-**Body Font:** Inter & Prompt
-**Label/Mono Font:** JetBrains Mono (fallback: `SF Mono, Fira Code, monospace`)
+---
 
-**Character:** Technical, confident, and bilingual. Inter handles all Latin text, mathematical symbols, and numerals with tall x-height; Prompt handles Thai characters with balanced proportions and open loops.
+## 2. Navigation Architecture
 
-### Hierarchy
-- **Display** (ExtraBold 800, `1.875rem` / `30px`, line-height `1.25`): Page headers and primary terminal titles.
-- **Headline** (Bold 700, `1.25rem` / `20px`, line-height `1.35`): Section headings and modal titles.
-- **Title** (SemiBold 600, `1rem` / `16px`, line-height `1.4`): SOP card titles, table column groupings.
-- **Body** (Regular 400, `0.875rem` / `14px`, line-height `1.625`): Procedure descriptions, field instructions, technical summaries. Measure constrained to 65–75ch.
-- **Label** (Medium 500, `0.75rem` / `12px`, tracking `0.025em`): Metadata tags, badge pills, units of measurement, coordinates.
+MESURV adopts a multi-tier responsive navigation shell:
 
-### Named Rules
-**The Tabular Precision Rule.** Every number representing latitude, longitude, Northing, Easting, elevation, misclosure, or azimuth MUST render in `JetBrains Mono` with `font-variant-numeric: tabular-nums` to guarantee vertical column alignment.
+### 2.1 Desktop Collapsible Sidebar (`>= 1024px`)
+- **Position**: Fixed left column (`top-0 bottom-0 left-0 z-40`).
+- **Widths**:
+  - Expanded: `240px` (`w-[240px]`)
+  - Collapsed: `56px` (`w-[56px]`, icon-only mode)
+- **State Persistence**: Saved in `localStorage` under `mesurv-sidebar-collapsed`.
+- **Leaflet Integration**: Dispatches `window.dispatchEvent(new Event('resize'))` upon width transition to eliminate map tile clipping.
+- **Modules (4)**:
+  1. `แผนที่ WebGIS` (`#/map`)
+  2. `เครื่องมือคำนวณ` (`#/calculator`)
+  3. `คู่มือสำรวจ` (`#/knowledge`)
+  4. `เกี่ยวกับระบบ` (Modal trigger)
+- **Active Module Styling**: `bg-indigo-500/10 text-indigo-400 border-l-2 border-indigo-500 font-semibold`.
 
-**The Diacritic Headroom Rule.** Thai body and navigation text must never use line-height below `leading-normal` (1.5) to prevent ascender and descender clipping of tone marks.
+### 2.2 Mobile Fixed Bottom Navigation (`< 1024px`)
+- **Position**: Fixed bottom dock (`fixed bottom-0 left-0 right-0 z-50`).
+- **Dimensions**: `min-h-[56px]`, touch targets >= `44x44px`.
+- **Safe Area**: Respects `pb-[env(safe-area-inset-bottom)]`.
+- **Viewport Protection**: In WebGIS map mode on mobile, map height is set to `h-[calc(100dvh-48px-56px)]` so bottom navigation never obscures Leaflet controls or inspection crosshairs.
 
-## Layout
+### 2.3 Slim 48px Header (`h-12`)
+- **Desktop**: Replaces previous 64px tabbed header. Displays:
+  - Left: Interactive breadcrumbs (`MESURV / Module / Submodule`).
+  - Right: System status badge (Emerald pulsing dot + "RTSD READY") and Theme Toggle (Sun/Moon, min-h-[44px] min-w-[44px]).
+- **Mobile**: Minimalist brand title with current section badge and quick actions.
 
-MESURV employs an adaptive 12-column engineering grid optimized for both quick handheld lookup and multi-pane office analysis:
+### 2.4 Hash Routing Continuity
+The entire navigation shell operates purely as a presentation layer over `window.location.hash`:
+- `#/map`
+- `#/calculator` (`#/calculator/coord`, `#/calculator/traverse`, `#/calculator/leveling`, `#/calculator/area`)
+- `#/knowledge` (`#/knowledge/:topicId`)
 
-- **Desktop (≥ 1024px):** 3-column sticky category facet sidebar paired with a 9-column substantive content pane.
-- **Mobile & Tablet (< 1024px):** Horizontal swipeable chip carousel pinned directly below search, freeing up 100% of the vertical viewport for content.
-- **WebGIS Canvas Mode:** The outer layout locks (`overflow: hidden`), removing footers and expanding the map viewport to full screen (`100dvh - 4rem`).
-- **Container Max-Width:** Clamped to `max-w-7xl` (`1280px`) with fluid horizontal padding (`px-3 sm:px-6 lg:px-8`).
-
-## Elevation & Depth
-
-Depth is established through physical "Tactile Depth": surfaces rest flat on their substrate with a crisp 1px border, but lift with subtle ambient shadows when interactive.
-
-### Shadow Vocabulary
-- **Resting Card:** (`shadow-xs` / `0 1px 2px rgba(0,0,0,0.02)` with `1px` border): Establishes clean visual boundaries without visual weight.
-- **Hover Lift:** (`shadow-md shadow-sky-500/5` with `translate-y-[-1px]` or border shift to `#0284c7`): Confirms tactile affordance and clickability.
-- **Floating Modals / Toolbars:** (`shadow-[0_8px_30px_rgba(0,0,0,0.12)]` with `backdrop-blur-2xl`): Floats cleanly over the map or document viewport.
-
-### Named Rules
-**The Rested Surface Rule.** Cards and data containers sit flush at rest. Elevated shadows only manifest in response to direct user interaction (hover, active focus, or overlay modals).
-
-## Shapes
-
-- **Base Radius Scale:**
-  - Micro Badges & Inputs: `rounded-xl` (`12px`)
-  - Content Cards & Modals: `rounded-2xl` (`16px`)
-  - Hero Panels & Mobile Nav: `rounded-3xl` (`24px`)
-  - Filter Pills & Status Indicators: `rounded-full` (`9999px`)
-- **Border Treatment:** Always paired with a delicate, high-contrast 1px border (`border-slate-200/90` in light, `border-slate-800/80` in dark).
-
-## Components
-
-### Buttons
-- **Shape:** Rounded rectangle (`rounded-xl`, 12px radius).
-- **Primary:** Cadastral Sky background (`#0284c7`), white text, bold font, padding `8px 16px`. Hover transitions to Deep Marine (`#0369a1`).
-- **Secondary:** Clean slate surface (`bg-slate-100 dark:bg-slate-800`), slate text, 1px border. Hover transitions to sky tint (`hover:text-sky-700`).
-
-### Category Chips
-- **Style:** Compact pill or rounded box with embedded icon and numerical counter badge.
-- **Selected State:** Light sky background (`bg-sky-50 dark:bg-sky-950/60`), cadastral blue text (`text-sky-700 dark:text-sky-300`), 1px sky border (`border-sky-300 dark:border-sky-800`).
-- **Unselected State:** Neutral white/dark canvas with subtle slate border.
-
-### SOP & Result Cards
-- **Structure:** 16px corner radius (`rounded-2xl`), 1px border, 20px padding (`p-5 sm:p-6`).
-- **Interaction:** On hover, border shifts toward sky blue with a delicate shadow (`hover:shadow-md hover:border-sky-300`).
-
-### Numeric & Coordinate Inputs
-- **Style:** `JetBrains Mono` font, 12px radius (`rounded-xl`), 1px border, high-contrast dark/light background.
-- **Focus:** 2px ring in sky blue (`focus:ring-2 focus:ring-sky-500 focus:outline-none`).
-
-### WebGIS Map Overlay Toolbar
-- **Style:** Frosted glass pill (`backdrop-blur-2xl bg-white/90 dark:bg-[#131b2c]/90`), rounded full, floating with high z-index.
-
-## Do's and Don'ts
-
-### Do:
-- **Do** format all survey coordinates, angles, azimuths, and elevations in `font-mono tabular-nums`.
-- **Do** preserve 1px structural borders around all cards and input modules for sunlight readability.
-- **Do** keep Thai line height at `leading-normal` or `leading-relaxed` to protect tone marks.
-- **Do** use semantic domain colors (Purple for GNSS, Emerald for Laser, Amber for Drone) exclusively where relevant.
-
-### Don't:
-- **Don't** use gradient text on titles, headings, or metrics.
-- **Don't** use low-contrast gray text on colored backgrounds (avoid `text-slate-500 on bg-rose-50`).
-- **Don't** introduce heavy, opaque drop shadows (`box-shadow: 0 20px 25px`) on resting field cards.
-- **Don't** let outer page scroll bars activate during WebGIS map mode.
+Browser back/forward history is 100% synchronized and all deep-linking unit tests pass without deviation.

@@ -1,97 +1,146 @@
 import React, { useState } from 'react';
-import { Compass, Moon, Sun, Info, ShieldCheck } from 'lucide-react';
+import { Moon, Sun, ChevronRight, Compass } from 'lucide-react';
 import { AboutModal } from './AboutModal';
 
 interface HeaderProps {
   activeTab: 'knowledge' | 'calculator' | 'map';
   setActiveTab: (tab: 'knowledge' | 'calculator' | 'map') => void;
+  route?: {
+    tab: 'knowledge' | 'calculator' | 'map';
+    subTab?: 'coord' | 'traverse' | 'leveling' | 'area';
+    topicId?: string;
+  };
   isDark: boolean;
   toggleTheme: () => void;
+  onOpenAbout?: () => void;
 }
+
+const subTabNames: Record<string, string> = {
+  coord: 'แปลงพิกัด',
+  traverse: 'โครงข่ายวงรอบ',
+  leveling: 'ระดับวิศวกรรม',
+  area: 'พื้นที่ & ปริมาตร',
+};
+
+const moduleNames: Record<string, string> = {
+  knowledge: 'คู่มือสำรวจ',
+  calculator: 'เครื่องมือคำนวณ',
+  map: 'แผนที่ WebGIS',
+};
 
 export const Header: React.FC<HeaderProps> = ({
   activeTab,
   setActiveTab,
+  route,
   isDark,
-  toggleTheme
+  toggleTheme,
+  onOpenAbout,
 }) => {
-  const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [localAboutOpen, setLocalAboutOpen] = useState(false);
+  const handleOpenAbout = onOpenAbout || (() => setLocalAboutOpen(true));
+
+  const currentSubTab = route?.subTab;
+  const currentTopicId = route?.topicId;
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            
-            {/* Global Brand Identity */}
-            <div 
+      <header className="sticky top-0 z-30 h-12 bg-white/80 dark:bg-[#0a0a0b]/80 backdrop-blur-md border-b border-black/[0.08] dark:border-white/[0.08] transition-colors select-none">
+        <div className="h-full px-3 sm:px-6 flex items-center justify-between">
+          
+          {/* Left: Dynamic Breadcrumb Trail */}
+          <nav aria-label="Breadcrumb" className="flex items-center space-x-1.5 min-w-0 overflow-hidden text-xs sm:text-sm">
+            {/* Mobile Brand Wordmark */}
+            <button
               onClick={() => setActiveTab('knowledge')}
-              className="flex items-center cursor-pointer group select-none"
+              className="lg:hidden flex items-center space-x-1.5 font-bold text-slate-900 dark:text-slate-100 shrink-0 micro-press"
             >
-              <span className="font-black text-xl tracking-tight text-sky-600 dark:text-sky-400 font-sans group-hover:text-sky-700 dark:group-hover:text-sky-300 transition-colors">
-                MESURV
+              <Compass className="w-4 h-4 text-indigo-500 stroke-[2.2]" />
+              <span className="tracking-tight font-sans font-extrabold text-xs">MESURV</span>
+            </button>
+
+            <span className="lg:hidden text-slate-300 dark:text-slate-600">/</span>
+
+            {/* Desktop Root Breadcrumb */}
+            <button
+              onClick={() => setActiveTab('knowledge')}
+              className="hidden lg:inline-flex items-center font-bold text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+            >
+              MESURV
+            </button>
+
+            <ChevronRight className="hidden lg:inline w-3.5 h-3.5 text-slate-400 dark:text-slate-600 shrink-0" />
+
+            {/* Module Level */}
+            <button
+              onClick={() => setActiveTab(activeTab)}
+              className={`truncate font-medium transition-colors ${
+                currentSubTab || currentTopicId
+                  ? 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  : 'text-indigo-600 dark:text-indigo-400 font-semibold'
+              }`}
+            >
+              {moduleNames[activeTab] || 'หน้าหลัก'}
+            </button>
+
+            {/* Submodule Level (Calculator SubTab) */}
+            {activeTab === 'calculator' && currentSubTab && (
+              <>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-600 shrink-0" />
+                <span className="truncate font-semibold text-indigo-600 dark:text-indigo-400">
+                  {subTabNames[currentSubTab] || currentSubTab}
+                </span>
+              </>
+            )}
+
+            {/* Submodule Level (Knowledge Topic ID) */}
+            {activeTab === 'knowledge' && currentTopicId && (
+              <>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-600 shrink-0" />
+                <span className="truncate font-semibold text-indigo-600 dark:text-indigo-400 font-mono text-[11px] sm:text-xs">
+                  {currentTopicId}
+                </span>
+              </>
+            )}
+          </nav>
+
+          {/* Right: Telemetry Status & Controls */}
+          <div className="flex items-center space-x-2 shrink-0">
+            {/* RTSD Status Indicator */}
+            <div 
+              title="ระบบคำนวณและแปลงพิกัดเชื่อมโยงมาตรฐาน RTSD พร้อมใช้งาน"
+              className="flex items-center space-x-1.5 px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 select-none"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="text-[10px] font-mono font-semibold tracking-wider hidden sm:inline">
+                RTSD READY
               </span>
             </div>
 
-            {/* Desktop Precision Instrument Segmented Bar */}
-            <nav className="hidden md:flex items-center p-1 rounded-2xl bg-slate-100 dark:bg-[#1e293b] border border-slate-200/80 dark:border-slate-800">
-              <button
-                onClick={() => setActiveTab('knowledge')}
-                className={`px-4 py-1.5 rounded-xl text-xs sm:text-sm leading-normal transition-all duration-200 ${
-                  activeTab === 'knowledge'
-                    ? 'bg-white dark:bg-[#0f172a] text-sky-600 dark:text-sky-400 font-bold border border-slate-200/80 dark:border-slate-700'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium hover:bg-white/60 dark:hover:bg-slate-800/50'
-                }`}
-              >
-                คู่มือสำรวจ
-              </button>
-              <button
-                onClick={() => setActiveTab('calculator')}
-                className={`px-4 py-1.5 rounded-xl text-xs sm:text-sm leading-normal transition-all duration-200 ${
-                  activeTab === 'calculator'
-                    ? 'bg-white dark:bg-[#0f172a] text-sky-600 dark:text-sky-400 font-bold border border-slate-200/80 dark:border-slate-700'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium hover:bg-white/60 dark:hover:bg-slate-800/50'
-                }`}
-              >
-                Tools
-              </button>
-              <button
-                onClick={() => setActiveTab('map')}
-                className={`px-4 py-1.5 rounded-xl text-xs sm:text-sm leading-normal transition-all duration-200 ${
-                  activeTab === 'map'
-                    ? 'bg-white dark:bg-[#0f172a] text-sky-600 dark:text-sky-400 font-bold border border-slate-200/80 dark:border-slate-700'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium hover:bg-white/60 dark:hover:bg-slate-800/50'
-                }`}
-              >
-                แผนที่ WebGIS
-              </button>
-            </nav>
-
-            {/* Controls: About & Theme Toggle */}
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setIsAboutOpen(true)}
-                className="px-3 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-800 transition-all flex items-center space-x-1.5 leading-normal"
-                title="เกี่ยวกับระบบและมาตรฐานอ้างอิง"
-              >
-                <Info className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-                <span className="hidden sm:inline">เกี่ยวกับ</span>
-              </button>
-
-              <button
-                onClick={toggleTheme}
-                aria-label="Toggle Theme"
-                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-800 transition-all"
-              >
-                {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-              </button>
-            </div>
-
+            {/* Theme Toggle Button (>= 44x44px touch envelope) */}
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle Theme"
+              className="min-h-[44px] min-w-[44px] p-2.5 rounded-md flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#161618] transition-colors micro-press"
+            >
+              {isDark ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-slate-600" />
+              )}
+            </button>
           </div>
+
         </div>
       </header>
 
-      <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
+      {!onOpenAbout && (
+        <AboutModal isOpen={localAboutOpen} onClose={() => setLocalAboutOpen(false)} />
+      )}
     </>
   );
 };
+
+export default Header;

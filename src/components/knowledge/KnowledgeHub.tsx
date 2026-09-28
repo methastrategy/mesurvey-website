@@ -241,12 +241,12 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
         <div className="space-y-6">
           
           {/* GitHub Search Header Bar */}
-          <div className="rounded-3xl border border-slate-200/90 dark:border-slate-800/80 bg-gradient-to-br from-white via-sky-50/40 to-blue-50/20 dark:from-[#131b2c] dark:to-[#0b0f17] p-5 sm:p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)]">
+          <div className="rounded-3xl border border-hairline bg-surface-1 dark:bg-[#111113] p-5 sm:p-6 shadow-sm">
             <div className="max-w-4xl space-y-4">
               
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
-                  <BookOpen className="w-6 h-6 text-sky-600 dark:text-sky-400" />
+                  <BookOpen className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                   <span>ค้นหาคู่มือสำรวจ (Survey Engineering SOPs)</span>
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
@@ -263,7 +263,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="ค้นหาตามชื่อกล้อง, คำสั่ง, ขั้นตอนรังวัด (เช่น Two-Peg, Bowditch, 0-SET, Azimuth, Three-Wire, Stadia)..."
-                  className="w-full pl-10 pr-24 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#161f30] text-slate-800 dark:text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-xs transition-all"
+                  className="w-full pl-10 pr-24 py-2.5 rounded-xl border border-hairline bg-surface-2 dark:bg-[#0a0a0b] text-slate-800 dark:text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 min-h-[44px] transition-all"
                 />
                 <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                   {searchQuery && (
@@ -274,7 +274,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       ล้าง
                     </button>
                   )}
-                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-xs font-mono text-slate-400 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-xs font-mono text-slate-400 border border-hairline bg-surface-1 dark:bg-[#111113]">
                     /
                   </span>
                 </div>
@@ -292,18 +292,18 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold shrink-0 transition-all ${
+                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold shrink-0 min-h-[44px] transition-all ${
                       isSelected
-                        ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-300 dark:border-sky-800 shadow-sm shadow-sky-500/10'
-                        : 'bg-white dark:bg-[#131b2c] text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                        ? 'bg-indigo-500/10 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 shadow-sm shadow-indigo-500/10'
+                        : 'bg-surface-1 dark:bg-[#111113] text-slate-600 dark:text-slate-400 border border-hairline hover:bg-surface-2 dark:hover:bg-[#161618]'
                     }`}
                   >
                     <span className="shrink-0">{cat.icon}</span>
                     <span>{cat.label}</span>
                     <span className={`text-xs px-1.5 py-0.5 rounded-full font-mono tabular-nums ${
                       isSelected
-                        ? 'bg-sky-200/70 dark:bg-sky-900/60 text-sky-800 dark:text-sky-200'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                        ? 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-200'
+                        : 'bg-surface-2 dark:bg-[#161618] text-slate-500'
                     }`}>
                       {cat.count}
                     </span>
@@ -318,10 +318,10 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             
             {/* Left Column: Filter Facets (3 Cols) - Desktop Only */}
             <div className="hidden lg:block lg:col-span-3 space-y-4">
-              <div className="rounded-3xl border border-slate-200/90 dark:border-slate-800/80 bg-white dark:bg-[#131b2c] p-4 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.02)] space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              <div className="rounded-3xl border border-hairline bg-surface-1 dark:bg-[#111113] p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-hairline text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   <span className="flex items-center gap-1.5">
-                    <Filter className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                    <Filter className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                     หมวดหมู่
                   </span>
                   <span className="text-xs font-mono tabular-nums text-slate-400">
@@ -336,10 +336,10 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       <button
                         key={cat.id}
                         onClick={() => setSelectedCategory(cat.id)}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium min-h-[38px] transition-all ${
                           isSelected
-                            ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 font-bold border border-sky-200/80 dark:border-sky-800/60 shadow-xs'
-                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60 border border-transparent'
+                            ? 'bg-indigo-500/10 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-500/30 shadow-xs'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-surface-2 dark:hover:bg-[#161618] border border-transparent'
                         }`}
                       >
                         <span className="flex items-center gap-2 truncate">
@@ -348,8 +348,8 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                         </span>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-mono tabular-nums shrink-0 ${
                           isSelected 
-                            ? 'bg-sky-200/60 dark:bg-sky-900/60 text-sky-800 dark:text-sky-200 font-semibold' 
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                            ? 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-200 font-semibold' 
+                            : 'bg-surface-2 dark:bg-[#161618] text-slate-500'
                         }`}>
                           {cat.count}
                         </span>
@@ -360,7 +360,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
               </div>
 
               {/* Standard Reference Card */}
-              <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/70 dark:bg-[#131b2c] p-4 text-xs text-slate-600 dark:text-slate-400 space-y-2 shadow-xs">
+              <div className="rounded-2xl border border-hairline bg-surface-1 dark:bg-[#111113] p-4 text-xs text-slate-600 dark:text-slate-400 space-y-2 shadow-xs">
                 <span className="font-bold text-slate-800 dark:text-slate-200 block text-xs flex items-center gap-1.5">
                   <BookmarkCheck className="w-3.5 h-3.5 text-emerald-500" />
                   เกณฑ์อ้างอิงวิชาการ
@@ -388,27 +388,27 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                   <div
                     key={topic.id}
                     onClick={() => handleSelectTopic(topic.id)}
-                    className="relative p-5 sm:p-6 rounded-2xl border border-slate-200/90 dark:border-slate-800/80 bg-white dark:bg-[#131b2c] hover:border-sky-300 dark:hover:border-sky-600 hover:shadow-md hover:shadow-sky-500/5 transition-all duration-200 cursor-pointer group space-y-3"
+                    className="relative p-5 sm:p-6 rounded-2xl border border-hairline bg-surface-1 dark:bg-[#111113] hover:border-indigo-500/40 hover:shadow-indigo-glow transition-all duration-200 micro-lift cursor-pointer group space-y-3"
                   >
                     {/* Item Header */}
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div className="flex items-center space-x-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-950/60 flex items-center justify-center text-sky-600 dark:text-sky-400 group-hover:text-blue-600 transition-colors shadow-xs">
+                        <div className="w-8 h-8 rounded-xl bg-surface-2 dark:bg-[#161618] border border-hairline flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-105 transition-transform shadow-xs">
                           {getTopicIcon(topic.iconName, "w-4 h-4")}
                         </div>
                         
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-sky-300 transition-colors tracking-tight">
+                          <h3 className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400 transition-colors tracking-tight">
                             {topic.title}
                           </h3>
-                          <span className="text-xs font-mono px-2 py-0.5 rounded-full border border-sky-200/80 dark:border-sky-800/80 text-sky-800 dark:text-sky-300 bg-sky-50/80 dark:bg-sky-950/60 font-semibold">
+                          <span className="text-[10px] font-mono font-semibold tracking-widest uppercase px-2 py-0.5 rounded-full border border-hairline text-slate-600 dark:text-slate-300 bg-surface-2 dark:bg-[#161618]">
                             {topic.badge}
                           </span>
                         </div>
                       </div>
 
                       {/* "เปิดอ่าน" hover hint — stays in flex row */}
-                      <span className="text-xs font-semibold text-sky-600 dark:text-sky-400 hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-auto">
+                      <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-auto">
                         เปิดอ่าน <ArrowRight className="w-3.5 h-3.5" />
                       </span>
                     </div>
@@ -416,7 +416,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     {/* Absolute Corner Stamp Badge — top-right of card */}
                     {topic.verificationStatus === 'verified' ? (
                       <div
-                        className="absolute top-0 right-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-bl-xl rounded-tr-2xl text-[10px] font-mono font-semibold tracking-widest bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-b border-l border-emerald-500/30"
+                        className="absolute top-0 right-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-bl-xl rounded-tr-2xl text-[10px] font-mono font-semibold tracking-widest uppercase bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-b border-l border-emerald-500/30"
                         title={topic.verificationProof ? `VERIFIED: ${topic.verificationProof}` : 'VERIFIED'}
                       >
                         <ShieldCheck className="w-3 h-3 shrink-0" />
@@ -424,7 +424,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       </div>
                     ) : (
                       <div
-                        className="absolute top-0 right-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-bl-xl rounded-tr-2xl text-[10px] font-mono font-semibold tracking-widest bg-amber-500/10 text-amber-700 dark:text-amber-400 border-b border-l border-amber-500/30"
+                        className="absolute top-0 right-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-bl-xl rounded-tr-2xl text-[10px] font-mono font-semibold tracking-widest uppercase bg-amber-500/10 text-amber-700 dark:text-amber-400 border-b border-l border-amber-500/30"
                         title="DRAFT — เอกสารฉบับร่าง รอการตรวจสอบ"
                       >
                         <Clock className="w-3 h-3 shrink-0" />
@@ -447,7 +447,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       {getTopicTags(topic.id).map((tag, tIdx) => (
                         <span 
                           key={tIdx}
-                          className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200/70 dark:border-sky-800/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 transition-colors"
+                          className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface-2 dark:bg-[#161618] text-slate-600 dark:text-slate-400 border border-hairline hover:border-indigo-500/30 transition-colors"
                         >
                           {tag}
                         </span>
@@ -455,7 +455,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     </div>
 
                     {/* Footer Meta */}
-                    <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800/80 pl-10">
+                    <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-hairline pl-10">
                       <div className="flex flex-wrap items-center gap-4">
                         <div className="flex items-center gap-1.5">
                           <span className={`w-2.5 h-2.5 rounded-full ${getCategoryDotColor(topic.category)}`} />
@@ -503,7 +503,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                                 onNavigateTab(wf.hash.includes('map') ? 'map' : 'calculator');
                               }
                             }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold text-sky-700 dark:text-sky-300 bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/60 dark:hover:bg-sky-900/60 border border-sky-200/80 dark:border-sky-800/80 transition-colors shadow-2xs"
+                            className="min-h-[36px] inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold text-indigo-600 dark:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 border border-indigo-500/30 transition-colors shadow-2xs"
                             title={wf.label}
                           >
                             <span>{wf.label}</span>
@@ -518,7 +518,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
 
                 {/* Empty State */}
                 {filteredTopics.length === 0 && (
-                  <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0d1117] p-12 text-center space-y-3">
+                  <div className="rounded-2xl border border-dashed border-hairline bg-surface-1 dark:bg-[#111113] p-12 text-center space-y-3">
                     <Search className="w-10 h-10 mx-auto text-slate-400 stroke-1" />
                     <h4 className="text-base font-bold text-slate-800 dark:text-slate-200">
                       ไม่พบคู่มือที่ตรงกับคำค้นหา "{searchQuery}"
@@ -528,7 +528,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     </p>
                     <button
                       onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
-                      className="px-4 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-200 transition-colors"
+                      className="min-h-[44px] px-4 py-2 rounded-xl bg-surface-2 dark:bg-[#161618] hover:bg-surface-3 dark:hover:bg-[#1c1c1f] text-slate-700 dark:text-slate-300 border border-hairline text-xs font-semibold transition-colors"
                     >
                       ล้างคำค้นหาทั้งหมด
                     </button>
@@ -551,11 +551,11 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
         <div className="space-y-6 max-w-5xl mx-auto">
 
           {/* Navigation Breadcrumb Bar */}
-          <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800/80 bg-white/95 dark:bg-[#131b2c]/95 px-4 py-3 shadow-xs flex flex-wrap items-center justify-between gap-3 sticky top-16 z-40 backdrop-blur-md">
+          <div className="rounded-2xl border border-hairline bg-surface-1/95 dark:bg-[#111113]/95 px-4 py-3 shadow-xs flex flex-wrap items-center justify-between gap-3 sticky top-16 z-40 backdrop-blur-md">
             <div className="flex items-center gap-2">
               <button
                 onClick={handleBackToSearch}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-100 hover:text-sky-700 dark:hover:text-sky-300 transition-all hover:-translate-x-0.5 border border-slate-200/80 dark:border-slate-700"
+                className="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-2 dark:bg-[#161618] hover:bg-surface-3 dark:hover:bg-[#1c1c1f] text-xs font-semibold text-slate-800 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all border border-hairline"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>กลับหน้ารายการค้นหา</span>
@@ -564,7 +564,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
               <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span>
 
               <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-md">
-                <BookOpen className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
+                <BookOpen className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
                 <span>คู่มือสำรวจ</span>
                 <span>/</span>
                 <span className="truncate">{activeTopic.categoryName}</span>
@@ -581,7 +581,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       onNavigateTab(activeWorkflowTarget.hash.includes('map') ? 'map' : 'calculator');
                     }
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition-colors shadow-2xs"
+                  className="min-h-[38px] inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-semibold transition-all shadow-sm"
                   title={activeWorkflowTarget.label}
                 >
                   <span>{activeWorkflowTarget.label}</span>
@@ -591,7 +591,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
 
               <button
                 onClick={handleCopySummary}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors border border-slate-200/60 dark:border-slate-700/60"
+                className="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-2 dark:bg-[#161618] hover:bg-surface-3 dark:hover:bg-[#1c1c1f] text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors border border-hairline"
                 title="คัดลอกสรุปคู่มือ"
               >
                 {copiedText ? (
@@ -610,7 +610,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
           </div>
 
           {/* Main Documentation Container */}
-          <div className="rounded-3xl border border-slate-200/90 dark:border-slate-800/80 bg-white dark:bg-[#131b2c] p-6 sm:p-10 shadow-sm space-y-10">
+          <div className="rounded-3xl border border-hairline bg-surface-1 dark:bg-[#111113] p-6 sm:p-10 shadow-sm space-y-10">
 
             {/* Full-Width Provenance Banner */}
             {activeTopic.verificationStatus === 'verified' ? (
@@ -620,7 +620,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>VERIFIED / ผ่านการตรวจรับรองมาตรฐานวิศวกรรม (Verified Engineering SOP)</span>
                   </div>
-                  <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                  <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-semibold tracking-widest uppercase bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
                     VERIFIED
                   </span>
                 </div>
@@ -640,7 +640,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                     <span>DRAFT / รอดำเนินการตรวจสอบ (Preliminary Draft SOP)</span>
                   </div>
-                  <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                  <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-semibold tracking-widest uppercase bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
                     DRAFT / IN-REVIEW
                   </span>
                 </div>
@@ -656,9 +656,9 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             )}
 
             {/* Document Header & Metadata */}
-            <div className="space-y-4 border-b border-slate-200 dark:border-slate-800 pb-6">
+            <div className="space-y-4 border-b border-hairline pb-6">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="px-3 py-0.5 text-xs font-semibold rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/80 font-mono">
+                <span className="px-3 py-0.5 text-[10px] font-mono font-semibold tracking-widest uppercase rounded-full bg-surface-2 dark:bg-[#161618] text-slate-700 dark:text-slate-300 border border-hairline">
                   {activeTopic.badge}
                 </span>
                 <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -682,9 +682,9 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
               </div>
 
               {/* Luminous Note Alert Box */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-sky-50/80 via-blue-50/40 to-sky-50/30 dark:from-[#162032] dark:to-[#131b2c] border border-sky-200/80 dark:border-sky-800/60 space-y-2">
-                <div className="text-xs font-bold text-sky-900 dark:text-sky-300 flex items-center gap-1.5">
-                  <BookmarkCheck className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+              <div className="p-4 sm:p-5 rounded-2xl bg-surface-2 dark:bg-[#161618] border border-hairline space-y-2">
+                <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                  <BookmarkCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                   <span>สรุปภาพรวมและวัตถุประสงค์ (Overview & Core Objective)</span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -697,11 +697,11 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             {activeTopic.equipmentRequired && activeTopic.equipmentRequired.length > 0 && (
               <div className="space-y-4">
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <SlidersHorizontal className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                  <SlidersHorizontal className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                   <span>1. รายการอุปกรณ์และเครื่องมือที่ต้องจัดเตรียม (Field Equipment Checklist)</span>
                 </h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-4 rounded-2xl bg-slate-50/80 dark:bg-[#162032]/60 border border-slate-200/80 dark:border-slate-800">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-4 rounded-2xl bg-surface-2 dark:bg-[#161618] border border-hairline">
                   {activeTopic.equipmentRequired.map((eq, eqIdx) => (
                     <div key={eqIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
@@ -715,14 +715,14 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             {/* SECTION 2: WORKING PRINCIPLES & THEORY */}
             <div className="space-y-4">
               <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                <BookOpen className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                 <span>2. หลักการทำงานและทฤษฎีทางวิศวกรรม (Engineering Foundations & Working Principles)</span>
               </h2>
 
               <div className="space-y-3">
                 {activeTopic.workingPrinciple.map((wp, wpIdx) => (
-                  <div key={wpIdx} className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50/80 dark:bg-[#162032]/60 border border-slate-200/80 dark:border-slate-800">
-                    <div className="w-6 h-6 rounded-full bg-sky-100 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 flex items-center justify-center text-xs font-mono font-bold shrink-0 mt-0.5">
+                  <div key={wpIdx} className="flex items-start gap-3 p-4 rounded-2xl bg-surface-2 dark:bg-[#161618] border border-hairline">
+                    <div className="w-6 h-6 rounded-full bg-indigo-500/10 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-500/30 flex items-center justify-center text-xs font-mono font-bold shrink-0 mt-0.5">
                       {wpIdx + 1}
                     </div>
                     <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -735,7 +735,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
 
             {/* SECTION 3: FIELD PROCEDURES & DEVICE SIMULATOR (UNIFIED - NO SEPARATE TAB!) */}
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-hairline pb-3">
                 <div>
                   <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
@@ -752,9 +752,9 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
 
               {/* Integrated Device LCD & Keypad Simulator */}
               {deviceSteps.length > 0 && currentStep && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-950 text-white overflow-hidden shadow-xl">
+                <div className="rounded-2xl border border-hairline bg-slate-950 text-white overflow-hidden shadow-xl">
                   {/* Chassis Top Bar */}
-                  <div className="px-5 py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-800 flex items-center justify-between">
+                  <div className="px-5 py-3 bg-surface-2 dark:bg-[#161618] border-b border-hairline flex items-center justify-between">
                     <div className="flex items-center space-x-2.5">
                       <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 animate-pulse" />
                       <span className="text-xs font-mono font-bold tracking-wider text-slate-200">
@@ -764,7 +764,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
 
                     <div className="flex items-center space-x-3 text-xs font-mono tabular-nums text-slate-400">
                       <span>STEP {currentStep.stepNumber} OF {deviceSteps.length}</span>
-                      <span className="px-2 py-0.5 rounded bg-slate-800 text-emerald-400 text-xs font-semibold">
+                      <span className="px-2 py-0.5 rounded bg-surface-3 text-emerald-400 text-xs font-semibold">
                         SIMULATOR ACTIVE
                       </span>
                     </div>
@@ -800,7 +800,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       <button
                         onClick={() => setActiveStepIndex((prev) => Math.max(0, prev - 1))}
                         disabled={activeStepIndex === 0}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-xs font-semibold text-slate-300 transition-colors"
+                        className="min-h-[44px] inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-surface-2 hover:bg-surface-3 disabled:opacity-40 text-xs font-semibold text-slate-300 transition-colors border border-hairline"
                       >
                         <ChevronLeft className="w-4 h-4" />
                         <span>ขั้นตอนก่อนหน้า</span>
@@ -824,7 +824,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       <button
                         onClick={() => setActiveStepIndex((prev) => Math.min(deviceSteps.length - 1, prev + 1))}
                         disabled={activeStepIndex === deviceSteps.length - 1}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-xs font-semibold text-slate-300 transition-colors"
+                        className="min-h-[44px] inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-surface-2 hover:bg-surface-3 disabled:opacity-40 text-xs font-semibold text-slate-300 transition-colors border border-hairline"
                       >
                         <span>ขั้นตอนถัดไป</span>
                         <ChevronRight className="w-4 h-4" />
@@ -832,7 +832,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     </div>
 
                     {/* Keypad Action Detail Box */}
-                    <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-4 space-y-2">
+                    <div className="rounded-xl bg-surface-2 dark:bg-[#161618] border border-hairline p-4 space-y-2">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
                           <Terminal className="w-4 h-4" />
@@ -864,10 +864,10 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                 {activeTopic.fieldProcedures.map((proc, pIdx) => (
                   <div 
                     key={pIdx}
-                    className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/40 space-y-2.5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
+                    className="p-5 rounded-2xl border border-hairline bg-surface-2 dark:bg-[#161618] space-y-2.5 hover:border-indigo-500/30 transition-colors"
                   >
                     <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-slate-900 dark:bg-slate-700 text-white flex items-center justify-center text-xs font-mono shrink-0">
+                      <span className="w-6 h-6 rounded-full bg-surface-3 dark:bg-[#1c1c1f] text-slate-800 dark:text-slate-200 border border-hairline flex items-center justify-center text-xs font-mono shrink-0">
                         {pIdx + 1}
                       </span>
                       <span>{proc.title}</span>
@@ -878,7 +878,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     </p>
 
                     {proc.criticalCaution && (
-                      <div className="ml-8 mt-2 p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2.5">
+                      <div className="ml-8 mt-2 p-3.5 rounded-xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2.5">
                         <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                         <span><strong>ข้อควรระวังภาคสนาม:</strong> {proc.criticalCaution}</span>
                       </div>
@@ -892,17 +892,17 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             {activeTopic.formulas && activeTopic.formulas.length > 0 && (
               <div className="space-y-4">
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-purple-500" />
+                  <Activity className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                   <span>4. สูตรการคำนวณและสมการความถูกต้องทางวิศวกรรม (Engineering Formulas & Equations)</span>
                 </h2>
 
                 <div className="space-y-3.5">
                   {activeTopic.formulas.map((f, fIdx) => (
-                    <div key={fIdx} className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 space-y-2">
+                    <div key={fIdx} className="p-4 sm:p-5 rounded-2xl bg-surface-2 dark:bg-[#161618] border border-hairline space-y-2">
                       <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 block">
                         {f.label}
                       </span>
-                      <div className="font-mono text-xs sm:text-sm font-bold text-slate-900 dark:text-emerald-400 bg-white dark:bg-slate-950 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto">
+                      <div className="font-mono text-xs sm:text-sm font-bold text-slate-900 dark:text-indigo-400 bg-surface-1 dark:bg-[#0a0a0b] px-4 py-3 rounded-xl border border-hairline shadow-sm overflow-x-auto">
                         {f.formula}
                       </div>
                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -924,7 +924,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
 
                 <div className="space-y-2.5">
                   {activeTopic.errorSourcesAndMitigation.map((err, eIdx) => (
-                    <div key={eIdx} className="p-3.5 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 flex items-start gap-3">
+                    <div key={eIdx} className="p-3.5 rounded-2xl bg-amber-500/10 dark:bg-amber-950/20 border border-amber-500/30 flex items-start gap-3">
                       <span className="w-2 h-2 rounded-full bg-amber-500 mt-2 shrink-0" />
                       <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
                         {err}
@@ -939,15 +939,15 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             {activeTopic.downstreamWorkflow && (
               <div className="space-y-4">
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <ArrowRight className="w-5 h-5 text-sky-500" />
+                  <ArrowRight className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                   <span>6. เวิร์กโฟลว์ปฏิบัติการต่อเนื่องและเครื่องมือคำนวณ (Downstream Workflow & Execution)</span>
                 </h2>
 
-                <div className="p-5 sm:p-6 rounded-2xl bg-sky-50/50 dark:bg-sky-950/20 border border-sky-200/80 dark:border-sky-800/60 space-y-4">
+                <div className="p-5 sm:p-6 rounded-2xl bg-surface-2 dark:bg-[#161618] border border-hairline border-l-2 border-l-indigo-500 space-y-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <span className="text-xs text-slate-500 dark:text-slate-400 block mb-0.5">รูปแบบไฟล์และข้อมูลนำออก (Output Data Format):</span>
-                      <span className="font-mono text-xs sm:text-sm font-bold text-sky-900 dark:text-sky-300 bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-sky-200 dark:border-sky-800">
+                      <span className="font-mono text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-300 bg-surface-1 dark:bg-[#0a0a0b] px-3 py-1 rounded-lg border border-hairline">
                         {activeTopic.downstreamWorkflow.outputDataFormat}
                       </span>
                     </div>
@@ -961,7 +961,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                             onNavigateTab(activeWorkflowTarget.hash.includes('map') ? 'map' : 'calculator');
                           }
                         }}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs sm:text-sm transition-all shadow-md hover:shadow-sky-500/20"
+                        className="min-h-[44px] inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold text-xs sm:text-sm transition-all shadow-sm"
                       >
                         <span>{activeWorkflowTarget.label}</span>
                         <ArrowRight className="w-4 h-4" />
@@ -973,7 +973,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     {activeTopic.downstreamWorkflow.outputDescription}
                   </p>
 
-                  <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                  <div className="p-4 rounded-xl bg-surface-1 dark:bg-[#0a0a0b] border border-hairline space-y-1.5">
                     <span className="text-xs font-bold text-slate-900 dark:text-slate-200">
                       {activeTopic.downstreamWorkflow.nextStepTitle}
                     </span>
@@ -986,10 +986,10 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             )}
 
             {/* Document Bottom Navigation Back to Search */}
-            <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="pt-6 border-t border-hairline flex items-center justify-between">
               <button
                 onClick={handleBackToSearch}
-                className="inline-flex items-center gap-2 text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 hover:underline"
+                className="min-h-[44px] inline-flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:underline"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>กลับสู่หน้ารายการค้นหาคู่มือทั้งหมด</span>
@@ -997,7 +997,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
 
               <button
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="min-h-[44px] px-3 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center"
               >
                 เลื่อนขึ้นบนสุด ↑
               </button>

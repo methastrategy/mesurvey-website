@@ -55,16 +55,16 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({ topic, onSelect })
   return (
     <div 
       onClick={() => onSelect(topic)}
-      className="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm hover:border-sky-500/50 dark:hover:border-sky-500/50 transition-all duration-200 cursor-pointer flex flex-col justify-between"
+      className="group relative bg-surface-1 dark:bg-[#111113] rounded-2xl border border-hairline p-5 shadow-none hover:border-indigo-500/40 hover:shadow-indigo-glow transition-all duration-200 micro-lift cursor-pointer flex flex-col justify-between"
     >
       <div>
         {/* Top Header: Icon, Category Badge, and Corner Stamp Badge */}
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 group-hover:scale-105 transition-transform duration-200">
+            <div className="p-2.5 rounded-xl bg-surface-2 dark:bg-[#161618] border border-hairline text-indigo-600 dark:text-indigo-400 group-hover:scale-105 transition-transform duration-200">
               {getIcon()}
             </div>
-            <span className="px-2.5 py-1 text-xs font-semibold tracking-wide rounded-full bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+            <span className="px-2.5 py-1 text-[10px] font-mono font-semibold tracking-widest uppercase rounded-full bg-surface-2 dark:bg-[#161618] text-slate-700 dark:text-slate-300 border border-hairline">
               {topic.badge}
             </span>
           </div>
@@ -72,24 +72,24 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({ topic, onSelect })
           {/* Precision Instrument Corner Stamp Badge */}
           {isVerified ? (
             <div 
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-mono font-semibold tracking-widest uppercase bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
               title={topic.verificationProof ? `VERIFIED / ตรวจสอบแล้ว: ${topic.verificationProof}` : 'VERIFIED / ตรวจสอบแล้ว'}
             >
               <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span>VERIFIED / ตรวจสอบแล้ว</span>
+              <span>VERIFIED</span><span className="sr-only"> / ตรวจสอบแล้ว</span>
             </div>
           ) : (
             <div 
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold tracking-wider bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-mono font-semibold tracking-widest uppercase bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30"
               title="DRAFT / รอดำเนินการตรวจสอบ: เอกสารทางเทคนิคฉบับร่าง อยู่ระหว่างการทวนสอบและ peer review ทางวิชาการและภาคสนาม"
             >
               <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0" />
-              <span>DRAFT / รอดำเนินการตรวจสอบ</span>
+              <span>DRAFT</span><span className="sr-only"> / รอดำเนินการตรวจสอบ</span>
             </div>
           )}
         </div>
 
-        <h3 className="font-semibold text-base text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors line-clamp-2">
+        <h3 className="font-semibold text-base text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
           {topic.title}
         </h3>
         <p className="text-xs text-slate-400 dark:text-slate-500 font-mono mt-0.5 mb-2.5">
@@ -101,7 +101,7 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({ topic, onSelect })
         </p>
       </div>
 
-      <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2 text-xs">
+      <div className="pt-3 border-t border-hairline flex items-center justify-between gap-2 text-xs">
         <span className="text-slate-400 dark:text-slate-500 truncate max-w-[150px]">
           {topic.courseRelation || topic.categoryName}
         </span>
@@ -111,14 +111,14 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({ topic, onSelect })
             <button
               type="button"
               onClick={handleOpenTool}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800/80 hover:bg-sky-100 dark:hover:bg-sky-900/60 transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-indigo-600 dark:text-indigo-300 bg-indigo-500/10 dark:bg-indigo-950/60 border border-indigo-500/30 hover:bg-indigo-500/20 dark:hover:bg-indigo-900/60 transition-colors"
               title={workflowTarget.label}
             >
               <span className="truncate max-w-[120px]">{workflowTarget.label}</span>
               <ArrowRight className="w-3 h-3 ml-0.5 shrink-0" />
             </button>
           )}
-          <span className="text-sky-600 dark:text-sky-400 font-medium inline-flex items-center group-hover:translate-x-1 transition-transform shrink-0">
+          <span className="text-indigo-600 dark:text-indigo-400 font-medium inline-flex items-center group-hover:translate-x-1 transition-transform shrink-0">
             ดูคู่มือ <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
           </span>
         </div>

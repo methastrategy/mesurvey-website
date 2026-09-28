@@ -42,9 +42,9 @@ export const LandAreaCalculator: React.FC = () => {
     <div className="space-y-6">
       
       {/* Overview Banner */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm">
+      <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] p-5 sm:p-6 shadow-sm">
         <h3 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
-          <Layers className="w-5 h-5 text-survey-600 dark:text-survey-400" />
+          <Layers className="w-5 h-5 text-indigo-500" />
           ระบบคำนวณและแปลงหน่วยที่ดินไทย (Thai Land & Cadastral Area Unit Converter)
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -56,9 +56,9 @@ export const LandAreaCalculator: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Metric Input Card */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-            <span className="text-xs font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider">
+        <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] p-5 sm:p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-border dark:border-[#27272a]">
+            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
               หน่วยสากล (Metric Units)
             </span>
           </div>
@@ -72,18 +72,18 @@ export const LandAreaCalculator: React.FC = () => {
               step="0.01"
               value={sqMetersInput}
               onChange={(e) => handleUpdateM2(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-survey-500 focus:outline-none"
+              className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+            <div className="p-3 rounded-lg bg-surface-2 dark:bg-[#0a0a0b] border border-border dark:border-[#27272a]">
               <span className="text-slate-400 block mb-0.5">เฮกตาร์ (Hectare):</span>
               <span className="font-mono tabular-nums font-bold text-slate-900 dark:text-white">
                 {result.hectares.toLocaleString()} ha
               </span>
             </div>
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+            <div className="p-3 rounded-lg bg-surface-2 dark:bg-[#0a0a0b] border border-border dark:border-[#27272a]">
               <span className="text-slate-400 block mb-0.5">เอเคอร์ (Acre):</span>
               <span className="font-mono tabular-nums font-bold text-slate-900 dark:text-white">
                 {result.acres.toLocaleString()} ac
@@ -93,9 +93,9 @@ export const LandAreaCalculator: React.FC = () => {
         </div>
 
         {/* Thai Cadastral Input Card */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-            <span className="text-xs font-bold text-survey-600 dark:text-survey-400 uppercase tracking-wider">
+        <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] p-5 sm:p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-border dark:border-[#27272a]">
+            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
               หน่วยโฉนดที่ดินไทย (Rai - Ngan - Wah)
             </span>
           </div>
@@ -109,7 +109,7 @@ export const LandAreaCalculator: React.FC = () => {
                 type="number"
                 value={raiInput}
                 onChange={(e) => handleUpdateThai(e.target.value, nganInput, wahInput)}
-                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white"
+                className="w-full min-h-[44px] px-3 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
               />
             </div>
             <div>
@@ -122,7 +122,7 @@ export const LandAreaCalculator: React.FC = () => {
                 max="3"
                 value={nganInput}
                 onChange={(e) => handleUpdateThai(raiInput, e.target.value, wahInput)}
-                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white"
+                className="w-full min-h-[44px] px-3 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
               />
             </div>
             <div>
@@ -136,16 +136,16 @@ export const LandAreaCalculator: React.FC = () => {
                 max="99.99"
                 value={wahInput}
                 onChange={(e) => handleUpdateThai(raiInput, nganInput, e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white"
+                className="w-full min-h-[44px] px-3 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
               />
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-survey-50/60 dark:bg-survey-950/40 border border-survey-200/60 dark:border-survey-800/60">
+          <div className="p-3.5 rounded-xl bg-indigo-500/10 dark:bg-indigo-950/20 border border-indigo-500/20">
             <span className="text-slate-500 dark:text-slate-400 block text-xs mb-1">
               รูปแบบการเขียนตามโฉนดที่ดิน (Cadastral Format):
             </span>
-            <span className="font-bold text-survey-800 dark:text-survey-200 text-sm">
+            <span className="font-bold text-indigo-700 dark:text-indigo-300 text-sm">
               {formatThaiLandString(result.rai, result.ngan, result.wah)}
             </span>
           </div>
@@ -154,49 +154,49 @@ export const LandAreaCalculator: React.FC = () => {
       </div>
 
       {/* Cadastral Valuation Calculator */}
-      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:bg-gradient-to-br dark:from-[#1c1c1e] dark:to-[#121214] rounded-3xl border border-black/[0.08] dark:border-white/[0.08] p-5 sm:p-6 text-white shadow-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-white/10">
+      <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] border-l-2 border-l-indigo-500 p-5 sm:p-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-border dark:border-[#27272a]">
           <div>
-            <h4 className="font-bold text-base flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-amber-400" />
+            <h4 className="font-bold text-base flex items-center gap-2 text-slate-900 dark:text-white">
+              <DollarSign className="w-5 h-5 text-amber-500" />
               การประเมินราคาที่ดินเบื้องต้น (Land Valuation Estimator)
             </h4>
-            <p className="text-xs text-slate-300 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               คำนวณมูลค่าที่ดินรวมจากราคาประเมินหรือราคาตลาดต่อตารางวา
             </p>
           </div>
 
           <div className="w-full sm:w-60">
-            <label className="text-xs font-semibold text-slate-300 block mb-1">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
               ราคาประเมินต่อตารางวา (บาท/ตร.ว.)
             </label>
             <input
               type="number"
               value={pricePerWah}
               onChange={(e) => setPricePerWah(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-2xl bg-white/10 border border-white/20 text-white font-mono tabular-nums text-sm focus:outline-none focus:ring-2 focus:ring-ios-blue"
+              className="w-full min-h-[44px] px-3.5 py-2 rounded-lg bg-surface-2 dark:bg-[#0a0a0b] border border-border dark:border-[#27272a] text-slate-900 dark:text-white font-mono tabular-nums text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono tabular-nums text-xs sm:text-sm">
-          <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10">
+          <div className="p-3.5 rounded-xl bg-surface-2 dark:bg-[#0a0a0b] border border-border dark:border-[#27272a]">
             <span className="text-slate-400 block text-xs font-sans">จำนวนตารางวารวม:</span>
-            <span className="font-bold text-base text-white">
+            <span className="font-bold text-base text-slate-900 dark:text-white">
               {totalWah.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ตร.ว.
             </span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10">
+          <div className="p-3.5 rounded-xl bg-surface-2 dark:bg-[#0a0a0b] border border-border dark:border-[#27272a]">
             <span className="text-slate-400 block text-xs font-sans">ราคาเฉลี่ยต่อไร่:</span>
-            <span className="font-bold text-base text-amber-300">
+            <span className="font-bold text-base text-amber-600 dark:text-amber-400">
               {(unitPrice * 400).toLocaleString('en-US')} บาท/ไร่
             </span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white/10 border border-ios-blue/40 shadow-sm">
-            <span className="text-slate-300 block text-xs font-sans">มูลค่ารวมโดยประมาณ:</span>
-            <span className="font-bold text-lg text-emerald-400">
+          <div className="p-3.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-950/20 border border-emerald-500/30 shadow-sm">
+            <span className="text-slate-500 dark:text-slate-400 block text-xs font-sans">มูลค่ารวมโดยประมาณ:</span>
+            <span className="font-bold text-lg text-emerald-600 dark:text-emerald-400">
               {estimatedTotalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท
             </span>
           </div>

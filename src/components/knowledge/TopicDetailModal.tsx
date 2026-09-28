@@ -40,25 +40,25 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
       <div 
-        className="bg-white dark:bg-slate-900 w-full max-w-3xl rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col"
+        className="bg-surface-1 dark:bg-[#111113] w-full max-w-3xl rounded-3xl border border-hairline shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col"
         role="dialog"
         aria-modal="true"
       >
         {/* Header */}
-        <div className="px-6 py-5 bg-gradient-to-r from-survey-900 to-survey-800 text-white flex items-start justify-between">
+        <div className="px-6 py-5 bg-surface-2 dark:bg-[#161618] text-slate-900 dark:text-white border-b border-hairline flex items-start justify-between">
           <div>
             <div className="flex items-center space-x-2 mb-1.5">
-              <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-survey-500/20 text-survey-300 border border-survey-400/40">
+              <span className="px-2.5 py-0.5 text-[10px] font-mono font-semibold tracking-widest uppercase rounded-full bg-surface-3 dark:bg-[#1c1c1f] text-slate-700 dark:text-slate-300 border border-hairline">
                 {topic.badge}
               </span>
-              <span className="text-xs text-survey-200">
+              <span className="text-xs text-slate-500 dark:text-slate-400">
                 {topic.categoryName}
               </span>
             </div>
             <h2 className="text-lg sm:text-xl font-bold tracking-tight">
               {topic.title}
             </h2>
-            <p className="text-xs text-survey-200/80 font-mono mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
               {topic.titleEn}
             </p>
           </div>
@@ -66,7 +66,7 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
           <button
             onClick={onClose}
             aria-label="Close modal"
-            className="p-1.5 rounded-full text-survey-300 hover:text-white hover:bg-survey-700/60 transition-colors"
+            className="min-h-[44px] min-w-[44px] p-2 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-surface-3 dark:hover:bg-[#1c1c1f] transition-colors flex items-center justify-center"
           >
             <X className="w-5 h-5" />
           </button>
@@ -109,16 +109,16 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
           )}
           
           {/* Summary */}
-          <div className="p-4 rounded-2xl bg-survey-50/60 dark:bg-survey-950/40 border border-survey-200/60 dark:border-survey-800/60">
-            <h4 className="font-semibold text-survey-900 dark:text-survey-200 mb-1 flex items-center gap-1.5">
-              <BookOpen className="w-4 h-4 text-survey-600 dark:text-survey-400" />
+          <div className="p-4 rounded-2xl bg-surface-2 dark:bg-[#161618] border border-hairline">
+            <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-1 flex items-center gap-1.5">
+              <BookOpen className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
               สรุปภาพรวมและจุดประสงค์
             </h4>
             <p className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm leading-relaxed">
               {topic.summary}
             </p>
             {topic.courseRelation && (
-              <p className="text-xs text-survey-700 dark:text-survey-400 font-medium mt-2 pt-2 border-t border-survey-200/50 dark:border-survey-800/50">
+              <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium mt-2 pt-2 border-t border-hairline">
                 📚 อิงเนื้อหาวิชา: {topic.courseRelation}
               </p>
             )}
@@ -127,13 +127,13 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
           {/* Working Principle */}
           <div>
             <h4 className="font-bold text-slate-900 dark:text-white mb-2.5 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-survey-600 dark:text-survey-400" />
+              <Layers className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
               หลักการทำงานและทฤษฎีเชิงวิศวกรรม (Working Principles)
             </h4>
             <ul className="space-y-2">
               {topic.workingPrinciple.map((item, idx) => (
                 <li key={idx} className="flex items-start gap-2.5 text-slate-700 dark:text-slate-300">
-                  <span className="w-1.5 h-1.5 rounded-full bg-survey-500 mt-2 shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0" />
                   <span>{item}</span>
                 </li>
               ))}
@@ -150,7 +150,7 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
               {topic.fieldProcedures.map((proc, idx) => (
                 <div 
                   key={idx}
-                  className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40"
+                  className="p-3.5 rounded-xl border border-hairline bg-surface-2 dark:bg-[#161618]"
                 >
                   <h5 className="font-semibold text-slate-900 dark:text-slate-100 text-xs sm:text-sm mb-1">
                     {proc.title}
@@ -159,7 +159,7 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
                     {proc.details}
                   </p>
                   {proc.criticalCaution && (
-                    <div className="mt-2.5 p-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2">
+                    <div className="mt-2.5 p-2 rounded-lg bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2">
                       <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                       <span><strong>ข้อควรระวังสำคัญ:</strong> {proc.criticalCaution}</span>
                     </div>
@@ -173,16 +173,16 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
           {topic.formulas && topic.formulas.length > 0 && (
             <div>
               <h4 className="font-bold text-slate-900 dark:text-white mb-2.5 flex items-center gap-2">
-                <Activity className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                <Activity className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                 สูตรคำนวณที่เกี่ยวข้อง (Geomatic Formulas)
               </h4>
               <div className="grid grid-cols-1 gap-2.5">
                 {topic.formulas.map((f, idx) => (
-                  <div key={idx} className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
+                  <div key={idx} className="p-3 rounded-xl bg-surface-2 dark:bg-[#161618] border border-hairline">
                     <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block mb-1">
                       {f.label}
                     </span>
-                    <div className="font-mono text-sm font-semibold text-survey-700 dark:text-survey-300 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 mb-1">
+                    <div className="font-mono text-sm font-semibold text-indigo-600 dark:text-indigo-400 bg-surface-1 dark:bg-[#0a0a0b] px-3 py-1.5 rounded-lg border border-hairline mb-1">
                       {f.formula}
                     </div>
                     <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -212,13 +212,13 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
 
           {/* Downstream Workflow & Tool Integration */}
           {topic.downstreamWorkflow && (
-            <div className="p-4 rounded-2xl bg-sky-50/70 dark:bg-sky-950/30 border border-sky-200/80 dark:border-sky-800/60 space-y-3">
+            <div className="p-4 rounded-2xl bg-surface-2 dark:bg-[#161618] border border-hairline border-l-2 border-l-indigo-500 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-xs sm:text-sm">
-                  <ArrowRight className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                  <ArrowRight className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                   <span>เวิร์กโฟลว์ปฏิบัติการต่อเนื่อง (Downstream Workflow)</span>
                 </h4>
-                <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/60 text-sky-800 dark:text-sky-300 border border-sky-200/60 dark:border-sky-800/40">
+                <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-indigo-500/10 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30">
                   {topic.downstreamWorkflow.outputDataFormat}
                 </span>
               </div>
@@ -233,7 +233,7 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
                       window.location.hash = workflowTarget.hash;
                       onClose();
                     }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs sm:text-sm transition-colors shadow-sm"
+                    className="min-h-[44px] inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-sm"
                   >
                     <span>{workflowTarget.label}</span>
                     <ArrowRight className="w-4 h-4" />
@@ -246,7 +246,7 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+        <div className="px-6 py-4 bg-surface-2 dark:bg-[#161618] border-t border-hairline flex items-center justify-between gap-3">
           {workflowTarget ? (
             <button
               type="button"
@@ -254,7 +254,7 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
                 window.location.hash = workflowTarget.hash;
                 onClose();
               }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs sm:text-sm transition-colors shadow-sm"
+              className="min-h-[44px] inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium text-xs sm:text-sm transition-all shadow-sm"
             >
               <span>{workflowTarget.label}</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -262,7 +262,7 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
           ) : <div />}
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium text-xs sm:text-sm transition-colors shadow-sm"
+            className="min-h-[44px] px-4 py-2.5 rounded-xl bg-surface-1 dark:bg-[#111113] hover:bg-surface-3 dark:hover:bg-[#1c1c1f] text-slate-800 dark:text-slate-200 border border-hairline font-medium text-xs sm:text-sm transition-colors shadow-sm flex items-center justify-center"
           >
             ปิดหน้าต่าง
           </button>
