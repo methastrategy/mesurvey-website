@@ -148,15 +148,17 @@ export function App() {
         {activeTab !== 'map' && <Footer />}
       </div>
 
-      {/* Global Floating About Corner Icon (Bottom-Right Corner) */}
-      <button
-        onClick={() => setIsAboutOpen(true)}
-        aria-label="เกี่ยวกับระบบ"
-        title="เกี่ยวกับระบบ MESURV"
-        className="fixed bottom-4 right-4 z-50 w-9 h-9 flex items-center justify-center rounded-full bg-[#111318]/85 hover:bg-indigo-600/20 backdrop-blur-xl border border-white/[0.10] hover:border-indigo-500/40 text-slate-400 hover:text-indigo-300 shadow-[0_4px_20px_rgba(0,0,0,0.5)] transition-all micro-press focus-ring"
-      >
-        <Info className="w-4 h-4 stroke-[2]" />
-      </button>
+      {/* Global Floating About Corner Icon (Hidden in fullscreen map mode) */}
+      {activeTab !== 'map' && (
+        <button
+          onClick={() => setIsAboutOpen(true)}
+          aria-label="เกี่ยวกับระบบ"
+          title="เกี่ยวกับระบบ MESURV"
+          className="fixed bottom-4 right-4 z-50 w-9 h-9 flex items-center justify-center rounded-full bg-[#111318]/85 hover:bg-indigo-600/20 backdrop-blur-xl border border-white/[0.10] hover:border-indigo-500/40 text-slate-400 hover:text-indigo-300 shadow-[0_4px_20px_rgba(0,0,0,0.5)] transition-all micro-press focus-ring"
+        >
+          <Info className="w-4 h-4 stroke-[2]" />
+        </button>
+      )}
 
       {/* About Modal */}
       <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />

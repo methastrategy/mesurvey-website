@@ -343,7 +343,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold shrink-0 min-h-[40px] transition-all micro-press ${
+                    className={`inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold shrink-0 min-h-[44px] transition-all micro-press ${
                       isSelected
                         ? 'bg-indigo-600 text-white border border-indigo-400/40 shadow-[0_0_16px_rgba(99,102,241,0.35)]'
                         : 'bg-[#111318]/85 text-slate-400 border border-white/[0.08] hover:text-white hover:bg-[#181b22]'
@@ -564,14 +564,14 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
         <div className="space-y-6">
 
           {/* Sticky Top Command Bar */}
-          <div className="raycast-panel rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 sticky top-16 z-30">
-            <div className="flex items-center gap-2.5 min-w-0">
+          <div className="raycast-panel rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 sticky top-16 z-30">
+            <div className="flex items-center gap-2 min-w-0">
               <button
                 onClick={handleBackToSearch}
-                className="min-h-[38px] inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-white transition-all border border-white/[0.10] shrink-0 micro-press"
+                className="min-h-[40px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-white transition-all border border-white/[0.10] shrink-0 micro-press"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>คลังคู่มือทั้งหมด</span>
+                <span>คลังคู่มือ<span className="hidden sm:inline">ทั้งหมด</span></span>
               </button>
 
               <span className="text-white/20 hidden sm:inline">|</span>
@@ -582,6 +582,18 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
+              {activeTopic.deviceWorkflow && activeTopic.deviceWorkflow.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => scrollToSection('sec-lcd-sim')}
+                  className="lg:hidden min-h-[40px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 text-xs font-semibold border border-emerald-500/30 micro-press"
+                  title="เลื่อนไปดูหน้าจอจำลอง LCD"
+                >
+                  <Terminal className="w-3.5 h-3.5" />
+                  <span>จอ LCD</span>
+                </button>
+              )}
+
               {activeWorkflowTarget && (
                 <button
                   type="button"
@@ -591,7 +603,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       onNavigateTab(activeWorkflowTarget.hash.includes('map') ? 'map' : 'calculator');
                     }
                   }}
-                  className="min-h-[38px] inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition-all shadow-[0_0_16px_rgba(99,102,241,0.35)] micro-press"
+                  className="min-h-[40px] inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition-all shadow-[0_0_16px_rgba(99,102,241,0.35)] micro-press"
                 >
                   <span>{activeWorkflowTarget.label}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -600,7 +612,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
 
               <button
                 onClick={handleCopySummary}
-                className="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 text-xs font-medium transition-colors border border-white/[0.10] micro-press"
+                className="min-h-[40px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 text-xs font-medium transition-colors border border-white/[0.10] micro-press"
               >
                 {copiedText ? (
                   <>
@@ -610,7 +622,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5 text-slate-400" />
-                    <span>คัดลอก SOP</span>
+                    <span>คัดลอก<span className="hidden sm:inline"> SOP</span></span>
                   </>
                 )}
               </button>
@@ -879,7 +891,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
 
               {/* Interactive Instrument LCD & Keypad Simulator */}
               {deviceSteps.length > 0 && currentStep && (
-                <div className="raycast-panel rounded-2xl overflow-hidden border border-emerald-500/25">
+                <div id="sec-lcd-sim" className="raycast-panel rounded-2xl overflow-hidden border border-emerald-500/25 scroll-mt-24">
                   {/* Instrument Chassis Header */}
                   <div className="px-4 py-3 bg-[#090b10] border-b border-white/[0.08] flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -917,12 +929,12 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       </div>
                     </div>
 
-                    {/* Stepper Controls */}
+                    {/* Stepper Controls (Field Touch Target Compliant) */}
                     <div className="flex items-center justify-between gap-2">
                       <button
                         onClick={() => setActiveStepIndex((prev) => Math.max(0, prev - 1))}
                         disabled={activeStepIndex === 0}
-                        className="min-h-[40px] inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] disabled:opacity-30 text-xs font-semibold text-slate-200 transition-colors border border-white/[0.08]"
+                        className="min-h-[44px] inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] disabled:opacity-30 text-xs font-semibold text-slate-200 transition-colors border border-white/[0.08] micro-press"
                       >
                         <ChevronLeft className="w-4 h-4" />
                         <span>ก่อนหน้า</span>
@@ -944,7 +956,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       <button
                         onClick={() => setActiveStepIndex((prev) => Math.min(deviceSteps.length - 1, prev + 1))}
                         disabled={activeStepIndex === deviceSteps.length - 1}
-                        className="min-h-[40px] inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] disabled:opacity-30 text-xs font-semibold text-slate-200 transition-colors border border-white/[0.08]"
+                        className="min-h-[44px] inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] disabled:opacity-30 text-xs font-semibold text-slate-200 transition-colors border border-white/[0.08] micro-press"
                       >
                         <span>ถัดไป</span>
                         <ChevronRight className="w-4 h-4" />

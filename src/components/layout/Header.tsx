@@ -94,7 +94,7 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <button
             onClick={() => setActiveTab('knowledge')}
-            className={`inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[36px] micro-press ${
+            className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[38px] micro-press ${
               activeTab === 'knowledge'
                 ? 'bg-indigo-600 text-white shadow-[0_2px_12px_rgba(99,102,241,0.35)]'
                 : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
@@ -106,26 +106,26 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={() => setActiveTab('calculator')}
-            className={`inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[36px] micro-press ${
+            className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[38px] micro-press ${
               activeTab === 'calculator'
                 ? 'bg-indigo-600 text-white shadow-[0_2px_12px_rgba(99,102,241,0.35)]'
                 : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
             }`}
           >
             <Calculator className="w-3.5 h-3.5 shrink-0" />
-            <span>เครื่องมือคำนวณ</span>
+            <span>เครื่องมือ<span className="hidden sm:inline">คำนวณ</span></span>
           </button>
         </nav>
 
-        {/* Right: Map Launcher Icon Button (Icon Only) */}
+        {/* Right: Map Launcher Icon Button (Icon Only, 44x44 Touch Target) */}
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setActiveTab(activeTab === 'map' ? 'knowledge' : 'map')}
             aria-label="แผนที่ภาคสนาม MeMap"
             title="เปิดแผนที่ MeMap"
-            className="relative w-9 h-9 rounded-full border border-white/[0.10] hover:border-cyan-500/40 bg-[#111318]/90 hover:bg-[#181b22] text-slate-300 hover:text-cyan-300 flex items-center justify-center transition-all micro-press focus-ring"
+            className="relative w-11 h-11 min-h-[44px] min-w-[44px] rounded-full border border-white/[0.10] hover:border-cyan-500/40 bg-[#111318]/90 hover:bg-[#181b22] text-slate-300 hover:text-cyan-300 flex items-center justify-center transition-all micro-press focus-ring"
           >
-            <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
+            <span className="absolute top-2 right-2 flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
             </span>

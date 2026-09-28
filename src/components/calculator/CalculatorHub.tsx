@@ -269,7 +269,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
           <div className="raycast-panel rounded-2xl p-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sticky top-16 z-30">
             <button
               onClick={handleBackToHub}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] transition-colors border border-white/[0.10] shrink-0 min-h-[40px] micro-press"
+              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] transition-colors border border-white/[0.10] shrink-0 min-h-[44px] micro-press"
             >
               <ArrowLeft className="w-4 h-4 text-indigo-400" />
               <span>แผงเลือกเครื่องมือทั้งหมด</span>
@@ -284,7 +284,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                   <button
                     key={tool.id}
                     onClick={() => handleSubTabChange(tool.id)}
-                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 min-h-[40px] micro-press ${
+                    className={`inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all shrink-0 min-h-[44px] micro-press ${
                       isActive
                         ? 'bg-indigo-600 text-white shadow-[0_0_16px_rgba(99,102,241,0.35)] border border-indigo-400/40'
                         : 'text-slate-400 hover:text-white hover:bg-white/[0.06] border border-transparent'

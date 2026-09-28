@@ -881,8 +881,8 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
         onOpenUploader={() => setIsUploaderOpen(true)}
       />
 
-      {/* MeMap Top-Right Branding Widget */}
-      <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-[1000] flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0c0d12]/90 backdrop-blur-2xl border border-white/[0.12] text-white shadow-[0_8px_32px_rgba(0,0,0,0.6)] pointer-events-auto select-none">
+      {/* MeMap Top-Right Branding Widget (Hidden on mobile to avoid MapToolbar collision) */}
+      <div className="hidden sm:flex absolute top-3 sm:top-4 right-3 sm:right-4 z-[1000] items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0c0d12]/90 backdrop-blur-2xl border border-white/[0.12] text-white shadow-[0_8px_32px_rgba(0,0,0,0.6)] pointer-events-auto select-none">
         <span className="relative flex h-2.5 w-2.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
           <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />
@@ -898,22 +898,22 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
 
       {/* Floating Inspect Mode Guidance Banner (Rested Surface) */}
       {measureMode === 'inspect' && (
-        <div className="absolute top-28 sm:top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-white border border-slate-700/80 px-3.5 py-1.5 rounded-xl shadow-sm text-xs font-medium flex items-center space-x-2 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute top-52 sm:top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-white border border-slate-700/80 px-3.5 py-1.5 rounded-xl shadow-sm text-xs font-medium flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 max-w-[90vw]">
           <Crosshair className="w-4 h-4 text-sky-400 shrink-0" />
-          <span>แตะจุดใดๆ บนแผนที่เพื่อดูและคัดลอกพิกัด WGS84 & UTM</span>
+          <span className="truncate">แตะจุดใดๆ บนแผนที่เพื่อดูและคัดลอกพิกัด</span>
           <button 
             onClick={() => setMeasureMode('none')}
-            className="ml-2 min-h-[44px] px-3.5 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1 shadow-xs transition-colors"
+            className="ml-2 min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center justify-center gap-1 shadow-xs transition-colors shrink-0"
           >
             <Check className="w-3.5 h-3.5" />
-            เสร็จสิ้น
+            <span>เสร็จสิ้น</span>
           </button>
         </div>
       )}
 
       {/* Floating Dynamic Measurement Result Pill (Rested Surface, Tabular-nums) */}
       {measurementResultText && (
-        <div className="absolute top-28 sm:top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-white border border-slate-700/80 px-3.5 py-1.5 rounded-xl shadow-sm text-xs font-medium flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 max-w-[90vw]">
+        <div className="absolute top-52 sm:top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-white border border-slate-700/80 px-3.5 py-1.5 rounded-xl shadow-sm text-xs font-medium flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 max-w-[90vw]">
           <span className="w-2 h-2 rounded-full bg-sky-500 shrink-0" />
           <span className="font-mono tabular-nums tracking-tight truncate">{measurementResultText}</span>
           <span className="text-xs text-slate-400 hidden lg:inline pl-1">(คลิกขวาเพื่อย้อนจุด)</span>
@@ -924,7 +924,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
       {plottedTraverseOverlay && (
         <div 
           className={`absolute ${
-            measureMode === 'inspect' || measurementResultText ? 'top-44 sm:top-36' : 'top-28 sm:top-20'
+            measureMode === 'inspect' || measurementResultText ? 'top-64 sm:top-36' : 'top-52 sm:top-20'
           } left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-white border border-emerald-500/80 px-3.5 py-1.5 rounded-xl shadow-xs text-xs font-medium flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 max-w-[90vw]`}
         >
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />

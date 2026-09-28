@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BasemapProvider, MapInteractionMode } from '../../types/map';
 import { SURVEY_BOOKMARKS } from '../../data/survey-presets';
 import { 
@@ -8,9 +8,11 @@ import {
   RotateCcw, 
   Undo2,
   LocateFixed, 
-  FolderUp,
-  Crosshair,
-  ArrowLeft
+  FolderUp, 
+  Crosshair, 
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 interface MapToolbarProps {
@@ -44,6 +46,8 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
     { id: 'topo', label: 'ภูมิประเทศ' },
     { id: 'dark', label: 'มืด' }
   ];
+
+  const [isMobileExpanded, setIsMobileExpanded] = useState<boolean>(true);
 
   return (
     <aside
@@ -95,10 +99,26 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
           >
             <LocateFixed className="w-4 h-4" />
           </button>
+
+          {/* Mobile Drawer Expand/Collapse Toggle Button */}
+          <button
+            onClick={() => setIsMobileExpanded(!isMobileExpanded)}
+            aria-label={isMobileExpanded ? 'ย่อแผงเครื่องมือ' : 'ขยายแผงเครื่องมือ'}
+            title={isMobileExpanded ? 'ย่อแผงเครื่องมือ' : 'ขยายแผงเครื่องมือ'}
+            className="sm:hidden min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 hover:text-white border border-white/[0.08] transition-colors flex items-center justify-center shrink-0 micro-press"
+          >
+            {isMobileExpanded ? (
+              <ChevronUp className="w-4 h-4 text-slate-300" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-cyan-400" />
+            )}
+          </button>
         </div>
 
-        {/* Primary Geomatics Toolset Row */}
-        <div className="grid grid-cols-5 gap-1 pt-1 border-t border-white/[0.08]">
+        {/* Collapsible Lower Section on Mobile (Always visible on sm: desktop) */}
+        <div className={`${isMobileExpanded ? 'block' : 'hidden'} sm:block space-y-3`}>
+          {/* Primary Geomatics Toolset Row */}
+          <div className="grid grid-cols-5 gap-1 pt-1 border-t border-white/[0.08]">
           {/* Inspect Coordinate Tool */}
           <button
             onClick={() => onSetMeasureMode(measureMode === 'inspect' ? 'none' : 'inspect')}
@@ -216,6 +236,7 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
               {b.label}
             </button>
           ))}
+        </div>
         </div>
 
       </div>
