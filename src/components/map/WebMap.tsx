@@ -1,14 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { BasemapProvider, DistancePoint, MapInteractionMode } from '../../types/map';
-import { 
-  forwardWgs84ToUtm 
-} from '../../core/projections';
+import { forwardWgs84ToUtm } from '../../core/projections';
 import { sqMetersToThaiLand, formatThaiLandString } from '../../core/land-units';
 import { SURVEY_BOOKMARKS } from '../../data/survey-presets';
 import { MapToolbar } from './MapToolbar';
 import { GeoJsonUploader } from './GeoJsonUploader';
-import { Crosshair, Check } from 'lucide-react';
+import { 
+  Crosshair, 
+  Check, 
+  MapPin, 
+  Ruler, 
+  Square, 
+  Copy, 
+  RotateCcw,
+  Compass,
+  Layers
+} from 'lucide-react';
 import { trackEvent } from '../../lib/telemetry';
 
 interface WebMapProps {
@@ -16,7 +24,14 @@ interface WebMapProps {
   onSendToCalculator?: (lat: number, lng: number) => void;
 }
 
-export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculator }) => {
+interface ContextMenuData {
+  lat: number;
+  lng: number;
+  x: number;
+  y: number;
+}
+
+export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
@@ -31,6 +46,25 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
   const [measurePoints, setMeasurePoints] = useState<DistancePoint[]>([]);
   const [isUploaderOpen, setIsUploaderOpen] = useState(false);
   const [measurementResultText, setMeasurementResultText] = useState<string | null>(null);
+  const [contextMenu, setContextMenu] = useState<ContextMenuData | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Live Telemetry HUD state
+  const [telemetry, setTelemetry] = useState<{
+    lat: number;
+    lng: number;
+    utmE: number;
+    utmN: number;
+    zone: number;
+    zoom: number;
+  }>({
+    lat: 13.84664,
+    lng: 100.56982,
+    utmE: 669820,
+    utmN: 1531245,
+    zone: 47,
+    zoom: 16
+  });
 
   // Synchronous ref to prevent stale closures and touch event traps
   const measureModeRef = useRef<MapInteractionMode>(measureMode);
@@ -60,6 +94,149 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
       maxZoom: 20,
       attr: '&copy; CARTO'
     }
+  };
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 2800);
+  };
+
+  // Drop a station benchmark pin
+  const dropStationMarker = (lat: number, lng: number, label?: string) => {
+    if (!mapInstanceRef.current || !markerGroupRef.current) return;
+    trackEvent('map_drop_marker', { lat, lng });
+
+    const utm = forwardWgs84ToUtm(lat, lng);
+    const stationName = label || `Station-${markerGroupRef.current.getLayers().length + 1}`;
+
+    const markerPinIcon = L.divIcon({
+      className: 'custom-marker-pin',
+      html: `
+        <div style="position: relative; width: 22px; height: 22px; transform: translate(-11px, -11px); display: flex; align-items: center; justify-content: center;">
+          <div style="position: absolute; width: 20px; height: 20px; border-radius: 50%; border: 2.5px solid #f59e0b; background: rgba(245, 158, 11, 0.2); box-shadow: 0 0 10px rgba(245,158,11,0.6);"></div>
+          <div style="position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #f59e0b;"></div>
+          <div style="position: absolute; width: 22px; height: 1.5px; background: #f59e0b;"></div>
+          <div style="position: absolute; width: 1.5px; height: 22px; background: #f59e0b;"></div>
+        </div>
+      `,
+      iconSize: [0, 0],
+      iconAnchor: [0, 0]
+    });
+
+    const popupHtml = `
+      <div style="padding: 4px 6px; min-width: 200px;">
+        <div style="font-size: 12px; font-weight: 700; color: #f59e0b; margin-bottom: 2px;">
+          📍 ${stationName} (หมุดรังวัด)
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 12px; font-weight: 600; color: #0f172a; margin-bottom: 4px;">
+          WGS84: ${lat.toFixed(6)}°, ${lng.toFixed(6)}°
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 12px; color: #475569; margin-bottom: 8px;">
+          UTM ${utm.zone}N: E ${utm.easting.toFixed(2)} m<br/>N ${utm.northing.toFixed(2)} m
+        </div>
+      </div>
+    `;
+
+    L.marker([lat, lng], { icon: markerPinIcon })
+      .bindPopup(popupHtml)
+      .addTo(markerGroupRef.current)
+      .openPopup();
+  };
+
+  // Inspect coordinate click handler with Geodetic Crosshair Reticle
+  const inspectCoordinate = (lat: number, lng: number) => {
+    if (!mapInstanceRef.current) return;
+    trackEvent('map_inspect_point', { lat, lng });
+
+    if (inspectMarkerRef.current) {
+      mapInstanceRef.current.removeLayer(inspectMarkerRef.current);
+    }
+
+    const utm = forwardWgs84ToUtm(lat, lng);
+
+    const crosshairIcon = L.divIcon({
+      className: 'custom-crosshair-reticle',
+      html: `
+        <div style="position: relative; width: 26px; height: 26px; transform: translate(-13px, -13px); display: flex; align-items: center; justify-content: center;">
+          <div style="position: absolute; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #0284c7; background: rgba(2,132,199,0.25); box-shadow: 0 0 12px rgba(2,132,199,0.5);"></div>
+          <div style="position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #ffffff;"></div>
+          <div style="position: absolute; width: 26px; height: 1.5px; background: #0284c7;"></div>
+          <div style="position: absolute; width: 1.5px; height: 26px; background: #0284c7;"></div>
+        </div>
+      `,
+      iconSize: [0, 0],
+      iconAnchor: [0, 0]
+    });
+
+    const newMarker = L.marker([lat, lng], { icon: crosshairIcon }).addTo(mapInstanceRef.current);
+    inspectMarkerRef.current = newMarker;
+
+    const coordStr = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    const utmStr = `UTM ${utm.zone}N: E ${utm.easting.toFixed(2)} m, N ${utm.northing.toFixed(2)} m`;
+
+    const popupHtml = `
+      <div style="padding: 4px 6px; min-width: 220px;">
+        <div style="font-size: 12px; font-weight: 700; color: #0284c7; margin-bottom: 3px;">
+          🎯 พิกัดตำแหน่งที่เลือก (Geodetic Point)
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">
+          WGS84: ${coordStr}
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 12px; color: #475569; margin-bottom: 10px;">
+          ${utmStr}
+        </div>
+        <button 
+          id="btn-copy-popup-coord"
+          style="
+            width: 100%;
+            min-height: 36px;
+            padding: 8px 12px;
+            background: #0284c7;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 1px 4px rgba(2,132,199,0.25);
+            transition: background 0.15s ease;
+          "
+          onmouseover="this.style.background='#0369a1'"
+          onmouseout="this.style.background='#0284c7'"
+          onclick="
+            navigator.clipboard.writeText('${coordStr}\\n${utmStr}');
+            this.innerText = 'คัดลอกพิกัดแล้ว ✓';
+            setTimeout(() => { this.innerText = 'คัดลอกพิกัด'; }, 1800);
+          "
+        >
+          คัดลอกพิกัด WGS84 & UTM
+        </button>
+      </div>
+    `;
+
+    if (clickPopupRef.current) {
+      mapInstanceRef.current.closePopup(clickPopupRef.current);
+    }
+
+    const popup = L.popup({
+      closeButton: true,
+      autoClose: true,
+      closeOnClick: false,
+      offset: [0, -18],
+      maxWidth: 260,
+      className: 'google-style-popup'
+    })
+      .setLatLng([lat, lng])
+      .setContent(popupHtml)
+      .openOn(mapInstanceRef.current);
+
+    clickPopupRef.current = popup;
   };
 
   // Initialize Leaflet Map
@@ -92,124 +269,72 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
     markerGroupRef.current = markerGroup;
     mapInstanceRef.current = map;
 
-    // Dynamic Map Click Event (Google Maps style)
+    // Track live telemetry on map move
+    const updateTelemetry = () => {
+      const center = map.getCenter();
+      const utm = forwardWgs84ToUtm(center.lat, center.lng);
+      setTelemetry({
+        lat: center.lat,
+        lng: center.lng,
+        utmE: Math.round(utm.easting),
+        utmN: Math.round(utm.northing),
+        zone: utm.zone,
+        zoom: map.getZoom()
+      });
+    };
+
+    map.on('move', updateTelemetry);
+    map.on('zoomend', updateTelemetry);
+
+    // Dynamic Map Click Event
     map.on('click', (e: L.LeafletMouseEvent) => {
+      setContextMenu(null);
       const mode = measureModeRef.current;
       const { lat, lng } = e.latlng;
 
-      // 1. In Distance / Area mode: Handled by measure points listener
       if (mode === 'distance' || mode === 'area') {
         setMeasurePoints((prev) => [...prev, { lat, lng }]);
         return;
       }
 
-      // 2. In Marker mode: Drop a permanent station marker
       if (mode === 'marker') {
-        trackEvent('map_drop_marker', { lat, lng });
-        const markerPinIcon = L.divIcon({
-          className: 'custom-marker-pin',
-          html: `<div style="background-color: #f59e0b; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid #ffffff; box-shadow: 0 0 8px rgba(0,0,0,0.5);"></div>`,
-          iconSize: [14, 14],
-          iconAnchor: [7, 7]
-        });
-
-        L.marker([lat, lng], { icon: markerPinIcon })
-          .bindPopup(`
-            <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 12px; padding: 2px;">
-              <strong style="color: #b45309;">หมุดรังวัดภาคสนาม</strong><br/>
-              <span style="font-family: monospace; font-size: 11px;">
-                ${lat.toFixed(6)}, ${lng.toFixed(6)}
-              </span>
-            </div>
-          `)
-          .addTo(markerGroup);
+        dropStationMarker(lat, lng);
         return;
       }
 
-      // 3. Default & Inspect click: Google Maps style single-format coordinate pin
-      trackEvent('map_inspect_point', { lat, lng });
-
-      // Remove previous temporary inspect pin
-      if (inspectMarkerRef.current) {
-        map.removeLayer(inspectMarkerRef.current);
-      }
-
-      const googlePin = L.divIcon({
-        className: 'custom-google-pin',
-        html: `
-          <div style="width: 28px; height: 36px; transform: translate(-14px, -36px); cursor: pointer;">
-            <svg viewBox="0 0 24 24" width="28" height="36" fill="#EA4335" style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.35));">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-            </svg>
-          </div>
-        `,
-        iconSize: [0, 0],
-        iconAnchor: [0, 0]
-      });
-
-      const newMarker = L.marker([lat, lng], { icon: googlePin }).addTo(map);
-      inspectMarkerRef.current = newMarker;
-
-      const coordStr = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-
-      const popupHtml = `
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 3px 5px; min-width: 180px; color: #1e293b;">
-          <div style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 2px;">
-            📍 พิกัดตำแหน่งที่เลือก
-          </div>
-          <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; margin-bottom: 8px; letter-spacing: -0.2px;">
-            ${coordStr}
-          </div>
-          <button 
-            id="btn-copy-popup-coord"
-            style="
-              width: 100%;
-              padding: 6px 12px;
-              background: #007AFF;
-              color: white;
-              border: none;
-              border-radius: 8px;
-              font-size: 11.5px;
-              font-weight: 600;
-              cursor: pointer;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              gap: 4px;
-              box-shadow: 0 1px 4px rgba(0,122,255,0.3);
-              transition: background 0.15s ease;
-            "
-            onmouseover="this.style.background='#0066d6'"
-            onmouseout="this.style.background='#007AFF'"
-            onclick="
-              navigator.clipboard.writeText('${coordStr}');
-              this.innerText = 'คัดลอกพิกัดแล้ว ✓';
-              setTimeout(() => { this.innerText = 'คัดลอกพิกัด'; }, 1800);
-            "
-          >
-            คัดลอกพิกัด
-          </button>
-        </div>
-      `;
-
-      if (clickPopupRef.current) {
-        map.closePopup(clickPopupRef.current);
-      }
-
-      const popup = L.popup({
-        closeButton: true,
-        autoClose: true,
-        closeOnClick: false,
-        offset: [0, -32],
-        maxWidth: 240,
-        className: 'google-style-popup'
-      })
-        .setLatLng([lat, lng])
-        .setContent(popupHtml)
-        .openOn(map);
-
-      clickPopupRef.current = popup;
+      // Default & Inspect click
+      inspectCoordinate(lat, lng);
     });
+
+    // Right-Click Event (Context Menu / Undo Point)
+    map.on('contextmenu', (e: L.LeafletMouseEvent) => {
+      e.originalEvent.preventDefault();
+      const mode = measureModeRef.current;
+
+      // Right-click during active measurement: Undo Last Vertex!
+      if (mode === 'distance' || mode === 'area') {
+        setMeasurePoints((prev) => {
+          if (prev.length <= 1) {
+            setMeasurementResultText(null);
+            return [];
+          }
+          return prev.slice(0, -1);
+        });
+        showToast('ย้อนกลับจุดรังวัดล่าสุดแล้ว (Undo)');
+        return;
+      }
+
+      // In normal / inspect mode: open quick geomatics context menu
+      setContextMenu({
+        lat: e.latlng.lat,
+        lng: e.latlng.lng,
+        x: e.containerPoint.x,
+        y: e.containerPoint.y
+      });
+    });
+
+    // Initial Telemetry Update
+    updateTelemetry();
 
     // Invalidate size after layout settles to guarantee 100% full-screen canvas fill
     const resizeTimer = setTimeout(() => {
@@ -249,27 +374,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
     const { lat, lng, label } = externalPoint;
     mapInstanceRef.current.flyTo([lat, lng], 17, { duration: 1.5 });
 
-    const pinIcon = L.divIcon({
-      className: 'custom-target-pin',
-      html: `<div style="background-color: #f59e0b; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 12px rgba(245, 158, 11, 0.8);"></div>`,
-      iconSize: [16, 16],
-      iconAnchor: [8, 8]
-    });
-
-    const marker = L.marker([lat, lng], { icon: pinIcon })
-      .bindPopup(`
-        <div style="font-family: sans-serif; font-size: 12px;">
-          <strong style="color: #b45309;">${label}</strong><br/>
-          <span style="font-family: monospace; font-size: 11px;">
-            Lat: ${lat.toFixed(6)}°, Lng: ${lng.toFixed(6)}°
-          </span>
-        </div>
-      `)
-      .addTo(markerGroupRef.current);
-
-    setTimeout(() => {
-      marker.openPopup();
-    }, 600);
+    dropStationMarker(lat, lng, label);
   }, [externalPoint]);
 
   // Render Measurement Polylines & Polygons
@@ -287,18 +392,18 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
 
     latlngs.forEach((pt) => {
       L.circleMarker(pt, {
-        radius: 4.5,
+        radius: 5,
         color: '#ffffff',
-        fillColor: '#10b981',
+        fillColor: '#0284c7',
         fillOpacity: 1,
-        weight: 2
+        weight: 2.5
       }).addTo(measureGroup);
     });
 
     if (measureMode === 'distance') {
       if (latlngs.length >= 2) {
         L.polyline(latlngs, {
-          color: '#10b981',
+          color: '#0284c7',
           weight: 3.5,
           dashArray: '6, 6'
         }).addTo(measureGroup);
@@ -316,9 +421,9 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
     } else if (measureMode === 'area') {
       if (latlngs.length >= 3) {
         L.polygon(latlngs, {
-          color: '#059669',
-          fillColor: '#10b981',
-          fillOpacity: 0.25,
+          color: '#0284c7',
+          fillColor: '#38bdf8',
+          fillOpacity: 0.3,
           weight: 2.5
         }).addTo(measureGroup);
 
@@ -346,7 +451,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
   // Geolocation
   const handleLocateMe = () => {
     if (!navigator.geolocation || !mapInstanceRef.current) {
-      alert('เบราว์เซอร์ไม่รองรับการระบุพิกัด Geolocation');
+      showToast('เบราว์เซอร์ไม่รองรับการระบุพิกัด Geolocation');
       return;
     }
 
@@ -365,17 +470,20 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
 
           L.marker([latitude, longitude])
             .bindPopup(`
-              <div style="font-family: sans-serif; font-size: 12px;">
-                <strong style="color: #0284c7;">ตำแหน่งปัจจุบันของคุณ (GPS)</strong><br/>
-                ความแม่นยำ: ±${accuracy.toFixed(1)} เมตร
+              <div style="font-size: 12px; padding: 2px;">
+                <strong style="color: #0284c7;">ตำแหน่งของคุณ (GPS)</strong><br/>
+                <span style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums;">
+                  ความแม่นยำ: ±${accuracy.toFixed(1)} ม.
+                </span>
               </div>
             `)
             .addTo(markerGroupRef.current)
             .openPopup();
         }
+        showToast('ระบุตำแหน่ง GPS เรียบร้อยแล้ว');
       },
       (err) => {
-        alert(`ไม่สามารถดึงตำแหน่งพิกัดได้: ${err.message}`);
+        showToast(`ระบุพิกัด GPS ไม่สำเร็จ: ${err.message}`);
       },
       { enableHighAccuracy: true }
     );
@@ -390,10 +498,22 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
     setMeasurePoints([]);
     setMeasurementResultText(null);
     setMeasureMode('none');
+    setContextMenu(null);
     if (inspectMarkerRef.current && mapInstanceRef.current) {
       mapInstanceRef.current.removeLayer(inspectMarkerRef.current);
       inspectMarkerRef.current = null;
     }
+  };
+
+  const handleUndoPoint = () => {
+    setMeasurePoints((prev) => {
+      if (prev.length <= 1) {
+        setMeasurementResultText(null);
+        return [];
+      }
+      return prev.slice(0, -1);
+    });
+    showToast('ย้อนกลับจุดรังวัดล่าสุดแล้ว (Undo)');
   };
 
   const handleGeoJsonLoaded = (data: any, fileName: string) => {
@@ -423,17 +543,43 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
 
     vectorLayerRef.current = geoLayer;
     mapInstanceRef.current.fitBounds(geoLayer.getBounds());
+    showToast(`โหลดไฟล์ ${fileName} สำเร็จ`);
   };
 
+  // Keyboard accelerators
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClearMeasurements();
+      } else if (e.key === 'z' && (e.ctrlKey || e.metaKey)) {
+        if (measurePoints.length > 0) {
+          handleUndoPoint();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [measurePoints]);
+
   return (
-    <div className={`relative w-full h-full min-h-0 overflow-hidden bg-slate-900 select-none map-locked-viewport ${
-      measureMode === 'inspect' ? 'cursor-crosshair' : ''
-    }`}>
+    <div 
+      className={`relative w-full h-full min-h-0 overflow-hidden bg-slate-900 select-none map-locked-viewport ${
+        measureMode === 'inspect' ? 'cursor-crosshair' : ''
+      }`}
+      onAuxClick={(e) => {
+        if (e.button === 1) {
+          e.preventDefault();
+          handleClearMeasurements();
+          showToast('ยกเลิกโหมดการวัดแล้ว (Middle-Click)');
+        }
+      }}
+    >
       
       {/* Leaflet Map DOM Canvas */}
       <div ref={mapContainerRef} className="w-full h-full z-0 touch-none overscroll-none" />
 
-      {/* Modern Floating Toolbar */}
+      {/* Modern Floating Toolbar (44x44px touch targets) */}
       <MapToolbar
         currentBasemap={currentBasemap}
         onSelectBasemap={setCurrentBasemap}
@@ -441,8 +587,11 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
         onSetMeasureMode={(m) => {
           setMeasureMode(m);
           setMeasurePoints([]);
+          setContextMenu(null);
         }}
         onClearMeasurements={handleClearMeasurements}
+        onUndoPoint={handleUndoPoint}
+        canUndo={measurePoints.length > 0}
         onLocateMe={handleLocateMe}
         onSelectBookmark={handleSelectBookmark}
         onOpenUploader={() => setIsUploaderOpen(true)}
@@ -450,31 +599,132 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
 
       {/* Floating Inspect Mode Guidance Banner */}
       {measureMode === 'inspect' && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/90 dark:bg-[#131b2c]/95 backdrop-blur-xl text-white border border-sky-400/40 px-4 py-2 rounded-full shadow-2xl text-xs font-semibold flex items-center space-x-2 animate-in fade-in slide-in-from-top-2">
-          <Crosshair className="w-4 h-4 text-sky-400 animate-pulse" />
-          <span>แตะจุดใดๆ บนแผนที่เพื่อดูและคัดลอกพิกัด</span>
+        <div className="absolute top-[5rem] sm:top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-xl text-white border border-sky-400/40 px-4 py-2 rounded-full shadow-2xl text-xs font-semibold flex items-center space-x-2 animate-in fade-in slide-in-from-top-2">
+          <Crosshair className="w-4 h-4 text-sky-400 animate-pulse shrink-0" />
+          <span>แตะจุดใดๆ บนแผนที่เพื่อดูและคัดลอกพิกัด WGS84 & UTM</span>
           <button 
             onClick={() => setMeasureMode('none')}
-            className="ml-2 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white text-[11px] font-medium flex items-center gap-1 shadow-xs transition-colors"
+            className="ml-2 min-h-[34px] px-3 py-1 rounded-full bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1 shadow-xs transition-colors"
           >
-            <Check className="w-3 h-3" />
+            <Check className="w-3.5 h-3.5" />
             เสร็จสิ้น
           </button>
         </div>
       )}
 
-      {/* Floating Dynamic Measurement Result Pill */}
+      {/* Floating Dynamic Measurement Result Pill (Tabular-nums formatted) */}
       {measurementResultText && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/90 dark:bg-[#131b2c]/95 backdrop-blur-xl text-white border border-sky-400/40 px-4 py-2 rounded-full shadow-2xl text-xs font-semibold flex items-center space-x-2 animate-in fade-in slide-in-from-top-2">
-          <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-          <span>{measurementResultText}</span>
+        <div className="absolute top-[5rem] sm:top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-xl text-white border border-sky-400/40 px-4 py-2 rounded-full shadow-2xl text-xs font-semibold flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 max-w-[90vw]">
+          <span className="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse shrink-0" />
+          <span className="font-mono tabular-nums tracking-tight truncate">{measurementResultText}</span>
+          <span className="text-xs text-slate-400 hidden lg:inline pl-1">(คลิกขวาเพื่อย้อนจุด)</span>
         </div>
       )}
 
-      {/* Minimal Helper Hint when in default clean view (Lifted on mobile so bottom nav bar doesn't obscure it) */}
-      {measureMode === 'none' && !measurementResultText && (
-        <div className="absolute bottom-20 md:bottom-4 left-4 z-[990] bg-white/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-slate-700 dark:text-slate-300 px-3.5 py-1.5 rounded-full border border-slate-200/80 dark:border-slate-800 shadow-md text-[11px] pointer-events-none flex items-center space-x-1.5 opacity-90 transition-opacity">
-          <span>📍 คลิกจุดใดๆ บนแผนที่เพื่อดูและคัดลอกพิกัด</span>
+      {/* Bottom Telemetry HUD Bar (Tabular Precision Rule) */}
+      <div className="absolute bottom-20 md:bottom-4 left-3 sm:left-4 z-[990] bg-white/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-slate-800 dark:text-slate-200 px-3.5 py-2 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xl font-mono tabular-nums text-xs pointer-events-none flex flex-wrap items-center gap-x-3 gap-y-1">
+        <div className="flex items-center gap-1.5 text-sky-600 dark:text-sky-400 font-semibold">
+          <Compass className="w-3.5 h-3.5 shrink-0" />
+          <span>ศูนย์กลางแผนที่</span>
+        </div>
+        <div className="text-slate-600 dark:text-slate-300">
+          WGS84: {telemetry.lat.toFixed(5)}°, {telemetry.lng.toFixed(5)}°
+        </div>
+        <div className="text-slate-500 dark:text-slate-400 hidden sm:inline">
+          |
+        </div>
+        <div className="text-slate-600 dark:text-slate-300 hidden sm:inline">
+          UTM {telemetry.zone}N: E {telemetry.utmE.toLocaleString()} m, N {telemetry.utmN.toLocaleString()} m
+        </div>
+        <div className="text-slate-400 text-xs px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800">
+          Z: {telemetry.zoom}
+        </div>
+      </div>
+
+      {/* Right-Click Geomatics Context Menu */}
+      {contextMenu && (
+        <div 
+          className="absolute z-[1100] bg-white/95 dark:bg-[#131b2c]/95 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800 rounded-2xl p-1.5 shadow-2xl min-w-[210px] text-xs font-semibold text-slate-800 dark:text-slate-200 animate-in fade-in zoom-in-95"
+          style={{
+            top: Math.min(contextMenu.y, window.innerHeight - 260),
+            left: Math.min(contextMenu.x, window.innerWidth - 230)
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="px-3 py-1.5 text-xs font-mono text-slate-400 border-b border-slate-100 dark:border-slate-800">
+            {contextMenu.lat.toFixed(6)}°, {contextMenu.lng.toFixed(6)}°
+          </div>
+
+          <button
+            onClick={() => {
+              dropStationMarker(contextMenu.lat, contextMenu.lng);
+              setContextMenu(null);
+              showToast('ปักหมุดรังวัดเรียบร้อยแล้ว');
+            }}
+            className="w-full text-left px-3 py-2 rounded-xl hover:bg-sky-50 dark:hover:bg-slate-800 flex items-center gap-2 transition-colors"
+          >
+            <MapPin className="w-3.5 h-3.5 text-amber-500" />
+            <span>ปักหมุดรังวัดที่นี่</span>
+          </button>
+
+          <button
+            onClick={() => {
+              inspectCoordinate(contextMenu.lat, contextMenu.lng);
+              setContextMenu(null);
+            }}
+            className="w-full text-left px-3 py-2 rounded-xl hover:bg-sky-50 dark:hover:bg-slate-800 flex items-center gap-2 transition-colors"
+          >
+            <Crosshair className="w-3.5 h-3.5 text-sky-500" />
+            <span>ตรวจสอบพิกัดละเอียด</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setMeasureMode('distance');
+              setMeasurePoints([{ lat: contextMenu.lat, lng: contextMenu.lng }]);
+              setContextMenu(null);
+            }}
+            className="w-full text-left px-3 py-2 rounded-xl hover:bg-sky-50 dark:hover:bg-slate-800 flex items-center gap-2 transition-colors"
+          >
+            <Ruler className="w-3.5 h-3.5 text-emerald-500" />
+            <span>เริ่มวัดระยะทางจากจุดนี้</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setMeasureMode('area');
+              setMeasurePoints([{ lat: contextMenu.lat, lng: contextMenu.lng }]);
+              setContextMenu(null);
+            }}
+            className="w-full text-left px-3 py-2 rounded-xl hover:bg-sky-50 dark:hover:bg-slate-800 flex items-center gap-2 transition-colors"
+          >
+            <Square className="w-3.5 h-3.5 text-purple-500" />
+            <span>เริ่มวัดพื้นที่จากจุดนี้</span>
+          </button>
+
+          <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
+
+          <button
+            onClick={() => {
+              if (markerGroupRef.current) {
+                markerGroupRef.current.clearLayers();
+              }
+              handleClearMeasurements();
+              setContextMenu(null);
+              showToast('ล้างหมุดและเส้นรังวัดทั้งหมดแล้ว');
+            }}
+            className="w-full text-left px-3 py-2 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 transition-colors"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>ล้างหมุดและเส้นทั้งหมด</span>
+          </button>
+        </div>
+      )}
+
+      {/* Floating Canvas Toast */}
+      {toastMessage && (
+        <div className="absolute bottom-28 md:bottom-16 left-1/2 -translate-x-1/2 z-[1150] bg-slate-900/90 text-white px-4 py-2 rounded-full shadow-2xl text-xs font-medium flex items-center space-x-1.5 animate-in fade-in slide-in-from-bottom-2">
+          <span>{toastMessage}</span>
         </div>
       )}
 

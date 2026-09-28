@@ -91,7 +91,7 @@ export const GeoJsonUploader: React.FC<GeoJsonUploaderProps> = ({
           <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">
             ลากและวางไฟล์ GeoJSON ลงที่นี่
           </p>
-          <p className="text-[11px] text-slate-400 mt-1">หรือคลิกเพื่อเลือกไฟล์จากคอมพิวเตอร์</p>
+          <p className="text-xs text-slate-400 mt-1">หรือคลิกเพื่อเลือกไฟล์จากคอมพิวเตอร์</p>
 
           <input
             type="file"

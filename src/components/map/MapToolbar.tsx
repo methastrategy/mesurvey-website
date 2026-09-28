@@ -6,6 +6,7 @@ import {
   Square, 
   MapPin, 
   RotateCcw, 
+  Undo2,
   LocateFixed, 
   FolderUp,
   Crosshair 
@@ -17,6 +18,8 @@ interface MapToolbarProps {
   measureMode: MapInteractionMode;
   onSetMeasureMode: (mode: MapInteractionMode) => void;
   onClearMeasurements: () => void;
+  onUndoPoint?: () => void;
+  canUndo?: boolean;
   onLocateMe: () => void;
   onSelectBookmark: (bm: typeof SURVEY_BOOKMARKS[0]) => void;
   onOpenUploader: () => void;
@@ -28,96 +31,110 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
   measureMode,
   onSetMeasureMode,
   onClearMeasurements,
+  onUndoPoint,
+  canUndo = false,
   onLocateMe,
   onSelectBookmark,
   onOpenUploader
 }) => {
   const basemaps: { id: BasemapProvider; label: string }[] = [
-    { id: 'satellite', label: 'ดาวเทียม (Satellite)' },
-    { id: 'osm', label: 'ถนน (OSM)' },
-    { id: 'topo', label: 'ภูมิประเทศ (Topo)' },
-    { id: 'dark', label: 'มืด (Dark)' }
+    { id: 'satellite', label: 'ดาวเทียม' },
+    { id: 'osm', label: 'ถนน' },
+    { id: 'topo', label: 'ภูมิประเทศ' },
+    { id: 'dark', label: 'มืด' }
   ];
 
   return (
-    <div className="absolute top-4 left-4 right-4 z-[1000] flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+    <div className="absolute top-3 sm:top-4 left-3 sm:left-4 right-3 sm:right-4 z-[1000] flex flex-wrap items-center justify-between gap-2 pointer-events-none">
       
-      {/* Left: Tools & Controls */}
-      <div className="flex flex-wrap items-center gap-1.5 bg-white/95 dark:bg-[#131b2c]/95 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl pointer-events-auto">
+      {/* Left: Primary Geomatics Toolset (44x44px touch compliant) */}
+      <div className="flex flex-wrap items-center gap-1 bg-white/95 dark:bg-[#131b2c]/95 backdrop-blur-md p-1 sm:p-1.5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xl pointer-events-auto">
         
-        {/* Inspect Coordinate Crosshair Tool */}
+        {/* Inspect Coordinate Tool */}
         <button
           onClick={() => onSetMeasureMode(measureMode === 'inspect' ? 'none' : 'inspect')}
-          className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors flex items-center space-x-1.5 ${
+          className={`min-h-[44px] min-w-[44px] px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-center space-x-1.5 ${
             measureMode === 'inspect'
-              ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold shadow-md shadow-sky-500/20'
-              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
+              : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
-          title="เป้าเล็งตรวจสอบพิกัด (คลิกบนแผนที่เพื่อดูพิกัด)"
+          title="เป้าเล็งตรวจสอบพิกัด (คลิกบนแผนที่เพื่อดูพิกัด WGS84 & UTM)"
         >
-          <Crosshair className="w-4 h-4" />
+          <Crosshair className="w-4 h-4 shrink-0" />
           <span className="hidden sm:inline">เป้าเล็งพิกัด</span>
         </button>
 
         {/* Distance Tool */}
         <button
           onClick={() => onSetMeasureMode(measureMode === 'distance' ? 'none' : 'distance')}
-          className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors flex items-center space-x-1.5 ${
+          className={`min-h-[44px] min-w-[44px] px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-center space-x-1.5 ${
             measureMode === 'distance'
-              ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold shadow-md shadow-sky-500/20'
-              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
+              : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
-          title="วัดระยะทางตามเส้นทาง"
+          title="วัดระยะทางตามเส้นทาง (คลิกเพื่อต่อจุด / คลิกขวาเพื่อย้อนจุด)"
         >
-          <Ruler className="w-4 h-4" />
+          <Ruler className="w-4 h-4 shrink-0" />
           <span className="hidden sm:inline">วัดระยะ</span>
         </button>
 
         {/* Area Tool */}
         <button
           onClick={() => onSetMeasureMode(measureMode === 'area' ? 'none' : 'area')}
-          className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors flex items-center space-x-1.5 ${
+          className={`min-h-[44px] min-w-[44px] px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-center space-x-1.5 ${
             measureMode === 'area'
-              ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold shadow-md shadow-sky-500/20'
-              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
+              : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
           title="วัดพื้นที่รูปปิด (ตารางเมตร & ไร่-งาน-วา)"
         >
-          <Square className="w-4 h-4" />
+          <Square className="w-4 h-4 shrink-0" />
           <span className="hidden sm:inline">วัดพื้นที่</span>
         </button>
 
         {/* Drop Marker Tool */}
         <button
           onClick={() => onSetMeasureMode(measureMode === 'marker' ? 'none' : 'marker')}
-          className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors flex items-center space-x-1.5 ${
+          className={`min-h-[44px] min-w-[44px] px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-center space-x-1.5 ${
             measureMode === 'marker'
-              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold shadow-md shadow-amber-500/20'
-              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+              : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
-          title="คลิกวางหมุดบนแผนที่"
+          title="คลิกวางหมุดรังวัดบนแผนที่"
         >
-          <MapPin className="w-4 h-4" />
+          <MapPin className="w-4 h-4 shrink-0" />
           <span className="hidden sm:inline">ปักหมุด</span>
         </button>
+
+        {/* Undo Point (Active only when points exist) */}
+        {canUndo && onUndoPoint && (
+          <button
+            onClick={onUndoPoint}
+            className="min-h-[44px] min-w-[44px] px-3 py-2.5 rounded-xl text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-xs font-semibold transition-colors flex items-center justify-center space-x-1"
+            title="ย้อนกลับจุดรังวัดล่าสุด (Undo Point / คลิกขวาบนแผนที่)"
+          >
+            <Undo2 className="w-4 h-4" />
+            <span className="hidden md:inline">ย้อนจุด</span>
+          </button>
+        )}
 
         {/* Clear Measurements */}
         {measureMode !== 'none' && (
           <button
             onClick={onClearMeasurements}
-            className="p-1.5 rounded-xl text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+            className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors flex items-center justify-center"
             title="ล้างค่าการวัดและออกจากโหมด"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
         )}
 
-        <div className="w-[1px] h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+        <div className="w-[1px] h-6 bg-slate-200 dark:bg-slate-700 mx-0.5" />
 
         {/* Geolocation Button */}
         <button
           onClick={onLocateMe}
-          className="p-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center"
           title="ตำแหน่งปัจจุบันของฉัน (GPS)"
         >
           <LocateFixed className="w-4 h-4 text-sky-600 dark:text-sky-400" />
@@ -126,17 +143,17 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
         {/* Upload GeoJSON/KML */}
         <button
           onClick={onOpenUploader}
-          className="px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-medium transition-colors flex items-center space-x-1"
+          className="min-h-[44px] min-w-[44px] px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold transition-colors flex items-center justify-center space-x-1"
           title="นำเข้าไฟล์ GeoJSON หรือ KML"
         >
           <FolderUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <span className="hidden md:inline">นำเข้าไฟล์</span>
+          <span className="hidden lg:inline">นำเข้าไฟล์</span>
         </button>
 
       </div>
 
-      {/* Right: Basemap Selector & Bookmarks */}
-      <div className="flex items-center gap-1.5 bg-white/95 dark:bg-[#131b2c]/95 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl pointer-events-auto">
+      {/* Right: Basemap Selector & Bookmarks (44x44px touch compliant) */}
+      <div className="flex items-center gap-1.5 bg-white/95 dark:bg-[#131b2c]/95 backdrop-blur-md p-1 sm:p-1.5 rounded-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-xl pointer-events-auto">
         
         {/* Bookmark Quick Jump Dropdown */}
         <div className="hidden sm:flex items-center">
@@ -146,11 +163,11 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
               if (bm) onSelectBookmark(bm);
             }}
             defaultValue=""
-            className="px-2.5 py-1.5 rounded-xl border-none bg-transparent text-xs text-slate-700 dark:text-slate-300 font-semibold focus:outline-none cursor-pointer"
+            className="min-h-[44px] px-3 py-2 rounded-xl border-none bg-transparent text-xs text-slate-700 dark:text-slate-200 font-semibold focus:outline-none cursor-pointer"
           >
-            <option value="" disabled>📍 หมุดพิกัดอ้างอิงที่มี...</option>
+            <option value="" disabled className="dark:bg-[#131b2c]">📍 หมุดพิกัดอ้างอิง...</option>
             {SURVEY_BOOKMARKS.map((b) => (
-              <option key={b.id} value={b.id}>
+              <option key={b.id} value={b.id} className="dark:bg-[#131b2c]">
                 {b.name}
               </option>
             ))}
@@ -158,18 +175,18 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
         </div>
 
         {/* Basemap Selection Pills */}
-        <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl">
+        <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 p-0.5 sm:p-1 rounded-xl gap-0.5">
           {basemaps.map((b) => (
             <button
               key={b.id}
               onClick={() => onSelectBasemap(b.id)}
-              className={`px-2 py-1 rounded-lg text-[11px] font-medium transition-all ${
+              className={`min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center ${
                 currentBasemap === b.id
-                  ? 'bg-white dark:bg-[#1a2436] text-blue-600 dark:text-sky-300 shadow-xs font-bold'
-                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-[#1a2436] text-sky-600 dark:text-sky-300 shadow-xs font-bold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              {b.label.split(' ')[0]}
+              {b.label}
             </button>
           ))}
         </div>
