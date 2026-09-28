@@ -72,20 +72,20 @@ export const LandAreaCalculator: React.FC = () => {
               step="0.01"
               value={sqMetersInput}
               onChange={(e) => handleUpdateM2(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-base font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-survey-500 focus:outline-none"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-survey-500 focus:outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
               <span className="text-slate-400 block mb-0.5">เฮกตาร์ (Hectare):</span>
-              <span className="font-mono font-bold text-slate-900 dark:text-white">
+              <span className="font-mono tabular-nums font-bold text-slate-900 dark:text-white">
                 {result.hectares.toLocaleString()} ha
               </span>
             </div>
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
               <span className="text-slate-400 block mb-0.5">เอเคอร์ (Acre):</span>
-              <span className="font-mono font-bold text-slate-900 dark:text-white">
+              <span className="font-mono tabular-nums font-bold text-slate-900 dark:text-white">
                 {result.acres.toLocaleString()} ac
               </span>
             </div>
@@ -109,7 +109,7 @@ export const LandAreaCalculator: React.FC = () => {
                 type="number"
                 value={raiInput}
                 onChange={(e) => handleUpdateThai(e.target.value, nganInput, wahInput)}
-                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-base font-bold text-slate-900 dark:text-white"
+                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white"
               />
             </div>
             <div>
@@ -122,7 +122,7 @@ export const LandAreaCalculator: React.FC = () => {
                 max="3"
                 value={nganInput}
                 onChange={(e) => handleUpdateThai(raiInput, e.target.value, wahInput)}
-                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-base font-bold text-slate-900 dark:text-white"
+                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white"
               />
             </div>
             <div>
@@ -136,7 +136,7 @@ export const LandAreaCalculator: React.FC = () => {
                 max="99.99"
                 value={wahInput}
                 onChange={(e) => handleUpdateThai(raiInput, nganInput, e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-base font-bold text-slate-900 dark:text-white"
+                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white"
               />
             </div>
           </div>
@@ -167,35 +167,35 @@ export const LandAreaCalculator: React.FC = () => {
           </div>
 
           <div className="w-full sm:w-60">
-            <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+            <label className="text-xs font-semibold text-slate-300 block mb-1">
               ราคาประเมินต่อตารางวา (บาท/ตร.ว.)
             </label>
             <input
               type="number"
               value={pricePerWah}
               onChange={(e) => setPricePerWah(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-2xl bg-white/10 border border-white/20 text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ios-blue"
+              className="w-full px-3.5 py-2 rounded-2xl bg-white/10 border border-white/20 text-white font-mono tabular-nums text-sm focus:outline-none focus:ring-2 focus:ring-ios-blue"
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs sm:text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono tabular-nums text-xs sm:text-sm">
           <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10">
-            <span className="text-slate-400 block text-[11px] font-sans">จำนวนตารางวารวม:</span>
+            <span className="text-slate-400 block text-xs font-sans">จำนวนตารางวารวม:</span>
             <span className="font-bold text-base text-white">
               {totalWah.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ตร.ว.
             </span>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10">
-            <span className="text-slate-400 block text-[11px] font-sans">ราคาเฉลี่ยต่อไร่:</span>
+            <span className="text-slate-400 block text-xs font-sans">ราคาเฉลี่ยต่อไร่:</span>
             <span className="font-bold text-base text-amber-300">
               {(unitPrice * 400).toLocaleString('en-US')} บาท/ไร่
             </span>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-white/10 border border-ios-blue/40 shadow-sm">
-            <span className="text-slate-300 block text-[11px] font-sans">มูลค่ารวมโดยประมาณ:</span>
+            <span className="text-slate-300 block text-xs font-sans">มูลค่ารวมโดยประมาณ:</span>
             <span className="font-bold text-lg text-emerald-400">
               {estimatedTotalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท
             </span>

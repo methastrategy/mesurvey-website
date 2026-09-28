@@ -256,7 +256,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
                       ล้าง
                     </button>
                   )}
-                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-400 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-xs font-mono text-slate-400 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                     /
                   </span>
                 </div>
@@ -282,7 +282,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
                   >
                     <span className="shrink-0">{cat.icon}</span>
                     <span>{cat.label}</span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-mono tabular-nums ${
                       isSelected
                         ? 'bg-sky-200/70 dark:bg-sky-900/60 text-sky-800 dark:text-sky-200'
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
@@ -306,7 +306,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
                     <Filter className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                     หมวดหมู่
                   </span>
-                  <span className="text-[11px] font-mono text-slate-400">
+                  <span className="text-xs font-mono tabular-nums text-slate-400">
                     {filteredTopics.length}
                   </span>
                 </div>
@@ -328,7 +328,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
                           {cat.icon}
                           <span className="truncate">{cat.label}</span>
                         </span>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono shrink-0 ${
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-mono tabular-nums shrink-0 ${
                           isSelected 
                             ? 'bg-sky-200/60 dark:bg-sky-900/60 text-sky-800 dark:text-sky-200 font-semibold' 
                             : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
@@ -347,7 +347,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
                   <BookmarkCheck className="w-3.5 h-3.5 text-emerald-500" />
                   เกณฑ์อ้างอิงวิชาการ
                 </span>
-                <p className="text-[11px] leading-relaxed">
+                <p className="text-xs leading-relaxed">
                   เนื้อหาถอดรหัสจากสไลด์และเอกสารการสอน ภาควิชาวิศวกรรมสำรวจ มหาวิทยาลัยเกษตรศาสตร์ (KU Geomatics) ร่วมกับมาตรฐานกรมแผนที่ทหาร (RTSD) และ FGCC
                 </p>
               </div>
@@ -359,7 +359,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
               {/* Search Result Stats Header */}
               <div className="flex items-center justify-between px-1 text-xs text-slate-500 dark:text-slate-400">
                 <span className="font-medium">
-                  แสดงผลลัพธ์ <strong className="text-slate-800 dark:text-white font-mono">{filteredTopics.length}</strong> คู่มือ
+                  แสดงผลลัพธ์ <strong className="text-slate-800 dark:text-white font-mono tabular-nums">{filteredTopics.length}</strong> คู่มือ
                   {searchQuery && <span> สำหรับคำค้นหา "{searchQuery}"</span>}
                 </span>
               </div>
@@ -383,7 +383,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
                           <h3 className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-sky-300 transition-colors tracking-tight">
                             {topic.title}
                           </h3>
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-sky-200/80 dark:border-sky-800/80 text-sky-800 dark:text-sky-300 bg-sky-50/80 dark:bg-sky-950/60 font-semibold">
+                          <span className="text-xs font-mono px-2 py-0.5 rounded-full border border-sky-200/80 dark:border-sky-800/80 text-sky-800 dark:text-sky-300 bg-sky-50/80 dark:bg-sky-950/60 font-semibold">
                             {topic.badge}
                           </span>
                         </div>
@@ -409,7 +409,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
                       {getTopicTags(topic.id).map((tag, tIdx) => (
                         <span 
                           key={tIdx}
-                          className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200/70 dark:border-sky-800/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 transition-colors"
+                          className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200/70 dark:border-sky-800/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 transition-colors"
                         >
                           {tag}
                         </span>
@@ -639,9 +639,9 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
                       </span>
                     </div>
 
-                    <div className="flex items-center space-x-3 text-[11px] font-mono text-slate-400">
+                    <div className="flex items-center space-x-3 text-xs font-mono tabular-nums text-slate-400">
                       <span>STEP {currentStep.stepNumber} OF {deviceSteps.length}</span>
-                      <span className="px-2 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px] font-semibold">
+                      <span className="px-2 py-0.5 rounded bg-slate-800 text-emerald-400 text-xs font-semibold">
                         SIMULATOR ACTIVE
                       </span>
                     </div>
@@ -650,13 +650,13 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
                   {/* Simulator Screen & Keypad Controls */}
                   <div className="p-5 sm:p-6 space-y-4">
                     {/* Simulated High-Contrast Screen Display */}
-                    <div className="rounded-xl border-2 border-emerald-950/80 bg-black/90 p-4 font-mono shadow-inner relative overflow-hidden">
+                    <div className="rounded-xl border-2 border-emerald-950/80 bg-black/90 p-4 font-mono tabular-nums shadow-inner relative overflow-hidden">
                       <div className="text-xs font-bold text-emerald-400 border-b border-emerald-900/60 pb-1.5 mb-2.5 flex items-center justify-between">
                         <span>▶ {currentStep.screenTitle}</span>
-                        <span className="text-[10px] text-emerald-500/80">BAT 100% | TILT ON</span>
+                        <span className="text-xs text-emerald-500/80">BAT 100% | TILT ON</span>
                       </div>
 
-                      <div className="space-y-1 text-xs sm:text-sm text-emerald-300 font-mono tracking-wide leading-relaxed">
+                      <div className="space-y-1 text-xs sm:text-sm text-emerald-300 font-mono tabular-nums tracking-wide leading-relaxed">
                         {currentStep.screenLines.map((line, lIdx) => (
                           <div key={lIdx} className="hover:bg-emerald-950/30 px-1 rounded transition-colors">
                             {line}
@@ -664,7 +664,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
                         ))}
                       </div>
 
-                      <div className="mt-4 pt-2 border-t border-emerald-950 flex items-center justify-between text-[11px] text-emerald-400/90 font-mono font-bold">
+                      <div className="mt-4 pt-2 border-t border-emerald-950 flex items-center justify-between text-xs text-emerald-400/90 font-mono tabular-nums font-bold">
                         <span>[F1: DIST]</span>
                         <span>[F2: COORD]</span>
                         <span>[F3: SET]</span>

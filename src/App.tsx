@@ -115,7 +115,7 @@ export function App() {
   };
 
   return (
-    <div className={`flex flex-col bg-[#f8fafc] dark:bg-[#0b0f17] text-slate-800 dark:text-slate-100 font-sans transition-colors duration-200 ${
+    <div className={`flex flex-col bg-[#f8fafc] dark:bg-[#0b0f17] text-slate-800 dark:text-slate-100 font-sans leading-normal transition-colors duration-200 ${
       activeTab === 'map' ? 'h-screen h-[100dvh] overflow-hidden' : 'min-h-screen'
     }`}>
       

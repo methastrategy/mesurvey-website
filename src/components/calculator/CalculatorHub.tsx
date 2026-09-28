@@ -70,7 +70,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-1 border-b border-slate-200/80 dark:border-slate-800">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-0.5 text-[10px] font-semibold tracking-wider uppercase rounded-full bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/60 shadow-sm">
+            <span className="px-2.5 py-0.5 text-xs font-semibold tracking-wider uppercase rounded-full bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/60 shadow-sm">
               MESURV Calculators
             </span>
             <span className="text-xs text-slate-300 dark:text-slate-700">•</span>
@@ -110,7 +110,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                 <span className="font-bold text-xs sm:text-sm block truncate leading-snug">
                   {tab.label}
                 </span>
-                <span className="text-[10px] block truncate font-mono text-slate-400 dark:text-slate-500">
+                <span className="text-xs block truncate font-mono text-slate-400 dark:text-slate-500">
                   {tab.labelEn}
                 </span>
               </div>

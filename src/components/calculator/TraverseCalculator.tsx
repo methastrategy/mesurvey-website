@@ -137,7 +137,7 @@ export const TraverseCalculator: React.FC = () => {
             <Save className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
             <span>ระบบบันทึกฉบับร่างอัตโนมัติ (Offline Persistent Draft)</span>
           </div>
-          <span className="text-[11px] text-emerald-700/80 dark:text-emerald-400 font-mono">
+          <span className="text-xs text-emerald-700/80 dark:text-emerald-400 font-mono tabular-nums">
             บันทึกแล้ว: {new Date(traverseLastSaved).toLocaleTimeString('th-TH')}
           </span>
         </div>
@@ -338,24 +338,24 @@ export const TraverseCalculator: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
               <span className="text-slate-400 text-xs font-medium block mb-1">ความยาวรอบรูป (Perimeter)</span>
-              <span className="text-lg font-bold text-slate-900 dark:text-white font-mono">
+              <span className="text-lg font-bold text-slate-900 dark:text-white font-mono tabular-nums">
                 {result.totalPerimeter.toLocaleString()} m
               </span>
             </div>
 
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
               <span className="text-slate-400 text-xs font-medium block mb-1">ความคลาดเคลื่อนเชิงเส้น (Misclosure)</span>
-              <span className="text-lg font-bold text-slate-900 dark:text-white font-mono">
+              <span className="text-lg font-bold text-slate-900 dark:text-white font-mono tabular-nums">
                 {result.linearMisclosure.toFixed(4)} m
               </span>
-              <span className="text-[11px] text-slate-400 block mt-0.5 font-mono">
+              <span className="text-xs text-slate-400 block mt-0.5 font-mono tabular-nums">
                 dE: {result.misclosureE.toFixed(3)} | dN: {result.misclosureN.toFixed(3)}
               </span>
             </div>
 
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
               <span className="text-slate-400 text-xs font-medium block mb-1">อัตราส่วนความละเอียด (Precision)</span>
-              <span className="text-lg font-bold text-survey-600 dark:text-survey-400 font-mono">
+              <span className="text-lg font-bold text-survey-600 dark:text-survey-400 font-mono tabular-nums">
                 1 : {result.precisionRatio.toLocaleString()}
               </span>
             </div>
@@ -407,7 +407,7 @@ export const TraverseCalculator: React.FC = () => {
                   <th className="py-2.5 px-2 font-bold text-survey-600 dark:text-survey-400">พิกัด Northing</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono tabular-nums">
                 {result.adjustedLegs.map((l, idx) => (
                   <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
                     <td className="py-2.5 px-2 font-sans font-semibold text-slate-800 dark:text-slate-200">{l.leg}</td>

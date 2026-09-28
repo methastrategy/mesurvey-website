@@ -459,16 +459,16 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
             </button>
           </div>
 
-          <div className="space-y-3 font-mono text-xs sm:text-sm">
+          <div className="space-y-3 font-mono tabular-nums text-xs sm:text-sm">
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-              <span className="text-slate-400 block text-[11px] font-sans">Decimal Degrees (DD):</span>
+              <span className="text-slate-400 block text-xs font-sans">Decimal Degrees (DD):</span>
               <span className="text-slate-900 dark:text-white font-bold">
                 {activeLat.toFixed(6)}°, {activeLng.toFixed(6)}°
               </span>
             </div>
 
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-              <span className="text-slate-400 block text-[11px] font-sans">Degrees, Minutes, Seconds (DMS):</span>
+              <span className="text-slate-400 block text-xs font-sans">Degrees, Minutes, Seconds (DMS):</span>
               <span className="text-slate-900 dark:text-white font-bold block">
                 Lat: {formatDms(dmsLatRes)}
               </span>
@@ -499,7 +499,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
             </button>
           </div>
 
-          <div className="space-y-3 font-mono text-xs sm:text-sm">
+          <div className="space-y-3 font-mono tabular-nums text-xs sm:text-sm">
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex justify-between items-center">
               <span className="text-slate-400 font-sans">Easting (E):</span>
               <span className="text-slate-900 dark:text-white font-bold">
@@ -536,7 +536,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
             </button>
           </div>
 
-          <div className="space-y-3 font-mono text-xs sm:text-sm">
+          <div className="space-y-3 font-mono tabular-nums text-xs sm:text-sm">
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex justify-between items-center">
               <span className="text-slate-400 font-sans">Easting (E):</span>
               <span className="text-slate-900 dark:text-white font-bold">
@@ -556,7 +556,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
         {/* Action Panel */}
         <div className="bg-gradient-to-br from-[#007AFF] via-[#0066D6] to-[#0052B3] rounded-3xl p-5 sm:p-6 text-white flex flex-col justify-between shadow-[0_10px_25px_-5px_rgba(0,122,255,0.3)]">
           <div>
-            <span className="px-2.5 py-0.5 text-[11px] font-semibold tracking-wider uppercase rounded-full bg-white/20 text-white border border-white/30 backdrop-blur-md">
+            <span className="px-2.5 py-0.5 text-xs font-semibold tracking-wider uppercase rounded-full bg-white/20 text-white border border-white/30 backdrop-blur-md">
               WebGIS Action
             </span>
             <h4 className="text-lg font-bold mt-2 tracking-tight">

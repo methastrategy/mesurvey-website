@@ -20,7 +20,7 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab 
           }`}
         >
           <BookOpen className={`w-5 h-5 mb-1 ${activeTab === 'knowledge' ? 'stroke-[2.5]' : 'stroke-2'}`} />
-          <span className="text-[11px] leading-normal">คู่มือสำรวจ</span>
+          <span className="text-xs leading-normal">คู่มือสำรวจ</span>
         </button>
 
         <button
@@ -32,7 +32,7 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab 
           }`}
         >
           <Calculator className={`w-5 h-5 mb-1 ${activeTab === 'calculator' ? 'stroke-[2.5]' : 'stroke-2'}`} />
-          <span className="text-[11px] leading-normal">เครื่องมือคำนวณ</span>
+          <span className="text-xs leading-normal">เครื่องมือคำนวณ</span>
         </button>
 
         <button
@@ -44,7 +44,7 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab 
           }`}
         >
           <Map className={`w-5 h-5 mb-1 ${activeTab === 'map' ? 'stroke-[2.5]' : 'stroke-2'}`} />
-          <span className="text-[11px] leading-normal">แผนที่ WebGIS</span>
+          <span className="text-xs leading-normal">แผนที่ WebGIS</span>
         </button>
 
       </div>

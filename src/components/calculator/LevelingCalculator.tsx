@@ -68,7 +68,7 @@ export const LevelingCalculator: React.FC = () => {
             <Save className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
             <span>ระบบบันทึกฉบับร่างอัตโนมัติ (Offline Persistent Draft)</span>
           </div>
-          <span className="text-[11px] text-emerald-700/80 dark:text-emerald-400 font-mono">
+          <span className="text-xs text-emerald-700/80 dark:text-emerald-400 font-mono tabular-nums">
             บันทึกแล้ว: {new Date(levelingLastSaved).toLocaleTimeString('th-TH')}
           </span>
         </div>
@@ -257,7 +257,7 @@ export const LevelingCalculator: React.FC = () => {
                     : 'ผลรวมทางคณิตศาสตร์ไม่ลงตัว (Check Math Error)'}
                 </span>
               </div>
-              <div className="font-mono text-xs space-y-1 pl-7">
+              <div className="font-mono tabular-nums text-xs space-y-1 pl-7">
                 <div>Σ BS = {result.sumBs.toFixed(4)} m | Σ FS = {result.sumFs.toFixed(4)} m</div>
                 <div>Σ BS - Σ FS = {result.diffBsFs.toFixed(4)} m</div>
                 <div>Last RL - First RL = {result.deltaBenchmarks.toFixed(4)} m</div>
@@ -277,7 +277,7 @@ export const LevelingCalculator: React.FC = () => {
                   {result.orderCompliance.achievedOrder}
                 </h4>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 text-[11px] font-mono border-t border-slate-100 dark:border-slate-800 mt-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 text-xs font-mono tabular-nums border-t border-slate-100 dark:border-slate-800 mt-2">
                 <div>
                   <span className="text-slate-400 block font-sans">ชั้น 1 (±4√K):</span>
                   <span className="font-bold">±{result.orderCompliance.firstOrderMaxMm} mm</span>
@@ -328,7 +328,7 @@ export const LevelingCalculator: React.FC = () => {
                   <th className="py-2.5 px-2">หมายเหตุ</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono tabular-nums">
                 {result.rows.map((r, idx) => (
                   <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
                     <td className="py-2.5 px-2 font-sans font-semibold text-slate-800 dark:text-slate-200">{r.station}</td>
@@ -339,7 +339,7 @@ export const LevelingCalculator: React.FC = () => {
                     <td className="py-2.5 px-2 text-emerald-600">{r.rise !== null ? `+${r.rise.toFixed(3)}` : '-'}</td>
                     <td className="py-2.5 px-2 text-rose-500">{r.fall !== null ? `-${r.fall.toFixed(3)}` : '-'}</td>
                     <td className="py-2.5 px-2 font-bold text-survey-700 dark:text-survey-300 bg-survey-50/40 dark:bg-survey-950/20">{r.elevation.toFixed(3)}</td>
-                    <td className="py-2.5 px-2 font-sans text-slate-400 text-[11px]">{r.remark || '-'}</td>
+                    <td className="py-2.5 px-2 font-sans text-slate-400 text-xs">{r.remark || '-'}</td>
                   </tr>
                 ))}
               </tbody>

@@ -7,13 +7,18 @@
     height: 100%;
     margin: 0;
     padding: 0;
+    line-height: 1.5; /* Diacritic Headroom Rule (1.5 / leading-normal) to prevent Thai tone marks clipping */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
 
-  /* Survey coordinates, calculation tables, and metrics tabular numeric alignment */
-  table, .font-mono, [data-tabular] {
+  /* Force Tabular Precision Rule across all geodetic tables, coordinate metrics, and mono numbers */
+  table, 
+  .font-mono, 
+  [data-tabular], 
+  input[type="number"], 
+  .tabular-nums {
     font-variant-numeric: tabular-nums;
   }
 }
@@ -25,7 +30,7 @@
 }
 
 .dark .ios-glass {
-  background: rgba(28, 28, 30, 0.75);
+  background: rgba(19, 27, 44, 0.75);
 }
 
 /* Custom scrollbar */

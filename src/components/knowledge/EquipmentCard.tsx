@@ -35,7 +35,7 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({ topic, onSelect })
           <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 group-hover:scale-105 transition-transform duration-200">
             {getIcon()}
           </div>
-          <span className="px-2.5 py-1 text-[11px] font-semibold tracking-wide rounded-full bg-survey-50 dark:bg-survey-950/60 text-survey-700 dark:text-survey-300 border border-survey-200 dark:border-survey-800/80">
+          <span className="px-2.5 py-1 text-xs font-semibold tracking-wide rounded-full bg-survey-50 dark:bg-survey-950/60 text-survey-700 dark:text-survey-300 border border-survey-200 dark:border-survey-800/80">
             {topic.badge}
           </span>
         </div>
