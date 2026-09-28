@@ -36,62 +36,100 @@ MESURV is a production-grade web-based Geomatics and Survey Engineering Terminal
 | 11 | Test Infrastructure Setup | Configure `vitest` in `package.json` (`"test": "vitest run"`) and test runner configuration | T1 | Survey (Test/Build) |
 | 12 | Opaque-Box E2E & Unit Test Suites | Implement Tier 1-4 tests covering Geodetic Transformations, Bowditch Traverse, Leveling RTSD, GeoJSON RFC 7946, and CSV Export | T1 | Survey (Test/Build) |
 | 13 | Final Verification & 100% Test Pass | Execute full test suite, verify 100% assertions pass, clean TypeScript compilation, and production build with 0 errors | M4 | Survey (Test/Build) |
+| 14 | Manuals Corner Stamp Badge & Provenance | Extend `KnowledgeTopic` with `verificationStatus: 'draft' | 'verified'`, set all 9 topics to Draft, add provenance banner and top-right corner stamp badge | D1 | Manuals Specialist |
+| 15 | Manual Contextual Tool Links & Citations | Add downstream workflow bridges and CTA buttons ("เปิดเครื่องมือคำนวณที่เกี่ยวข้อง" / "เปิดแผนที่ WebGIS") across all 9 topics with academic citations | D1 | Manuals Specialist |
+| 16 | Calculators Deep-Linking & Geodetic Bridge | Deep links to manual SOPs from Traverse, Leveling, and Coordinate Converter; ingest `inspectedCoordinate` from WebGIS in Coordinate Converter | D2 | Calculators Specialist |
+| 17 | Traverse WebGIS Vector Plotting | Project traverse station coordinates via `inverseUtmToWgs84` and dispatch `plottedTraverseOverlay` to store for rendering on WebGIS | D2 | Calculators Specialist |
+| 18 | WebGIS Spatial Inspection Bridge & Overlay | Add popup button "ส่งพิกัดไปยังเครื่องมือแปลงพิกัด ➔" and context menu item; render `plottedTraverseOverlay` polyline and station pins | D3 | WebGIS Specialist |
+| 19 | Linear / Precision Instrument Design System | Replace blurry drop-shadows with rested matte surfaces (`#0f172a`, `#1e293b`) and crisp hairline borders; enforce Instrument Rarity accents | D4 | Design Architect |
+| 20 | Knowledge Provenance & Deep-Link Test Suites | Add automated tests in `tests/knowledge-provenance.test.ts` and `tests/deep-linking.test.ts` asserting 100% compliance | D4 | Design Architect |
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | Calculation Engines & Core Utilities | `leveling.ts`, `projections.ts`, `CoordinateConverter.tsx`, `survey-presets.ts`, `csv-export.ts`, `TraverseCalculator.tsx`, `LevelingCalculator.tsx` | none | DONE |
-| M2 | Field Terminal WebGIS & Usability | `MapToolbar.tsx`, `WebMap.tsx`, `GeoJsonUploader.tsx`, `geojson-validator.ts`, `index.css`, `CalculatorHub.tsx`, `AboutModal.tsx` | none | IN_PROGRESS |
-| T1 | E2E Testing Suite (Dual Track) | `package.json`, `tests/*`, `TEST_INFRA.md`, `TEST_READY.md` | none | PLANNED |
-| M4 | Final Integration, Build & Audit | 100% E2E test pass, clean production build (`npm run build`), adversarial hardening, and forensic audit | M1, M2, T1 | PLANNED |
+| M1 | Calculation Engines & Core Utilities | `leveling.ts`, `projections.ts`, `CoordinateConverter.tsx`, `survey-presets.ts`, `csv-export.ts` | none | DONE |
+| M2 | Field Terminal WebGIS & Usability | `MapToolbar.tsx`, `WebMap.tsx`, `GeoJsonUploader.tsx`, `geojson-validator.ts` | none | DONE |
+| D1 | Manuals & Knowledge Specialist | `src/types/survey.ts`, `src/data/knowledge-topics.ts`, `src/components/knowledge/*` | none | PLANNED |
+| D2 | Calculators & Geodetics Specialist | `src/store/useSurveyStore.ts`, `src/components/calculator/*`, `src/core/*` | none | PLANNED |
+| D3 | WebGIS & Spatial Telemetry Specialist | `src/components/map/*` | D2 (store types) | PLANNED |
+| D4 | Lead UI/UX & Design Systems Architect | `tailwind.config.js`, `src/index.css`, `src/components/layout/*`, `tests/*` | none | PLANNED |
+| M4 | Final Integration, Build & Audit | 100% test pass (including new tests), 0 TS/bundler errors, Reviewers APPROVE, Challengers APPROVE, Forensic Audit CLEAN | D1, D2, D3, D4 | PLANNED |
 
 ## Interface Contracts
 
-### `src/utils/csv-export.ts`
+### `src/types/survey.ts` (Knowledge Topic Extension)
 ```typescript
-export interface CsvExportOptions {
-  filename: string;
-  headers: string[];
-  rows: (string | number | null | undefined)[][];
+export interface KnowledgeTopic {
+  id: string;
+  title: string;
+  titleEn: string;
+  category: KnowledgeCategory;
+  categoryName: string;
+  summary: string;
+  badge: string;
+  iconName: string;
+  verificationStatus: 'draft' | 'verified';
+  verificationProof?: string;
+  equipmentRequired?: string[];
+  workingPrinciple: string[];
+  fieldProcedures: FieldChecklistStep[];
+  deviceWorkflow?: DeviceScreenStep[];
+  downstreamWorkflow?: DownstreamWorkflow;
+  errorSourcesAndMitigation: string[];
+  courseRelation?: string;
+  formulas?: { label: string; formula: string; explanation: string }[];
 }
-export function exportToCsv(options: CsvExportOptions): void;
-```
-- Inserts `\uFEFF` UTF-8 BOM before CSV payload.
-- Encodes entries with proper quoting for commas/newlines.
-- Triggers download via `Blob` and temporary object URL.
 
-### `src/core/geojson-validator.ts`
-```typescript
-export interface GeoJsonValidationResult {
-  isValid: boolean;
-  error?: string;
-  warning?: string;
-  featureCount: number;
-  bounds?: [[number, number], [number, number]]; // [[minLat, minLng], [maxLat, maxLng]]
+export interface DownstreamWorkflow {
+  outputDataFormat: string;
+  outputDescription: string;
+  nextStepTitle: string;
+  nextStepProcedure: string;
+  recommendedToolTab?: 'coord' | 'converter' | 'traverse' | 'leveling' | 'map';
+  toolActionLabel?: string;
 }
-export function validateGeoJsonRFC7946(rawJson: unknown): GeoJsonValidationResult;
 ```
-- Validates RFC 7946 WGS84 decimal degrees (lat [-90, 90], lng [-180, 180]).
-- Detects projected UTM coordinates (> 100,000) and warns surveyor to reproject.
-- Detects inverted coordinates (lat > 90).
-- Prevents crash on empty FeatureCollections by flagging `featureCount === 0`.
 
-### `src/core/leveling.ts`
+### `src/store/useSurveyStore.ts` (Cross-Module State Bridge)
 ```typescript
-export function calculateLeveling(
-  rows: LevelingRow[],
-  firstBmElevation: number,
-  rtsdOrder: RTSDOrder
-): LevelingSummary;
-```
-- Fixes Turning Point logic: setup foresight establishes $RL_{TP} = HI - FS$; subsequent setup backsight establishes $HI_{next} = RL_{TP} + BS$.
-- Guarantees arithmetic Page Check: $\sum BS - \sum FS = \text{Last RL} - \text{First RL} = \sum \text{Rise} - \sum \text{Fall}$.
+export interface PlottedTraverseOverlay {
+  stations: {
+    station: string;
+    lat: number;
+    lng: number;
+    easting: number;
+    northing: number;
+  }[];
+  polyline: [number, number][]; // [lat, lng] for Leaflet polyline
+  isClosed: boolean;
+  totalPerimeter: number;
+  linearMisclosure: number;
+  precisionRatio: number;
+  precisionGrade: string;
+}
 
-## Code Layout
-- `src/core/`: Geodetic and engineering algorithms (pure math, no React/DOM dependencies).
-- `src/components/calculator/`: Calculator UI components (Coordinate Converter, Traverse, Leveling).
-- `src/components/map/`: Leaflet WebGIS components (WebMap, MapToolbar, GeoJsonUploader).
-- `src/data/`: Domain data, benchmark control points, and survey presets.
-- `src/store/`: Zustand persistence and state stores.
-- `src/utils/`: Common utilities (CSV export, formatting, math helpers).
-- `tests/`: Vitest test suites (pure unit tests and integration scenarios).
+export interface InspectedCoordinate {
+  lat: number;
+  lng: number;
+  label?: string;
+  timestamp: number;
+}
+
+interface SurveyStoreState {
+  // Existing traverse & leveling state...
+  inspectedCoordinate: InspectedCoordinate | null;
+  setInspectedCoordinate: (coord: { lat: number; lng: number; label?: string } | null) => void;
+  clearInspectedCoordinate: () => void;
+
+  plottedTraverseOverlay: PlottedTraverseOverlay | null;
+  setPlottedTraverseOverlay: (overlay: PlottedTraverseOverlay | null) => void;
+  clearPlottedTraverseOverlay: () => void;
+}
+```
+
+## Code Layout & File Ownership
+- `agent_manuals`: `src/types/survey.ts`, `src/data/knowledge-topics.ts`, `src/components/knowledge/*`
+- `agent_calculators`: `src/store/useSurveyStore.ts`, `src/components/calculator/*`, `src/core/*`
+- `agent_webgis`: `src/components/map/*`
+- `agent_design`: `tailwind.config.js`, `src/index.css`, `src/components/layout/*`, `tests/*`
+

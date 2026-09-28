@@ -73,6 +73,7 @@ export function validateGeoJsonRFC7946(rawJson: unknown): GeoJsonValidationResul
   let maxLng = -180;
   let detectedUtmMeters = false;
   let detectedInvertedCoords = false;
+  let detectedOutOfRange = false;
   let coordCount = 0;
 
   function scanCoordinates(coords: any): void {
@@ -88,14 +89,17 @@ export function validateGeoJsonRFC7946(rawJson: unknown): GeoJsonValidationResul
       const lat = coords[1];
       coordCount++;
 
-      // Check for UTM projected meters blunder (coordinates > 10,000)
+      // Check for UTM projected meters blunder (coordinates > 1,000 or > 100,000)
       if (Math.abs(lng) > 1000 || Math.abs(lat) > 1000) {
         detectedUtmMeters = true;
       }
-
       // Check for latitude/longitude inversion: lat > 90 but <= 180 and lng <= 90
-      if (Math.abs(lat) > 90 && Math.abs(lng) <= 90) {
+      else if (Math.abs(lat) > 90 && Math.abs(lng) <= 90) {
         detectedInvertedCoords = true;
+      }
+      // Check for general out-of-bounds WGS84 coordinates
+      else if (Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+        detectedOutOfRange = true;
       }
 
       if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
@@ -112,16 +116,27 @@ export function validateGeoJsonRFC7946(rawJson: unknown): GeoJsonValidationResul
     }
   }
 
+  function scanGeometry(geom: any): void {
+    if (!geom || typeof geom !== 'object') return;
+    if (geom.type === 'GeometryCollection' && Array.isArray(geom.geometries)) {
+      for (const subGeom of geom.geometries) {
+        scanGeometry(subGeom);
+      }
+    } else if (geom.coordinates) {
+      scanCoordinates(geom.coordinates);
+    }
+  }
+
   for (const feat of features) {
-    if (feat && feat.geometry && feat.geometry.coordinates) {
-      scanCoordinates(feat.geometry.coordinates);
+    if (feat && feat.geometry) {
+      scanGeometry(feat.geometry);
     }
   }
 
   if (detectedUtmMeters) {
     return {
       isValid: false,
-      error: 'ตรวจพบพิกัดกริดโปรเจกชันเมตร (เช่น UTM E/N) แทนค่าพิกัดภูมิศาสตร์องศา WGS84: มาตรฐาน RFC 7946 กำหนดให้ใช้พิกัด WGS84 EPSG:4326 (Longitude, Latitude) ในหน่วยองศาทศนิยม กรุณาแปลงค่าพิกัด (Reproject) ใน QGIS/ArcGIS ก่อนนำเข้า',
+      error: 'ตรวจพบพิกัดกริดโปรเจกชันเมตร (เช่น UTM E/N > 100,000 ม.) แทนค่าพิกัดภูมิศาสตร์องศา WGS84: มาตรฐาน RFC 7946 กำหนดให้ใช้พิกัด WGS84 EPSG:4326 (Longitude, Latitude) ในหน่วยองศาทศนิยม กรุณาแปลงค่าพิกัดด้วยเครื่องมือแปลงพิกัด (Coordinate Converter) หรือ Reproject ใน QGIS/ArcGIS ก่อนนำเข้า',
       featureCount: features.length
     };
   }
@@ -130,6 +145,14 @@ export function validateGeoJsonRFC7946(rawJson: unknown): GeoJsonValidationResul
     return {
       isValid: false,
       error: 'ตรวจพบการสลับแกนพิกัด (Inverted Latitude/Longitude): ค่าพิกัดแกน Y เกิน 90° ตามมาตรฐาน RFC 7946 ลำดับต้องเป็น [Longitude, Latitude]',
+      featureCount: features.length
+    };
+  }
+
+  if (detectedOutOfRange) {
+    return {
+      isValid: false,
+      error: 'ค่าพิกัดอยู่นอกขอบเขตระบบพิกัดภูมิศาสตร์ WGS84: Latitude ต้องอยู่ในช่วง [-90, 90] และ Longitude ต้องอยู่ในช่วง [-180, 180]',
       featureCount: features.length
     };
   }

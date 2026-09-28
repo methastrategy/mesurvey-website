@@ -40,13 +40,29 @@ interface KnowledgeHubProps {
   initialTopicId?: string | null;
 }
 
-export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) => {
+export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNavigateTab }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(initialTopicId || null);
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
   const [copiedText, setCopiedText] = useState<boolean>(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  const getWorkflowTarget = (topic: KnowledgeTopic) => {
+    const wf = topic.downstreamWorkflow;
+    if (!wf || !wf.recommendedToolTab) return null;
+    if (wf.recommendedToolTab === 'map') {
+      return {
+        hash: '#/map',
+        label: wf.toolActionLabel || 'เปิดแผนที่ WebGIS'
+      };
+    }
+    const sub = wf.recommendedToolTab === 'converter' ? 'coord' : wf.recommendedToolTab;
+    return {
+      hash: `#/calculator/${sub}`,
+      label: wf.toolActionLabel || 'เปิดเครื่องมือคำนวณ'
+    };
+  };
 
   // Icon Resolver
   const getTopicIcon = (iconName: string, className: string = "w-4 h-4") => {
@@ -146,6 +162,8 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
     if (!selectedTopicId) return undefined;
     return KNOWLEDGE_TOPICS.find((t) => t.id === selectedTopicId);
   }, [selectedTopicId]);
+
+  const activeWorkflowTarget = activeTopic ? getWorkflowTarget(activeTopic) : null;
 
   const deviceSteps: DeviceScreenStep[] = activeTopic?.deviceWorkflow || [];
   const currentStep: DeviceScreenStep | undefined = deviceSteps[activeStepIndex] || deviceSteps[0];
@@ -389,9 +407,30 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
                         </div>
                       </div>
 
-                      <span className="text-xs font-semibold text-sky-600 dark:text-sky-400 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        เปิดอ่านคู่มือ <ArrowRight className="w-3.5 h-3.5" />
-                      </span>
+                      {/* Top-Right Corner Stamp Badge */}
+                      <div className="flex items-center gap-2 ml-auto">
+                        {topic.verificationStatus === 'verified' ? (
+                          <div 
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-semibold tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
+                            title={topic.verificationProof ? `VERIFIED / ตรวจสอบแล้ว: ${topic.verificationProof}` : 'VERIFIED / ตรวจสอบแล้ว'}
+                          >
+                            <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            <span>VERIFIED / ตรวจสอบแล้ว</span>
+                          </div>
+                        ) : (
+                          <div 
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-semibold tracking-wider bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30"
+                            title="DRAFT / รอดำเนินการตรวจสอบ: เอกสารทางเทคนิคฉบับร่าง อยู่ระหว่างการทวนสอบและ peer review ทางวิชาการและภาคสนาม"
+                          >
+                            <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0" />
+                            <span>DRAFT / รอดำเนินการตรวจสอบ</span>
+                          </div>
+                        )}
+
+                        <span className="text-xs font-semibold text-sky-600 dark:text-sky-400 hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          เปิดอ่าน <ArrowRight className="w-3.5 h-3.5" />
+                        </span>
+                      </div>
                     </div>
 
                     {/* Subtitle / English Code Identifier */}
@@ -417,37 +456,62 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
                     </div>
 
                     {/* Footer Meta */}
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800/80 pl-10">
-                      <div className="flex items-center gap-1.5">
-                        <span className={`w-2.5 h-2.5 rounded-full ${getCategoryDotColor(topic.category)}`} />
-                        <span>{topic.categoryName}</span>
-                      </div>
+                    <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800/80 pl-10">
+                      <div className="flex flex-wrap items-center gap-4">
+                        <div className="flex items-center gap-1.5">
+                          <span className={`w-2.5 h-2.5 rounded-full ${getCategoryDotColor(topic.category)}`} />
+                          <span>{topic.categoryName}</span>
+                        </div>
 
-                      <div className="flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{topic.fieldProcedures.length} ขั้นตอนสนาม</span>
-                      </div>
-
-                      {topic.formulas && topic.formulas.length > 0 && (
                         <div className="flex items-center gap-1">
-                          <Activity className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{topic.formulas.length} สูตรคำนวณ</span>
+                          <CheckCircle2 className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{topic.fieldProcedures.length} ขั้นตอนสนาม</span>
                         </div>
-                      )}
 
-                      {topic.deviceWorkflow && topic.deviceWorkflow.length > 0 && (
-                        <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                          <Terminal className="w-3.5 h-3.5" />
-                          <span>จำลองหน้าจอกล้อง LCD</span>
-                        </div>
-                      )}
+                        {topic.formulas && topic.formulas.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Activity className="w-3.5 h-3.5 text-slate-400" />
+                            <span>{topic.formulas.length} สูตรคำนวณ</span>
+                          </div>
+                        )}
 
-                      {topic.courseRelation && (
-                        <div className="hidden md:flex items-center gap-1 text-slate-400">
-                          <BookmarkCheck className="w-3.5 h-3.5" />
-                          <span className="truncate max-w-[220px]">{topic.courseRelation}</span>
-                        </div>
-                      )}
+                        {topic.deviceWorkflow && topic.deviceWorkflow.length > 0 && (
+                          <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                            <Terminal className="w-3.5 h-3.5" />
+                            <span>จำลองหน้าจอกล้อง LCD</span>
+                          </div>
+                        )}
+
+                        {topic.courseRelation && (
+                          <div className="hidden lg:flex items-center gap-1 text-slate-400">
+                            <BookmarkCheck className="w-3.5 h-3.5" />
+                            <span className="truncate max-w-[200px]">{topic.courseRelation}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Direct Contextual Action Button */}
+                      {(() => {
+                        const wf = getWorkflowTarget(topic);
+                        if (!wf) return null;
+                        return (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.location.hash = wf.hash;
+                              if (onNavigateTab) {
+                                onNavigateTab(wf.hash.includes('map') ? 'map' : 'calculator');
+                              }
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold text-sky-700 dark:text-sky-300 bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/60 dark:hover:bg-sky-900/60 border border-sky-200/80 dark:border-sky-800/80 transition-colors shadow-2xs"
+                            title={wf.label}
+                          >
+                            <span>{wf.label}</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </button>
+                        );
+                      })()}
                     </div>
 
                   </div>
@@ -509,6 +573,23 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
             </div>
 
             <div className="flex items-center gap-2">
+              {activeWorkflowTarget && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.location.hash = activeWorkflowTarget.hash;
+                    if (onNavigateTab) {
+                      onNavigateTab(activeWorkflowTarget.hash.includes('map') ? 'map' : 'calculator');
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition-colors shadow-2xs"
+                  title={activeWorkflowTarget.label}
+                >
+                  <span>{activeWorkflowTarget.label}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+
               <button
                 onClick={handleCopySummary}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors border border-slate-200/60 dark:border-slate-700/60"
@@ -531,6 +612,49 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
 
           {/* Main Documentation Container */}
           <div className="rounded-3xl border border-slate-200/90 dark:border-slate-800/80 bg-white dark:bg-[#131b2c] p-6 sm:p-10 shadow-sm space-y-10">
+
+            {/* Full-Width Provenance Banner */}
+            {activeTopic.verificationStatus === 'verified' ? (
+              <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-500/30 text-emerald-900 dark:text-emerald-200 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-emerald-800 dark:text-emerald-300">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span>VERIFIED / ผ่านการตรวจรับรองมาตรฐานวิศวกรรม (Verified Engineering SOP)</span>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                    VERIFIED
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-emerald-800/90 dark:text-emerald-300/90 leading-relaxed">
+                  เอกสารและขั้นตอนปฏิบัติการนี้ผ่านการทวนสอบรับรองความถูกต้องตามเกณฑ์มาตรฐานงานสำรวจวิศวกรรมเรียบร้อยแล้ว
+                </p>
+                {activeTopic.verificationProof && (
+                  <div className="pt-2 mt-2 border-t border-emerald-500/20 text-xs font-mono text-emerald-800 dark:text-emerald-400">
+                    <span className="font-semibold">เอกสารอ้างอิงและเกณฑ์มาตรฐาน:</span> {activeTopic.verificationProof}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-amber-800 dark:text-amber-300">
+                    <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span>DRAFT / รอดำเนินการตรวจสอบ (Preliminary Draft SOP)</span>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                    DRAFT / IN-REVIEW
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-amber-800/90 dark:text-amber-300/90 leading-relaxed">
+                  เอกสารทางเทคนิคฉบับร่าง — อยู่ระหว่างการทวนสอบและ peer review ทางวิชาการและภาคสนาม เพื่อความปลอดภัยสูงสุด โปรดใช้งานควบคู่กับคู่มือทางการของเครื่องมือ
+                </p>
+                {activeTopic.verificationProof && (
+                  <div className="pt-2 mt-2 border-t border-amber-500/20 text-xs font-mono text-amber-800 dark:text-amber-400">
+                    <span className="font-semibold">เอกสารอ้างอิงและเกณฑ์มาตรฐานที่ใช้ร่าง:</span> {activeTopic.verificationProof}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Document Header & Metadata */}
             <div className="space-y-4 border-b border-slate-200 dark:border-slate-800 pb-6">
@@ -808,6 +932,56 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId }) =>
                       </p>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* SECTION 6: DOWNSTREAM WORKFLOW & TOOL EXECUTION */}
+            {activeTopic.downstreamWorkflow && (
+              <div className="space-y-4">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <ArrowRight className="w-5 h-5 text-sky-500" />
+                  <span>6. เวิร์กโฟลว์ปฏิบัติการต่อเนื่องและเครื่องมือคำนวณ (Downstream Workflow & Execution)</span>
+                </h2>
+
+                <div className="p-5 sm:p-6 rounded-2xl bg-sky-50/50 dark:bg-sky-950/20 border border-sky-200/80 dark:border-sky-800/60 space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 block mb-0.5">รูปแบบไฟล์และข้อมูลนำออก (Output Data Format):</span>
+                      <span className="font-mono text-xs sm:text-sm font-bold text-sky-900 dark:text-sky-300 bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-sky-200 dark:border-sky-800">
+                        {activeTopic.downstreamWorkflow.outputDataFormat}
+                      </span>
+                    </div>
+
+                    {activeWorkflowTarget && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          window.location.hash = activeWorkflowTarget.hash;
+                          if (onNavigateTab) {
+                            onNavigateTab(activeWorkflowTarget.hash.includes('map') ? 'map' : 'calculator');
+                          }
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs sm:text-sm transition-all shadow-md hover:shadow-sky-500/20"
+                      >
+                        <span>{activeWorkflowTarget.label}</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                    {activeTopic.downstreamWorkflow.outputDescription}
+                  </p>
+
+                  <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                    <span className="text-xs font-bold text-slate-900 dark:text-slate-200">
+                      {activeTopic.downstreamWorkflow.nextStepTitle}
+                    </span>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      {activeTopic.downstreamWorkflow.nextStepProcedure}
+                    </p>
+                  </div>
                 </div>
               </div>
             )}

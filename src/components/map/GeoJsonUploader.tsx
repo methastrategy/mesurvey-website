@@ -69,7 +69,7 @@ export const GeoJsonUploader: React.FC<GeoJsonUploaderProps> = ({
 
   return (
     <div className="fixed inset-0 z-[2000] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-lg p-6 relative">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 relative">
         <button
           onClick={onClose}
           aria-label="ปิดหน้าต่างนำเข้าข้อมูล"
@@ -79,7 +79,7 @@ export const GeoJsonUploader: React.FC<GeoJsonUploaderProps> = ({
         </button>
 
         <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2 mb-1">
-          <FileCode className="w-5 h-5 text-survey-600 dark:text-survey-400" />
+          <FileCode className="w-5 h-5 text-sky-600 dark:text-sky-400" />
           นำเข้าข้อมูลเชิงพื้นที่ (Import Spatial Data)
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-normal">
@@ -107,13 +107,13 @@ export const GeoJsonUploader: React.FC<GeoJsonUploaderProps> = ({
           }}
           onDragLeave={() => setDragActive(false)}
           onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all ${
+          className={`border border-dashed rounded-2xl p-8 text-center transition-all ${
             dragActive
-              ? 'border-survey-500 bg-survey-50/50 dark:bg-survey-950/30'
-              : 'border-slate-300 dark:border-slate-700 hover:border-survey-500'
+              ? 'border-sky-500 bg-sky-50/50 dark:bg-sky-950/30'
+              : 'border-slate-300 dark:border-slate-700 hover:border-sky-500'
           }`}
         >
-          <Upload className="w-10 h-10 text-survey-600 dark:text-survey-400 mx-auto mb-2.5 stroke-[1.8]" />
+          <Upload className="w-10 h-10 text-sky-600 dark:text-sky-400 mx-auto mb-2.5 stroke-[1.8]" />
           <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">
             ลากและวางไฟล์ GeoJSON ลงที่นี่
           </p>
@@ -134,7 +134,7 @@ export const GeoJsonUploader: React.FC<GeoJsonUploaderProps> = ({
         <div className="mt-4 flex justify-end">
           <button
             onClick={onClose}
-            className="min-h-[44px] px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium text-xs hover:bg-slate-200 transition-colors flex items-center justify-center"
+            className="min-h-[44px] min-w-[44px] px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center justify-center"
           >
             ยกเลิก
           </button>

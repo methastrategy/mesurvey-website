@@ -156,7 +156,7 @@ export interface DownstreamWorkflow {
   outputDescription: string;
   nextStepTitle: string;
   nextStepProcedure: string;
-  recommendedToolTab?: 'converter' | 'traverse' | 'leveling' | 'map';
+  recommendedToolTab?: 'coord' | 'converter' | 'traverse' | 'leveling' | 'map';
   toolActionLabel?: string;
 }
 
@@ -169,6 +169,8 @@ export interface KnowledgeTopic {
   summary: string;
   badge: string;
   iconName: string;
+  verificationStatus: 'draft' | 'verified';
+  verificationProof?: string;
   equipmentRequired?: string[];
   workingPrinciple: string[];
   fieldProcedures: FieldChecklistStep[];

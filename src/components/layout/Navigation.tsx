@@ -8,15 +8,15 @@ interface NavigationProps {
 
 export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab }) => {
   return (
-    <nav className="md:hidden fixed bottom-3 left-3 right-3 z-50 bg-white/90 dark:bg-[#131b2c]/90 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-800 shadow-[0_8px_30px_rgba(0,122,255,0.08)] rounded-3xl p-1.5 transition-all">
+    <nav className="md:hidden fixed bottom-3 left-3 right-3 z-50 bg-white/95 dark:bg-[#1e293b]/95 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-2xl p-1.5 transition-all">
       <div className="grid grid-cols-3 max-w-md mx-auto gap-1">
         
         <button
           onClick={() => setActiveTab('knowledge')}
-          className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all min-h-[50px] ${
+          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all min-h-[50px] ${
             activeTab === 'knowledge'
-              ? 'bg-sky-50 dark:bg-sky-950/40 text-blue-600 dark:text-sky-300 font-bold border border-sky-200/60 dark:border-sky-800/40 shadow-xs'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              ? 'bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 font-bold border border-sky-200/80 dark:border-sky-800'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
           }`}
         >
           <BookOpen className={`w-5 h-5 mb-1 ${activeTab === 'knowledge' ? 'stroke-[2.5]' : 'stroke-2'}`} />
@@ -25,10 +25,10 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab 
 
         <button
           onClick={() => setActiveTab('calculator')}
-          className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all min-h-[50px] ${
+          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all min-h-[50px] ${
             activeTab === 'calculator'
-              ? 'bg-sky-50 dark:bg-sky-950/40 text-blue-600 dark:text-sky-300 font-bold border border-sky-200/60 dark:border-sky-800/40 shadow-xs'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              ? 'bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 font-bold border border-sky-200/80 dark:border-sky-800'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
           }`}
         >
           <Calculator className={`w-5 h-5 mb-1 ${activeTab === 'calculator' ? 'stroke-[2.5]' : 'stroke-2'}`} />
@@ -37,10 +37,10 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab 
 
         <button
           onClick={() => setActiveTab('map')}
-          className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all min-h-[50px] ${
+          className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all min-h-[50px] ${
             activeTab === 'map'
-              ? 'bg-sky-50 dark:bg-sky-950/40 text-blue-600 dark:text-sky-300 font-bold border border-sky-200/60 dark:border-sky-800/40 shadow-xs'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              ? 'bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 font-bold border border-sky-200/80 dark:border-sky-800'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
           }`}
         >
           <Map className={`w-5 h-5 mb-1 ${activeTab === 'map' ? 'stroke-[2.5]' : 'stroke-2'}`} />

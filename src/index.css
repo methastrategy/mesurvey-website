@@ -30,7 +30,30 @@
 }
 
 .dark .ios-glass {
-  background: rgba(19, 27, 44, 0.75);
+  background: rgba(15, 23, 42, 0.85);
+}
+
+/* Linear / Precision Instrument Design System Enforcements */
+.border-hairline {
+  border-width: 1px;
+  border-color: rgba(226, 232, 240, 0.8);
+}
+.dark .border-hairline {
+  border-color: #1e293b;
+}
+
+.surface-matte-canvas {
+  background-color: #f8fafc;
+}
+.dark .surface-matte-canvas {
+  background-color: #0f172a;
+}
+
+.surface-matte-container {
+  background-color: #ffffff;
+}
+.dark .surface-matte-container {
+  background-color: #1e293b;
 }
 
 /* Custom scrollbar */
@@ -60,13 +83,27 @@
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: 16px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  border-radius: 14px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
   padding: 4px;
+  background: #ffffff;
+}
+
+.dark .leaflet-popup-content-wrapper {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #f8fafc;
 }
 
 .leaflet-popup-tip {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.dark .leaflet-popup-tip {
+  background: #1e293b;
+  border: 1px solid #334155;
 }
 
 /* Pulsing Custom Pin */
@@ -113,10 +150,27 @@
 }
 
 /* Touch-target ergonomics for Leaflet zoom buttons (>= 44x44px) */
+.leaflet-bar a,
 .leaflet-touch .leaflet-bar a,
-.leaflet-control-zoom a {
+.leaflet-control-zoom a,
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
   width: 44px !important;
   height: 44px !important;
   line-height: 44px !important;
+  font-size: 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Ensure Leaflet popup close button has adequate touch envelope */
+.leaflet-popup-close-button {
+  width: 36px !important;
+  height: 36px !important;
+  padding: 8px !important;
   font-size: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }

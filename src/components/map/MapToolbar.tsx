@@ -163,7 +163,7 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
               if (bm) onSelectBookmark(bm);
             }}
             defaultValue=""
-            className="min-h-[44px] px-3 py-2 rounded-lg border-none bg-transparent text-xs text-slate-700 dark:text-slate-300 font-semibold focus:outline-none cursor-pointer"
+            className="min-h-[44px] px-3 py-2 rounded-lg border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/50 dark:bg-slate-800/50 text-xs text-slate-700 dark:text-slate-300 font-semibold focus:outline-none cursor-pointer"
           >
             <option value="" disabled className="dark:bg-[#131b2c]">หมุดพิกัดอ้างอิง...</option>
             {SURVEY_BOOKMARKS.map((b) => (

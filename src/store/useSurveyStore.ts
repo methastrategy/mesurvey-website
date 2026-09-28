@@ -9,6 +9,29 @@ import {
 } from '../data/survey-presets';
 import { trackEvent } from '../lib/telemetry';
 
+export interface PlottedTraverseOverlay {
+  stations: {
+    station: string;
+    lat: number;
+    lng: number;
+    easting: number;
+    northing: number;
+  }[];
+  polyline: [number, number][]; // [lat, lng] for Leaflet polyline
+  isClosed: boolean;
+  totalPerimeter: number;
+  linearMisclosure: number;
+  precisionRatio: number;
+  precisionGrade: string;
+}
+
+export interface InspectedCoordinate {
+  lat: number;
+  lng: number;
+  label?: string;
+  timestamp: number;
+}
+
 interface SurveyStoreState {
   // --- Traverse State ---
   traverseStartE: string;
@@ -43,6 +66,15 @@ interface SurveyStoreState {
   removeLevelingRow: (index: number) => void;
   resetLevelingToSample: () => void;
   clearLeveling: () => void;
+
+  // --- Cross-Module Coordinate Bridge & Overlays ---
+  inspectedCoordinate: InspectedCoordinate | null;
+  setInspectedCoordinate: (coord: { lat: number; lng: number; label?: string; timestamp?: number } | null) => void;
+  clearInspectedCoordinate: () => void;
+
+  plottedTraverseOverlay: PlottedTraverseOverlay | null;
+  setPlottedTraverseOverlay: (overlay: PlottedTraverseOverlay | null) => void;
+  clearPlottedTraverseOverlay: () => void;
 }
 
 export const useSurveyStore = create<SurveyStoreState>()(
@@ -201,6 +233,34 @@ export const useSurveyStore = create<SurveyStoreState>()(
           levelingLastSaved: Date.now()
         });
         trackEvent('leveling_clear');
+      },
+
+      // --- Cross-Module Coordinate Bridge & Overlays ---
+      inspectedCoordinate: null,
+      setInspectedCoordinate: (coord) => {
+        if (!coord) {
+          set({ inspectedCoordinate: null });
+        } else {
+          set({
+            inspectedCoordinate: {
+              lat: coord.lat,
+              lng: coord.lng,
+              label: coord.label,
+              timestamp: coord.timestamp || Date.now()
+            }
+          });
+        }
+      },
+      clearInspectedCoordinate: () => {
+        set({ inspectedCoordinate: null });
+      },
+
+      plottedTraverseOverlay: null,
+      setPlottedTraverseOverlay: (overlay) => {
+        set({ plottedTraverseOverlay: overlay });
+      },
+      clearPlottedTraverseOverlay: () => {
+        set({ plottedTraverseOverlay: null });
       }
     }),
     {

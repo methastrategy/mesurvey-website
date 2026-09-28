@@ -3,6 +3,7 @@ import L from 'leaflet';
 import { BasemapProvider, DistancePoint, MapInteractionMode } from '../../types/map';
 import { forwardWgs84ToUtm } from '../../core/projections';
 import { sqMetersToThaiLand, formatThaiLandString } from '../../core/land-units';
+import { validateGeoJsonRFC7946 } from '../../core/geojson-validator';
 import { SURVEY_BOOKMARKS } from '../../data/survey-presets';
 import { MapToolbar } from './MapToolbar';
 import { GeoJsonUploader } from './GeoJsonUploader';
@@ -15,9 +16,12 @@ import {
   Copy, 
   RotateCcw,
   Compass,
-  Layers
+  Layers,
+  Calculator,
+  X
 } from 'lucide-react';
 import { trackEvent } from '../../lib/telemetry';
+import { useSurveyStore } from '../../store/useSurveyStore';
 
 interface WebMapProps {
   externalPoint?: { lat: number; lng: number; label: string } | null;
@@ -31,7 +35,13 @@ interface ContextMenuData {
   y: number;
 }
 
-export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
+export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculator }) => {
+  const {
+    plottedTraverseOverlay,
+    clearPlottedTraverseOverlay,
+    setInspectedCoordinate
+  } = useSurveyStore();
+
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
@@ -41,6 +51,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
   const gpsLocationLayerRef = useRef<L.LayerGroup | null>(null);
   const inspectMarkerRef = useRef<L.Marker | null>(null);
   const clickPopupRef = useRef<L.Popup | null>(null);
+  const traverseOverlayLayerRef = useRef<L.LayerGroup | null>(null);
 
   const [currentBasemap, setCurrentBasemap] = useState<BasemapProvider>('satellite');
   const [measureMode, setMeasureMode] = useState<MapInteractionMode>('none');
@@ -104,6 +115,30 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
     }, 2800);
   };
 
+  // Cross-Module Coordinate Bridge to Coordinate Converter
+  const handleSendToConverter = (lat: number, lng: number) => {
+    trackEvent('map_send_to_converter', { lat, lng });
+    setInspectedCoordinate({
+      lat,
+      lng,
+      label: 'พิกัดจากการตรวจสอบบนแผนที่',
+      timestamp: Date.now()
+    });
+    if (onSendToCalculator) {
+      onSendToCalculator(lat, lng);
+    }
+    window.location.hash = '#/calculator/coord';
+  };
+
+  useEffect(() => {
+    (window as any).__mesurvSendToConverter = (lat: number, lng: number) => {
+      handleSendToConverter(lat, lng);
+    };
+    return () => {
+      delete (window as any).__mesurvSendToConverter;
+    };
+  }, [onSendToCalculator, setInspectedCoordinate]);
+
   // Drop a station benchmark pin
   const dropStationMarker = (lat: number, lng: number, label?: string) => {
     if (!mapInstanceRef.current || !markerGroupRef.current) return;
@@ -126,22 +161,57 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
       iconAnchor: [0, 0]
     });
 
+    const coordStr = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    const utmStr = `UTM ${utm.zone}N: E ${utm.easting.toFixed(2)} m<br/>N ${utm.northing.toFixed(2)} m`;
+    const utmCopyStr = `UTM ${utm.zone}N: E ${utm.easting.toFixed(2)} m, N ${utm.northing.toFixed(2)} m`;
+
     const popupHtml = `
-      <div style="padding: 4px 6px; min-width: 200px;">
+      <div style="padding: 4px 6px; min-width: 220px;">
         <div style="font-size: 12px; font-weight: 700; color: #f59e0b; margin-bottom: 2px;">
           📍 ${stationName} (หมุดรังวัด)
         </div>
-        <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 12px; font-weight: 600; color: #0f172a; margin-bottom: 4px;">
-          WGS84: ${lat.toFixed(6)}°, ${lng.toFixed(6)}°
+        <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">
+          WGS84: ${coordStr}
         </div>
         <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 12px; color: #475569; margin-bottom: 8px;">
-          UTM ${utm.zone}N: E ${utm.easting.toFixed(2)} m<br/>N ${utm.northing.toFixed(2)} m
+          ${utmStr}
         </div>
+        <button 
+          style="
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 14px;
+            background: #f59e0b;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.15s ease;
+          "
+          onmouseover="this.style.background='#d97706'"
+          onmouseout="this.style.background='#f59e0b'"
+          onclick="
+            navigator.clipboard.writeText('${coordStr}\\n${utmCopyStr}');
+            this.innerText = 'คัดลอกพิกัดแล้ว';
+            setTimeout(() => { this.innerText = 'คัดลอกพิกัด WGS84 & UTM'; }, 1800);
+          "
+        >
+          คัดลอกพิกัด WGS84 & UTM
+        </button>
       </div>
     `;
 
     L.marker([lat, lng], { icon: markerPinIcon })
-      .bindPopup(popupHtml)
+      .bindPopup(popupHtml, {
+        autoPanPaddingTopLeft: [16, 120],
+        autoPanPaddingBottomRight: [16, 84]
+      })
       .addTo(markerGroupRef.current)
       .openPopup();
   };
@@ -178,27 +248,27 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
     const utmStr = `UTM ${utm.zone}N: E ${utm.easting.toFixed(2)} m, N ${utm.northing.toFixed(2)} m`;
 
     const popupHtml = `
-      <div style="padding: 4px 6px; min-width: 220px;">
+      <div style="padding: 4px 6px; min-width: 240px;">
         <div style="font-size: 12px; font-weight: 700; color: #0284c7; margin-bottom: 3px;">
           พิกัดตำแหน่งที่เลือก (Geodetic Point)
         </div>
         <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">
           WGS84: ${coordStr}
         </div>
-        <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 12px; color: #475569; margin-bottom: 10px;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 12px; color: #475569; margin-bottom: 8px;">
           ${utmStr}
         </div>
         <button 
           id="btn-copy-popup-coord"
           style="
             width: 100%;
-            min-height: 36px;
-            padding: 8px 12px;
+            min-height: 44px;
+            padding: 10px 14px;
             background: #0284c7;
             color: #ffffff;
             border: 1px solid #0284c7;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             display: flex;
@@ -217,6 +287,40 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
         >
           คัดลอกพิกัด WGS84 & UTM
         </button>
+        <button 
+          id="btn-bridge-to-converter"
+          data-lat="${lat}"
+          data-lng="${lng}"
+          style="
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 14px;
+            margin-top: 6px;
+            background: #0f172a;
+            color: #38bdf8;
+            border: 1px solid #38bdf8;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+          "
+          onmouseover="this.style.background='#1e293b'"
+          onmouseout="this.style.background='#0f172a'"
+          onclick="
+            if (window.__mesurvSendToConverter) {
+              window.__mesurvSendToConverter(${lat}, ${lng});
+            } else {
+              window.location.hash = '#/calculator/coord';
+            }
+          "
+        >
+          ส่งพิกัดไปยังเครื่องมือแปลงพิกัด ➔
+        </button>
       </div>
     `;
 
@@ -231,6 +335,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
       offset: [0, -18],
       maxWidth: 280,
       autoPanPaddingTopLeft: [16, 120],
+      autoPanPaddingBottomRight: [16, 84],
       className: 'google-style-popup'
     })
       .setLatLng([lat, lng])
@@ -265,12 +370,30 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
     const measureGroup = L.layerGroup().addTo(map);
     const markerGroup = L.layerGroup().addTo(map);
     const gpsGroup = L.layerGroup().addTo(map);
+    const traverseGroup = L.layerGroup().addTo(map);
 
     tileLayerRef.current = tileLayer;
     measureLayerRef.current = measureGroup;
     markerGroupRef.current = markerGroup;
     gpsLocationLayerRef.current = gpsGroup;
+    traverseOverlayLayerRef.current = traverseGroup;
     mapInstanceRef.current = map;
+
+    // Attach listener for popup bridge buttons
+    map.on('popupopen', (e: L.PopupEvent) => {
+      const el = e.popup.getElement();
+      if (!el) return;
+      const bridgeBtn = el.querySelector<HTMLButtonElement>('#btn-bridge-to-converter');
+      if (bridgeBtn) {
+        bridgeBtn.onclick = (evt) => {
+          evt.preventDefault();
+          evt.stopPropagation();
+          const lat = parseFloat(bridgeBtn.getAttribute('data-lat') || '0');
+          const lng = parseFloat(bridgeBtn.getAttribute('data-lng') || '0');
+          handleSendToConverter(lat, lng);
+        };
+      }
+    });
 
     // Track live telemetry on map move
     const updateTelemetry = () => {
@@ -354,6 +477,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
       window.removeEventListener('resize', handleResize);
       map.remove();
       mapInstanceRef.current = null;
+      traverseOverlayLayerRef.current = null;
     };
   }, []);
 
@@ -451,6 +575,69 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
     }
   }, [measurePoints, measureMode]);
 
+  // Render Traverse Vector Network Overlay
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    const layer = traverseOverlayLayerRef.current;
+    if (!layer) return;
+    layer.clearLayers();
+
+    if (!plottedTraverseOverlay || plottedTraverseOverlay.polyline.length === 0) return;
+
+    // 1. Draw Polyline
+    const poly = L.polyline(plottedTraverseOverlay.polyline, {
+      color: '#10b981',
+      weight: 3.5,
+      dashArray: plottedTraverseOverlay.isClosed ? undefined : '6, 6'
+    }).addTo(layer);
+
+    // 2. Draw Station Pins with custom badges and popups
+    plottedTraverseOverlay.stations.forEach((st) => {
+      const stationIcon = L.divIcon({
+        className: 'custom-traverse-pin',
+        html: `
+          <div style="position: relative; width: 24px; height: 24px; transform: translate(-12px, -12px); display: flex; align-items: center; justify-content: center;">
+            <div style="position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #10b981; border: 2.5px solid #ffffff; box-shadow: 0 0 8px rgba(16,185,129,0.7);"></div>
+            <div style="position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #ffffff;"></div>
+            <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 11px; font-weight: 700; background: #0f172a; color: #10b981; padding: 1px 6px; border-radius: 4px; border: 1px solid #10b981; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-family: 'JetBrains Mono', monospace;">
+              ${st.station}
+            </div>
+          </div>
+        `,
+        iconSize: [0, 0],
+        iconAnchor: [0, 0]
+      });
+
+      const popupContent = `
+        <div style="font-size: 12px; font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; min-width: 200px; padding: 4px 6px;">
+          <div style="font-weight: 700; color: #10b981; font-size: 13px; margin-bottom: 4px;">
+            หมุดวงรอบ: ${st.station}
+          </div>
+          <div style="color: #0f172a; margin-bottom: 2px;">
+            WGS84: ${st.lat.toFixed(6)}, ${st.lng.toFixed(6)}
+          </div>
+          <div style="color: #475569;">
+            UTM: E ${st.easting.toFixed(3)}, N ${st.northing.toFixed(3)}
+          </div>
+        </div>
+      `;
+
+      L.marker([st.lat, st.lng], { icon: stationIcon })
+        .bindPopup(popupContent, {
+          autoPanPaddingTopLeft: [16, 120],
+          autoPanPaddingBottomRight: [16, 84]
+        })
+        .addTo(layer);
+    });
+
+    // 3. Automatically call fitBounds
+    const bounds = poly.getBounds();
+    if (bounds.isValid()) {
+      mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50] });
+    }
+    showToast(`แสดงโครงข่ายวงรอบ: ${plottedTraverseOverlay.stations.length} สถานี`);
+  }, [plottedTraverseOverlay]);
+
   // Geolocation
   const handleLocateMe = () => {
     if (!navigator.geolocation || !mapInstanceRef.current) {
@@ -462,10 +649,10 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const { latitude, longitude, accuracy } = pos.coords;
+        const { latitude, longitude, accuracy, altitude } = pos.coords;
         const utm = forwardWgs84ToUtm(latitude, longitude);
 
-        mapInstanceRef.current?.flyTo([latitude, longitude], 17);
+        mapInstanceRef.current?.flyTo([latitude, longitude], 17, { duration: 1.2 });
 
         if (gpsLocationLayerRef.current) {
           gpsLocationLayerRef.current.clearLayers();
@@ -490,34 +677,83 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
             iconAnchor: [0, 0]
           });
 
-          L.marker([latitude, longitude], { icon: gpsIcon })
-            .bindPopup(`
-              <div style="font-size: 12px; padding: 4px 6px; min-width: 220px;">
-                <strong style="color: #0284c7; font-size: 14px;">📍 ตำแหน่งรังวัดดาวเทียม GNSS</strong>
-                <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 12px; margin-top: 4px; color: #0f172a; font-weight: 700;">
-                  WGS84: ${latitude.toFixed(6)}°, ${longitude.toFixed(6)}°
-                </div>
-                <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 12px; color: #475569; margin-top: 2px;">
-                  UTM ${utm.zone}N: E ${utm.easting.toFixed(2)} m | N ${utm.northing.toFixed(2)} m
-                </div>
-                <div style="font-size: 12px; color: #10b981; font-weight: 600; margin-top: 4px;">
-                  ความถูกต้องเชิงตำแหน่ง (Accuracy): ±${accuracy.toFixed(1)} ม.
-                </div>
+          const elevText = altitude !== null && altitude !== undefined
+            ? `<div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 11px; color: #475569; margin-top: 2px;">ระดับความสูง (Altitude): ${altitude.toFixed(2)} m (MSL)</div>`
+            : '';
+
+          const coordStr = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+          const utmStr = `UTM ${utm.zone}N: E ${utm.easting.toFixed(2)} m | N ${utm.northing.toFixed(2)} m`;
+
+          const gpsPopupContent = `
+            <div style="font-size: 12px; padding: 4px 6px; min-width: 230px;">
+              <strong style="color: #0284c7; font-size: 14px;">🛰️ ตำแหน่งรังวัดดาวเทียม GNSS (Fix)</strong>
+              <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 13px; margin-top: 4px; color: #0f172a; font-weight: 700;">
+                WGS84: ${coordStr}
               </div>
-            `, { autoPanPaddingTopLeft: [16, 120] })
+              <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 12px; color: #475569; margin-top: 2px;">
+                ${utmStr}
+              </div>
+              ${elevText}
+              <div style="font-size: 12px; color: #10b981; font-weight: 600; margin-top: 4px;">
+                ความถูกต้องเชิงตำแหน่ง (Accuracy): ±${accuracy.toFixed(1)} ม.
+              </div>
+              <button 
+                id="btn-copy-gps"
+                style="
+                  width: 100%;
+                  min-height: 44px;
+                  padding: 10px 14px;
+                  background: #0284c7;
+                  color: #ffffff;
+                  border: none;
+                  border-radius: 8px;
+                  font-size: 13px;
+                  font-weight: 600;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 6px;
+                  margin-top: 8px;
+                  transition: background 0.15s ease;
+                "
+                onmouseover="this.style.background='#0369a1'"
+                onmouseout="this.style.background='#0284c7'"
+                onclick="
+                  navigator.clipboard.writeText('${coordStr}\\nUTM ${utm.zone}N E: ${utm.easting.toFixed(2)} m N: ${utm.northing.toFixed(2)} m');
+                  this.innerText = 'คัดลอกพิกัด GPS แล้ว';
+                  setTimeout(() => { this.innerText = 'คัดลอกพิกัด WGS84 & UTM'; }, 1800);
+                "
+              >
+                คัดลอกพิกัด WGS84 & UTM
+              </button>
+            </div>
+          `;
+
+          L.marker([latitude, longitude], { icon: gpsIcon })
+            .bindPopup(gpsPopupContent, {
+              autoPanPaddingTopLeft: [16, 120],
+              autoPanPaddingBottomRight: [16, 84]
+            })
             .addTo(gpsLocationLayerRef.current)
             .openPopup();
         }
-        showToast('ตรึงตำแหน่งพิกัดดาวเทียม GNSS สำเร็จ');
+        showToast(`ตรึงตำแหน่งพิกัดดาวเทียม GNSS สำเร็จ (ความแม่นยำ ±${accuracy.toFixed(1)} ม.)`);
       },
       (err) => {
-        let msg = `ระบุพิกัด GNSS ไม่สำเร็จ: ${err.message}`;
-        if (err.code === 1) {
-          msg = 'ถูกปฏิเสธการเข้าถึงตำแหน่งพิกัด: กรุณาอนุญาตสิทธิ์ Location Services ในการตั้งค่าเบราว์เซอร์หรืออุปกรณ์ของคุณ';
-        } else if (err.code === 2) {
-          msg = 'ไม่สามารถรับสัญญาณดาวเทียม GNSS ได้: ตรวจสอบการเปิด GPS ในอุปกรณ์ และหลบออกจากจุดอับสัญญาณหรือใต้ชายคาอาคาร';
-        } else if (err.code === 3) {
-          msg = 'หมดเวลารอรับสัญญาณดาวเทียม GNSS (Timeout 15 วินาที): สัญญาณดาวเทียมอ่อนหรือถูกบดบัง กรุณาลองใหม่อีกครั้งกลางแจ้ง';
+        let msg = '';
+        switch (err.code) {
+          case 1: // PERMISSION_DENIED
+            msg = 'ไม่ได้รับอนุญาตให้เข้าถึงตำแหน่ง (Permission Denied): กรุณาอนุญาตสิทธิ์ Location ในการตั้งค่าเบราว์เซอร์หรืออุปกรณ์ของคุณ เพื่อใช้งานระบุตำแหน่งภาคสนาม';
+            break;
+          case 2: // POSITION_UNAVAILABLE
+            msg = 'ไม่พบสัญญาณดาวเทียม (Signal Loss / Obstructed): เครื่องรับสัญญาณ GNSS/GPS ไม่สามารถคำนวณตำแหน่งได้ เสาสัญญาณอาจถูกบดบังด้วยอาคาร อุโมงค์ หรือร่มไม้หนาทึบ กรุณาย้ายไปยังพื้นที่โล่งแจ้ง';
+            break;
+          case 3: // TIMEOUT
+            msg = 'หมดเวลารับสัญญาณพิกัด (Timeout): อุปกรณ์ใช้เวลาค้นหาดาวเทียมนานเกินไป (เกิน 15 วินาที) กรุณาเปิดโหมด High Accuracy GPS แล้วลองใหม่อีกครั้งกลางแจ้ง';
+            break;
+          default:
+            msg = `ระบุพิกัด GPS ไม่สำเร็จ: ${err.message}`;
         }
         showToast(msg);
       },
@@ -555,6 +791,12 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
   const handleGeoJsonLoaded = (data: any, fileName: string) => {
     if (!mapInstanceRef.current) return;
 
+    const validation = validateGeoJsonRFC7946(data);
+    if (!validation.isValid) {
+      showToast(validation.error || 'ไฟล์ไม่ตรงตามมาตรฐาน RFC 7946 GeoJSON');
+      return;
+    }
+
     if (vectorLayerRef.current) {
       mapInstanceRef.current.removeLayer(vectorLayerRef.current);
     }
@@ -572,14 +814,20 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
             .slice(0, 5)
             .map(([k, v]) => `<strong>${k}:</strong> ${v}`)
             .join('<br/>');
-          layer.bindPopup(`<div style="font-size: 12px;">${props}</div>`);
+          layer.bindPopup(`<div style="font-size: 12px;">${props}</div>`, {
+            autoPanPaddingTopLeft: [16, 120],
+            autoPanPaddingBottomRight: [16, 84]
+          });
         }
       }
     }).addTo(mapInstanceRef.current);
 
     vectorLayerRef.current = geoLayer;
-    mapInstanceRef.current.fitBounds(geoLayer.getBounds());
-    showToast(`โหลดไฟล์ ${fileName} สำเร็จ`);
+    const bounds = geoLayer.getBounds();
+    if (bounds.isValid()) {
+      mapInstanceRef.current.fitBounds(bounds);
+    }
+    showToast(`โหลดไฟล์ ${fileName} สำเร็จ (${validation.featureCount} ฟีเจอร์)`);
   };
 
   // Keyboard accelerators
@@ -657,6 +905,37 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
         </div>
       )}
 
+      {/* Floating Traverse Network Indicator Pill (Precision Instrument Styling) */}
+      {plottedTraverseOverlay && (
+        <div 
+          className={`absolute ${
+            measureMode === 'inspect' || measurementResultText ? 'top-44 sm:top-36' : 'top-28 sm:top-20'
+          } left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-white border border-emerald-500/80 px-3.5 py-1.5 rounded-xl shadow-xs text-xs font-medium flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 max-w-[90vw]`}
+        >
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+          <span className="font-semibold text-emerald-400">
+            กำลังแสดงโครงข่ายวงรอบ: {plottedTraverseOverlay.stations.length} สถานี
+          </span>
+          {plottedTraverseOverlay.precisionGrade && (
+            <span className="hidden sm:inline font-mono tabular-nums text-[11px] text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">
+              {plottedTraverseOverlay.precisionGrade} (1:{plottedTraverseOverlay.precisionRatio?.toLocaleString()})
+            </span>
+          )}
+          <button
+            onClick={() => {
+              clearPlottedTraverseOverlay();
+              showToast('ปิดการแสดงโครงข่ายวงรอบแล้ว');
+            }}
+            aria-label="ปิดการแสดงโครงข่ายวงรอบ"
+            className="ml-2 min-h-[44px] min-w-[44px] px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-1 border border-slate-700 transition-colors"
+            title="ปิดการแสดงผลโครงข่ายวงรอบ"
+          >
+            <X className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">ปิด</span>
+          </button>
+        </div>
+      )}
+
       {/* Bottom Telemetry HUD Bar (Rested Surface, Tabular Precision Rule) */}
       <div className="absolute bottom-20 md:bottom-4 left-3 sm:left-4 z-[990] bg-white/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-slate-800 dark:text-slate-200 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs font-mono tabular-nums text-xs pointer-events-none flex flex-wrap items-center gap-x-3 gap-y-1">
         <div className="flex items-center gap-1.5 text-sky-600 dark:text-sky-400 font-semibold">
@@ -680,10 +959,10 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
       {/* Right-Click Geomatics Context Menu (Instrument Rarity: Single Sky Accent) */}
       {contextMenu && (
         <div 
-          className="absolute z-[1100] bg-white/95 dark:bg-[#131b2c]/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-1 shadow-md min-w-[210px] text-xs font-medium text-slate-800 dark:text-slate-200 animate-in fade-in zoom-in-95"
+          className="absolute z-[1100] bg-white/95 dark:bg-[#131b2c]/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-1 shadow-md min-w-[220px] text-xs font-medium text-slate-800 dark:text-slate-200 animate-in fade-in zoom-in-95"
           style={{
-            top: Math.min(contextMenu.y, window.innerHeight - 260),
-            left: Math.min(contextMenu.x, window.innerWidth - 230)
+            top: Math.max(84, Math.min(contextMenu.y, window.innerHeight - 330)),
+            left: Math.min(contextMenu.x, window.innerWidth - 240)
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -697,7 +976,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
               setContextMenu(null);
               showToast('ปักหมุดรังวัดเรียบร้อยแล้ว');
             }}
-            className="group w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 transition-colors"
+            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 transition-colors"
           >
             <MapPin className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors" />
             <span>ปักหมุดรังวัดที่นี่</span>
@@ -708,10 +987,21 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
               inspectCoordinate(contextMenu.lat, contextMenu.lng);
               setContextMenu(null);
             }}
-            className="group w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 transition-colors"
+            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 transition-colors"
           >
             <Crosshair className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors" />
             <span>ตรวจสอบพิกัดละเอียด</span>
+          </button>
+
+          <button
+            onClick={() => {
+              handleSendToConverter(contextMenu.lat, contextMenu.lng);
+              setContextMenu(null);
+            }}
+            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 transition-colors"
+          >
+            <Calculator className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors" />
+            <span>ส่งพิกัดไปยังเครื่องมือแปลงพิกัด</span>
           </button>
 
           <button
@@ -720,7 +1010,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
               setMeasurePoints([{ lat: contextMenu.lat, lng: contextMenu.lng }]);
               setContextMenu(null);
             }}
-            className="group w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 transition-colors"
+            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 transition-colors"
           >
             <Ruler className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors" />
             <span>เริ่มวัดระยะทางจากจุดนี้</span>
@@ -732,7 +1022,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
               setMeasurePoints([{ lat: contextMenu.lat, lng: contextMenu.lng }]);
               setContextMenu(null);
             }}
-            className="group w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 transition-colors"
+            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 transition-colors"
           >
             <Square className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors" />
             <span>เริ่มวัดพื้นที่จากจุดนี้</span>
@@ -745,11 +1035,14 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
               if (markerGroupRef.current) {
                 markerGroupRef.current.clearLayers();
               }
+              if (traverseOverlayLayerRef.current) {
+                clearPlottedTraverseOverlay();
+              }
               handleClearMeasurements();
               setContextMenu(null);
               showToast('ล้างหมุดและเส้นรังวัดทั้งหมดแล้ว');
             }}
-            className="group w-full text-left px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/60 dark:hover:bg-rose-950/30 flex items-center gap-2 transition-colors"
+            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/60 dark:hover:bg-rose-950/30 flex items-center gap-2 transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors" />
             <span>ล้างหมุดและเส้นทั้งหมด</span>

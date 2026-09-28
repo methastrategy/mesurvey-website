@@ -1,7 +1,8 @@
 import React from 'react';
 import { adjustTraverseBowditch } from '../../core/traverse';
-import { useSurveyStore } from '../../store/useSurveyStore';
-import { Plus, Trash2, RotateCcw, CheckCircle2, Download, Save, Eraser } from 'lucide-react';
+import { useSurveyStore, PlottedTraverseOverlay } from '../../store/useSurveyStore';
+import { inverseUtmToWgs84 } from '../../core/projections';
+import { Plus, Trash2, RotateCcw, CheckCircle2, Download, Save, Eraser, MapPin, BookOpen } from 'lucide-react';
 import { trackEvent } from '../../lib/telemetry';
 import { exportToCsv } from '../../utils/csv-export';
 
@@ -21,7 +22,8 @@ export const TraverseCalculator: React.FC = () => {
     addTraverseLeg,
     removeTraverseLeg,
     resetTraverseToSample,
-    clearTraverse
+    clearTraverse,
+    setPlottedTraverseOverlay
   } = useSurveyStore();
 
   // Run calculation
@@ -123,6 +125,51 @@ export const TraverseCalculator: React.FC = () => {
     });
   };
 
+  const handlePlotOnWebMap = () => {
+    if (!result) return;
+    const zone = 47;
+    const stations: PlottedTraverseOverlay['stations'] = [];
+    const polyline: [number, number][] = [];
+
+    for (const [stName, coord] of Object.entries(result.stationCoordinates)) {
+      if (coord.easting < 100000 || coord.easting > 900000 || coord.northing < 0 || coord.northing > 10000000) {
+        alert('พิกัดวงรอบไม่อยู่ในพิกัดระบบ UTM 47N/48N ที่สามารถฉายลงแผนที่โลกได้ กรุณาตรวจสอบค่า Easting และ Northing');
+        return;
+      }
+      try {
+        const wgs = inverseUtmToWgs84(coord.easting, coord.northing, zone);
+        stations.push({
+          station: stName,
+          lat: wgs.lat,
+          lng: wgs.lng,
+          easting: coord.easting,
+          northing: coord.northing
+        });
+        polyline.push([wgs.lat, wgs.lng]);
+      } catch (e: any) {
+        alert(e.message || 'เกิดข้อผิดพลาดในการแปลงพิกัด UTM ไปยัง WGS84');
+        return;
+      }
+    }
+
+    if (traverseIsClosedLoop && polyline.length > 0) {
+      polyline.push(polyline[0]); // Close loop
+    }
+
+    setPlottedTraverseOverlay({
+      stations,
+      polyline,
+      isClosed: traverseIsClosedLoop,
+      totalPerimeter: result.totalPerimeter,
+      linearMisclosure: result.linearMisclosure,
+      precisionRatio: result.precisionRatio,
+      precisionGrade: result.precisionGrade
+    });
+
+    trackEvent('traverse_plot_on_webgis', { stationCount: stations.length });
+    window.location.hash = '#/map';
+  };
+
   return (
     <div className="space-y-6">
       
@@ -150,7 +197,14 @@ export const TraverseCalculator: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+            <a
+              href={traverseIsClosedLoop ? '#/knowledge/closed-loop-traverse' : '#/knowledge/link-open-traverse'}
+              className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors flex items-center space-x-1.5 border border-slate-200/80 dark:border-slate-700"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+              <span>คู่มือวิชาการ: {traverseIsClosedLoop ? 'วงรอบปิด (Closed-Loop)' : 'วงรอบเปิดเชื่อมโยง (Link)'}</span>
+            </a>
             <button
               onClick={resetTraverseToSample}
               className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 transition-colors flex items-center space-x-1.5"
@@ -376,18 +430,27 @@ export const TraverseCalculator: React.FC = () => {
 
           {/* Adjusted Traverse Table */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm overflow-x-auto">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
               <h4 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 ตารางผลลัพธ์การปรับแก้พิกัด (Adjusted Coordinates Table)
               </h4>
-              <button
-                onClick={handleExportCsv}
-                className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs transition-colors flex items-center space-x-1"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>ส่งออก CSV</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handlePlotOnWebMap}
+                  className="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs shadow-sm transition-colors flex items-center space-x-1.5"
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>แสดงบนแผนที่ WebGIS</span>
+                </button>
+                <button
+                  onClick={handleExportCsv}
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs transition-colors flex items-center space-x-1"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>ส่งออก CSV</span>
+                </button>
+              </div>
             </div>
 
             <table className="w-full text-left text-xs min-w-[750px]">

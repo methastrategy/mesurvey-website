@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { X, CheckCircle2, AlertTriangle, BookOpen, Layers, Activity } from 'lucide-react';
+import { X, CheckCircle2, AlertTriangle, BookOpen, Layers, Activity, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
 import { KnowledgeTopic } from '../../types/survey';
 
 interface TopicDetailModalProps {
@@ -17,6 +17,25 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
   }, [onClose]);
 
   if (!topic) return null;
+
+  const getWorkflowTarget = () => {
+    const wf = topic.downstreamWorkflow;
+    if (!wf || !wf.recommendedToolTab) return null;
+    if (wf.recommendedToolTab === 'map') {
+      return {
+        hash: '#/map',
+        label: wf.toolActionLabel || 'เปิดแผนที่ WebGIS'
+      };
+    }
+    const sub = wf.recommendedToolTab === 'converter' ? 'coord' : wf.recommendedToolTab;
+    return {
+      hash: `#/calculator/${sub}`,
+      label: wf.toolActionLabel || 'เปิดเครื่องมือคำนวณที่เกี่ยวข้อง'
+    };
+  };
+
+  const workflowTarget = getWorkflowTarget();
+  const isVerified = topic.verificationStatus === 'verified';
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
@@ -55,6 +74,39 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
 
         {/* Content Body */}
         <div className="px-6 py-6 overflow-y-auto space-y-6 text-sm">
+          
+          {/* Provenance Banner */}
+          {isVerified ? (
+            <div className="p-4 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-500/30 text-emerald-900 dark:text-emerald-200 space-y-1.5">
+              <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-emerald-800 dark:text-emerald-300">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span>VERIFIED / ผ่านการตรวจรับรองมาตรฐานวิศวกรรม (Verified SOP)</span>
+              </div>
+              <p className="text-xs text-emerald-800/90 dark:text-emerald-300/90 leading-relaxed">
+                เอกสารและขั้นตอนปฏิบัติการนี้ผ่านการทวนสอบรับรองความถูกต้องตามเกณฑ์มาตรฐานงานสำรวจวิศวกรรมเรียบร้อยแล้ว
+              </p>
+              {topic.verificationProof && (
+                <div className="pt-2 mt-2 border-t border-emerald-500/20 text-[11px] font-mono text-emerald-800 dark:text-emerald-400">
+                  <span className="font-semibold">เอกสารอ้างอิงและเกณฑ์มาตรฐาน:</span> {topic.verificationProof}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-1.5">
+              <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-amber-800 dark:text-amber-300">
+                <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span>DRAFT / รอดำเนินการตรวจสอบ (Preliminary Draft SOP)</span>
+              </div>
+              <p className="text-xs text-amber-800/90 dark:text-amber-300/90 leading-relaxed">
+                เอกสารทางเทคนิคฉบับร่าง — อยู่ระหว่างการทวนสอบและ peer review ทางวิชาการและภาคสนาม เพื่อความปลอดภัยสูงสุด โปรดใช้งานควบคู่กับคู่มือทางการของเครื่องมือ
+              </p>
+              {topic.verificationProof && (
+                <div className="pt-2 mt-2 border-t border-amber-500/20 text-[11px] font-mono text-amber-800 dark:text-amber-400">
+                  <span className="font-semibold">เอกสารอ้างอิงและเกณฑ์มาตรฐานที่ใช้ร่าง:</span> {topic.verificationProof}
+                </div>
+              )}
+            </div>
+          )}
           
           {/* Summary */}
           <div className="p-4 rounded-2xl bg-survey-50/60 dark:bg-survey-950/40 border border-survey-200/60 dark:border-survey-800/60">
@@ -158,13 +210,59 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
             </div>
           </div>
 
+          {/* Downstream Workflow & Tool Integration */}
+          {topic.downstreamWorkflow && (
+            <div className="p-4 rounded-2xl bg-sky-50/70 dark:bg-sky-950/30 border border-sky-200/80 dark:border-sky-800/60 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-xs sm:text-sm">
+                  <ArrowRight className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                  <span>เวิร์กโฟลว์ปฏิบัติการต่อเนื่อง (Downstream Workflow)</span>
+                </h4>
+                <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/60 text-sky-800 dark:text-sky-300 border border-sky-200/60 dark:border-sky-800/40">
+                  {topic.downstreamWorkflow.outputDataFormat}
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                <strong>ขั้นตอนต่อไป:</strong> {topic.downstreamWorkflow.nextStepTitle} — {topic.downstreamWorkflow.nextStepProcedure}
+              </p>
+              {workflowTarget && (
+                <div className="pt-1 flex justify-start">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      window.location.hash = workflowTarget.hash;
+                      onClose();
+                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs sm:text-sm transition-colors shadow-sm"
+                  >
+                    <span>{workflowTarget.label}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200 dark:border-slate-800 flex justify-end">
+        <div className="px-6 py-3.5 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+          {workflowTarget ? (
+            <button
+              type="button"
+              onClick={() => {
+                window.location.hash = workflowTarget.hash;
+                onClose();
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs sm:text-sm transition-colors shadow-sm"
+            >
+              <span>{workflowTarget.label}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          ) : <div />}
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-survey-700 hover:bg-survey-600 text-white font-medium text-xs sm:text-sm transition-colors shadow-sm"
+            className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium text-xs sm:text-sm transition-colors shadow-sm"
           >
             ปิดหน้าต่าง
           </button>

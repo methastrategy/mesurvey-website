@@ -8,13 +8,16 @@ import {
   forwardWgs84ToIndian1975,
   inverseIndian1975ToWgs84
 } from '../../core/projections';
-import { Copy, Check, MapPin, ArrowRightLeft, AlertCircle } from 'lucide-react';
+import { Copy, Check, MapPin, ArrowRightLeft, AlertCircle, BookOpen } from 'lucide-react';
+import { useSurveyStore } from '../../store/useSurveyStore';
 
 interface CoordinateConverterProps {
   onPlotOnMap?: (lat: number, lng: number, label: string) => void;
 }
 
 export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlotOnMap }) => {
+  const { inspectedCoordinate, clearInspectedCoordinate } = useSurveyStore();
+
   // Input Modes: 'dd' | 'dms' | 'utm' | 'indian'
   const [inputMode, setInputMode] = useState<'dd' | 'dms' | 'utm' | 'indian'>('dd');
 
@@ -77,8 +80,22 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
     setIndNorthing(ind.northing.toFixed(2));
   };
 
+  // Ingest inspectedCoordinate from WebMap
   useEffect(() => {
-    calculateFromDD(13.84664, 100.56982);
+    if (inspectedCoordinate) {
+      setInputMode('dd');
+      setInputError(null);
+      setDdLat(inspectedCoordinate.lat.toFixed(6));
+      setDdLng(inspectedCoordinate.lng.toFixed(6));
+      calculateFromDD(inspectedCoordinate.lat, inspectedCoordinate.lng);
+      clearInspectedCoordinate();
+    }
+  }, [inspectedCoordinate, clearInspectedCoordinate]);
+
+  useEffect(() => {
+    if (!inspectedCoordinate) {
+      calculateFromDD(13.84664, 100.56982);
+    }
   }, []);
 
   const handleApplyDD = () => {
@@ -224,8 +241,17 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
             </p>
           </div>
 
-          {/* iOS Segmented Control */}
-          <div className="inline-flex p-1 rounded-2xl bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.04] dark:border-white/[0.06] text-xs">
+          <div className="flex items-center gap-2 flex-wrap">
+            <a
+              href="#/knowledge/gnss-rtk-static-survey"
+              className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors flex items-center space-x-1.5 border border-slate-200/80 dark:border-slate-700"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+              <span>คู่มือวิชาการ: การสำรวจรังวัดดาวเทียม GNSS RTK & Static</span>
+            </a>
+
+            {/* iOS Segmented Control */}
+            <div className="inline-flex p-1 rounded-2xl bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.04] dark:border-white/[0.06] text-xs">
             <button
               onClick={() => { setInputMode('dd'); setInputError(null); }}
               className={`px-3 py-1.5 rounded-xl font-medium transition-all ${
@@ -268,6 +294,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
             </button>
           </div>
         </div>
+      </div>
 
         {/* Input Form 1: Decimal Degrees */}
         {inputMode === 'dd' && (

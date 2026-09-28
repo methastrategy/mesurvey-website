@@ -107,7 +107,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                 <Icon className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <span className="font-bold text-xs sm:text-sm block truncate leading-snug">
+                <span className="font-bold text-xs sm:text-sm block truncate leading-normal">
                   {tab.label}
                 </span>
                 <span className="text-xs block truncate font-mono text-slate-400 dark:text-slate-500">

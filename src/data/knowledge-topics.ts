@@ -13,6 +13,8 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     summary: 'คู่มือปฏิบัติการทำระดับเรขาคณิตความละเอียดสูง (Differential Leveling): ขั้นตอนการตั้งกล้องระดับอัตโนมัติ (Auto Level) และการปรับระดับลูกน้ำฟองกลม, เทคนิคการอ่านไม้ระดับสายใยเดี่ยวและสายใย 3 เส้น (Three-Wire Reading) พร้อมการตรวจสอบระยะ Stadia (D = 100s), กฎการรักษาระยะหน้า-หลังให้สมดุลเพื่อหักล้างผลความโค้งของโลกและการหักเหของแสง (Curvature & Refraction: h = 0.0675 K²), การตรวจสอบความคลาดเคลื่อนแกนเล็งด้วยวิธี Two-Pegs Test และเกณฑ์ความคลาดเคลื่อนชั้นงานตามมาตรฐาน FGCC และกรมแผนที่ทหาร (RTSD)',
     badge: 'มาตรฐานงานระดับชั้น 1-3',
     iconName: 'Ruler',
+    verificationStatus: 'draft',
+    verificationProof: 'FGCC Standards and Specifications for Geodetic Control Networks (1984); ระเบียบกรมแผนที่ทหารว่าด้วยการรังวัดระดับ พ.ศ. 2548; Ghilani, C.D. & Wolf, P.R. (2012) Elementary Surveying (13th ed.)',
     courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & มาตรฐาน กรมแผนที่ทหาร (RTSD)',
     equipmentRequired: [
       'กล้องระดับอัตโนมัติ (Automatic Level) กำลังขยาย 28x-32x หรือ Digital Level พร้อมกล่องกันกระแทก',
@@ -194,6 +196,8 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     summary: 'คู่มือการตั้งสถานีกล้องวัดมุม (Electronic Theodolite): การตั้งดิ่งลงกึ่งกลางหมุดด้วย Optical / Laser Plummet, การปรับลูกน้ำฟองกลมและฟองยาว (Plate Level Bubble), กฎเรขาคณิต 3 แกนหลักของกล้องสำรวจ, ขั้นตอนการเปิดมุมราบ 2 หน้ากล้อง (Face Left: FL & Face Right: FR) เพื่อหักล้าง Collimation & Index Error, การตั้งค่าศูนย์องศา (0-SET) เล็งหมุดหลัง (Backsight) และการทำผังหมุดผูกโยง 3 ระยะ (Station Description & 3-Tie Measurements) เพื่อการค้นหาและฟื้นฟูหมุดอ้างอิง',
     badge: 'พื้นฐานเสาหลักงานสำรวจ',
     iconName: 'Compass',
+    verificationStatus: 'draft',
+    verificationProof: 'คู่มือปฏิบัติการวิชา 01218211 Geomatics Engineering (ม.เกษตรศาสตร์); Bannister, Raymond & Baker (1998) Surveying (7th ed.); มาตรฐานงานรังวัดหมุดควบคุม กรมที่ดิน',
     courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & ข้อกำหนดงานรังวัดวงรอบ',
     equipmentRequired: [
       'กล้องวัดมุมอิเล็กทรอนิกส์ (Electronic Theodolite) ความละเอียด 1 ถึง 5 พิลิปดา พร้อมกล้องส่องดิ่งหรือเลเซอร์ดิ่ง',
@@ -354,6 +358,8 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     summary: 'คู่มือมาตรฐานการรังวัดโครงข่ายวงรอบปิดรูปหลายเหลี่ยม (Closed Loop Traverse): กฎผลรวมมุมภายใน (n - 2) × 180°, การตรวจสอบค่าคลาดเคลื่อนทางมุม (Angular Misclosure) เทียบเกณฑ์ชั้นงาน, การกระจายปรับแก้ค่ามุมเฉลี่ย (-c/n), การคำนวณมุมภาคของทิศต่อเนื่อง (Continuous Azimuth), การคำนวณผลต่างพิกัดราบ Latitude (ΔN) และ Departure (ΔE), การหาค่าคลาดเคลื่อนเชิงเส้น (Linear Misclosure), การหาอัตราส่วนความละเอียดชั้นงาน (Relative Precision 1:N) และการปรับแก้เส้นโครงวงรอบด้วยวิธี Compass Rule (Bowditch Method)',
     badge: 'มาตรฐานงานควบคุมพิกัดผังเมือง',
     iconName: 'Compass',
+    verificationStatus: 'draft',
+    verificationProof: 'Bowditch, N. (1807) Compass Rule; มาตรฐานการรังวัดและคำนวณวงรอบ กรมแผนที่ทหาร (RTSD 1st-3rd Order Traverse Specifications); Schofield, W. & Breach, M. (2007) Engineering Surveying',
     courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & ข้อกำหนดงานรังวัดวงรอบ',
     equipmentRequired: [
       'กล้องประมวลผลรวม (Total Station) หรือกล้องวัดมุมและเครื่องวัดระยะอิเล็กทรอนิกส์ (EDM) ความละเอียดสูง',
@@ -526,6 +532,8 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     summary: 'คู่มือการรังวัดวงรอบเปิดแบบเชื่อมโยง (Connecting / Link Traverse): การเริ่มต้นจากหมุดหลักฐานคู่ต้นทางที่ทราบพิกัดและทิศทาง (A -> B) สู่หมุดหลักฐานคู่ปลายทาง (C -> D), การตรวจสอบความคลาดเคลื่อนมุมภาคทิศเริ่มต้นและสิ้นสุด (Azimuth Closure Check), การกระจายปรับแก้ค่ามุมหักเห, การตรวจสอบผลรวมระยะ Latitude และ Departure เทียบผลต่างพิกัดจริงระหว่างหมุดหลักฐาน, การปรับแก้ค่าพิกัดด้วยวิธี Compass Rule และข้อแตกต่างทางวิศวกรรมระหว่างวงรอบเปิดแบบลอย (Dead-end Traverse ที่ห้ามใช้ในงานชั้น 1-3) กับวงรอบเปิดแบบเชื่อมโยง',
     badge: 'งานโครงสร้างแนวราบ ถนน รถไฟ ท่อส่ง',
     iconName: 'Compass',
+    verificationStatus: 'draft',
+    verificationProof: 'มาตรฐานงานสำรวจเส้นทาง กรมทางหลวง / การรถไฟแห่งประเทศไทย; Wolf, P.R. & Ghilani, C.D. (2006) Adjustment Computations: Spatial Data Analysis (4th/5th ed.); EIT Standard 1008-34 (วิศวกรรมสถานแห่งประเทศไทย วสท.)',
     courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & วงรอบแบบเส้น',
     equipmentRequired: [
       'กล้องประมวลผลรวม (Total Station) ความละเอียดไม่เกิน 1-2 พิลิปดา',
@@ -697,6 +705,8 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     summary: 'คู่มือการรังวัดโครงข่ายหมุดหลักฐานด้วยระบบดาวเทียมนำทางสากล (GNSS): การรังวัดแบบสถิตความละเอียดสูง (Static Survey) สำหรับงานควบคุมโครงข่ายหมุดชั้น 1-2, การรังวัดจลน์แบบทันทีกาลผ่านระบบโครงข่ายสถานีรับสัญญาณต่อเนื่อง (Network RTK / CORS VRS), กฎมุมยกดาวเทียม (Elevation Mask 15°), การประเมินค่าเรขาคณิตกลุ่มดาวเทียม (PDOP / GDOP < 3.0), การแปลงความสูงรูปทรงรี (Ellipsoidal Height: h) เป็นความสูงระดับน้ำทะเลปานกลาง (Orthometric Height: H) ด้วยแบบจำลองจีออยด์ประเทศไทย (TGM2017) และการตรวจสอบสถานะ Fix/Float',
     badge: 'งานโครงข่ายหมุดดาวเทียมชั้น 1-2',
     iconName: 'Satellite',
+    verificationStatus: 'draft',
+    verificationProof: 'ระเบียบกรมที่ดินว่าด้วยการรังวัดด้วยดาวเทียม RTK GNSS Network พ.ศ. 2562; GISTDA National CORS Network Standard; คู่มือแบบจำลองยีออยด์ TGM2017 (กรมแผนที่ทหาร); Hofmann-Wellenhof, B. et al. (2008) GNSS - GPS, GLONASS, Galileo and more',
     courseRelation: 'วิชา 01218312 Satellite Geodesy & GNSS Positioning (KU Geomatics) & ข้อกำหนด กรมที่ดิน/รฟม.',
     equipmentRequired: [
       'เครื่องรับสัญญาณดาวเทียม GNSS ชนิดความถี่คู่/หลายความถี่ (Multi-Frequency Multi-Constellation GNSS Receiver)',
@@ -806,7 +816,15 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
       'Ionospheric & Tropospheric Delays (การหน่วงเวลาในชั้นบรรยากาศ): สัญญาณดาวเทียมช้าลงเมื่อผ่านชั้นบรรยากาศ แก้ไขด้วยการใช้สัญญาณความถี่คู่ (Dual Frequency L1/L2) ร่วมกับการรับค่าปรับแก้จากสถานี CORS',
       'Loss of RTK Radio/Cellular Link: จุดอับสัญญาณโทรศัพท์ 4G ทำให้หลุดจาก NTRIP แก้ไขด้วยการใช้ระบบ UHF Radio ระหว่าง Base-Rover หรือรังวัดแบบ PPK (Post-Processed Kinematic)',
       'Human Error on Antenna Height: การวัดความสูงเสาโพลผิด หรือสับสนระหว่าง Vertical Height กับ Slant Height เป็นสาเหตุหลักที่ทำให้ระดับความสูงผิดพลาด ต้องล็อกตัวปรับระดับเสาโพลให้แน่นหนาและทวนสอบทุกครั้ง'
-    ]
+    ],
+    downstreamWorkflow: {
+      outputDataFormat: 'CSV (PT,LAT,LON,ELLIP_H,N,E,ORTHO_H), GeoJSON',
+      outputDescription: 'พิกัดภูมิศาสตร์ WGS84 และค่าพิกัดกริด UTM Zone 47N/48N พร้อมระดับความสูงเหนือหมุด Geoid TGM2017',
+      nextStepTitle: 'การแปลงพิกัดและตรวจสอบค่าปรับเทียบ (Coordinate Transformation & Validation)',
+      nextStepProcedure: 'นำค่าพิกัด WGS84 ที่ได้จากการรังวัด RTK/Static นำเข้าสู่เครื่องมือแปลงพิกัด (Coordinate Converter) เพื่อแปลงเป็น UTM และ Indian 1975 หรือส่งออกเป็น GeoJSON เข้าสู่ WebGIS Terminal',
+      recommendedToolTab: 'coord',
+      toolActionLabel: 'เปิดเครื่องมือแปลงพิกัดภูมิศาสตร์ (Coordinate Converter)'
+    }
   },
 
   // -------------------------------------------------------------------------
@@ -821,6 +839,8 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     summary: 'คู่มือวิศวกรรมการสำรวจรังวัดทำแผนที่ด้วยอากาศยานไร้คนขับ (UAV / Drone Photogrammetry): การวางแผนเส้นทางบินถ่ายภาพ (Flight Mission Planning), การคำนวณความละเอียดภาพภาคพื้นดิน (Ground Sample Distance: GSD), ข้อกำหนดการซ้อนทับภาพส่วนหน้า (Forward Overlap 75-80%) และส่วนข้าง (Side Overlap 65-70%), การวางและรังวัดหมุดควบคุมภาคพื้นดิน (Ground Control Points: GCP) และหมุดตรวจสอบอิสระ (Check Points: CP), การบินด้วยระบบ RTK/PPK, กระบวนการปรับแก้กลุ่มภาพทางอากาศ (Bundle Block Adjustment: BBA), การสร้างผังภาพถ่ายดัดแก้ระนาบ (Digital Orthophoto Mosaic - DOM) และแบบจำลองระดับสูงเชิงเลข (Digital Surface Model - DSM)',
     badge: 'งานแผนที่ภาพถ่ายความละเอียดสูง & สำรวจภูมิประเทศ',
     iconName: 'Plane',
+    verificationStatus: 'draft',
+    verificationProof: 'ASPRS Positional Accuracy Standards for Digital Geospatial Data (2014); ประกาศสำนักงานการบินพลเรือนแห่งประเทศไทย (CAAT) เรื่องการใช้อากาศยานไร้คนขับเพื่อการสำรวจ; Luhmann, T. et al. (2019) Close-Range Photogrammetry and 3D Imaging',
     courseRelation: 'วิชา 01218341 Photogrammetry for Surveying (KU Geomatics) & มาตรฐาน กรมแผนที่ทหาร (RTSD)',
     equipmentRequired: [
       'อากาศยานไร้คนขับชนิดปีกหมุนหลายใบพัด (Multirotor Drone e.g. DJI Matrice 350 RTK / Phantom 4 RTK) หรือ Fixed-Wing UAV',
@@ -906,7 +926,15 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
       'Insufficient Overlap in Wind (การซ้อนทับภาพไม่พอเมื่อเจอลมแรง): ลมกรรโชกทำให้โดรนบินเอียงและระยะห่างระหว่างจุดถ่ายภาพคลาดเคลื่อน แก้ไขด้วยการตั้งค่า Overlap เผื่อไว้ที่ 80% / 75%',
       'Vegetation & Water Body Distortion: ป่าทึบหรือผิวน้ำที่มีการเคลื่อนไหวทำให้โปรแกรม SfM จับคู่ Tie Points ไม่ได้ แก้ไขด้วยการบินคร่อมขอบเขตให้นอกเหนือน้ำ และใช้เทคโนโลยี LiDAR ร่วมด้วยหากจำเป็น',
       'Thermal Camera Expansion & Lens Distortion: กล้องถ่ายภาพขยายตัวเมื่อโดรนบินกลางแดดจัด แก้ไขด้วยการเปิดกล้องอุ่นเครื่อง 10-15 นาทีก่อนบินจริงเพื่อให้ค่า In-Flight Calibration เสถียร'
-    ]
+    ],
+    downstreamWorkflow: {
+      outputDataFormat: 'GeoTIFF (Orthomosaic, DSM/DTM), GeoJSON (Flight Boundary & Ground Control Points)',
+      outputDescription: 'ภาพถ่ายออร์โธโมเสกความละเอียดสูงระดับ GSD < 2 cm และพิกัดหมุด GCP/Check Points ในระบบ UTM WGS84',
+      nextStepTitle: 'การนำเข้าชั้นข้อมูลและแสดงผลบนแผนที่สนาม (Spatial Layer Overlay & WebGIS Inspection)',
+      nextStepProcedure: 'นำไฟล์ GeoJSON ขอบเขตการบินและหมุดตรวจทาน (Check Points) อัปโหลดเข้าสู่ WebGIS Field Terminal เพื่อตรวจสอบความถูกต้องเชิงตำแหน่งเทียบกับแผนที่ภูมิประเทศและดาวเทียม',
+      recommendedToolTab: 'map',
+      toolActionLabel: 'เปิดแผนที่สำรวจภาคสนาม (WebGIS Terminal)'
+    }
   },
 
   // -------------------------------------------------------------------------
@@ -921,6 +949,8 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     summary: 'คู่มือการสำรวจเก็บรายละเอียดเชิงพื้นที่ 3 มิติความละเอียดสูง (3D High-Definition Surveying): การใช้งานเครื่องสแกนภาคพื้นดิน (Terrestrial Laser Scanner - TLS) และเครื่องสแกนเคลื่อนที่ไร้รอยต่อ (Handheld / Mobile SLAM LiDAR), ทฤษฎี Time-of-Flight (ToF) และ Phase Shift, การกระจายสถานีสแกนเพื่อลดจุดอับสัญญาณ (Shadow / Occlusion Elimination), เทคนิคการต่อกลุ่มจุดภาพ (Point Cloud Registration) ด้วยวิธี Target-Based (Sphere / Checkerboard) และ Cloud-to-Cloud (ICP Algorithm), การแปลงระบบพิกัดเข้าสู่ระบบอ้างอิงหมุดสำรวจจริง (Georeferencing to UTM) เพื่อสร้างโมเดล BIM (Scan-to-BIM) และงาน As-Built Survey',
     badge: 'งานสำรวจ 3 มิติ สถาปัตยกรรม & BIM',
     iconName: 'Scan',
+    verificationStatus: 'draft',
+    verificationProof: 'มาตรฐานวิศวกรรมสถานแห่งประเทศไทย (วสท.) EIT-Standard 022026-65 (มาตรฐานแบบจำลองสารสนเทศอาคาร BIM); USACE EM 1110-1-1003 Navigational and Terrestrial LiDAR Surveying; Vosselman, G. & Maas, H.-G. (2010) Airborne and Terrestrial Laser Scanning',
     courseRelation: 'วิชา 01218414 Advanced Geomatics & Laser Scanning (KU Geomatics) & มาตรฐาน BIM ประเทศไทย',
     equipmentRequired: [
       'เครื่องสแกนเลเซอร์ 3 มิติภาคพื้นดินความแม่นยำสูง (Terrestrial Laser Scanner e.g. Leica RTC360 / Faro Focus Core / Trimble X7)',
@@ -1007,7 +1037,15 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
       'Dynamic Obstacles (คนและยานพาหนะเคลื่อนที่ผ่าน): ทำให้เกิดรอยลากจุดภาพบนฉากสแกน แก้ไขด้วยการเปิดฟังก์ชัน Double Scan Filter หรือลบข้อมูลจุดเคลื่อนไหวออกด้วยอัลกอริทึมทำความสะอาด',
       'Thermal Drift & Direct Sun Heat: เครื่องสแกนตั้งตากแดดจัดทำให้โลหะภายในขยายตัวและเกิดการเบี่ยงเบนของกระจกหมุน แก้ไขด้วยการกางร่มกันแดดและปล่อยให้เครื่องปรับอุณหภูมิคงที่',
       'IMU Drift on Long Hallways in SLAM: ทางเดินแคบยาวที่มีรูปทรงซ้ำซาก (Symmetric Tunnel/Hallway) ทำให้ SLAM เกิด Slipping และ Drift สะสม แก้ไขด้วยการวางกล่องหรือวัตถุรูปทรงแปลกตาเป็นระยะ และเดินวนกลับมาปิดลูป'
-    ]
+    ],
+    downstreamWorkflow: {
+      outputDataFormat: 'E57, LAS/LAZ Point Cloud, CSV (Ground Control Target Coordinates)',
+      outputDescription: 'กลุ่มจุดเมฆ 3 มิติ (Point Cloud) ความละเอียดสูงที่ทำการจดทะเบียน (Registered) และ Geo-referenced เข้าสู่ระบบพิกัดโครงการเรียบร้อยแล้ว',
+      nextStepTitle: 'การแปลงพิกัดหมุดเป้าหมายและการส่งออกตำแหน่งอ้างอิง',
+      nextStepProcedure: 'นำค่าพิกัดหมุดอ้างอิงเป้าหมายสแกนเนอร์ (Scan Targets) ตรวจสอบพิกัดในระบบกริด UTM / Indian 1975 ผ่านระบบ Coordinate Converter เพื่อผูกโยงเข้าสู่ระบบพิกัดโครงข่ายหลัก',
+      recommendedToolTab: 'coord',
+      toolActionLabel: 'เปิดเครื่องมือแปลงพิกัด (Coordinate Converter)'
+    }
   },
 
   // -------------------------------------------------------------------------
@@ -1022,6 +1060,8 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     summary: 'คู่มือมาตรฐานการสำรวจหยั่งน้ำทำแผนที่ภูมิประเทศใต้น้ำด้วยเรือสำรวจ (Hydrographic Bathymetric Survey): การติดตั้งและรังวัดแขนวัดตำแหน่ง (Lever Arm Offset Survey) ระหว่างเสาอากาศ GNSS, เซ็นเซอร์ตรวจจับการโคลงของเรือ (Motion Reference Unit: MRU) และหัวส่งสัญญาณคลื่นเสียง (Sonar Transducer), ทฤษฎีการสะท้อนคลื่นเสียงใต้น้ำ (Acoustic Sounding: d = ½·v·t), การทดสอบคาริเบรตมุมเอียง Patch Test (Latency, Roll, Pitch, Yaw), การหยั่งวัดความเร็วเสียงในชั้นน้ำ (Sound Velocity Profile: SVP), การชดเชยระดับน้ำขึ้น-น้ำลง (Tide Gauge Reduction) เทียบระดับน้ำทะเลปานกลาง (MSL) และการวางแนวเส้นสำรวจทางชลศาสตร์ตามมาตรฐาน IHO Special Order',
     badge: 'งานแผนที่ชลศาสตร์ & ทางน้ำแม่น้ำทะเล',
     iconName: 'Ship',
+    verificationStatus: 'draft',
+    verificationProof: 'IHO Standards for Hydrographic Surveys S-44 (6th Edition, 2020); ระเบียบและข้อกำหนดการหยั่งน้ำ กรมอุทกศาสตร์ กองทัพเรือ; NOAA Hydrographic Surveys Specifications and Deliverables',
     courseRelation: 'วิชา 01218413 Hydrographic Surveying (KU Geomatics) & มาตรฐาน กรมเจ้าท่า / กรมอุทกศาสตร์ กองทัพเรือ',
     equipmentRequired: [
       'เรือสำรวจทำแผนที่ทางน้ำ (Survey Launch Vessel) หรือเรือสำรวจผิวน้ำไร้คนขับ (Unmanned Surface Vehicle: USV)',
@@ -1109,7 +1149,15 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
       'Uncompensated Vessel Draft (การกินน้ำลึกของเรือเปลี่ยนไป): น้ำมันในเรือลดลงทำให้น้ำหนักเรือเบาขึ้นและหัว Transducer ลอยสูงขึ้น แก้ไขด้วยการวัดและปรับค่า Dynamic Draft ประจำวัน',
       'Turbulence & Bubble Wash under Hull: ฟองอากาศใต้ท้องเรือจากการแล่นเรือเร็วบดบังสัญญาณคลื่นเสียง แก้ไขด้วยการติดตั้งหัว Transducer ให้ลึกพ้นแนวฟองอากาศและจำกัดความเร็วเรือ',
       'Tide Gauge Latency & Geographic Separation: สถานีวัดระดับน้ำอยู่ไกลจากจุดหยั่งน้ำทำให้เกิดความต่างของเวลาน้ำขึ้น-น้ำลง แก้ไขด้วยการสร้างแบบจำลอง Co-Tidal Model หรือใช้ระบบ GNSS RTK คำนวณระดับผิวน้ำโดยตรง'
-    ]
+    ],
+    downstreamWorkflow: {
+      outputDataFormat: 'XYZ Bathymetry CSV (Easting, Northing, Elevation/Depth), Hydrographic Field Sheet',
+      outputDescription: 'พิกัดตำแหน่งกริด UTM และค่าความลึกท้องน้ำที่ปรับแก้ระดับน้ำขึ้น-ลง (Tide Reduction) เทียบกับระดับน้ำทะเลปานกลาง (MSL)',
+      nextStepTitle: 'การตรวจสอบระดับความสูงและการคำนวณเปรียบเทียบระดับน้ำ (Tidal Datum & Leveling)',
+      nextStepProcedure: 'นำค่าระดับที่อ่านได้จากหมุดเกจวัดระดับน้ำ (Tide Gauge BM) นำเข้าสู่เครื่องมือคำนวณระดับ (Leveling Calculator) เพื่อคำนวณทวนสอบความสูงแนวระนาบอ้างอิง',
+      recommendedToolTab: 'leveling',
+      toolActionLabel: 'เปิดเครื่องมือคำนวณงานระดับ (Differential Leveling Calculator)'
+    }
   },
 
   // -------------------------------------------------------------------------
@@ -1124,6 +1172,8 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     summary: 'คู่มือระบบวิศวกรรมสำรวจควบคุมทิศทางหัวเจาะอุโมงค์ใต้ดิน (Tunnel Boring Machine - TBM Guidance System): การส่งถ่ายพิกัดและทิศทางจากผิวดินลงสู่ปล่องอุโมงค์ (Shaft Plumbing & Transfer Traverse), การติดตั้งกล้องประมวลผลรวมขับเคลื่อนด้วยมอเตอร์อัตโนมัติ (Motorized Laser Total Station) บนคอนโซลผนังอุโมงค์, การยิงแสงเลเซอร์ติดตามเป้าอิเล็กทรอนิกส์ (Active Electronic Laser Target: ELS) บนโครงสร้างหัวเจาะ, การวิเคราะห์พารามิเตอร์ทิศทางหัวเจาะ (Roll, Pitch, Yaw & Articulation Angle), การควบคุมค่าความเบี่ยงเบนจากแนวแกนอุโมงค์ออกแบบ (DTA: Design Tunnel Alignment Deviations), การใช้กล้องเข็มทิศไจโร (Gyrotheodolite) ตรวจสอบมุมทิศเหนือจริงใต้ดิน และการรังวัดรูปทรงการประกอบวงแหวนคอนกรีต (Segment Ring Convergence & Clearance Survey)',
     badge: 'งานสำรวจอุโมงค์ใต้ดิน & รถไฟฟ้า',
     iconName: 'HardHat',
+    verificationStatus: 'draft',
+    verificationProof: 'British Tunnelling Society (BTS) & ICE Specification for Tunnelling (3rd ed.); มาตรฐานการรังวัดแนวอุโมงค์ รฟม. (MRTA Underground Alignment Survey Standard); Korittke, N. (1993) High Precision Geodetic Networks for Underground Construction',
     courseRelation: 'วิชา 01218412 Underground & Mining Surveying (KU Geomatics) & ประสบการณ์จริงโครงการรถไฟฟ้าใต้ดิน (ช.การช่าง / CK Tunnel)',
     equipmentRequired: [
       'กล้องประมวลผลรวมความละเอียดสูงขับเคลื่อนด้วยมอเตอร์และเลเซอร์ติดตามเป้าอัตโนมัติ (Motorized Robotic Total Station e.g. Leica TM50 0.5" / Trimble S9)',
@@ -1217,7 +1267,15 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
       'Tunnel Wall Deformation & Bracket Movement (ผนังอุโมงค์ขยับตัว): แรงบีบอัดของชั้นดินหรือแรงดันแม่แรงดันผลักทำให้ผนังอุโมงค์ขยับตัว ส่งผลให้ Bracket กล้องเคลื่อนตัว แก้ไขด้วยการยิง Resection ตรวจสอบหมุด Prism หลายๆ จุดทุกครั้งก่อนใช้งาน',
       'Lateral Drift on Long Tangent Tunnels: การต่อมุมวงรอบใต้ดินสะสมความคลาดเคลื่อนทางมุม ทำให้แนวอุโมงค์เอียงออกด้านข้าง แก้ไขด้วยการใช้ Gyrotheodolite วัดทิศเหนือจริงเพื่อปรับปรุงมุม Azimuth อย่างสม่ำเสมอ',
       'Vibration from TBM Excavation: การสั่นสะเทือนขณะหัวตัดหมุนบดหินทำให้ลูกน้ำกล้องหลุดระนาบ แก้ไขด้วยการตั้งระบบ Dual-Axis Tilt Filter และรังวัดซ้ำแบบเฉลี่ยหลายชุด'
-    ]
+    ],
+    downstreamWorkflow: {
+      outputDataFormat: 'CSV (Station, North, East, Elevation, DTA, DTA_V, Roll, Pitch, Yaw), Ring Data File',
+      outputDescription: 'พิกัดจุดศูนย์กลางหัวเจาะและค่าเบี่ยงเบนจากแนวออกแบบอุโมงค์ (Design Tunnel Axis: DTA) ทั้งแนวราบและแนวดิ่ง',
+      nextStepTitle: 'การปรับแก้โครงข่ายวงรอบในอุโมงค์ (Underground Traverse Adjustment)',
+      nextStepProcedure: 'นำข้อมูลการรังวัดมุมและระยะทางของโครงข่ายวงรอบในอุโมงค์ นำเข้าสู่เครื่องมือคำนวณวงรอบ (Traverse Calculator) เพื่อปรับแก้พิกัดหมุดควบคุมในอุโมงค์ก่อนส่งต่อข้อมูลเข้าสู่ระบบ TBM Guidance',
+      recommendedToolTab: 'traverse',
+      toolActionLabel: 'เปิดเครื่องมือคำนวณวงรอบ (Traverse Calculator)'
+    }
   }
 
 ];

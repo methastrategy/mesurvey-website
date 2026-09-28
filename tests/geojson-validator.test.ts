@@ -37,10 +37,84 @@ describe('RFC 7946 GeoJSON Validator', () => {
     expect(res.bounds![1][1]).toBeCloseTo(100.570, 3);
   });
 
+  it('should validate single Feature and raw Geometry objects', () => {
+    const singleFeature = {
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [100.50, 13.75]
+      },
+      properties: { label: 'Bangkok Center' }
+    };
+    const resFeature = validateGeoJsonRFC7946(singleFeature);
+    expect(resFeature.isValid).toBe(true);
+    expect(resFeature.featureCount).toBe(1);
+
+    const rawPolygon = {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [100.50, 13.75],
+          [100.52, 13.75],
+          [100.52, 13.77],
+          [100.50, 13.77],
+          [100.50, 13.75]
+        ]
+      ]
+    };
+    const resPolygon = validateGeoJsonRFC7946(rawPolygon);
+    expect(resPolygon.isValid).toBe(true);
+    expect(resPolygon.featureCount).toBe(1);
+    expect(resPolygon.bounds).toBeDefined();
+  });
+
+  it('should validate GeometryCollection within features', () => {
+    const gcData = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'GeometryCollection',
+            geometries: [
+              {
+                type: 'Point',
+                coordinates: [100.56, 13.84]
+              },
+              {
+                type: 'LineString',
+                coordinates: [
+                  [100.56, 13.84],
+                  [100.57, 13.85]
+                ]
+              }
+            ]
+          },
+          properties: {}
+        }
+      ]
+    };
+    const res = validateGeoJsonRFC7946(gcData);
+    expect(res.isValid).toBe(true);
+    expect(res.featureCount).toBe(1);
+    expect(res.bounds).toBeDefined();
+  });
+
   it('should reject invalid or non-object payload', () => {
     expect(validateGeoJsonRFC7946(null).isValid).toBe(false);
     expect(validateGeoJsonRFC7946('invalid-string').isValid).toBe(false);
     expect(validateGeoJsonRFC7946({}).isValid).toBe(false);
+    expect(validateGeoJsonRFC7946({ type: 'InvalidType' }).isValid).toBe(false);
+  });
+
+  it('should reject FeatureCollection when features is not an array', () => {
+    const invalidFc = {
+      type: 'FeatureCollection',
+      features: 'not-an-array'
+    };
+    const res = validateGeoJsonRFC7946(invalidFc);
+    expect(res.isValid).toBe(false);
+    expect(res.error).toContain('Array');
   });
 
   it('should reject empty FeatureCollection with actionable field error', () => {
@@ -53,7 +127,7 @@ describe('RFC 7946 GeoJSON Validator', () => {
     expect(res.error).toContain('ว่างเปล่า');
   });
 
-  it('should reject projected UTM meters (>1000) with reprojection guidance', () => {
+  it('should reject projected UTM meters (>1000) with Coordinate Converter & QGIS guidance', () => {
     const utmData = {
       type: 'FeatureCollection',
       features: [
@@ -71,6 +145,7 @@ describe('RFC 7946 GeoJSON Validator', () => {
     expect(res.isValid).toBe(false);
     expect(res.error).toContain('UTM');
     expect(res.error).toContain('QGIS/ArcGIS');
+    expect(res.error).toContain('Coordinate Converter');
   });
 
   it('should reject inverted lat/lng coordinates (lat > 90)', () => {
@@ -90,6 +165,44 @@ describe('RFC 7946 GeoJSON Validator', () => {
     const res = validateGeoJsonRFC7946(invertedData);
     expect(res.isValid).toBe(false);
     expect(res.error).toContain('สลับแกนพิกัด');
+  });
+
+  it('should reject out of range WGS84 coordinates', () => {
+    const outOfBoundsData = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [195.0, 45.0] // Longitude > 180
+          },
+          properties: { name: 'Out of bounds' }
+        }
+      ]
+    };
+    const res = validateGeoJsonRFC7946(outOfBoundsData);
+    expect(res.isValid).toBe(false);
+    expect(res.error).toContain('ขอบเขต');
+  });
+
+  it('should reject FeatureCollection where features have no coordinate values', () => {
+    const emptyGeomData = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: []
+          },
+          properties: {}
+        }
+      ]
+    };
+    const res = validateGeoJsonRFC7946(emptyGeomData);
+    expect(res.isValid).toBe(false);
+    expect(res.error).toContain('ไม่พบพิกัดเรขาคณิต');
   });
 
   it('should warn when coordinates are valid but outside Thailand', () => {
