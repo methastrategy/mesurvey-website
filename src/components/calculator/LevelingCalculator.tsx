@@ -3,6 +3,7 @@ import { calculateLevelingLoop } from '../../core/leveling';
 import { useSurveyStore } from '../../store/useSurveyStore';
 import { Plus, Trash2, RotateCcw, CheckCircle2, AlertCircle, Download, Save, Eraser } from 'lucide-react';
 import { trackEvent } from '../../lib/telemetry';
+import { exportToCsv } from '../../utils/csv-export';
 
 export const LevelingCalculator: React.FC = () => {
   const {
@@ -44,16 +45,13 @@ export const LevelingCalculator: React.FC = () => {
       r.rise !== null ? r.rise.toFixed(3) : '',
       r.fall !== null ? r.fall.toFixed(3) : '',
       r.elevation.toFixed(3),
-      `"${r.remark || ''}"`
+      r.remark || ''
     ]);
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...csvRows.map(r => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `leveling_loop_results_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    exportToCsv({
+      filename: `leveling_loop_results_${Date.now()}.csv`,
+      headers,
+      rows: csvRows
+    });
   };
 
   return (

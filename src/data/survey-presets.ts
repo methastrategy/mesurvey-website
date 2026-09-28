@@ -59,10 +59,10 @@ export const SURVEY_BOOKMARKS: BookmarkPreset[] = [
 ];
 
 export const SAMPLE_TRAVERSE_LEGS: TraverseLegInput[] = [
-  { station: 'BM-1', targetStation: 'T-1', distance: 125.450, azimuthDeg: 48.5200 },
-  { station: 'T-1', targetStation: 'T-2', distance: 98.320, azimuthDeg: 135.2500 },
-  { station: 'T-2', targetStation: 'T-3', distance: 114.780, azimuthDeg: 228.8400 },
-  { station: 'T-3', targetStation: 'BM-1', distance: 108.660, azimuthDeg: 312.4100 }
+  { station: 'BM-1', targetStation: 'T-1', distance: 124.215, azimuthDeg: 49.8995 },
+  { station: 'T-1', targetStation: 'T-2', distance: 134.520, azimuthDeg: 138.0125 },
+  { station: 'T-2', targetStation: 'T-3', distance: 136.030, azimuthDeg: 233.9730 },
+  { station: 'T-3', targetStation: 'BM-1', distance: 125.010, azimuthDeg: 323.1305 }
 ];
 
 export const SAMPLE_TRAVERSE_START = {

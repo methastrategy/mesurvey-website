@@ -27,6 +27,71 @@ proj4.defs('EPSG:24047', EPSG_24047);
 proj4.defs('EPSG:24048', EPSG_24048);
 
 /**
+ * Thailand Geographic and UTM Bounding Envelope
+ */
+export const THAILAND_EXTENT = {
+  minLat: 5.5,
+  maxLat: 20.5,
+  minLng: 97.0,
+  maxLng: 106.0,
+  minUtmEasting: 150000,
+  maxUtmEasting: 850000,
+  minUtmNorthing: 550000,
+  maxUtmNorthing: 2350000
+};
+
+/**
+ * Checks whether a geographic coordinate falls within Thailand's general geographical envelope.
+ */
+export function isInThailandBounds(lat: number, lng: number): boolean {
+  return lat >= THAILAND_EXTENT.minLat && 
+         lat <= THAILAND_EXTENT.maxLat && 
+         lng >= THAILAND_EXTENT.minLng && 
+         lng <= THAILAND_EXTENT.maxLng;
+}
+
+/**
+ * Validates geographic latitude and longitude bounds.
+ */
+export function validateGeographicCoordinates(lat: number, lng: number): { isValid: boolean; error?: string } {
+  if (isNaN(lat) || !isFinite(lat) || isNaN(lng) || !isFinite(lng)) {
+    return { isValid: false, error: 'กรุณาระบุตัวเลขพิกัดละติจูดและลองจิจูดให้ครบถ้วน' };
+  }
+  if (lat < -90 || lat > 90) {
+    return { isValid: false, error: `ค่าละติจูดต้องอยู่ระหว่าง -90° ถึง +90° (ตรวจพบ: ${lat}°)` };
+  }
+  if (lng < -180 || lng > 180) {
+    return { isValid: false, error: `ค่าลองจิจูดต้องอยู่ระหว่าง -180° ถึง +180° (ตรวจพบ: ${lng}°)` };
+  }
+  return { isValid: true };
+}
+
+/**
+ * Validates UTM easting and northing bounds for Thailand zones (47N/48N).
+ */
+export function validateUtmCoordinates(easting: number, northing: number, zone: 47 | 48): { isValid: boolean; error?: string } {
+  if (isNaN(easting) || !isFinite(easting) || isNaN(northing) || !isFinite(northing)) {
+    return { isValid: false, error: 'กรุณาระบุตัวเลขค่าพิกัด UTM Easting และ Northing ให้ครบถ้วน' };
+  }
+  if (easting < 100000 || easting > 900000) {
+    return { 
+      isValid: false, 
+      error: `ค่าพิกัด UTM Easting (E) ควรอยู่ระหว่าง 100,000 ถึง 900,000 ม. (ตรวจพบ: ${easting.toLocaleString()} ม.) กรุณาตรวจสอบว่าสลับแกนระหว่างค่า N (Northing) และ E (Easting) จากกล้องประมวลผลรวม (Total Station) หรือเครื่องรับสัญญาณ GNSS หรือไม่` 
+    };
+  }
+  if (northing < 0 || northing > 10000000) {
+    return { 
+      isValid: false, 
+      error: `ค่าพิกัด UTM Northing (N) ในซีกโลกเหนือต้องอยู่ระหว่าง 0 ถึง 10,000,000 ม. (ตรวจพบ: ${northing.toLocaleString()} ม.) กรุณาตรวจสอบข้อมูลรังวัด` 
+    };
+  }
+  if (zone !== 47 && zone !== 48) {
+    return { isValid: false, error: `UTM Zone ในประเทศไทยต้องเป็น Zone 47 หรือ 48 (ตรวจพบ: ${zone})` };
+  }
+  return { isValid: true };
+}
+
+/**
  * Determine Thailand UTM zone (Zone 47: 96°E - 102°E, Zone 48: 102°E - 108°E)
  */
 export function calculateUtmZone(lng: number): 47 | 48 {
@@ -35,9 +100,18 @@ export function calculateUtmZone(lng: number): 47 | 48 {
 }
 
 /**
- * Convert DMS to Decimal Degrees
+ * Convert DMS to Decimal Degrees with validation
  */
 export function dmsToDecimal(deg: number, min: number, sec: number, direction?: 'N' | 'S' | 'E' | 'W'): number {
+  if (isNaN(deg) || isNaN(min) || isNaN(sec)) {
+    throw new Error('ค่าองศา ลิปดา หรือพิลิปดาต้องเป็นตัวเลขที่ถูกต้อง');
+  }
+  if (min < 0 || min >= 60) {
+    throw new Error(`ค่าลิปดา (Minute) ต้องอยู่ระหว่าง 0 ถึง 59 ลิปดา (ตรวจพบ: ${min})`);
+  }
+  if (sec < 0 || sec >= 60) {
+    throw new Error(`ค่าพิลิปดา (Second) ต้องอยู่ระหว่าง 0.00 ถึง 59.99 พิลิปดา (ตรวจพบ: ${sec})`);
+  }
   let dd = Math.abs(deg) + (min / 60.0) + (sec / 3600.0);
   if (deg < 0 || direction === 'S' || direction === 'W') {
     dd = -dd;
@@ -87,6 +161,10 @@ export function formatDms(dms: DMSVal): string {
  * Convert WGS84 Geographic to UTM
  */
 export function forwardWgs84ToUtm(lat: number, lng: number, forcedZone?: 47 | 48): UTMCoord {
+  const geoVal = validateGeographicCoordinates(lat, lng);
+  if (!geoVal.isValid) {
+    throw new Error(geoVal.error);
+  }
   const zone = forcedZone || calculateUtmZone(lng);
   const epsgCode = `EPSG:326${zone}`;
   
@@ -106,6 +184,10 @@ export function forwardWgs84ToUtm(lat: number, lng: number, forcedZone?: 47 | 48
  * Convert UTM to WGS84 Geographic
  */
 export function inverseUtmToWgs84(easting: number, northing: number, zone: 47 | 48): LatLonDD {
+  const utmVal = validateUtmCoordinates(easting, northing, zone);
+  if (!utmVal.isValid) {
+    throw new Error(utmVal.error);
+  }
   const epsgCode = `EPSG:326${zone}`;
   const [lng, lat] = proj4(epsgCode, EPSG_4326, [easting, northing]);
 
@@ -119,6 +201,10 @@ export function inverseUtmToWgs84(easting: number, northing: number, zone: 47 | 
  * Convert WGS84 Geographic to Indian 1975 UTM (with Thailand 7-parameter shift)
  */
 export function forwardWgs84ToIndian1975(lat: number, lng: number, forcedZone?: 47 | 48): Indian1975Coord {
+  const geoVal = validateGeographicCoordinates(lat, lng);
+  if (!geoVal.isValid) {
+    throw new Error(geoVal.error);
+  }
   const zone = forcedZone || calculateUtmZone(lng);
   const epsgCode = `EPSG:240${zone}`;
   
@@ -136,6 +222,10 @@ export function forwardWgs84ToIndian1975(lat: number, lng: number, forcedZone?: 
  * Convert Indian 1975 UTM to WGS84 Geographic
  */
 export function inverseIndian1975ToWgs84(easting: number, northing: number, zone: 47 | 48): LatLonDD {
+  const utmVal = validateUtmCoordinates(easting, northing, zone);
+  if (!utmVal.isValid) {
+    throw new Error(utmVal.error);
+  }
   const epsgCode = `EPSG:240${zone}`;
   const [lng, lat] = proj4(epsgCode, EPSG_4326, [easting, northing]);
 

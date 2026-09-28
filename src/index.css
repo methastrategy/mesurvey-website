@@ -111,3 +111,12 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Touch-target ergonomics for Leaflet zoom buttons (>= 44x44px) */
+.leaflet-touch .leaflet-bar a,
+.leaflet-control-zoom a {
+  width: 44px !important;
+  height: 44px !important;
+  line-height: 44px !important;
+  font-size: 20px !important;
+}

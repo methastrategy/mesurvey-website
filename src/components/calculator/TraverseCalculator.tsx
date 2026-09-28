@@ -3,6 +3,7 @@ import { adjustTraverseBowditch } from '../../core/traverse';
 import { useSurveyStore } from '../../store/useSurveyStore';
 import { Plus, Trash2, RotateCcw, CheckCircle2, Download, Save, Eraser } from 'lucide-react';
 import { trackEvent } from '../../lib/telemetry';
+import { exportToCsv } from '../../utils/csv-export';
 
 export const TraverseCalculator: React.FC = () => {
   const {
@@ -115,14 +116,11 @@ export const TraverseCalculator: React.FC = () => {
       l.adjustedEasting.toFixed(4),
       l.adjustedNorthing.toFixed(4)
     ]);
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `traverse_adjustment_bowditch_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    exportToCsv({
+      filename: `traverse_adjustment_bowditch_${Date.now()}.csv`,
+      headers,
+      rows
+    });
   };
 
   return (

@@ -180,7 +180,7 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
             <button
               key={b.id}
               onClick={() => onSelectBasemap(b.id)}
-              className={`min-h-[38px] px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center justify-center ${
+              className={`min-h-[44px] min-w-[44px] px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center justify-center ${
                 currentBasemap === b.id
                   ? 'bg-white dark:bg-[#1a2436] text-sky-600 dark:text-sky-300 shadow-xs font-bold border border-slate-200/80 dark:border-slate-700'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'

@@ -38,6 +38,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
   const measureLayerRef = useRef<L.LayerGroup | null>(null);
   const vectorLayerRef = useRef<L.GeoJSON | null>(null);
   const markerGroupRef = useRef<L.LayerGroup | null>(null);
+  const gpsLocationLayerRef = useRef<L.LayerGroup | null>(null);
   const inspectMarkerRef = useRef<L.Marker | null>(null);
   const clickPopupRef = useRef<L.Popup | null>(null);
 
@@ -228,7 +229,8 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
       autoClose: true,
       closeOnClick: false,
       offset: [0, -18],
-      maxWidth: 260,
+      maxWidth: 280,
+      autoPanPaddingTopLeft: [16, 120],
       className: 'google-style-popup'
     })
       .setLatLng([lat, lng])
@@ -262,10 +264,12 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
 
     const measureGroup = L.layerGroup().addTo(map);
     const markerGroup = L.layerGroup().addTo(map);
+    const gpsGroup = L.layerGroup().addTo(map);
 
     tileLayerRef.current = tileLayer;
     measureLayerRef.current = measureGroup;
     markerGroupRef.current = markerGroup;
+    gpsLocationLayerRef.current = gpsGroup;
     mapInstanceRef.current = map;
 
     // Track live telemetry on map move
@@ -454,37 +458,70 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
       return;
     }
 
+    showToast('กำลังค้นหาและรับสัญญาณดาวเทียม GNSS...');
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude, accuracy } = pos.coords;
+        const utm = forwardWgs84ToUtm(latitude, longitude);
+
         mapInstanceRef.current?.flyTo([latitude, longitude], 17);
 
-        if (markerGroupRef.current) {
+        if (gpsLocationLayerRef.current) {
+          gpsLocationLayerRef.current.clearLayers();
+
           L.circle([latitude, longitude], {
             radius: accuracy,
             color: '#0284c7',
             fillColor: '#38bdf8',
-            fillOpacity: 0.2
-          }).addTo(markerGroupRef.current);
+            fillOpacity: 0.18,
+            weight: 1.5
+          }).addTo(gpsLocationLayerRef.current);
 
-          L.marker([latitude, longitude])
-            .bindPopup(`
-              <div style="font-size: 12px; padding: 2px;">
-                <strong style="color: #0284c7;">ตำแหน่งของคุณ (GPS)</strong><br/>
-                <span style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums;">
-                  ความแม่นยำ: ±${accuracy.toFixed(1)} ม.
-                </span>
+          const gpsIcon = L.divIcon({
+            className: 'custom-gps-pin',
+            html: `
+              <div style="position: relative; width: 22px; height: 22px; transform: translate(-11px, -11px); display: flex; align-items: center; justify-content: center;">
+                <div style="position: absolute; width: 18px; height: 18px; border-radius: 50%; background: #0284c7; border: 2.5px solid #ffffff; box-shadow: 0 0 10px rgba(2,132,199,0.7);"></div>
+                <div style="position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #ffffff;"></div>
               </div>
-            `)
-            .addTo(markerGroupRef.current)
+            `,
+            iconSize: [0, 0],
+            iconAnchor: [0, 0]
+          });
+
+          L.marker([latitude, longitude], { icon: gpsIcon })
+            .bindPopup(`
+              <div style="font-size: 12px; padding: 4px 6px; min-width: 220px;">
+                <strong style="color: #0284c7; font-size: 14px;">📍 ตำแหน่งรังวัดดาวเทียม GNSS</strong>
+                <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 12px; margin-top: 4px; color: #0f172a; font-weight: 700;">
+                  WGS84: ${latitude.toFixed(6)}°, ${longitude.toFixed(6)}°
+                </div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 12px; color: #475569; margin-top: 2px;">
+                  UTM ${utm.zone}N: E ${utm.easting.toFixed(2)} m | N ${utm.northing.toFixed(2)} m
+                </div>
+                <div style="font-size: 12px; color: #10b981; font-weight: 600; margin-top: 4px;">
+                  ความถูกต้องเชิงตำแหน่ง (Accuracy): ±${accuracy.toFixed(1)} ม.
+                </div>
+              </div>
+            `, { autoPanPaddingTopLeft: [16, 120] })
+            .addTo(gpsLocationLayerRef.current)
             .openPopup();
         }
-        showToast('ระบุตำแหน่ง GPS เรียบร้อยแล้ว');
+        showToast('ตรึงตำแหน่งพิกัดดาวเทียม GNSS สำเร็จ');
       },
       (err) => {
-        showToast(`ระบุพิกัด GPS ไม่สำเร็จ: ${err.message}`);
+        let msg = `ระบุพิกัด GNSS ไม่สำเร็จ: ${err.message}`;
+        if (err.code === 1) {
+          msg = 'ถูกปฏิเสธการเข้าถึงตำแหน่งพิกัด: กรุณาอนุญาตสิทธิ์ Location Services ในการตั้งค่าเบราว์เซอร์หรืออุปกรณ์ของคุณ';
+        } else if (err.code === 2) {
+          msg = 'ไม่สามารถรับสัญญาณดาวเทียม GNSS ได้: ตรวจสอบการเปิด GPS ในอุปกรณ์ และหลบออกจากจุดอับสัญญาณหรือใต้ชายคาอาคาร';
+        } else if (err.code === 3) {
+          msg = 'หมดเวลารอรับสัญญาณดาวเทียม GNSS (Timeout 15 วินาที): สัญญาณดาวเทียมอ่อนหรือถูกบดบัง กรุณาลองใหม่อีกครั้งกลางแจ้ง';
+        }
+        showToast(msg);
       },
-      { enableHighAccuracy: true }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   };
 
@@ -598,12 +635,12 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
 
       {/* Floating Inspect Mode Guidance Banner (Rested Surface) */}
       {measureMode === 'inspect' && (
-        <div className="absolute top-[5rem] sm:top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-white border border-slate-700/80 px-3.5 py-1.5 rounded-xl shadow-sm text-xs font-medium flex items-center space-x-2 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute top-28 sm:top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-white border border-slate-700/80 px-3.5 py-1.5 rounded-xl shadow-sm text-xs font-medium flex items-center space-x-2 animate-in fade-in slide-in-from-top-2">
           <Crosshair className="w-4 h-4 text-sky-400 shrink-0" />
           <span>แตะจุดใดๆ บนแผนที่เพื่อดูและคัดลอกพิกัด WGS84 & UTM</span>
           <button 
             onClick={() => setMeasureMode('none')}
-            className="ml-2 min-h-[32px] px-3 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1 shadow-xs transition-colors"
+            className="ml-2 min-h-[44px] px-3.5 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1 shadow-xs transition-colors"
           >
             <Check className="w-3.5 h-3.5" />
             เสร็จสิ้น
@@ -613,7 +650,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
 
       {/* Floating Dynamic Measurement Result Pill (Rested Surface, Tabular-nums) */}
       {measurementResultText && (
-        <div className="absolute top-[5rem] sm:top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-white border border-slate-700/80 px-3.5 py-1.5 rounded-xl shadow-sm text-xs font-medium flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 max-w-[90vw]">
+        <div className="absolute top-28 sm:top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-white border border-slate-700/80 px-3.5 py-1.5 rounded-xl shadow-sm text-xs font-medium flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 max-w-[90vw]">
           <span className="w-2 h-2 rounded-full bg-sky-500 shrink-0" />
           <span className="font-mono tabular-nums tracking-tight truncate">{measurementResultText}</span>
           <span className="text-xs text-slate-400 hidden lg:inline pl-1">(คลิกขวาเพื่อย้อนจุด)</span>
@@ -627,7 +664,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint }) => {
           <span>ศูนย์กลางแผนที่</span>
         </div>
         <div className="text-slate-600 dark:text-slate-300">
-          WGS84: {telemetry.lat.toFixed(5)}°, {telemetry.lng.toFixed(5)}°
+          WGS84: {telemetry.lat.toFixed(6)}°, {telemetry.lng.toFixed(6)}°
         </div>
         <div className="text-slate-400 dark:text-slate-600 hidden sm:inline">
           |
