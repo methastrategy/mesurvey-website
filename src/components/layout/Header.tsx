@@ -103,21 +103,8 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </nav>
 
-          {/* Right: Telemetry Status & Controls */}
+          {/* Right: Telemetry Controls */}
           <div className="flex items-center space-x-2 shrink-0">
-            {/* RTSD Status Indicator */}
-            <div 
-              title="ระบบคำนวณและแปลงพิกัดเชื่อมโยงมาตรฐาน RTSD พร้อมใช้งาน"
-              className="flex items-center space-x-1.5 px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 select-none"
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span className="text-[10px] font-mono font-semibold tracking-wider hidden sm:inline">
-                RTSD READY
-              </span>
-            </div>
 
             {/* Theme Toggle Button (>= 44x44px touch envelope) */}
             <button
