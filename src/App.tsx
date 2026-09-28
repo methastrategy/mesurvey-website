@@ -204,6 +204,19 @@ export function App() {
         onOpenAbout={() => setIsAboutOpen(true)}
       />
 
+      {/* Global Floating About Corner Button (mobile — bottom-right above nav) */}
+      <button
+        onClick={() => setIsAboutOpen(true)}
+        aria-label="เกี่ยวกับระบบ"
+        title="เกี่ยวกับระบบ"
+        className="lg:hidden fixed bottom-[calc(56px+env(safe-area-inset-bottom)+12px)] right-4 z-50 w-9 h-9 flex items-center justify-center rounded-full bg-white/90 dark:bg-[#111113]/90 backdrop-blur-md border border-black/[0.08] dark:border-white/[0.08] text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 shadow-sm transition-colors micro-press"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+          <circle cx="12" cy="12" r="10" />
+          <path strokeLinecap="round" d="M12 16v-4M12 8h.01" />
+        </svg>
+      </button>
+
       {/* About Modal */}
       <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
     </div>

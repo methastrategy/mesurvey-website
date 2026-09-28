@@ -126,28 +126,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
           );
         })}
 
-        {/* About System Trigger */}
-        <button
-          onClick={onOpenAbout}
-          title={isCollapsed ? 'เกี่ยวกับระบบ' : undefined}
-          className={`w-full flex items-center rounded-md min-h-[44px] text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#161618] transition-all micro-press ${
-            isCollapsed ? 'justify-center px-0' : 'px-2.5 space-x-3'
-          }`}
-        >
-          <Info className="w-4 h-4 shrink-0 stroke-2 text-slate-400" />
-          {!isCollapsed && (
-            <span className="truncate leading-normal">เกี่ยวกับระบบ</span>
-          )}
-        </button>
       </nav>
 
       {/* Sidebar Footer / Collapse Toggle */}
-      <div className="p-2 border-t border-black/[0.08] dark:border-white/[0.08] shrink-0">
+      <div className={`p-2 border-t border-black/[0.08] dark:border-white/[0.08] shrink-0 flex items-center gap-1 ${isCollapsed ? 'flex-col' : ''}`}>
         <button
           onClick={toggleCollapse}
           aria-label={isCollapsed ? 'ขยายแถบนำทาง' : 'ย่อแถบนำทาง'}
           title={isCollapsed ? 'ขยายแถบนำทาง' : 'ย่อแถบนำทาง'}
-          className={`w-full flex items-center rounded-md min-h-[44px] min-w-[44px] text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#161618] transition-colors micro-press ${
+          className={`flex-1 flex items-center rounded-md min-h-[44px] min-w-[44px] text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#161618] transition-colors micro-press ${
             isCollapsed ? 'justify-center' : 'px-2.5 space-x-2'
           }`}
         >
@@ -159,6 +146,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span>ย่อแถบนำทาง</span>
             </>
           )}
+        </button>
+
+        {/* About System — tiny ghost circle icon */}
+        <button
+          onClick={onOpenAbout}
+          aria-label="เกี่ยวกับระบบ"
+          title="เกี่ยวกับระบบ"
+          className="w-9 h-9 flex items-center justify-center rounded-full text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#161618] transition-colors micro-press shrink-0"
+        >
+          <Info className="w-3.5 h-3.5 stroke-[1.8]" />
         </button>
       </div>
     </aside>

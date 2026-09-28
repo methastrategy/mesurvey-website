@@ -232,58 +232,85 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
   };
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-5 pb-20">
 
-      {/* ========================================================================= */}
-      {/* 1. GITHUB SEARCH VIEW: When no manual is selected (Front Page Search List) */}
-      {/* ========================================================================= */}
+      {/* ================================================================= */}
+      {/* SEARCH VIEW                                                        */}
+      {/* ================================================================= */}
       {!activeTopic && (
-        <div className="space-y-6">
-          
-          {/* GitHub Search Header Bar */}
-          <div className="rounded-3xl border border-hairline bg-surface-1 dark:bg-[#111113] p-5 sm:p-6 shadow-sm">
-            <div className="max-w-4xl space-y-4">
-              
+        <div className="space-y-5">
+
+          {/* ── Command-palette Hero Header ── */}
+          <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0f1011] shadow-2xl">
+            {/* Subtle grid overlay */}
+            <div
+              className="pointer-events-none absolute inset-0 opacity-[0.03]"
+              style={{
+                backgroundImage: `linear-gradient(rgba(99,102,241,0.6) 1px, transparent 1px),
+                                  linear-gradient(90deg, rgba(99,102,241,0.6) 1px, transparent 1px)`,
+                backgroundSize: '40px 40px'
+              }}
+            />
+            {/* Indigo bleed glow */}
+            <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-indigo-600/10 blur-3xl" />
+
+            <div className="relative p-5 sm:p-8 space-y-5">
+              {/* Eyebrow label */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-mono font-semibold tracking-widest uppercase">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                MESURV Knowledge Base · Field SOP Library
+              </div>
+
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
-                  <BookOpen className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                  <span>ค้นหาคู่มือสำรวจ (Survey Engineering SOPs)</span>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+                  คลังขั้นตอนปฏิบัติงาน
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-                  คลังขั้นตอนปฏิบัติงานวิศวกรรมสำรวจ มาตรฐานการตั้งกล้อง เกณฑ์ความคลาดเคลื่อน และสูตรคำนวณ
+                <p className="text-sm text-slate-400 mt-1">
+                  Survey Engineering SOPs · มาตรฐานกรมแผนที่ทหาร (RTSD) · เกณฑ์ FGCC
                 </p>
               </div>
 
-              {/* GitHub-style Search Input Box */}
+              {/* Search bar */}
               <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                 <input
                   ref={searchInputRef}
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="ค้นหาตามชื่อกล้อง, คำสั่ง, ขั้นตอนรังวัด (เช่น Two-Peg, Bowditch, 0-SET, Azimuth, Three-Wire, Stadia)..."
-                  className="w-full pl-10 pr-24 py-2.5 rounded-xl border border-hairline bg-surface-2 dark:bg-[#0a0a0b] text-slate-800 dark:text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 min-h-[44px] transition-all"
+                  placeholder="ค้นหา: Two-Peg, Bowditch, 0-SET, Azimuth, Three-Wire, Stadia, RTK, SLAM…"
+                  className="w-full pl-11 pr-28 py-3 rounded-xl border border-white/[0.08] bg-[#18191a] text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 min-h-[48px] transition-all font-sans"
                 />
-                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
                   {searchQuery && (
-                    <button 
+                    <button
                       onClick={() => setSearchQuery('')}
-                      className="px-2 py-0.5 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                      className="text-xs text-slate-500 hover:text-slate-300 transition-colors px-1"
                     >
                       ล้าง
                     </button>
                   )}
-                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-xs font-mono text-slate-400 border border-hairline bg-surface-1 dark:bg-[#111113]">
+                  <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 rounded bg-[#141516] border border-white/[0.08] text-xs font-mono text-slate-500">
                     /
-                  </span>
+                  </kbd>
                 </div>
               </div>
 
+              {/* Stats row */}
+              <div className="flex items-center gap-4 text-xs text-slate-500">
+                <span className="flex items-center gap-1.5">
+                  <span className="font-mono tabular-nums text-slate-300 font-semibold">{filteredTopics.length}</span>
+                  คู่มือ{searchQuery && ` · "${searchQuery}"`}
+                </span>
+                <span className="w-px h-3 bg-white/10" />
+                <span>9 หมวดงานสนาม</span>
+                <span className="w-px h-3 bg-white/10" />
+                <span className="hidden sm:inline">ใช้ <kbd className="px-1 py-px bg-[#141516] border border-white/[0.08] rounded font-mono text-slate-400">/</kbd> โฟกัสค้นหา</span>
+              </div>
             </div>
           </div>
 
-          {/* Mobile & Tablet Horizontal Swipeable Category Chips (< 1024px) */}
+          {/* ── Mobile horizontal category chips ── */}
           <div className="lg:hidden">
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-3 px-3 sm:mx-0 sm:px-0">
               {categories.map((cat) => {
@@ -292,18 +319,16 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold shrink-0 min-h-[44px] transition-all ${
+                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold shrink-0 min-h-[40px] transition-all ${
                       isSelected
-                        ? 'bg-indigo-500/10 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 shadow-sm shadow-indigo-500/10'
-                        : 'bg-surface-1 dark:bg-[#111113] text-slate-600 dark:text-slate-400 border border-hairline hover:bg-surface-2 dark:hover:bg-[#161618]'
+                        ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/40 shadow-sm'
+                        : 'bg-[#0f1011] text-slate-400 border border-white/[0.06] hover:bg-[#141516] hover:text-slate-200'
                     }`}
                   >
                     <span className="shrink-0">{cat.icon}</span>
                     <span>{cat.label}</span>
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-mono tabular-nums ${
-                      isSelected
-                        ? 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-200'
-                        : 'bg-surface-2 dark:bg-[#161618] text-slate-500'
+                    <span className={`text-[10px] px-1.5 py-px rounded-full font-mono tabular-nums ${
+                      isSelected ? 'bg-indigo-400/20 text-indigo-200' : 'bg-[#141516] text-slate-500'
                     }`}>
                       {cat.count}
                     </span>
@@ -313,43 +338,39 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             </div>
           </div>
 
-          {/* GitHub Search Layout: Facets on Left, Result Cards on Right */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            
-            {/* Left Column: Filter Facets (3 Cols) - Desktop Only */}
-            <div className="hidden lg:block lg:col-span-3 space-y-4">
-              <div className="rounded-3xl border border-hairline bg-surface-1 dark:bg-[#111113] p-4 shadow-sm space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-hairline text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  <span className="flex items-center gap-1.5">
-                    <Filter className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+          {/* ── Two-column layout: facets + results ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+            {/* Left: Filter panel (desktop) */}
+            <div className="hidden lg:block lg:col-span-3 space-y-3">
+              <div className="rounded-xl border border-white/[0.06] bg-[#0f1011] p-4 space-y-1">
+                <div className="flex items-center justify-between pb-3 mb-1 border-b border-white/[0.06]">
+                  <span className="flex items-center gap-1.5 text-[10px] font-mono font-semibold tracking-widest uppercase text-slate-500">
+                    <Filter className="w-3 h-3 text-indigo-500" />
                     หมวดหมู่
                   </span>
-                  <span className="text-xs font-mono tabular-nums text-slate-400">
-                    {filteredTopics.length}
-                  </span>
+                  <span className="font-mono tabular-nums text-[10px] text-slate-500">{filteredTopics.length}</span>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   {categories.map((cat) => {
                     const isSelected = selectedCategory === cat.id;
                     return (
                       <button
                         key={cat.id}
                         onClick={() => setSelectedCategory(cat.id)}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium min-h-[38px] transition-all ${
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium min-h-[36px] transition-all ${
                           isSelected
-                            ? 'bg-indigo-500/10 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-500/30 shadow-xs'
-                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-surface-2 dark:hover:bg-[#161618] border border-transparent'
+                            ? 'bg-indigo-500/15 text-indigo-300 font-semibold border border-indigo-500/30'
+                            : 'text-slate-400 hover:text-slate-200 hover:bg-[#141516] border border-transparent'
                         }`}
                       >
-                        <span className="flex items-center gap-2 truncate">
-                          {cat.icon}
+                        <span className="flex items-center gap-2.5 truncate">
+                          <span className={isSelected ? 'text-indigo-400' : 'text-slate-600'}>{cat.icon}</span>
                           <span className="truncate">{cat.label}</span>
                         </span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-mono tabular-nums shrink-0 ${
-                          isSelected 
-                            ? 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-200 font-semibold' 
-                            : 'bg-surface-2 dark:bg-[#161618] text-slate-500'
+                        <span className={`text-[10px] px-2 py-px rounded-full font-mono tabular-nums shrink-0 ${
+                          isSelected ? 'bg-indigo-400/20 text-indigo-200' : 'bg-[#141516] text-slate-600'
                         }`}>
                           {cat.count}
                         </span>
@@ -359,212 +380,177 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                 </div>
               </div>
 
-              {/* Standard Reference Card */}
-              <div className="rounded-2xl border border-hairline bg-surface-1 dark:bg-[#111113] p-4 text-xs text-slate-600 dark:text-slate-400 space-y-2 shadow-xs">
-                <span className="font-bold text-slate-800 dark:text-slate-200 block text-xs flex items-center gap-1.5">
-                  <BookmarkCheck className="w-3.5 h-3.5 text-emerald-500" />
+              {/* Reference card */}
+              <div className="rounded-xl border border-white/[0.06] bg-[#0f1011] p-4 space-y-2">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-300">
+                  <BookmarkCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                   เกณฑ์อ้างอิงวิชาการ
-                </span>
-                <p className="text-xs leading-relaxed">
-                  เนื้อหาถอดรหัสจากสไลด์และเอกสารการสอน ภาควิชาวิศวกรรมสำรวจ มหาวิทยาลัยเกษตรศาสตร์ (KU Geomatics) ร่วมกับมาตรฐานกรมแผนที่ทหาร (RTSD) และ FGCC
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  ถอดรหัสจากสไลด์ภาควิชาวิศวกรรมสำรวจ มก. (KU Geomatics) ร่วมกับมาตรฐาน RTSD และ FGCC
                 </p>
               </div>
             </div>
 
-            {/* Right Column: GitHub Search Result Cards (9 Cols) */}
-            <div className="lg:col-span-9 space-y-4">
-              
-              {/* Search Result Stats Header */}
-              <div className="flex items-center justify-between px-1 text-xs text-slate-500 dark:text-slate-400">
-                <span className="font-medium">
-                  แสดงผลลัพธ์ <strong className="text-slate-800 dark:text-white font-mono tabular-nums">{filteredTopics.length}</strong> คู่มือ
-                  {searchQuery && <span> สำหรับคำค้นหา "{searchQuery}"</span>}
-                </span>
-              </div>
+            {/* Right: Result cards */}
+            <div className="lg:col-span-9 space-y-3">
 
-              {/* Result List Items */}
-              <div className="space-y-3">
-                {filteredTopics.map((topic) => (
-                  <div
-                    key={topic.id}
-                    onClick={() => handleSelectTopic(topic.id)}
-                    className="relative p-5 sm:p-6 rounded-2xl border border-hairline bg-surface-1 dark:bg-[#111113] hover:border-indigo-500/40 hover:shadow-indigo-glow transition-all duration-200 micro-lift cursor-pointer group space-y-3"
-                  >
-                    {/* Item Header */}
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      <div className="flex items-center space-x-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-surface-2 dark:bg-[#161618] border border-hairline flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-105 transition-transform shadow-xs">
-                          {getTopicIcon(topic.iconName, "w-4 h-4")}
-                        </div>
-                        
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400 transition-colors tracking-tight">
-                            {topic.title}
-                          </h3>
-                          <span className="text-[10px] font-mono font-semibold tracking-widest uppercase px-2 py-0.5 rounded-full border border-hairline text-slate-600 dark:text-slate-300 bg-surface-2 dark:bg-[#161618]">
-                            {topic.badge}
-                          </span>
-                        </div>
+              {/* Result cards */}
+              {filteredTopics.map((topic) => (
+                <div
+                  key={topic.id}
+                  onClick={() => handleSelectTopic(topic.id)}
+                  className="relative p-5 sm:p-6 rounded-xl border border-white/[0.06] bg-[#0f1011] hover:border-indigo-500/30 hover:bg-[#141516] transition-all duration-200 cursor-pointer group space-y-3"
+                  style={{ boxShadow: undefined }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 1px rgba(99,102,241,0.2), 0 4px 32px rgba(99,102,241,0.06)';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.boxShadow = '';
+                  }}
+                >
+                  {/* Status badge — top-right corner */}
+                  {topic.verificationStatus === 'verified' ? (
+                    <div className="absolute top-0 right-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-bl-xl rounded-tr-xl text-[9px] font-mono font-bold tracking-widest uppercase bg-emerald-500/10 text-emerald-400 border-b border-l border-emerald-500/20">
+                      <ShieldCheck className="w-2.5 h-2.5 shrink-0" />
+                      VERIFIED
+                    </div>
+                  ) : (
+                    <div className="absolute top-0 right-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-bl-xl rounded-tr-xl text-[9px] font-mono font-bold tracking-widest uppercase bg-amber-500/10 text-amber-400 border-b border-l border-amber-500/20">
+                      <Clock className="w-2.5 h-2.5 shrink-0" />
+                      DRAFT
+                    </div>
+                  )}
+
+                  {/* Card header */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-lg bg-[#141516] border border-white/[0.06] flex items-center justify-center text-indigo-400 group-hover:text-indigo-300 group-hover:border-indigo-500/30 transition-all shrink-0">
+                        {getTopicIcon(topic.iconName, 'w-4.5 h-4.5')}
                       </div>
-
-                      {/* "เปิดอ่าน" hover hint — stays in flex row */}
-                      <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-auto">
-                        เปิดอ่าน <ArrowRight className="w-3.5 h-3.5" />
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-sm sm:text-base text-white group-hover:text-indigo-300 transition-colors tracking-tight leading-snug">
+                          {topic.title}
+                        </h3>
+                        <p className="text-[11px] font-mono text-slate-500 mt-0.5 truncate">{topic.titleEn}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-[9px] font-mono font-bold tracking-widest uppercase px-2 py-0.5 rounded bg-[#141516] border border-white/[0.06] text-slate-400 hidden sm:inline">
+                        {topic.badge}
                       </span>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-600 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all" />
                     </div>
+                  </div>
 
-                    {/* Absolute Corner Stamp Badge — top-right of card */}
-                    {topic.verificationStatus === 'verified' ? (
-                      <div
-                        className="absolute top-0 right-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-bl-xl rounded-tr-2xl text-[10px] font-mono font-semibold tracking-widest uppercase bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-b border-l border-emerald-500/30"
-                        title={topic.verificationProof ? `VERIFIED: ${topic.verificationProof}` : 'VERIFIED'}
+                  {/* Summary */}
+                  <p className="text-xs sm:text-[13px] text-slate-400 leading-relaxed line-clamp-2 pl-12">
+                    {topic.summary}
+                  </p>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1.5 pl-12">
+                    {getTopicTags(topic.id).map((tag, tIdx) => (
+                      <span
+                        key={tIdx}
+                        className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-[#141516] text-slate-500 border border-white/[0.05] group-hover:border-indigo-500/20 transition-colors"
                       >
-                        <ShieldCheck className="w-3 h-3 shrink-0" />
-                        <span>VERIFIED</span>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Footer meta */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-white/[0.05] pl-12">
+                    <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-600">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`w-2 h-2 rounded-full ${getCategoryDotColor(topic.category)}`} />
+                        <span>{topic.categoryName}</span>
                       </div>
-                    ) : (
-                      <div
-                        className="absolute top-0 right-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-bl-xl rounded-tr-2xl text-[10px] font-mono font-semibold tracking-widest uppercase bg-amber-500/10 text-amber-700 dark:text-amber-400 border-b border-l border-amber-500/30"
-                        title="DRAFT — เอกสารฉบับร่าง รอการตรวจสอบ"
-                      >
-                        <Clock className="w-3 h-3 shrink-0" />
-                        <span>DRAFT</span>
+                      <div className="flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span>{topic.fieldProcedures.length} ขั้นตอน</span>
                       </div>
-                    )}
-
-                    {/* Subtitle / English Code Identifier */}
-                    <p className="text-xs font-mono text-slate-400 dark:text-slate-500 pl-10">
-                      {topic.titleEn}
-                    </p>
-
-                    {/* Summary Description */}
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed pl-10 line-clamp-2">
-                      {topic.summary}
-                    </p>
-
-                    {/* Topic Tags */}
-                    <div className="flex flex-wrap gap-1.5 pl-10 pt-1">
-                      {getTopicTags(topic.id).map((tag, tIdx) => (
-                        <span 
-                          key={tIdx}
-                          className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface-2 dark:bg-[#161618] text-slate-600 dark:text-slate-400 border border-hairline hover:border-indigo-500/30 transition-colors"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Footer Meta */}
-                    <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-hairline pl-10">
-                      <div className="flex flex-wrap items-center gap-4">
-                        <div className="flex items-center gap-1.5">
-                          <span className={`w-2.5 h-2.5 rounded-full ${getCategoryDotColor(topic.category)}`} />
-                          <span>{topic.categoryName}</span>
-                        </div>
-
+                      {topic.formulas && topic.formulas.length > 0 && (
                         <div className="flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{topic.fieldProcedures.length} ขั้นตอนสนาม</span>
+                          <Activity className="w-3 h-3" />
+                          <span>{topic.formulas.length} สูตร</span>
                         </div>
-
-                        {topic.formulas && topic.formulas.length > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Activity className="w-3.5 h-3.5 text-slate-400" />
-                            <span>{topic.formulas.length} สูตรคำนวณ</span>
-                          </div>
-                        )}
-
-                        {topic.deviceWorkflow && topic.deviceWorkflow.length > 0 && (
-                          <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                            <Terminal className="w-3.5 h-3.5" />
-                            <span>จำลองหน้าจอกล้อง LCD</span>
-                          </div>
-                        )}
-
-                        {topic.courseRelation && (
-                          <div className="hidden lg:flex items-center gap-1 text-slate-400">
-                            <BookmarkCheck className="w-3.5 h-3.5" />
-                            <span className="truncate max-w-[200px]">{topic.courseRelation}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Direct Contextual Action Button */}
-                      {(() => {
-                        const wf = getWorkflowTarget(topic);
-                        if (!wf) return null;
-                        return (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              window.location.hash = wf.hash;
-                              if (onNavigateTab) {
-                                onNavigateTab(wf.hash.includes('map') ? 'map' : 'calculator');
-                              }
-                            }}
-                            className="min-h-[36px] inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold text-indigo-600 dark:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 border border-indigo-500/30 transition-colors shadow-2xs"
-                            title={wf.label}
-                          >
-                            <span>{wf.label}</span>
-                            <ArrowRight className="w-3 h-3" />
-                          </button>
-                        );
-                      })()}
+                      )}
+                      {topic.deviceWorkflow && topic.deviceWorkflow.length > 0 && (
+                        <div className="flex items-center gap-1 text-emerald-500">
+                          <Terminal className="w-3 h-3" />
+                          <span>LCD Sim</span>
+                        </div>
+                      )}
                     </div>
 
+                    {(() => {
+                      const wf = getWorkflowTarget(topic);
+                      if (!wf) return null;
+                      return (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.location.hash = wf.hash;
+                            if (onNavigateTab) {
+                              onNavigateTab(wf.hash.includes('map') ? 'map' : 'calculator');
+                            }
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 transition-colors min-h-[32px]"
+                        >
+                          {wf.label}
+                          <ArrowRight className="w-3 h-3" />
+                        </button>
+                      );
+                    })()}
                   </div>
-                ))}
+                </div>
+              ))}
 
-                {/* Empty State */}
-                {filteredTopics.length === 0 && (
-                  <div className="rounded-2xl border border-dashed border-hairline bg-surface-1 dark:bg-[#111113] p-12 text-center space-y-3">
-                    <Search className="w-10 h-10 mx-auto text-slate-400 stroke-1" />
-                    <h4 className="text-base font-bold text-slate-800 dark:text-slate-200">
-                      ไม่พบคู่มือที่ตรงกับคำค้นหา "{searchQuery}"
-                    </h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-                      ลองค้นหาด้วยคำสำคัญ เช่น "Two-Peg", "Bowditch", "0-SET", "Three-Wire", "Stadia" หรือเปลี่ยนตัวกรองหมวดหมู่
+              {/* Empty state */}
+              {filteredTopics.length === 0 && (
+                <div className="rounded-xl border border-dashed border-white/[0.08] bg-[#0f1011] p-12 text-center space-y-4">
+                  <Search className="w-10 h-10 mx-auto text-slate-600 stroke-1" />
+                  <div>
+                    <h4 className="text-base font-bold text-slate-300">ไม่พบคู่มือที่ตรงกัน</h4>
+                    <p className="text-xs text-slate-600 mt-1 max-w-xs mx-auto">
+                      ลองค้นหา: "Two-Peg", "Bowditch", "0-SET", "Three-Wire", "RTK" หรือเปลี่ยนหมวดหมู่
                     </p>
-                    <button
-                      onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
-                      className="min-h-[44px] px-4 py-2 rounded-xl bg-surface-2 dark:bg-[#161618] hover:bg-surface-3 dark:hover:bg-[#1c1c1f] text-slate-700 dark:text-slate-300 border border-hairline text-xs font-semibold transition-colors"
-                    >
-                      ล้างคำค้นหาทั้งหมด
-                    </button>
                   </div>
-                )}
-              </div>
-
+                  <button
+                    onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
+                    className="min-h-[40px] px-4 py-2 rounded-lg bg-[#141516] hover:bg-[#18191a] text-slate-400 hover:text-slate-200 border border-white/[0.06] text-xs font-semibold transition-colors"
+                  >
+                    ล้างทั้งหมด
+                  </button>
+                </div>
+              )}
             </div>
-
           </div>
-
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* 2. MANUAL DOCUMENT READER VIEW: Rendered when a topic is selected        */}
-      {/* (Unified Flow: NO SEPARATE TAB for "คู่มือปุ่มกด & จอกล้อง"!)              */}
-      {/* ========================================================================= */}
+      {/* ================================================================= */}
+      {/* DOCUMENT READER VIEW                                              */}
+      {/* ================================================================= */}
       {activeTopic && (
-        <div className="space-y-6 max-w-5xl mx-auto">
+        <div className="space-y-5 max-w-5xl mx-auto">
 
-          {/* Navigation Breadcrumb Bar */}
-          <div className="rounded-2xl border border-hairline bg-surface-1/95 dark:bg-[#111113]/95 px-4 py-3 shadow-xs flex flex-wrap items-center justify-between gap-3 sticky top-16 z-40 backdrop-blur-md">
+          {/* Sticky breadcrumb bar */}
+          <div className="rounded-xl border border-white/[0.06] bg-[#0f1011]/95 px-4 py-2.5 shadow-lg flex flex-wrap items-center justify-between gap-3 sticky top-16 z-40 backdrop-blur-md">
             <div className="flex items-center gap-2">
               <button
                 onClick={handleBackToSearch}
-                className="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-2 dark:bg-[#161618] hover:bg-surface-3 dark:hover:bg-[#1c1c1f] text-xs font-semibold text-slate-800 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all border border-hairline"
+                className="min-h-[36px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#141516] hover:bg-[#18191a] text-xs font-semibold text-slate-300 hover:text-white transition-all border border-white/[0.06]"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>กลับหน้ารายการค้นหา</span>
+                <span>กลับ</span>
               </button>
-
-              <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span>
-
-              <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-md">
-                <BookOpen className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+              <span className="text-white/20 hidden sm:inline">|</span>
+              <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 font-medium truncate max-w-sm">
+                <BookOpen className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                 <span>คู่มือสำรวจ</span>
                 <span>/</span>
                 <span className="truncate">{activeTopic.categoryName}</span>
@@ -581,430 +567,354 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       onNavigateTab(activeWorkflowTarget.hash.includes('map') ? 'map' : 'calculator');
                     }
                   }}
-                  className="min-h-[38px] inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-semibold transition-all shadow-sm"
-                  title={activeWorkflowTarget.label}
+                  className="min-h-[36px] inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition-all shadow-sm"
                 >
                   <span>{activeWorkflowTarget.label}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               )}
-
               <button
                 onClick={handleCopySummary}
-                className="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-2 dark:bg-[#161618] hover:bg-surface-3 dark:hover:bg-[#1c1c1f] text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors border border-hairline"
-                title="คัดลอกสรุปคู่มือ"
+                className="min-h-[36px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#141516] hover:bg-[#18191a] text-slate-400 hover:text-slate-200 text-xs font-medium transition-colors border border-white/[0.06]"
               >
                 {copiedText ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-500" />
-                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">คัดลอกแล้ว</span>
-                  </>
+                  <><Check className="w-3.5 h-3.5 text-emerald-400" /><span className="text-emerald-400">คัดลอกแล้ว</span></>
                 ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5 text-slate-500" />
-                    <span>คัดลอก SOP</span>
-                  </>
+                  <><Copy className="w-3.5 h-3.5" /><span>คัดลอก SOP</span></>
                 )}
               </button>
             </div>
           </div>
 
-          {/* Main Documentation Container */}
-          <div className="rounded-3xl border border-hairline bg-surface-1 dark:bg-[#111113] p-6 sm:p-10 shadow-sm space-y-10">
+          {/* Main document container */}
+          <div className="rounded-2xl border border-white/[0.06] bg-[#0f1011] overflow-hidden shadow-2xl">
 
-            {/* Full-Width Provenance Banner */}
+            {/* Provenance banner */}
             {activeTopic.verificationStatus === 'verified' ? (
-              <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-500/30 text-emerald-900 dark:text-emerald-200 space-y-2">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-emerald-800 dark:text-emerald-300">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span>VERIFIED / ผ่านการตรวจรับรองมาตรฐานวิศวกรรม (Verified Engineering SOP)</span>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-semibold tracking-widest uppercase bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
-                    VERIFIED
-                  </span>
+              <div className="px-6 sm:px-10 py-4 bg-emerald-500/10 border-b border-emerald-500/20 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-emerald-300">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                  VERIFIED Engineering SOP · ผ่านการตรวจรับรองมาตรฐาน
                 </div>
-                <p className="text-xs sm:text-sm text-emerald-800/90 dark:text-emerald-300/90 leading-relaxed">
-                  เอกสารและขั้นตอนปฏิบัติการนี้ผ่านการทวนสอบรับรองความถูกต้องตามเกณฑ์มาตรฐานงานสำรวจวิศวกรรมเรียบร้อยแล้ว
-                </p>
-                {activeTopic.verificationProof && (
-                  <div className="pt-2 mt-2 border-t border-emerald-500/20 text-xs font-mono text-emerald-800 dark:text-emerald-400">
-                    <span className="font-semibold">เอกสารอ้างอิงและเกณฑ์มาตรฐาน:</span> {activeTopic.verificationProof}
-                  </div>
-                )}
+                <span className="px-2.5 py-0.5 rounded text-[9px] font-mono font-bold tracking-widest uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">VERIFIED</span>
               </div>
             ) : (
-              <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-2">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-amber-800 dark:text-amber-300">
-                    <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                    <span>DRAFT / รอดำเนินการตรวจสอบ (Preliminary Draft SOP)</span>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-semibold tracking-widest uppercase bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
-                    DRAFT / IN-REVIEW
-                  </span>
+              <div className="px-6 sm:px-10 py-4 bg-amber-500/10 border-b border-amber-500/20 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
+                  <Clock className="w-4 h-4 text-amber-400 shrink-0" />
+                  DRAFT · รอดำเนินการตรวจสอบ peer review ภาคสนาม
                 </div>
-                <p className="text-xs sm:text-sm text-amber-800/90 dark:text-amber-300/90 leading-relaxed">
-                  เอกสารทางเทคนิคฉบับร่าง — อยู่ระหว่างการทวนสอบและ peer review ทางวิชาการและภาคสนาม เพื่อความปลอดภัยสูงสุด โปรดใช้งานควบคู่กับคู่มือทางการของเครื่องมือ
-                </p>
-                {activeTopic.verificationProof && (
-                  <div className="pt-2 mt-2 border-t border-amber-500/20 text-xs font-mono text-amber-800 dark:text-amber-400">
-                    <span className="font-semibold">เอกสารอ้างอิงและเกณฑ์มาตรฐานที่ใช้ร่าง:</span> {activeTopic.verificationProof}
-                  </div>
-                )}
+                <span className="px-2.5 py-0.5 rounded text-[9px] font-mono font-bold tracking-widest uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">DRAFT</span>
               </div>
             )}
 
-            {/* Document Header & Metadata */}
-            <div className="space-y-4 border-b border-hairline pb-6">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="px-3 py-0.5 text-[10px] font-mono font-semibold tracking-widest uppercase rounded-full bg-surface-2 dark:bg-[#161618] text-slate-700 dark:text-slate-300 border border-hairline">
-                  {activeTopic.badge}
-                </span>
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                  หมวด: {activeTopic.categoryName}
-                </span>
-                {activeTopic.courseRelation && (
-                  <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 ml-auto">
-                    <BookmarkCheck className="w-3.5 h-3.5 text-emerald-500" />
-                    {activeTopic.courseRelation}
+            <div className="p-6 sm:p-10 space-y-10">
+
+              {/* Document header */}
+              <div className="space-y-4 border-b border-white/[0.06] pb-8">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-md text-[9px] font-mono font-bold tracking-widest uppercase bg-[#141516] text-slate-400 border border-white/[0.06]">
+                    {activeTopic.badge}
                   </span>
-                )}
-              </div>
-
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
-                  {activeTopic.title}
-                </h1>
-                <p className="text-xs sm:text-sm font-mono text-slate-500 dark:text-slate-400 mt-1">
-                  {activeTopic.titleEn}
-                </p>
-              </div>
-
-              {/* Luminous Note Alert Box */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-surface-2 dark:bg-[#161618] border border-hairline space-y-2">
-                <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                  <BookmarkCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                  <span>สรุปภาพรวมและวัตถุประสงค์ (Overview & Core Objective)</span>
+                  <span className="text-xs text-slate-500">{activeTopic.categoryName}</span>
+                  {activeTopic.courseRelation && (
+                    <span className="ml-auto flex items-center gap-1 text-xs text-slate-500">
+                      <BookmarkCheck className="w-3.5 h-3.5 text-emerald-500" />
+                      {activeTopic.courseRelation}
+                    </span>
+                  )}
                 </div>
-                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                  {activeTopic.summary}
-                </p>
-              </div>
-            </div>
-
-            {/* SECTION 1: REQUIRED EQUIPMENT & INSTRUMENTS */}
-            {activeTopic.equipmentRequired && activeTopic.equipmentRequired.length > 0 && (
-              <div className="space-y-4">
-                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <SlidersHorizontal className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                  <span>1. รายการอุปกรณ์และเครื่องมือที่ต้องจัดเตรียม (Field Equipment Checklist)</span>
-                </h2>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-4 rounded-2xl bg-surface-2 dark:bg-[#161618] border border-hairline">
-                  {activeTopic.equipmentRequired.map((eq, eqIdx) => (
-                    <div key={eqIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                      <span>{eq}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* SECTION 2: WORKING PRINCIPLES & THEORY */}
-            <div className="space-y-4">
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                <span>2. หลักการทำงานและทฤษฎีทางวิศวกรรม (Engineering Foundations & Working Principles)</span>
-              </h2>
-
-              <div className="space-y-3">
-                {activeTopic.workingPrinciple.map((wp, wpIdx) => (
-                  <div key={wpIdx} className="flex items-start gap-3 p-4 rounded-2xl bg-surface-2 dark:bg-[#161618] border border-hairline">
-                    <div className="w-6 h-6 rounded-full bg-indigo-500/10 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-500/30 flex items-center justify-center text-xs font-mono font-bold shrink-0 mt-0.5">
-                      {wpIdx + 1}
-                    </div>
-                    <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                      {wp}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* SECTION 3: FIELD PROCEDURES & DEVICE SIMULATOR (UNIFIED - NO SEPARATE TAB!) */}
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-hairline pb-3">
                 <div>
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                    <span>3. ลำดับขั้นการปฏิบัติงานภาคสนาม & การควบคุมเครื่องมือ (Field SOP & Instrument Operation)</span>
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    ขั้นตอนปฏิบัติงานอย่างละเอียด พร้อมจำลองหน้าจอดิจิทัลและลำดับการกดปุ่มบนตัวกล้อง
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+                    {activeTopic.title}
+                  </h1>
+                  <p className="text-xs font-mono text-slate-500 mt-1">{activeTopic.titleEn}</p>
+                </div>
+
+                {/* Overview panel */}
+                <div className="p-4 sm:p-5 rounded-xl bg-indigo-500/5 border border-indigo-500/15 space-y-2">
+                  <div className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+                    <BookmarkCheck className="w-3.5 h-3.5" />
+                    สรุปภาพรวมและวัตถุประสงค์ (Overview & Core Objective)
+                  </div>
+                  <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed">
+                    {activeTopic.summary}
                   </p>
                 </div>
-                <span className="text-xs font-mono text-slate-400 shrink-0">
-                  {activeTopic.fieldProcedures.length} ขั้นตอนมาตรฐาน
-                </span>
+
+                {/* Provenance detail */}
+                {activeTopic.verificationProof && (
+                  <div className="text-[11px] font-mono text-slate-600 pt-1">
+                    <span className="text-slate-500 font-semibold">อ้างอิง:</span> {activeTopic.verificationProof}
+                  </div>
+                )}
               </div>
 
-              {/* Integrated Device LCD & Keypad Simulator */}
-              {deviceSteps.length > 0 && currentStep && (
-                <div className="rounded-2xl border border-hairline bg-slate-950 text-white overflow-hidden shadow-xl">
-                  {/* Chassis Top Bar */}
-                  <div className="px-5 py-3 bg-surface-2 dark:bg-[#161618] border-b border-hairline flex items-center justify-between">
-                    <div className="flex items-center space-x-2.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 animate-pulse" />
-                      <span className="text-xs font-mono font-bold tracking-wider text-slate-200">
-                        {currentStep.targetHardware}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center space-x-3 text-xs font-mono tabular-nums text-slate-400">
-                      <span>STEP {currentStep.stepNumber} OF {deviceSteps.length}</span>
-                      <span className="px-2 py-0.5 rounded bg-surface-3 text-emerald-400 text-xs font-semibold">
-                        SIMULATOR ACTIVE
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Simulator Screen & Keypad Controls */}
-                  <div className="p-5 sm:p-6 space-y-4">
-                    {/* Simulated High-Contrast Screen Display */}
-                    <div className="rounded-xl border-2 border-emerald-950/80 bg-black/90 p-4 font-mono tabular-nums shadow-inner relative overflow-hidden">
-                      <div className="text-xs font-bold text-emerald-400 border-b border-emerald-900/60 pb-1.5 mb-2.5 flex items-center justify-between">
-                        <span>▶ {currentStep.screenTitle}</span>
-                        <span className="text-xs text-emerald-500/80">BAT 100% | TILT ON</span>
+              {/* SECTION 1: Equipment */}
+              {activeTopic.equipmentRequired && activeTopic.equipmentRequired.length > 0 && (
+                <div className="space-y-4">
+                  <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2 border-l-2 border-indigo-500 pl-3">
+                    <SlidersHorizontal className="w-4 h-4 text-indigo-400" />
+                    1. รายการอุปกรณ์และเครื่องมือ (Field Equipment Checklist)
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-4 rounded-xl bg-[#141516] border border-white/[0.06]">
+                    {activeTopic.equipmentRequired.map((eq, eqIdx) => (
+                      <div key={eqIdx} className="flex items-start gap-2.5 text-xs sm:text-[13px] text-slate-300">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                        <span>{eq}</span>
                       </div>
-
-                      <div className="space-y-1 text-xs sm:text-sm text-emerald-300 font-mono tabular-nums tracking-wide leading-relaxed">
-                        {currentStep.screenLines.map((line, lIdx) => (
-                          <div key={lIdx} className="hover:bg-emerald-950/30 px-1 rounded transition-colors">
-                            {line}
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="mt-4 pt-2 border-t border-emerald-950 flex items-center justify-between text-xs text-emerald-400/90 font-mono tabular-nums font-bold">
-                        <span>[F1: DIST]</span>
-                        <span>[F2: COORD]</span>
-                        <span>[F3: SET]</span>
-                        <span>[F4: REC]</span>
-                      </div>
-                    </div>
-
-                    {/* Step Stepper Navigation */}
-                    <div className="flex items-center justify-between gap-2 pt-1">
-                      <button
-                        onClick={() => setActiveStepIndex((prev) => Math.max(0, prev - 1))}
-                        disabled={activeStepIndex === 0}
-                        className="min-h-[44px] inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-surface-2 hover:bg-surface-3 disabled:opacity-40 text-xs font-semibold text-slate-300 transition-colors border border-hairline"
-                      >
-                        <ChevronLeft className="w-4 h-4" />
-                        <span>ขั้นตอนก่อนหน้า</span>
-                      </button>
-
-                      <div className="flex items-center gap-1.5">
-                        {deviceSteps.map((_, dotIdx) => (
-                          <button
-                            key={dotIdx}
-                            onClick={() => setActiveStepIndex(dotIdx)}
-                            className={`h-2 rounded-full transition-all ${
-                              dotIdx === activeStepIndex
-                                ? 'w-6 bg-emerald-400'
-                                : 'w-2 bg-slate-700 hover:bg-slate-600'
-                            }`}
-                            title={`ขั้นตอนที่ ${dotIdx + 1}`}
-                          />
-                        ))}
-                      </div>
-
-                      <button
-                        onClick={() => setActiveStepIndex((prev) => Math.min(deviceSteps.length - 1, prev + 1))}
-                        disabled={activeStepIndex === deviceSteps.length - 1}
-                        className="min-h-[44px] inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-surface-2 hover:bg-surface-3 disabled:opacity-40 text-xs font-semibold text-slate-300 transition-colors border border-hairline"
-                      >
-                        <span>ขั้นตอนถัดไป</span>
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    {/* Keypad Action Detail Box */}
-                    <div className="rounded-xl bg-surface-2 dark:bg-[#161618] border border-hairline p-4 space-y-2">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                          <Terminal className="w-4 h-4" />
-                          ปุ่มที่ต้องกด: <code className="px-2 py-0.5 rounded bg-amber-400/10 border border-amber-400/30 text-amber-300 font-mono text-xs">{currentStep.buttonKey}</code>
-                        </span>
-                        <span className="text-xs text-slate-400">
-                          {currentStep.stageName}
-                        </span>
-                      </div>
-
-                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                        {currentStep.explanation}
-                      </p>
-
-                      {currentStep.qaCheck && (
-                        <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/50 text-emerald-300 text-xs flex items-start gap-2">
-                          <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                          <span><strong>เกณฑ์ตรวจสอบหน้างาน (QA Check):</strong> {currentStep.qaCheck}</span>
-                        </div>
-                      )}
-                    </div>
-
+                    ))}
                   </div>
                 </div>
               )}
 
-              {/* Complete Step-by-Step Field Operating Procedures Checklist */}
-              <div className="space-y-3">
-                {activeTopic.fieldProcedures.map((proc, pIdx) => (
-                  <div 
-                    key={pIdx}
-                    className="p-5 rounded-2xl border border-hairline bg-surface-2 dark:bg-[#161618] space-y-2.5 hover:border-indigo-500/30 transition-colors"
-                  >
-                    <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-surface-3 dark:bg-[#1c1c1f] text-slate-800 dark:text-slate-200 border border-hairline flex items-center justify-center text-xs font-mono shrink-0">
-                        {pIdx + 1}
-                      </span>
-                      <span>{proc.title}</span>
-                    </h3>
-
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed pl-8">
-                      {proc.details}
-                    </p>
-
-                    {proc.criticalCaution && (
-                      <div className="ml-8 mt-2 p-3.5 rounded-xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2.5">
-                        <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                        <span><strong>ข้อควรระวังภาคสนาม:</strong> {proc.criticalCaution}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* SECTION 4: MATHEMATICAL FORMULAS & REDUCTION */}
-            {activeTopic.formulas && activeTopic.formulas.length > 0 && (
+              {/* SECTION 2: Working Principles */}
               <div className="space-y-4">
-                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                  <span>4. สูตรการคำนวณและสมการความถูกต้องทางวิศวกรรม (Engineering Formulas & Equations)</span>
+                <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2 border-l-2 border-indigo-500 pl-3">
+                  <BookOpen className="w-4 h-4 text-indigo-400" />
+                  2. หลักการทำงานและทฤษฎีวิศวกรรม (Engineering Foundations)
                 </h2>
-
-                <div className="space-y-3.5">
-                  {activeTopic.formulas.map((f, fIdx) => (
-                    <div key={fIdx} className="p-4 sm:p-5 rounded-2xl bg-surface-2 dark:bg-[#161618] border border-hairline space-y-2">
-                      <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 block">
-                        {f.label}
-                      </span>
-                      <div className="font-mono text-xs sm:text-sm font-bold text-slate-900 dark:text-indigo-400 bg-surface-1 dark:bg-[#0a0a0b] px-4 py-3 rounded-xl border border-hairline shadow-sm overflow-x-auto">
-                        {f.formula}
-                      </div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                        {f.explanation}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* SECTION 5: QA/QC & ERROR MITIGATION */}
-            {activeTopic.errorSourcesAndMitigation && activeTopic.errorSourcesAndMitigation.length > 0 && (
-              <div className="space-y-4">
-                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-amber-500" />
-                  <span>5. แหล่งความคลาดเคลื่อนและการควบคุมคุณภาพ (QA/QC & Error Mitigation)</span>
-                </h2>
-
                 <div className="space-y-2.5">
-                  {activeTopic.errorSourcesAndMitigation.map((err, eIdx) => (
-                    <div key={eIdx} className="p-3.5 rounded-2xl bg-amber-500/10 dark:bg-amber-950/20 border border-amber-500/30 flex items-start gap-3">
-                      <span className="w-2 h-2 rounded-full bg-amber-500 mt-2 shrink-0" />
-                      <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                        {err}
-                      </p>
+                  {activeTopic.workingPrinciple.map((wp, wpIdx) => (
+                    <div key={wpIdx} className="flex items-start gap-3 p-4 rounded-xl bg-[#141516] border border-white/[0.06]">
+                      <div className="w-5 h-5 rounded-full bg-indigo-500/15 text-indigo-400 border border-indigo-500/25 flex items-center justify-center text-[10px] font-mono font-bold shrink-0 mt-0.5">
+                        {wpIdx + 1}
+                      </div>
+                      <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed">{wp}</p>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* SECTION 6: DOWNSTREAM WORKFLOW & TOOL EXECUTION */}
-            {activeTopic.downstreamWorkflow && (
-              <div className="space-y-4">
-                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <ArrowRight className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                  <span>6. เวิร์กโฟลว์ปฏิบัติการต่อเนื่องและเครื่องมือคำนวณ (Downstream Workflow & Execution)</span>
-                </h2>
+              {/* SECTION 3: Field Procedures + LCD Simulator */}
+              <div className="space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-white/[0.06] pb-3">
+                  <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2 border-l-2 border-emerald-500 pl-3">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    3. ลำดับขั้นการปฏิบัติงานภาคสนาม (Field SOP & Instrument Operation)
+                  </h2>
+                  <span className="text-[11px] font-mono text-slate-500 shrink-0">
+                    {activeTopic.fieldProcedures.length} ขั้นตอนมาตรฐาน
+                  </span>
+                </div>
 
-                <div className="p-5 sm:p-6 rounded-2xl bg-surface-2 dark:bg-[#161618] border border-hairline border-l-2 border-l-indigo-500 space-y-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <span className="text-xs text-slate-500 dark:text-slate-400 block mb-0.5">รูปแบบไฟล์และข้อมูลนำออก (Output Data Format):</span>
-                      <span className="font-mono text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-300 bg-surface-1 dark:bg-[#0a0a0b] px-3 py-1 rounded-lg border border-hairline">
-                        {activeTopic.downstreamWorkflow.outputDataFormat}
-                      </span>
+                {/* LCD Simulator */}
+                {deviceSteps.length > 0 && currentStep && (
+                  <div className="rounded-xl border border-white/[0.08] bg-[#0a0a0b] overflow-hidden">
+                    {/* Chassis header */}
+                    <div className="px-5 py-3 bg-[#141516] border-b border-white/[0.08] flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50 animate-pulse" />
+                        <span className="text-xs font-mono font-bold tracking-wider text-slate-300">
+                          {currentStep.targetHardware}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs font-mono tabular-nums text-slate-500">
+                        <span>STEP {currentStep.stepNumber} / {deviceSteps.length}</span>
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">ACTIVE</span>
+                      </div>
                     </div>
 
-                    {activeWorkflowTarget && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          window.location.hash = activeWorkflowTarget.hash;
-                          if (onNavigateTab) {
-                            onNavigateTab(activeWorkflowTarget.hash.includes('map') ? 'map' : 'calculator');
-                          }
-                        }}
-                        className="min-h-[44px] inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold text-xs sm:text-sm transition-all shadow-sm"
-                      >
-                        <span>{activeWorkflowTarget.label}</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
+                    <div className="p-5 sm:p-6 space-y-4">
+                      {/* LCD screen */}
+                      <div className="rounded-lg border-2 border-emerald-950/60 bg-black/95 p-4 font-mono tabular-nums shadow-inner">
+                        <div className="text-[10px] font-bold text-emerald-400 border-b border-emerald-900/50 pb-1.5 mb-2.5 flex items-center justify-between">
+                          <span>▶ {currentStep.screenTitle}</span>
+                          <span className="text-emerald-500/70">BAT 100% | TILT ON</span>
+                        </div>
+                        <div className="space-y-1 text-xs sm:text-sm text-emerald-300 font-mono tabular-nums tracking-wide leading-relaxed">
+                          {currentStep.screenLines.map((line, lIdx) => (
+                            <div key={lIdx} className="hover:bg-emerald-950/25 px-1 rounded transition-colors">{line}</div>
+                          ))}
+                        </div>
+                        <div className="mt-4 pt-2 border-t border-emerald-950 flex items-center justify-between text-[10px] text-emerald-400/80 font-mono font-bold">
+                          <span>[F1: DIST]</span>
+                          <span>[F2: COORD]</span>
+                          <span>[F3: SET]</span>
+                          <span>[F4: REC]</span>
+                        </div>
+                      </div>
 
-                  <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                    {activeTopic.downstreamWorkflow.outputDescription}
-                  </p>
+                      {/* Step navigation */}
+                      <div className="flex items-center justify-between gap-2">
+                        <button
+                          onClick={() => setActiveStepIndex((prev) => Math.max(0, prev - 1))}
+                          disabled={activeStepIndex === 0}
+                          className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#141516] hover:bg-[#18191a] disabled:opacity-30 text-xs font-semibold text-slate-300 transition-colors border border-white/[0.06]"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                          <span>ก่อนหน้า</span>
+                        </button>
 
-                  <div className="p-4 rounded-xl bg-surface-1 dark:bg-[#0a0a0b] border border-hairline space-y-1.5">
-                    <span className="text-xs font-bold text-slate-900 dark:text-slate-200">
-                      {activeTopic.downstreamWorkflow.nextStepTitle}
-                    </span>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      {activeTopic.downstreamWorkflow.nextStepProcedure}
-                    </p>
+                        <div className="flex items-center gap-1.5">
+                          {deviceSteps.map((_, dotIdx) => (
+                            <button
+                              key={dotIdx}
+                              onClick={() => setActiveStepIndex(dotIdx)}
+                              className={`h-1.5 rounded-full transition-all ${
+                                dotIdx === activeStepIndex ? 'w-6 bg-emerald-400' : 'w-1.5 bg-slate-700 hover:bg-slate-500'
+                              }`}
+                              title={`ขั้นตอนที่ ${dotIdx + 1}`}
+                            />
+                          ))}
+                        </div>
+
+                        <button
+                          onClick={() => setActiveStepIndex((prev) => Math.min(deviceSteps.length - 1, prev + 1))}
+                          disabled={activeStepIndex === deviceSteps.length - 1}
+                          className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#141516] hover:bg-[#18191a] disabled:opacity-30 text-xs font-semibold text-slate-300 transition-colors border border-white/[0.06]"
+                        >
+                          <span>ถัดไป</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* Keypad detail */}
+                      <div className="rounded-lg bg-[#141516] border border-white/[0.06] p-4 space-y-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                            <Terminal className="w-4 h-4" />
+                            ปุ่มที่กด: <code className="px-2 py-0.5 rounded bg-amber-400/10 border border-amber-400/20 text-amber-300 font-mono text-xs ml-1">{currentStep.buttonKey}</code>
+                          </span>
+                          <span className="text-[11px] text-slate-500">{currentStep.stageName}</span>
+                        </div>
+                        <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed">{currentStep.explanation}</p>
+                        {currentStep.qaCheck && (
+                          <div className="p-2.5 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-emerald-300 text-xs flex items-start gap-2">
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                            <span><strong>QA Check:</strong> {currentStep.qaCheck}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
+                )}
+
+                {/* Step checklist */}
+                <div className="space-y-2.5">
+                  {activeTopic.fieldProcedures.map((proc, pIdx) => (
+                    <div
+                      key={pIdx}
+                      className="p-4 sm:p-5 rounded-xl border border-white/[0.06] bg-[#141516] hover:border-indigo-500/20 transition-colors space-y-2"
+                    >
+                      <h3 className="font-bold text-slate-200 text-sm sm:text-[15px] flex items-center gap-2.5">
+                        <span className="w-5.5 h-5.5 w-6 h-6 rounded-full bg-[#18191a] text-slate-300 border border-white/[0.08] flex items-center justify-center text-[10px] font-mono shrink-0">
+                          {pIdx + 1}
+                        </span>
+                        {proc.title}
+                      </h3>
+                      <p className="text-xs sm:text-[13px] text-slate-400 leading-relaxed pl-8">{proc.details}</p>
+                      {proc.criticalCaution && (
+                        <div className="ml-8 p-3 rounded-lg bg-amber-500/8 border border-amber-500/20 text-amber-200 text-xs flex items-start gap-2">
+                          <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                          <span><strong>ข้อควรระวัง:</strong> {proc.criticalCaution}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
-            )}
 
-            {/* Document Bottom Navigation Back to Search */}
-            <div className="pt-6 border-t border-hairline flex items-center justify-between">
-              <button
-                onClick={handleBackToSearch}
-                className="min-h-[44px] inline-flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:underline"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>กลับสู่หน้ารายการค้นหาคู่มือทั้งหมด</span>
-              </button>
+              {/* SECTION 4: Formulas */}
+              {activeTopic.formulas && activeTopic.formulas.length > 0 && (
+                <div className="space-y-4">
+                  <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2 border-l-2 border-indigo-500 pl-3">
+                    <Activity className="w-4 h-4 text-indigo-400" />
+                    4. สูตรการคำนวณ (Engineering Formulas & Equations)
+                  </h2>
+                  <div className="space-y-3">
+                    {activeTopic.formulas.map((f, fIdx) => (
+                      <div key={fIdx} className="p-4 sm:p-5 rounded-xl bg-[#141516] border border-white/[0.06] space-y-2">
+                        <span className="text-xs sm:text-[13px] font-bold text-slate-200 block">{f.label}</span>
+                        <div className="font-mono text-xs sm:text-sm font-bold text-indigo-300 bg-[#0f1011] px-4 py-3 rounded-lg border border-white/[0.06] overflow-x-auto tabular-nums">
+                          {f.formula}
+                        </div>
+                        <p className="text-xs text-slate-500 leading-relaxed">{f.explanation}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-              <button
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="min-h-[44px] px-3 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center"
-              >
-                เลื่อนขึ้นบนสุด ↑
-              </button>
+              {/* SECTION 5: QA/QC */}
+              {activeTopic.errorSourcesAndMitigation && activeTopic.errorSourcesAndMitigation.length > 0 && (
+                <div className="space-y-4">
+                  <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2 border-l-2 border-amber-500 pl-3">
+                    <ShieldCheck className="w-4 h-4 text-amber-400" />
+                    5. แหล่งความคลาดเคลื่อนและการควบคุมคุณภาพ (QA/QC)
+                  </h2>
+                  <div className="space-y-2">
+                    {activeTopic.errorSourcesAndMitigation.map((err, eIdx) => (
+                      <div key={eIdx} className="p-3.5 rounded-xl bg-amber-500/5 border border-amber-500/15 flex items-start gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 shrink-0" />
+                        <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed">{err}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* SECTION 6: Downstream Workflow */}
+              {activeTopic.downstreamWorkflow && (
+                <div className="space-y-4">
+                  <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2 border-l-2 border-indigo-500 pl-3">
+                    <ArrowRight className="w-4 h-4 text-indigo-400" />
+                    6. เวิร์กโฟลว์ต่อเนื่องและเครื่องมือคำนวณ (Downstream Workflow)
+                  </h2>
+                  <div className="p-5 sm:p-6 rounded-xl bg-[#141516] border border-white/[0.06] border-l-2 border-l-indigo-500 space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <span className="text-[11px] text-slate-500 block mb-1">Output Data Format:</span>
+                        <span className="font-mono text-xs font-bold text-indigo-300 bg-[#0f1011] px-3 py-1 rounded-lg border border-white/[0.06]">
+                          {activeTopic.downstreamWorkflow.outputDataFormat}
+                        </span>
+                      </div>
+                      {activeWorkflowTarget && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            window.location.hash = activeWorkflowTarget.hash;
+                            if (onNavigateTab) {
+                              onNavigateTab(activeWorkflowTarget.hash.includes('map') ? 'map' : 'calculator');
+                            }
+                          }}
+                          className="min-h-[44px] inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold text-xs sm:text-sm transition-all shadow-sm"
+                        >
+                          {activeWorkflowTarget.label}
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed">
+                      {activeTopic.downstreamWorkflow.outputDescription}
+                    </p>
+                    <div className="p-4 rounded-lg bg-[#0f1011] border border-white/[0.06] space-y-1">
+                      <span className="text-xs font-bold text-slate-200">{activeTopic.downstreamWorkflow.nextStepTitle}</span>
+                      <p className="text-xs text-slate-500 leading-relaxed">{activeTopic.downstreamWorkflow.nextStepProcedure}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Bottom nav */}
+              <div className="pt-6 border-t border-white/[0.06] flex items-center justify-between">
+                <button
+                  onClick={handleBackToSearch}
+                  className="min-h-[44px] inline-flex items-center gap-2 text-xs font-semibold text-indigo-400 hover:text-indigo-300"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  กลับสู่รายการคู่มือทั้งหมด
+                </button>
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="min-h-[44px] px-3 text-xs text-slate-600 hover:text-slate-300 flex items-center"
+                >
+                  ↑ บนสุด
+                </button>
+              </div>
+
             </div>
-
           </div>
-
         </div>
       )}
 

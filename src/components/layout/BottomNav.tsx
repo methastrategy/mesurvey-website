@@ -41,7 +41,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
       aria-label="Mobile Navigation"
       className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#111113]/95 backdrop-blur-md border-t border-black/[0.08] dark:border-white/[0.08] pb-[env(safe-area-inset-bottom)] transition-colors select-none"
     >
-      <div className="grid grid-cols-4 h-14 min-h-[56px] max-w-lg mx-auto">
+      <div className="grid grid-cols-3 h-14 min-h-[56px] max-w-lg mx-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
@@ -68,15 +68,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({
             </button>
           );
         })}
-
-        {/* About Modal Trigger */}
-        <button
-          onClick={onOpenAbout}
-          className="flex flex-col items-center justify-center min-h-[44px] min-w-[44px] py-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors micro-press"
-        >
-          <Info className="w-5 h-5 mb-0.5 stroke-[1.8]" />
-          <span className="text-[11px] leading-normal">เกี่ยวกับ</span>
-        </button>
       </div>
     </nav>
   );
