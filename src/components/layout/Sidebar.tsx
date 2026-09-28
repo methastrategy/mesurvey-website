@@ -63,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       aria-label="Sidebar Navigation"
-      className={`hidden lg:flex flex-col fixed top-0 bottom-0 left-0 z-40 bg-white dark:bg-[#111113] border-r border-black/[0.08] dark:border-white/[0.08] transition-[width] duration-200 ease-in-out select-none ${
+      className={`hidden lg:flex flex-col fixed top-0 bottom-0 left-0 z-40 bg-white/80 dark:bg-[#111113]/85 backdrop-blur-xl border-r border-black/[0.08] dark:border-white/[0.08] transition-[width] duration-200 ease-in-out select-none ${
         isCollapsed ? 'w-[56px]' : 'w-[240px]'
       }`}
     >

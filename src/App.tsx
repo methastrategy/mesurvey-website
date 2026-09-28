@@ -7,6 +7,7 @@ import { AboutModal } from './components/layout/AboutModal';
 import { KnowledgeHub } from './components/knowledge/KnowledgeHub';
 import { CalculatorHub } from './components/calculator/CalculatorHub';
 import { WebMap } from './components/map/WebMap';
+import { ScrollCanvasBackground } from './components/layout/ScrollCanvasBackground';
 
 function parseRouteHash(rawHash: string) {
   const hash = rawHash.replace(/^#\/?/, '').trim();
@@ -138,7 +139,10 @@ export function App() {
   };
 
   return (
-    <div className="flex min-h-screen bg-canvas text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white">
+    <div className="relative flex min-h-screen bg-canvas/30 dark:bg-canvas/40 text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white">
+      {/* Scroll-Driven Dynamic Canvas Background */}
+      <ScrollCanvasBackground activeTab={activeTab} isDark={isDark} />
+
       {/* Desktop Collapsible Left Sidebar */}
       <Sidebar
         activeTab={activeTab}

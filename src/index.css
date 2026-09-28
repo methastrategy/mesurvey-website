@@ -24,11 +24,11 @@
 }
 
 :root {
-  /* Canvas & Surfaces (Light) */
-  --canvas: #ffffff;
-  --surface-1: #f9fafb;
-  --surface-2: #f3f4f6;
-  --surface-3: #e5e7eb;
+  /* Canvas & Surfaces (Light Glassmorphic) */
+  --canvas: rgba(255, 255, 255, 0.70);
+  --surface-1: rgba(255, 255, 255, 0.82);
+  --surface-2: rgba(243, 244, 246, 0.76);
+  --surface-3: rgba(229, 231, 235, 0.88);
 
   /* Borders (Light) */
   --border-hairline: rgba(0, 0, 0, 0.08);
@@ -59,11 +59,11 @@
 }
 
 .dark, [data-theme="dark"] {
-  /* Canvas & Surfaces (Dark) */
-  --canvas: #0a0a0b;
-  --surface-1: #111113;
-  --surface-2: #161618;
-  --surface-3: #1c1c1f;
+  /* Canvas & Surfaces (Dark Glassmorphic) */
+  --canvas: rgba(10, 10, 11, 0.70);
+  --surface-1: rgba(17, 17, 19, 0.80);
+  --surface-2: rgba(22, 22, 24, 0.80);
+  --surface-3: rgba(28, 28, 31, 0.88);
 
   /* Borders (Dark) */
   --border-hairline: rgba(255, 255, 255, 0.08);
@@ -258,4 +258,25 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+}
+
+/* Glassmorphism Surface Backdrop Blur */
+.bg-surface-1, [class*="bg-surface-1"] {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.bg-surface-2, [class*="bg-surface-2"] {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.dark [class*="dark:bg-[#111113]"] {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.dark [class*="dark:bg-[#161618]"] {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
