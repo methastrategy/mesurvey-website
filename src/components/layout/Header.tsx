@@ -101,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <BookOpen className="w-3.5 h-3.5 shrink-0" />
-            <span>คู่มือสำรวจ</span>
+            <span>คู่มือ</span>
           </button>
 
           <button
@@ -117,26 +117,19 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </nav>
 
-        {/* Right: Compact Map Launcher Icon Button */}
+        {/* Right: Map Launcher Icon Button (Icon Only) */}
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setActiveTab(activeTab === 'map' ? 'knowledge' : 'map')}
-            aria-label="แผนที่ภาคสนาม WebGIS"
-            title={activeTab === 'map' ? 'กำลังเปิดแผนที่ WebGIS (กดเพื่อกลับหน้าคู่มือ)' : 'เปิดแผนที่ภาคสนาม WebGIS'}
-            className={`relative inline-flex items-center justify-center gap-2 h-9 px-3 rounded-full border transition-all micro-press focus-ring ${
-              activeTab === 'map'
-                ? 'bg-cyan-500/20 border-cyan-400/50 text-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.25)]'
-                : 'bg-[#111318]/90 hover:bg-[#181b22] border-white/[0.10] hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300'
-            }`}
+            aria-label="แผนที่ภาคสนาม MeMap"
+            title="เปิดแผนที่ MeMap"
+            className="relative w-9 h-9 rounded-full border border-white/[0.10] hover:border-cyan-500/40 bg-[#111318]/90 hover:bg-[#181b22] text-slate-300 hover:text-cyan-300 flex items-center justify-center transition-all micro-press focus-ring"
           >
-            <span className="relative flex h-2 w-2">
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${activeTab === 'map' ? 'bg-cyan-400' : 'bg-emerald-400'}`} />
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${activeTab === 'map' ? 'bg-cyan-400' : 'bg-emerald-500'}`} />
+            <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
             </span>
             <Map className="w-4 h-4 shrink-0" />
-            <span className="hidden sm:inline text-[11px] font-mono font-semibold tracking-wide">
-              {activeTab === 'map' ? 'MAP ACTIVE' : 'WebGIS'}
-            </span>
           </button>
         </div>
 

@@ -881,6 +881,21 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
         onOpenUploader={() => setIsUploaderOpen(true)}
       />
 
+      {/* MeMap Top-Right Branding Widget */}
+      <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-[1000] flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0c0d12]/90 backdrop-blur-2xl border border-white/[0.12] text-white shadow-[0_8px_32px_rgba(0,0,0,0.6)] pointer-events-auto select-none">
+        <span className="relative flex h-2.5 w-2.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />
+        </span>
+        <span className="font-extrabold text-xs sm:text-sm tracking-wider bg-gradient-to-r from-white via-slate-100 to-cyan-300 bg-clip-text text-transparent">
+          MeMap
+        </span>
+        <span className="w-px h-3 bg-white/20" />
+        <span className="text-[10px] font-mono text-cyan-300 tracking-widest uppercase font-semibold">
+          WebGIS
+        </span>
+      </div>
+
       {/* Floating Inspect Mode Guidance Banner (Rested Surface) */}
       {measureMode === 'inspect' && (
         <div className="absolute top-28 sm:top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-white border border-slate-700/80 px-3.5 py-1.5 rounded-xl shadow-sm text-xs font-medium flex items-center space-x-2 animate-in fade-in slide-in-from-top-2">

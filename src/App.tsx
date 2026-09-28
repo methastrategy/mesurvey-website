@@ -110,18 +110,20 @@ export function App() {
           activeTab === 'map' ? 'h-screen h-[100dvh] overflow-hidden' : 'min-h-screen'
         }`}
       >
-        {/* Top Floating Glass Command Bar */}
-        <Header
-          activeTab={activeTab}
-          setActiveTab={handleTabChange}
-          route={route}
-        />
+        {/* Top Floating Glass Command Bar (Hidden in full-screen Map mode) */}
+        {activeTab !== 'map' && (
+          <Header
+            activeTab={activeTab}
+            setActiveTab={handleTabChange}
+            route={route}
+          />
+        )}
 
         {/* Dynamic Main Workspace Container */}
         <main
           className={`flex-1 w-full ${
             activeTab === 'map'
-              ? 'h-[calc(100dvh-56px)] p-0 m-0 overflow-hidden relative'
+              ? 'h-screen h-[100dvh] p-0 m-0 overflow-hidden relative'
               : 'max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 pb-16'
           }`}
         >

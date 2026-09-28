@@ -289,22 +289,10 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             <div className="pointer-events-none absolute -top-28 right-10 w-96 h-64 rounded-full bg-indigo-500/15 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-24 left-10 w-80 h-56 rounded-full bg-cyan-500/10 blur-3xl" />
 
-            <div className="relative space-y-5">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-300 text-[10px] font-mono font-semibold tracking-widest uppercase">
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-                  MESURV Knowledge Vault · Field SOP Store
-                </div>
-                <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-slate-400">
-                  <span>กด</span>
-                  <kbd className="px-2 py-0.5 rounded bg-[#181a22] border border-white/[0.12] text-slate-300 shadow-inner">/</kbd>
-                  <span>เพื่อค้นหาคำสั่งด่วน</span>
-                </div>
-              </div>
-
+            <div className="relative space-y-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
-                  คลังคู่มือปฏิบัติงานวิศวกรรมสำรวจ
+                  คู่มือปฏิบัติงานวิศวกรรมสำรวจ
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-3xl leading-relaxed">
                   มาตรฐานการตั้งกล้อง ขั้นตอนการรังวัดภาคสนาม สมการปรับแก้ความคลาดเคลื่อน และจำลองหน้าจอควบคุมเครื่องมือแบบ Interactive
@@ -469,9 +457,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                               {getTopicIcon(topic.iconName, 'w-5 h-5')}
                             </div>
                             <div className="min-w-0">
-                              <span className={`inline-block text-[9px] font-mono font-bold tracking-widest uppercase px-2 py-0.5 rounded border mb-1 ${theme.badge}`}>
-                                {topic.badge}
-                              </span>
                               <h2 className="font-bold text-base text-white group-hover:text-indigo-300 transition-colors tracking-tight leading-snug">
                                 {topic.title}
                               </h2>
@@ -592,9 +577,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
               <span className="text-white/20 hidden sm:inline">|</span>
 
               <div className="hidden sm:flex items-center gap-2 text-xs text-slate-400 truncate">
-                <span className="px-2 py-0.5 rounded bg-white/[0.06] text-slate-300 font-mono text-[10px]">
-                  {activeTopic.badge}
-                </span>
                 <span className="truncate text-slate-200 font-semibold">{activeTopic.title}</span>
               </div>
             </div>
@@ -682,11 +664,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                 {/* Document Title & Objective */}
                 <div className="space-y-4 border-b border-white/[0.08] pb-6">
                   <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-                    <span className="px-2.5 py-0.5 text-[10px] font-mono font-semibold tracking-widest uppercase rounded-md bg-white/[0.06] text-indigo-300 border border-white/[0.08]">
-                      {activeTopic.badge}
-                    </span>
-                    <span>•</span>
-                    <span>{activeTopic.categoryName}</span>
+                    <span className="text-indigo-400 font-semibold">{activeTopic.categoryName}</span>
                     {activeTopic.courseRelation && (
                       <span className="text-emerald-400 font-mono text-[11px] ml-auto">
                         {activeTopic.courseRelation}
