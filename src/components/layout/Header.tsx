@@ -41,15 +41,11 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 shrink-0">
           <button
             onClick={() => setActiveTab('knowledge')}
-            className="flex items-center gap-2 sm:gap-3 min-h-[44px] py-1 pr-1.5 sm:pr-2 text-left micro-press focus-ring shrink-0"
-            title="MESURV Field Terminal"
+            className="flex items-center gap-2 min-h-[44px] py-1 pr-1.5 sm:pr-2 text-left micro-press focus-ring shrink-0"
+            title="MESURV Geomatics Platform"
           >
             <div className="font-bold text-base sm:text-lg tracking-tight text-[var(--text-1)] shrink-0">
               ME<span style={{ color: 'var(--accent)' }}>SURV</span>
-            </div>
-            <div className="hidden sm:block h-4 w-px bg-[var(--border)]" />
-            <div className="hidden sm:block font-mono text-xs text-[var(--text-2)] tracking-wider">
-              FIELD TERMINAL v4.2
             </div>
           </button>
 
@@ -139,12 +135,8 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </nav>
 
-        {/* Right: RTSD READY Telemetry Status Badge + Dual-Theme Toggle (Fieldbook ↔ Terminal) */}
+        {/* Right: Dual-Theme Toggle (Fieldbook ↔ Terminal) */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          <div className="hidden sm:inline-flex status-badge" title="Royal Thai Survey Department Standard Ready">
-            <span className="status-dot" />
-            <span>RTSD READY</span>
-          </div>
 
           {onToggleTheme && (
             <button

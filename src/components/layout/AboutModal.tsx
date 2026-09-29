@@ -89,7 +89,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="flex items-center justify-between pt-2 border-t border-[var(--border)] text-xs">
-            <span className="text-[var(--text-3)] font-mono">MESURV Fusion DNA • v4.2</span>
+            <span className="text-[var(--text-3)] font-mono">MESURV Geomatics Platform</span>
             <a 
               href="https://github.com/methastrategy/mesurvey-website" 
               target="_blank" 

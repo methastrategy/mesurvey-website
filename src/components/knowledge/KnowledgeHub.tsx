@@ -75,22 +75,29 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
     }
   };
 
-  // Difficulty Resolver per SOP Topic (champion-fusion.html spec: BEGINNER / CORE / ADVANCED)
-  const getTopicDifficulty = (topicId: string): { label: 'BEGINNER' | 'CORE' | 'ADVANCED'; className: string } => {
+  // Specific Domain & Methodology Badge Resolver per SOP Topic
+  const getTopicDomainBadge = (topicId: string): { label: string; className: string } => {
     switch (topicId) {
       case 'differential-leveling-survey':
+        return { label: 'กล้องระดับ', className: 'badge badge-leveling' };
       case 'theodolite-station-setup':
-        return { label: 'BEGINNER', className: 'badge badge-beginner' };
+        return { label: 'Total Station & กล้องวัดมุม', className: 'badge badge-totalstation' };
       case 'closed-loop-traverse':
+        return { label: 'วงรอบปิด', className: 'badge badge-traverse-closed' };
       case 'link-open-traverse':
-      case 'uav-drone-photogrammetry':
-        return { label: 'CORE', className: 'badge badge-core' };
+        return { label: 'วงรอบเปิดเชื่อมโยง', className: 'badge badge-traverse-link' };
       case 'gnss-rtk-static-survey':
+        return { label: 'GNSS Static & RTK CORS', className: 'badge badge-gnss' };
+      case 'uav-drone-photogrammetry':
+        return { label: 'โดรนสำรวจ UAV', className: 'badge badge-drone' };
       case 'terrestrial-lidar-slam':
+        return { label: '3D Laser & SLAM', className: 'badge badge-laser' };
       case 'hydrographic-bathymetric-survey':
+        return { label: 'หยั่งน้ำ Bathymetric', className: 'badge badge-bathymetry' };
       case 'tbm-tunnel-guidance-survey':
+        return { label: 'อุโมงค์ TBM', className: 'badge badge-tunnel' };
       default:
-        return { label: 'ADVANCED', className: 'badge badge-advanced' };
+        return { label: 'คู่มือสำรวจ', className: 'badge badge-leveling' };
     }
   };
 
@@ -100,13 +107,13 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
       case 'differential-leveling-survey':
         return ['Three-Wire Leveling', 'Two-Peg Test', 'Stadia D=100s', 'FGCC Standards'];
       case 'theodolite-station-setup':
-        return ['Optical Plummet', 'Plate Level', 'Face Left / Right', '0-SET Backsight'];
+        return ['Total Station', 'Free Station Resection', '0-SET Backsight', 'Prism Constant', 'FL/FR Two-Face'];
       case 'closed-loop-traverse':
         return ['Closed Polygon', 'Angular Misclosure', 'Bowditch Rule', 'UTM Grid'];
       case 'link-open-traverse':
         return ['Link Traverse', 'Benchmark Tie-in', 'Azimuth Closure', 'Alignment Control'];
       case 'gnss-rtk-static-survey':
-        return ['RTK CORS', 'Static Geodesy', 'TGM2017 Geoid', 'NTRIP VRS'];
+        return ['Static Geodesy', 'RTK CORS VRS', 'RINEX Logging', 'TGM2017 Geoid', 'NTRIP Base-Rover'];
       case 'uav-drone-photogrammetry':
         return ['UAV Photogrammetry', 'GSD Calculation', 'GCP / Check Points', 'SfM'];
       case 'terrestrial-lidar-slam':
@@ -120,26 +127,90 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
     }
   };
 
-  // Category Facets
+  // Category Facets: Equipment Manuals vs Field Survey Methods + Domain Facets
   const categories: { id: string; label: string; count: number; icon: React.ReactNode }[] = useMemo(() => [
     { id: 'all', label: 'ทั้งหมด (All SOPs)', count: KNOWLEDGE_TOPICS.length, icon: <BookOpen className="w-3.5 h-3.5" /> },
-    { id: 'survey-instrument', label: 'กล้องสำรวจ', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'survey-instrument' || t.category === 'total-station' || t.category === 'differential-leveling').length, icon: <Compass className="w-3.5 h-3.5" /> },
-    { id: 'gnss-gps', label: 'GNSS / RTK', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'gnss-gps' || t.category === 'gnss-geodesy').length, icon: <Satellite className="w-3.5 h-3.5" /> },
+    { 
+      id: 'equipment-manual', 
+      label: 'คู่มือการใช้อุปกรณ์', 
+      count: KNOWLEDGE_TOPICS.filter(t => [
+        'differential-leveling-survey',
+        'theodolite-station-setup',
+        'gnss-rtk-static-survey',
+        'uav-drone-photogrammetry',
+        'terrestrial-lidar-slam',
+        'hydrographic-bathymetric-survey'
+      ].includes(t.id)).length, 
+      icon: <Compass className="w-3.5 h-3.5" /> 
+    },
+    { 
+      id: 'survey-method', 
+      label: 'วิธีการทำงานภาคสนาม', 
+      count: KNOWLEDGE_TOPICS.filter(t => [
+        'differential-leveling-survey',
+        'closed-loop-traverse',
+        'link-open-traverse',
+        'gnss-rtk-static-survey',
+        'tbm-tunnel-guidance-survey',
+        'uav-drone-photogrammetry'
+      ].includes(t.id)).length, 
+      icon: <Layers className="w-3.5 h-3.5" /> 
+    },
+    { id: 'survey-instrument', label: 'กล้องสำรวจ & วงรอบ', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'survey-instrument' || t.category === 'total-station' || t.category === 'differential-leveling').length, icon: <Ruler className="w-3.5 h-3.5" /> },
+    { id: 'gnss-gps', label: 'GNSS / RTK CORS', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'gnss-gps' || t.category === 'gnss-geodesy').length, icon: <Satellite className="w-3.5 h-3.5" /> },
     { id: 'drone-uav', label: 'Drone / UAV', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'drone-uav' || t.category === 'drone-photogrammetry').length, icon: <Plane className="w-3.5 h-3.5" /> },
     { id: 'scanner-slam', label: 'LiDAR / SLAM', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'scanner-slam' || t.category === 'lidar-scan-bim').length, icon: <Scan className="w-3.5 h-3.5" /> },
-    { id: 'hydrographic', label: 'Hydrographic', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'hydrographic').length, icon: <Ship className="w-3.5 h-3.5" /> },
-    { id: 'tbm-tunnel', label: 'TBM Tunnel', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'tbm-tunnel').length, icon: <HardHat className="w-3.5 h-3.5" /> },
+    { id: 'hydrographic', label: 'หยั่งน้ำ Hydro', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'hydrographic').length, icon: <Ship className="w-3.5 h-3.5" /> },
+    { id: 'tbm-tunnel', label: 'อุโมงค์ TBM', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'tbm-tunnel').length, icon: <HardHat className="w-3.5 h-3.5" /> },
   ], []);
 
   // Filtered Topics
   const filteredTopics = useMemo(() => {
     return KNOWLEDGE_TOPICS.filter((t) => {
-      const matchCategory = selectedCategory === 'all' || 
-        t.category === selectedCategory ||
-        (selectedCategory === 'survey-instrument' && (t.category === 'total-station' || t.category === 'differential-leveling')) ||
-        (selectedCategory === 'gnss-gps' && t.category === 'gnss-geodesy') ||
-        (selectedCategory === 'drone-uav' && t.category === 'drone-photogrammetry') ||
-        (selectedCategory === 'scanner-slam' && t.category === 'lidar-scan-bim');
+      let matchCategory = selectedCategory === 'all';
+      if (!matchCategory) {
+        if (selectedCategory === 'equipment-manual') {
+          matchCategory = [
+            'differential-leveling-survey',
+            'theodolite-station-setup',
+            'gnss-rtk-static-survey',
+            'uav-drone-photogrammetry',
+            'terrestrial-lidar-slam',
+            'hydrographic-bathymetric-survey'
+          ].includes(t.id);
+        } else if (selectedCategory === 'survey-method') {
+          matchCategory = [
+            'differential-leveling-survey',
+            'closed-loop-traverse',
+            'link-open-traverse',
+            'gnss-rtk-static-survey',
+            'tbm-tunnel-guidance-survey',
+            'uav-drone-photogrammetry'
+          ].includes(t.id);
+        } else if (selectedCategory === 'survey-instrument') {
+          matchCategory = (
+            t.category === 'survey-instrument' || 
+            t.category === 'total-station' || 
+            t.category === 'differential-leveling' ||
+            t.id === 'differential-leveling-survey' ||
+            t.id === 'theodolite-station-setup' ||
+            t.id === 'closed-loop-traverse' ||
+            t.id === 'link-open-traverse'
+          );
+        } else if (selectedCategory === 'gnss-gps') {
+          matchCategory = t.category === 'gnss-gps' || t.category === 'gnss-geodesy' || t.id === 'gnss-rtk-static-survey';
+        } else if (selectedCategory === 'drone-uav') {
+          matchCategory = t.category === 'drone-uav' || t.category === 'drone-photogrammetry' || t.id === 'uav-drone-photogrammetry';
+        } else if (selectedCategory === 'scanner-slam') {
+          matchCategory = t.category === 'scanner-slam' || t.category === 'lidar-scan-bim' || t.id === 'terrestrial-lidar-slam';
+        } else if (selectedCategory === 'hydrographic') {
+          matchCategory = t.category === 'hydrographic' || t.id === 'hydrographic-bathymetric-survey';
+        } else if (selectedCategory === 'tbm-tunnel') {
+          matchCategory = t.category === 'tbm-tunnel' || t.id === 'tbm-tunnel-guidance-survey';
+        } else {
+          matchCategory = t.category === selectedCategory;
+        }
+      }
       const q = searchQuery.toLowerCase().trim();
       if (!q) return matchCategory;
       const matchQuery = (
@@ -376,7 +447,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
               {filteredTopics.map((topic) => {
                 const topicIndex = KNOWLEDGE_TOPICS.findIndex((t) => t.id === topic.id);
                 const sopCode = `SOP-0${topicIndex + 1}`;
-                const diff = getTopicDifficulty(topic.id);
+                const domainBadge = getTopicDomainBadge(topic.id);
                 const wf = getWorkflowTarget(topic);
 
                 return (
@@ -386,13 +457,13 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     className="fusion-card group p-5 flex flex-col justify-between h-full cursor-pointer"
                   >
                     <div className="flex flex-col flex-grow">
-                      {/* Top Metadata Row: SOP Code + Difficulty & Provenance Badge */}
+                      {/* Top Metadata Row: SOP Code + Survey Domain & Provenance Badge */}
                       <div className="flex items-center justify-between gap-2 mb-4">
                         <span className="font-mono text-xs bg-[var(--surface-2)] px-2 py-1 rounded text-[var(--text-2)] border border-[var(--border)]">
                           {sopCode}
                         </span>
-                        <div className="flex items-center gap-1.5">
-                          <span className={diff.className}>{diff.label}</span>
+                        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                          <span className={domainBadge.className}>{domainBadge.label}</span>
                           {topic.verificationStatus === 'verified' ? (
                             <span className="badge badge-beginner" title={topic.verificationProof}>
                               VERIFIED
@@ -607,6 +678,9 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                 {/* Document Title & Objective */}
                 <div className="space-y-4 border-b border-[var(--border)] pb-6">
                   <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--text-2)]">
+                    <span className={getTopicDomainBadge(activeTopic.id).className}>
+                      {getTopicDomainBadge(activeTopic.id).label}
+                    </span>
                     <span className="text-[var(--accent)] font-bold font-mono uppercase">{activeTopic.categoryName}</span>
                     {activeTopic.courseRelation && (
                       <span className="text-[var(--text-2)] font-mono text-[11px] ml-auto bg-[var(--surface-2)] px-2.5 py-0.5 rounded border border-[var(--border)]">

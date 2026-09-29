@@ -18,7 +18,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAbout }) => {
           </div>
           <span className="text-[var(--border-strong)] hidden sm:inline">|</span>
           <span className="text-[var(--text-2)] font-mono text-[11px] break-words">
-            FIELD TERMINAL v4.2 • Geomatics & Survey Engineering
+            Geomatics & Survey Engineering Platform
           </span>
         </div>
 

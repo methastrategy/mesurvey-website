@@ -189,35 +189,38 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
   // -------------------------------------------------------------------------
   {
     id: 'theodolite-station-setup',
-    title: 'กล้องวัดมุมและการตั้งสถานีรังวัด 2 หน้ากล้อง (Theodolite Station Setup & FL/FR Observation)',
-    titleEn: 'Theodolite Centering, Optical Plummet, Plate Level & Two-Face Angle Measurement',
+    title: 'กล้องประมวลผลรวมและกล้องวัดมุม (Total Station & Theodolite Station Setup, Resection & 2-Face Observation)',
+    titleEn: 'Total Station & Theodolite Centering, Free Station Resection, 0-SET & Two-Face Angle Measurement',
     category: 'survey-instrument',
     categoryName: 'กล้องสำรวจ',
-    summary: 'คู่มือการตั้งสถานีกล้องวัดมุม (Electronic Theodolite): การตั้งดิ่งลงกึ่งกลางหมุดด้วย Optical / Laser Plummet, การปรับลูกน้ำฟองกลมและฟองยาว (Plate Level Bubble), กฎเรขาคณิต 3 แกนหลักของกล้องสำรวจ, ขั้นตอนการเปิดมุมราบ 2 หน้ากล้อง (Face Left: FL & Face Right: FR) เพื่อหักล้าง Collimation & Index Error, การตั้งค่าศูนย์องศา (0-SET) เล็งหมุดหลัง (Backsight) และการทำผังหมุดผูกโยง 3 ระยะ (Station Description & 3-Tie Measurements) เพื่อการค้นหาและฟื้นฟูหมุดอ้างอิง',
-    badge: 'พื้นฐานเสาหลักงานสำรวจ',
+    summary: 'คู่มือการตั้งสถานีกล้องวัดมุมและกล้องประมวลผลรวม (Total Station & Electronic Theodolite): การตั้งดิ่งลงกึ่งกลางหมุดด้วย Optical / Laser Plummet, การปรับลูกน้ำฟองกลมและฟองยาว (Plate Level Bubble), เซนเซอร์ชดเชยการเอียงสองแกน (Dual-Axis Tilt Compensator), ขั้นตอนการเปิดมุมราบ 2 หน้ากล้อง (Face Left: FL & Face Right: FR) เพื่อหักล้าง Collimation & Trunnion Axis Error, การตั้งค่าศูนย์องศา (0-SET) เล็งหมุดหลัง (Backsight), การตั้งสถานีแบบอิสระ (Free Station / Resection) จากหมุดควบคุม 2-3 หมุด, การกำหนดค่าคงที่ปริซึม (Prism Constant: 0 mm / -30 mm) และค่าปรับแก้ชั้นบรรยากาศ (Atmospheric PPM Correction), ตลอดจนการทำผังหมุดผูกโยง 3 ระยะ (Station Description & 3-Tie Measurements)',
+    badge: 'เสาหลักงานสำรวจ Total Station & กล้องวัดมุม',
     iconName: 'Compass',
     verificationStatus: 'draft',
-    verificationProof: 'คู่มือปฏิบัติการวิชา 01218211 Geomatics Engineering (ม.เกษตรศาสตร์); Bannister, Raymond & Baker (1998) Surveying (7th ed.); มาตรฐานงานรังวัดหมุดควบคุม กรมที่ดิน',
-    courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & ข้อกำหนดงานรังวัดวงรอบ',
+    verificationProof: 'คู่มือปฏิบัติการวิชา 01218211 Geomatics Engineering (ม.เกษตรศาสตร์); มาตรฐานงานรังวัดหมุดควบคุม กรมที่ดิน; Leica Geosystems FlexLine TS06/TS07 Manual; Topcon GM-50 Series Instruction Manual',
+    courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & ข้อกำหนดงานรังวัดวงรอบและผังโครงการ',
     equipmentRequired: [
-      'กล้องวัดมุมอิเล็กทรอนิกส์ (Electronic Theodolite) ความละเอียด 1 ถึง 5 พิลิปดา พร้อมกล้องส่องดิ่งหรือเลเซอร์ดิ่ง',
-      'ขาตั้งกล้องไม้หรืออลูมิเนียมขากว้างชนิดหัวเรียบ (Heavy-duty Flathead Tripod)',
-      'เป้าเล็งขาว-ส้ม (Target Plate) หรือเสาโพลพร้อมปลายแหลมสำหรับเล็งจุดศูนย์กลางหมุด',
-      'ลูกดิ่งทองเหลือง (Plumb Bob) พร้อมเชือกไนลอน สำหรับสอบเทียบความดิ่ง',
-      'ตลับเมตรเหล็กกล้า 30-50 เมตร สำหรับวัดระยะผูกโยงหมุด (3-Tie Witness Measurements)',
-      'สมุดจดมุมภาคสนาม (Angle Observation Field Sheet) บันทึกค่า FL และ FR'
+      'กล้องประมวลผลรวม (Total Station เช่น Leica TS07 / Topcon GM-50 / Sokkia iM) หรือกล้องวัดมุมอิเล็กทรอนิกส์ (Electronic Theodolite) ความละเอียด 1 ถึง 5 พิลิปดา พร้อมเลเซอร์ดิ่ง',
+      'ขาตั้งกล้องไม้ชนิดหนักหัวเรียบ (Heavy-duty Wood/Aluminum Flathead Tripod)',
+      'ชุดเป้าปริซึมสะท้อนแสงเดี่ยว (Single Prism Target with Tribrach) และโพลปริซึมพร้อมลูกน้ำฟองกลม',
+      'มินิปริซึม (Mini Prism with Pin Pole) สำหรับส่องรังวัดในมุมแคบหรือจุดเล็งหมุดควบคุม',
+      'ตลับเมตรเหล็กกล้า 30-50 เมตร สำหรับวัดความสูงกล้อง (Instrument Height: hi) และวัดระยะผูกโยง 3 ทิศทาง',
+      'เทอร์โมมิเตอร์และบารอมิเตอร์ สำหรับวัดอุณหภูมิและความกดอากาศเพื่อป้อนค่าชดเชยบรรยากาศ (Atmospheric PPM)',
+      'สมุดจดมุมภาคสนาม (Angle Observation Field Sheet) หรือเครื่องบันทึกข้อมูลอิเล็กทรอนิกส์ (Data Collector)'
     ],
     workingPrinciple: [
-      'เรขาคณิต 3 แกนของกล้องวัดมุม: (1) แกนดิ่ง (Vertical Axis) ต้องตั้งฉากกับระนาบระดับ (2) แกนราบ (Horizontal / Trunnion Axis) ต้องตั้งฉากกับแกนดิ่ง และ (3) แกนเล็ง (Line of Collimation) ต้องตั้งฉากกับแกนราบ ทั้ง 3 แกนต้องตัดกันที่จุดศูนย์กลางเดียวกัน',
+      'เรขาคณิต 3 แกนของกล้องสำรวจ: (1) แกนดิ่ง (Vertical Axis) ต้องตั้งฉากกับระนาบระดับ (2) แกนราบ (Horizontal / Trunnion Axis) ต้องตั้งฉากกับแกนดิ่ง และ (3) แกนเล็ง (Line of Collimation) ต้องตั้งฉากกับแกนราบ ทั้ง 3 แกนต้องตัดกันที่จุดศูนย์กลางเดียวกัน พร้อมระบบ Dual-Axis Compensator ตรวจจับการเอียงของแกนดิ่งแบบเรียลไทม์',
       'หลักการวัด 2 หน้ากล้อง (Face Left & Face Right): หน้าซ้าย (Direct / FL) จานองศาดิ่งอยู่ซ้ายมือของผู้ส่อง, หน้าขวา (Reverse / FR) จานองศาดิ่งอยู่ขวามือ การส่องทั้ง 2 หน้าแล้วนำค่ามุมมาเฉลี่ย จะหักล้างความคลาดเคลื่อนจากแกนเล็งไม่ฉากแกนราบ (Collimation Error: c) และความคลาดเคลื่อนจากแกนราบไม่ฉากแกนดิ่งได้อย่างสมบูรณ์',
-      'การตั้งค่า 0-SET หมุดหลัง (Backsight Orientation): เล็งกล้องไปที่โคนเสาเป้าหมุดหลัง (Backsight) ล็อคมุมราบให้แน่น กดปุ่ม [0-SET] เพื่อกำหนดให้ทิศทางนั้นเป็น 0°00\'00" ก่อนจะคลายล็อคเพื่อเปิดมุมราบไปยังสถานีถัดไป (Foresight)',
+      'การตั้งค่า 0-SET หมุดหลัง (Backsight Orientation): เล็งกล้องไปที่โคนเสาเป้าหมุดหลัง (Backsight) ล็อคมุมราบให้แน่น กดปุ่ม [0-SET] เพื่อกำหนดให้ทิศทางนั้นเป็น 0°00\'00" หรือป้อน Azimuth จริงของเส้นฐาน ก่อนจะคลายล็อคเพื่อเปิดมุมราบไปยังสถานีถัดไป (Foresight)',
+      'การตั้งสถานีแบบอิสระ (Free Station / Resection): ตั้งกล้องที่จุดใดก็ได้ที่มีทัศนวิสัยเปิดโล่ง ส่องวัดมุมและระยะทางไปยังหมุดควบคุมที่ทราบพิกัดอย่างน้อย 2-3 หมุด กล้องจะแก้สมการ Least Squares หรือ Helmert Transformation คำนวณพิกัดจุดตั้งกล้อง (N, E, Z) และค่ามุมทิศเริ่มต้น (Orientation Unknown) พร้อมรายงานค่า Residuals',
+      'ค่าคงที่ปริซึม (Prism Constant) และค่าปรับแก้บรรยากาศ (Atmospheric PPM): ปริซึมแต่ละแบบมีจุดศูนย์กลางสะท้อนแสงต่างกัน (เช่น Leica Round Prism = 0.0 mm, ปริซึมสากล Topcon/Sokkia = -30.0 mm) ต้องตั้งค่าให้ตรงกับเป้าที่ใช้ และป้อนค่าอุณหภูมิ-ความกดอากาศเพื่อชดเชยความเร็วแสงในอากาศ',
       'การกำจัดความคลาดเคลื่อนมุมดิ่ง (Vertical Index Error: i): มุมดิ่งที่วัดหน้าซ้ายและหน้าขวาต้องมีผลรวมเท่ากับ 360° พอดี (VA_FL + VA_FR = 360°) ค่าความคลาดเคลื่อน i = (VA_FL + VA_FR - 360°) / 2 การเฉลี่ย 2 หน้ากล้องจะหักล้างค่า i ออกไปทั้งหมด',
       'การทำผังหมุดผูกโยง (Station Description & 3-Tie Measurements): การบันทึกรายละเอียดตำแหน่งหมุด พร้อมวาดสเก็ตช์ผังและวัดระยะทางจากจุดอ้างอิงถาวรอย่างน้อย 3 จุด (เช่น เสาไฟฟ้า, ขอบอาคารคอนกรีต, มุมท่อระบายน้ำ) ช่วยให้สามารถสถาปนาหมุดกลับคืนสู่ตำแหน่งเดิมได้แม่นยำระดับเซนติเมตรหากหมุดสูญหายหรือถูกทำลาย'
     ],
     fieldProcedures: [
       {
         title: 'ขั้นตอนที่ 1: การกางขาตั้งกล้องและการวางตำแหน่งคร่าวๆ (Coarse Positioning)',
-        details: 'กางขาตั้งกล้องให้ห่างกันประมาณ 1-1.2 เมตร ปรับแป้นหัวขาตั้งกล้องให้ขนานกับพื้นระดับอก เล็งผ่านช่องรูกลางหัวขาตั้งกล้องให้ตรงกับหัวหมุดสำรวจที่พื้น เหยียบปลายขาตั้งกล้อง 1 ขาให้จมดินแน่นหนา นำกล้องวัดมุมขึ้นวางบนแป้นหัวขาตั้ง ขันสกรูยึดใต้ฐานกล้องให้พอตึงมือ'
+        details: 'กางขาตั้งกล้องให้ห่างกันประมาณ 1-1.2 เมตร ปรับแป้นหัวขาตั้งกล้องให้ขนานกับพื้นระดับอก เล็งผ่านช่องรูกลางหัวขาตั้งกล้องให้ตรงกับหัวหมุดสำรวจที่พื้น เหยียบปลายขาตั้งกล้อง 1 ขาให้จมดินแน่นหนา นำกล้องขึ้นวางบนแป้นหัวขาตั้ง ขันสกรูยึดใต้ฐานกล้องให้พอตึงมือ'
       },
       {
         title: 'ขั้นตอนที่ 2: การส่องดิ่งลงหัวหมุด (Optical / Laser Plummet Centering)',
@@ -233,7 +236,7 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
       },
       {
         title: 'ขั้นตอนที่ 5: การเลื่อนปรับละเอียดเข้าจุดศูนย์กลางหมุด (Fine Shifting)',
-        details: 'มองผ่านกล้องส่องดิ่งอีกครั้ง หากจุดดิ่งเลื่อนออกจากหัวหมุดเล็กน้อยจากการปรับระดับ ให้คลายสกรูยึดใต้ฐานกล้องเบาๆ แล้วใช้สองมือประคองเลื่อนฐานกล้องบนแป้นหัวขาตั้ง (ห้ามหมุนกล้องเด็ดขาด) จนจุดดิ่งทับหัวหมุดพอดี แล้วขันสกรูยึดใต้ฐานกล้องให้แน่นสนิท ตรวจสอบฟองยาวอีกครั้ง',
+        details: 'มองผ่านกล้องส่องดิ่งอีกครั้ง หากจุดดิ่งเลื่อนออกจากหัวหมุดเล็กน้อยจากการปรับระดับ ให้คลายสกรูยึดใต้ฐานกล้องเบาๆ แล้วใช้สองมือประคองเลื่อนฐานกล้องบนแป้นหัวขาตั้ง (ห้ามหมุนกล้องเด็ดขาด) จนจุดดิ่งทับหัวหมุดพอดี แล้วขันสกรูยึดใต้ฐานกล้องให้แน่นสนิท ตรวจสอบฟองยาวและเซนเซอร์อิเล็กทรอนิกส์อีกครั้ง',
         criticalCaution: 'ห้ามหมุนฐานกล้องเด็ดขาดขณะคลายสกรูเลื่อนฐาน เพราะจะทำให้ระดับลูกน้ำฟองยาวที่ปรับไว้เสียระนาบทันที'
       },
       {
@@ -241,7 +244,11 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
         details: '(1) หน้าซ้าย (FL): ส่องเป้าหมุดหลัง (Backsight: BS) ที่จุดตัดโคนเสา ล็อคมุมราบและมุมดิ่ง กดปุ่ม [0-SET] หน้าจอจะแสดง 00°00\'00" คลายล็อคหมุนกล้องตามเข็มนาฬิกาไปส่องหมุดหน้า (Foresight: FS) อ่านและจดบันทึกค่ามุมราบ HA_FL และมุมดิ่ง VA_FL (2) หน้าขวา (FR): พลิกกล้องข้ามระนาบ 180° หมุนตัวกล้องกลับไปส่อง FS อีกครั้ง อ่านและจดบันทึก HA_FR และ VA_FR จากนั้นหมุนกล้องกลับไปส่อง BS อ่านค่าปิดมุมหน้าขวา ค่าที่อ่านได้ต้องเป็น 180°00\'00" ± ค่าพิกัดเผื่อ'
       },
       {
-        title: 'ขั้นตอนที่ 7: การบันทึกผังหมุดผูกโยง 3 ระยะ (Station Description & Witness Ties)',
+        title: 'ขั้นตอนที่ 7: การตั้งสถานีแบบอิสระ (Free Station / Resection Procedure)',
+        details: 'กรณีไม่สามารถตั้งกล้องบนหัวหมุดเดิมได้ ให้ตั้งกล้องที่จุดเปิดโล่ง เข้าเมนู [RESECTION] หรือ [FREE STATION] เล็งเป้าปริซึมที่หมุดควบคุมที่ 1 (BM-01) วัดระยะทางและมุม (SD, Hz, V) จากนั้นหมุนไปเล็งหมุดควบคุมที่ 2 (BM-02) และหมุดที่ 3 (BM-03) ซอฟต์แวร์ของ Total Station จะคำนวณพิกัดจุดตั้งกล้องพร้อมค่า Standard Deviation (σN, σE, σH) หากค่าส่วนเบี่ยงเบน < 2-3 มม. ให้กดยืนยันเพื่อเริ่มทำงาน'
+      },
+      {
+        title: 'ขั้นตอนที่ 8: การบันทึกผังหมุดผูกโยง 3 ระยะ (Station Description & Witness Ties)',
         details: 'บันทึกชื่อหมุด วันที่ ผู้รังวัด สภาพหมุด และสเก็ตช์ภาพผังแสดงตำแหน่งหมุดเทียบกับสิ่งถาวรในพื้นที่ ใช้ตลับเมตรเหล็กวัดระยะห่างตรงในแนวราบไปยังจุดอ้างอิงถาวรอย่างน้อย 3 จุด (Point 1, Point 2, Point 3) บันทึกระยะทางลงในตารางระดับความละเอียดมิลลิเมตร'
       }
     ],
@@ -249,57 +256,57 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
       {
         stepNumber: 1,
         stageName: 'การตั้งศูนย์องศาหมุดหลัง (0-SET Backsight Orientation)',
-        targetHardware: 'Topcon DT-200 / Sokkia DT940 Electronic Theodolite',
-        buttonKey: '[0-SET] กดปุ่ม 0-SET ค้างไว้ 1 วินาที หรือกดซ้ำ 2 ครั้งตามเสียงบี๊บ',
+        targetHardware: 'Topcon GM-50 / Leica TS07 Total Station',
+        buttonKey: '[0-SET] กดปุ่ม 0-SET ค้างไว้ 1 วินาที หรือกด [OSET] ซอฟต์คีย์บนหน้าจอ',
         actionLabel: 'กำหนดทิศทางอ้างอิง 0°00\'00"',
-        screenTitle: 'THEODOLITE ANGLE DISPLAY - FACE LEFT (FL)',
+        screenTitle: 'TOTAL STATION ANGLE DISPLAY - FACE LEFT (FL)',
         screenLines: [
           '┌──────────────────────────────────────────────┐',
-          '│ TOPCON DT-209               V:  89°42\'15"    │',
+          '│ LEICA TS07 / TOPCON GM-52   V:  89°42\'15"    │',
           '│ [FL]                        HR:  0°00\'00"    │',
-          '│                                              │',
-          '│ TARGET: BACKSIGHT (BM-01)                    │',
+          '│ TILT: X: +0.001g   Y: -0.002g [COMP: ON]     │',
+          '│ TARGET: BACKSIGHT (BM-01)   EDM: PRISM-ROUND │',
+          '│ CONSTANT: 0.0 mm            PPM: +14.2       │',
           '│ STATUS: 0-SET CONFIRMED [BEEP]               │',
-          '│                                              │',
-          '│ [0-SET]   [HOLD]   [R/L]   [V/%]             │',
+          '│ [0-SET]   [HOLD]   [MEAS]   [DIST]   [REC]   │',
           '└──────────────────────────────────────────────┘'
         ],
         explanation: 'หลังจากเล็งกากบาทสายใยทับจุดศูนย์กลางหมุดหลัง (BS) ล็อคแป้นเกลียวราบและดิ่ง กดปุ่ม [0-SET] เพื่อรีเซ็ตค่ามุมราบของทิศทางอ้างอิงให้เป็นศูนย์องศา',
-        qaCheck: 'สังเกตสัญลักษณ์ [FL] หรือ [D] บนหน้าจอเพื่อยืนยันว่าทำการรังวัดในหน้าซ้าย'
+        qaCheck: 'สังเกตสัญลักษณ์ [FL] หรือ [D] บนหน้าจอและสถานะเซนเซอร์ชดเชยการเอียง [COMP: ON]'
       },
       {
         stepNumber: 2,
         stageName: 'การส่องเปิดมุมไปยังหมุดหน้า (Foresight Reading FL)',
-        targetHardware: 'Electronic Theodolite Display',
-        buttonKey: '[TANGENT SCREW] หมุนสกรูส่ายละเอียดเล็งเป้าหมุดหน้าให้สนิท',
-        actionLabel: 'อ่านค่ามุมราบและมุมดิ่งหน้าซ้าย',
+        targetHardware: 'Total Station Angle & Distance Display',
+        buttonKey: '[TANGENT SCREW & DIST] ส่องหมุดหน้าแล้วกด [DIST] วัดระยะ EDM',
+        actionLabel: 'อ่านค่ามุมราบ มุมดิ่ง และระยะทางหน้าซ้าย',
         screenTitle: 'FORESIGHT OBSERVATION (FACE LEFT)',
         screenLines: [
           '┌──────────────────────────────────────────────┐',
-          '│ TOPCON DT-209               V:  91°15\'40"    │',
+          '│ TOTAL STATION OBSERVATION   V:  91°15\'40"    │',
           '│ [FL]                        HR: 78°24\'32"    │',
-          '│                                              │',
-          '│ TARGET: FORESIGHT (ST-02)                    │',
+          '│ SD: 142.856 m  HD: 142.820 m  VD: -3.148 m   │',
+          '│ TARGET: FORESIGHT (ST-02)   PRISM: -30.0 mm  │',
           '│ ANGLE MODE: HORIZONTAL CLOCKWISE (HR)        │',
-          '│                                              │',
           '│ RECORD: HA_FL = 78°24\'32", VA_FL = 91°15\'40"│',
+          '│ [DIST]    [SHV]    [OSET]   [REC]    [PAGE]  │',
           '└──────────────────────────────────────────────┘'
         ],
-        explanation: 'คลายล็อคจานองศา หมุนตัวกล้องไปยังหมุดหน้า ล็อคและใช้สกรูปรับละเอียดเล็งสายใยให้ทับแนวเป้า อ่านค่ามุมราบและดิ่ง บันทึกลงสมุดสนาม',
-        qaCheck: 'บันทึกทิศทางการเปิดมุมว่าเป็นมุมเวียนขวา (HR: Clockwise) เสมอ'
+        explanation: 'คลายล็อคจานองศา หมุนตัวกล้องไปยังหมุดหน้า ล็อคและใช้สกรูปรับละเอียดเล็งสายใยให้ทับแนวเป้า กดวัดระยะ EDM อ่านค่ามุมราบ มุมดิ่ง และระยะลาด',
+        qaCheck: 'บันทึกทิศทางการเปิดมุมว่าเป็นมุมเวียนขวา (HR: Clockwise) และค่าคงที่ปริซึมถูกต้อง'
       },
       {
         stepNumber: 3,
         stageName: 'การพลิกกล้องส่องวัดหน้าขวา (Face Right: FR Verification)',
-        targetHardware: 'Electronic Theodolite Display',
+        targetHardware: 'Total Station Observation Display',
         buttonKey: '[TRANSIT TELESCOPE] กระดกกล้องข้ามระนาบ 180° และหมุนตัวกล้อง 180°',
         actionLabel: 'อ่านค่ามุมราบและดิ่งหน้าขวา',
         screenTitle: 'FORESIGHT OBSERVATION (FACE RIGHT)',
         screenLines: [
           '┌──────────────────────────────────────────────┐',
-          '│ TOPCON DT-209               V: 268°44\'25"    │',
+          '│ TOTAL STATION OBSERVATION   V: 268°44\'25"    │',
           '│ [FR]                        HR: 258°24\'38"   │',
-          '│                                              │',
+          '│ SD: 142.857 m  HD: 142.821 m  VD: -3.146 m   │',
           '│ TARGET: FORESIGHT (ST-02)                    │',
           '│ REDUCED HA: 258°24\'38" - 180° = 78°24\'38"   │',
           '│ MEAN HA: (78°24\'32" + 78°24\'38") / 2         │',
@@ -310,6 +317,32 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
         ],
         explanation: 'พลิกเลนส์กล้องข้ามระนาบ หมุนกลับไปเล็งหมุดหน้าในหน้าขวา อ่านค่ามุมราบและดิ่ง ผลต่างของมุมราบหน้าซ้ายและขวาต้องต่างกัน 180° ± ไม่เกิน 10-20 พิลิปดา',
         qaCheck: 'ผลรวมมุมดิ่ง VA_FL + VA_FR ต้องเท่ากับ 360°00\'00" ± ไม่เกินเกณฑ์ชั้นงาน'
+      },
+      {
+        stepNumber: 4,
+        stageName: 'การคำนวณตั้งสถานีแบบอิสระ (Free Station / Resection Results)',
+        targetHardware: 'Total Station Resection App (Leica Captivate / Topcon Magnet)',
+        buttonKey: '[CALC RESECTION] คำนวณพิกัดจุดตั้งกล้องด้วย Least Squares',
+        actionLabel: 'ตรวจสอบพิกัดและค่า Residuals ของสถานีอิสระ',
+        screenTitle: 'FREE STATION / RESECTION RESULT DISPLAY',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ FREE STATION / RESECTION COMPUTATION         │',
+          '│ OCCUPIED : FREE_ST-01 (UNKNOWN POINT)        │',
+          '│ TARGET 1 : BM-01 (N: 15420.100, E: 23110.500)│',
+          '│ TARGET 2 : BM-02 (N: 15680.450, E: 23290.120)│',
+          '│ TARGET 3 : BM-03 (N: 15310.820, E: 23450.780)│',
+          '│                                              │',
+          '│ COMPUTED COORDS:                             │',
+          '│   N : 15512.384 m   (σN : ±0.0015 m)         │',
+          '│   E : 23285.612 m   (σE : ±0.0018 m)         │',
+          '│   Z :    42.115 m   (σZ : ±0.0022 m)         │',
+          '│ ORIENTATION UNKNOWN : 142°18\'24" (σHz: ±2.1") │',
+          '│ STATUS: RESECTION SUCCESSFUL [SET AS STATION]│',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'หน้าจอแสดงผลการคำนวณจุดตั้งกล้องอิสระจากการวัดมุมและระยะทางไปยังหมุดควบคุม 3 หมุด พร้อมค่าความคลาดเคลื่อนมาตรฐาน σN, σE ต่ำกว่า 2 มิลลิเมตร',
+        qaCheck: 'ค่า Residuals ของแต่ละเป้าต้องไม่เกินเกณฑ์ที่กำหนด (σHz ≤ 5", σDist ≤ 3 mm)'
       }
     ],
     formulas: [
@@ -327,18 +360,24 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
         label: 'ความคลาดเคลื่อนดัชนีมุมดิ่ง (Vertical Index Error: i)',
         formula: 'i = \\frac{VA_{\\text{FL}} + VA_{\\text{FR}} - 360^\\circ}{2}',
         explanation: 'ค่าความคลาดเคลื่อนตำแหน่งศูนย์ของจานองศาดิ่ง หากค่า i สูงผิดปกติแสดงว่าเซนเซอร์วัดมุมดิ่งหรือลูกน้ำฟองยาวเอียง'
+      },
+      {
+        label: 'การปรับแก้ค่าบรรยากาศสำหรับเครื่องวัดระยะ EDM (Atmospheric PPM Correction)',
+        formula: '\\Delta D = 281.8 - \\left( \\frac{0.29065 \\times P}{1 + 0.00366 \\times T} \\right) \\quad (\\text{ppm})',
+        explanation: 'สูตรชดเชยการเปลี่ยนแปลงดรรชนีหักเหของแสง EDM จากอุณหภูมิ (T เป็น °C) และความกดอากาศ (P เป็น hPa/mbar)'
       }
     ],
     errorSourcesAndMitigation: [
       'Centering Error (กล้องไม่ตรงหัวหมุด): ส่งผลให้ค่ามุมราบคลาดเคลื่อนสูงมาก โดยเฉพาะเมื่อระยะส่องสั้น (< 50 เมตร) ต้องตรวจสอบจุดดิ่งเลเซอร์ซ้ำหลังปรับระดับเสร็จสิ้นเสมอ',
-      'Plat-level Bubble Error (แกนดิ่งเอียง): หากแกนดิ่งเอียง จานองศาจะเอียงตาม ทำให้เกิดความคลาดเคลื่อนมุมราบที่ไม่สามารถหักล้างได้ด้วยการวัด 2 หน้ากล้อง ต้องปรับฟองยาวให้คงที่ทุกทิศทาง',
-      'Target Non-verticality (เสาเป้าเล็งเอียง): คนถือเสาโพลเอียงเป้าเล็ง ทำให้จุดเล็งไม่อยู่ตรงหัวหมุด ผู้ส่องกล้องต้องเล็งที่โคนเสาติดหัวหมุดเสมอ หรือใช้เป้าเล็งติดลูกน้ำฟองกลม',
+      'Plat-level Bubble Error (แกนดิ่งเอียง): หากแกนดิ่งเอียง จานองศาจะเอียงตาม ทำให้เกิดความคลาดเคลื่อนมุมราบที่ไม่สามารถหักล้างได้ด้วยการวัด 2 หน้ากล้อง ต้องปรับฟองยาวให้คงที่ทุกทิศทางและเปิด Dual-Axis Compensator',
+      'Prism Offset Constant Mismatch (ตั้งค่าคงที่ปริซึมผิด): การใช้ปริซึม 0 mm แต่ตั้งค่าในกล้องเป็น -30 mm ทำให้ระยะทางคลาดเคลื่อนระบบ 30 mm ทุกช็อต ต้องตรวจสอบค่าคงที่ปริซึมก่อนเริ่มวัดเสมอ',
+      'Target Non-verticality (เสาเป้าเล็งเอียง): คนถือเสาโพลเอียงเป้าเล็ง ทำให้จุดเล็งไม่อยู่ตรงหัวหมุด ผู้ส่องกล้องต้องเล็งที่โคนเสาติดหัวหมุดเสมอ หรือใช้เป้าเล็งติดลูกน้ำฟองกลมพร้อมขาทรงตัว Bipod',
       'Collimation Error (แกนเล็งไม่ฉากแกนราบ): สกรูยึดสายใยขยับตัว แก้ไขและหักล้างได้ 100% ด้วยการรังวัด 2 หน้ากล้อง (Face Left & Face Right) ในทุกสถานี',
       'Tripod Twist & Thermal Expansion (ขาตั้งกล้องบิดตัวจากแสงแดด): ความร้อนจากแดดเผาขาตั้งข้างใดข้างหนึ่งทำให้กล้องหมุนตัว ต้องกางร่มบังแดดให้กล้องตลอดการปฏิบัติงาน'
     ],
     downstreamWorkflow: {
-      outputDataFormat: 'ตารางบันทึกการวัดมุมราบและมุมดิ่ง (Angle Observation Sheet) หรือสมุดสนาม',
-      outputDescription: 'ชุดข้อมูลมุมราบเฉลี่ย 2 หน้ากล้อง (Mean HA), มุมดิ่ง (VA), และผังผูกโยงหมุด 3 ทิศทาง',
+      outputDataFormat: 'ตารางบันทึกการวัดมุมราบและมุมดิ่ง (Angle Observation Sheet) หรือไฟล์ดิบ Total Station (.gsi / .raw / .csv)',
+      outputDescription: 'ชุดข้อมูลมุมราบเฉลี่ย 2 หน้ากล้อง (Mean HA), มุมดิ่ง (VA), ระยะลาด (SD), พิกัดสถานี และผังผูกโยงหมุด 3 ทิศทาง',
       nextStepTitle: 'การรังวัดระยะทางและการคำนวณมุมภาคของทิศ (Azimuth Calculation)',
       nextStepProcedure: 'นำค่ามุมราบที่เฉลี่ยสมบูรณ์แล้วไปประกอบกับระยะทางที่วัดได้ เพื่อคำนวณมุมภาคของทิศต่อเนื่องและเข้าสู่การปรับแก้วงรอบ',
       recommendedToolTab: 'traverse',
@@ -698,50 +737,56 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
   // -------------------------------------------------------------------------
   {
     id: 'gnss-rtk-static-survey',
-    title: 'การรังวัดหมุดควบคุมด้วยดาวเทียม GNSS (Static & Network RTK CORS)',
-    titleEn: 'GNSS Geodetic Control Survey: Multi-Frequency Static & Network RTK (VRS/CORS)',
+    title: 'การรังวัดหมุดควบคุมด้วยดาวเทียม GNSS (Static Geodetic Network & Network RTK CORS)',
+    titleEn: 'GNSS Geodetic Control Survey: Multi-Frequency Static Baseline & Network RTK (VRS/CORS)',
     category: 'gnss-gps',
     categoryName: 'GNSS,GPS',
-    summary: 'คู่มือการรังวัดโครงข่ายหมุดหลักฐานด้วยระบบดาวเทียมนำทางสากล (GNSS): การรังวัดแบบสถิตความละเอียดสูง (Static Survey) สำหรับงานควบคุมโครงข่ายหมุดชั้น 1-2, การรังวัดจลน์แบบทันทีกาลผ่านระบบโครงข่ายสถานีรับสัญญาณต่อเนื่อง (Network RTK / CORS VRS), กฎมุมยกดาวเทียม (Elevation Mask 15°), การประเมินค่าเรขาคณิตกลุ่มดาวเทียม (PDOP / GDOP < 3.0), การแปลงความสูงรูปทรงรี (Ellipsoidal Height: h) เป็นความสูงระดับน้ำทะเลปานกลาง (Orthometric Height: H) ด้วยแบบจำลองจีออยด์ประเทศไทย (TGM2017) และการตรวจสอบสถานะ Fix/Float',
-    badge: 'งานโครงข่ายหมุดดาวเทียมชั้น 1-2',
+    summary: 'คู่มือการรังวัดโครงข่ายหมุดหลักฐานด้วยระบบดาวเทียมนำทางสากล (GNSS): การรังวัดโครงข่ายสถิตความละเอียดสูง (Static Geodetic Baseline Survey) สำหรับสร้างหมุดควบคุมปฐมภูมิและทุติยภูมิ (First/Second Order Geodetic Network), เกณฑ์เวลาการรังวัดขั้นต่ำตามความยาวเส้นฐาน (<10 km ≥ 45-60 นาที, >20 km ≥ 3-4 ชั่วโมง), การบันทึกข้อมูลดิบ Multi-Frequency RINEX 3.0x, การปรับแก้โครงข่ายเส้นฐานแบบ Least Squares Loop Closure, การรังวัดจลน์แบบทันทีกาลผ่านระบบโครงข่ายสถานีรับสัญญาณต่อเนื่อง (Network RTK / CORS VRS), การตั้งค่าเครื่องรับสัญญาณ (Receiver Configuration: UHF Internal Radio 1W/35W vs NTRIP GSM 4G/5G, Elevation Mask 15°, Epoch Interval 1s/15s), การประเมินค่าเรขาคณิตกลุ่มดาวเทียม (PDOP < 2.5), การแปลงความสูง Ellipsoidal (h) เป็น Orthometric Height (H) ด้วยแบบจำลองจีออยด์ TGM2017 และการตรวจสอบสถานะ Fix/Float',
+    badge: 'งานโครงข่ายหมุดดาวเทียมชั้น 1-2 & RTK CORS',
     iconName: 'Satellite',
     verificationStatus: 'draft',
-    verificationProof: 'ระเบียบกรมที่ดินว่าด้วยการรังวัดด้วยดาวเทียม RTK GNSS Network พ.ศ. 2562; GISTDA National CORS Network Standard; คู่มือแบบจำลองยีออยด์ TGM2017 (กรมแผนที่ทหาร); Hofmann-Wellenhof, B. et al. (2008) GNSS - GPS, GLONASS, Galileo and more',
+    verificationProof: 'ระเบียบกรมที่ดินว่าด้วยการรังวัดด้วยดาวเทียม RTK GNSS Network พ.ศ. 2562; GISTDA National CORS Network Standard; คู่มือแบบจำลองยีออยด์ TGM2017 (กรมแผนที่ทหาร); Hofmann-Wellenhof, B. et al. (2008) GNSS - GPS, GLONASS, Galileo and more; FGCC Standards and Specifications for Geodetic Control Networks',
     courseRelation: 'วิชา 01218312 Satellite Geodesy & GNSS Positioning (KU Geomatics) & ข้อกำหนด กรมที่ดิน/รฟม.',
     equipmentRequired: [
-      'เครื่องรับสัญญาณดาวเทียม GNSS ชนิดความถี่คู่/หลายความถี่ (Multi-Frequency Multi-Constellation GNSS Receiver)',
+      'เครื่องรับสัญญาณดาวเทียม Multi-Frequency Multi-Constellation GNSS (Trimble R12i / Leica GS18 / CHCNAV / Stonex) รองรับ GPS, GLONASS, Galileo, BeiDou',
       'ชุดเสาโพลคาร์บอนไฟเบอร์ (Carbon Fiber Rover Pole 2.000 m) พร้อมขาตั้งค้ำสองขา (Bipod)',
-      'ฐานกล้องเล็งดิ่งแบบแม่นยำสูง (Precision Tribrach with Optical Plummet) และอะแดปเตอร์เสาอากาศ',
+      'ฐานกล้องเล็งดิ่งแบบแม่นยำสูง (Precision Tribrach with Optical/Laser Plummet) และ Carrier Adapter สำหรับงาน Static',
       'ขาตั้งกล้องไม้ชนิด Heavy-Duty ทนทานต่อการขยายตัวจากความร้อนและแรงลม',
-      'เครื่องควบคุมภาคสนาม (GNSS Field Controller) พร้อมซิมการ์ด 4G/5G สำหรับเชื่อมต่อ NTRIP CORS',
-      'แถบวัดความสูงเสาอากาศมาตรฐาน (Antenna Height Measuring Tape / Height Hook)'
+      'เครื่องควบคุมภาคสนาม (GNSS Field Controller) พร้อมซิมการ์ด 4G/5G และเสาวิทยุ UHF Internal Radio (1W-35W)',
+      'แถบวัดความสูงเสาอากาศมาตรฐาน (Antenna Height Measuring Tape / Height Hook)',
+      'แบตเตอรี่สำรองภายนอก (External Li-ion Battery Pack) สำหรับการรังวัดสถิตระยะยาว'
     ],
     workingPrinciple: [
       'ระบบ GNSS อาศัยสัญญาณคลื่นวิทยุจากกลุ่มดาวเทียมหลายระบบพร้อมกัน (Multi-GNSS): GPS (สหรัฐฯ), GLONASS (รัสเซีย), Galileo (ยุโรป) และ BeiDou (จีน) เพื่อคำนวณตำแหน่ง 3 มิติ (X, Y, Z หรือ Lat, Lon, Ellipsoidal Height)',
       'Carrier Phase Differential Positioning: การรังวัดความยาวคลื่นพาหะเฟส (L1, L2, L5) เพื่อแก้ปัญหาความกำกวมของจำนวนรอบคลื่น (Integer Ambiguity Resolution) ให้ได้สถานะ "FIXED" ซึ่งให้ความแม่นยำระดับมิลลิเมตรถึงเซนติเมตร',
-      'กฎค่าเรขาคณิตการกระจายตัวของดาวเทียม (DOP: Dilution of Precision): ค่า PDOP ต้องต่ำกว่า 2.5-3.0 เพื่อยืนยันว่าดาวเทียมกระจายตัวรอบขอบฟ้าและแนวดิ่งอย่างสมดุล ลดความคลาดเคลื่อนในการคำนวณตำแหน่ง',
-      'การแปลงระดับความสูงทางยีโอเดซี (Height System Transformation): ความสูงที่ได้จากดาวเทียมคือ Ellipsoidal Height (h) ต้องแปลงเป็น Orthometric Height (H) เหนือระดับน้ำทะเลปานกลาง (MSL) ด้วยสูตร H = h - N โดยใช้ค่า Geoid Undulation (N) จากแบบจำลอง TGM2017 ของประเทศไทย',
-      'เกณฑ์เวลาการรังวัดแบบ Static: ระยะโครงข่ายหมุด < 5 km สังเกตการณ์อย่างน้อย 30-45 นาที, ระยะ 5-15 km สังเกตการณ์ 60-90 นาที บันทึกข้อมูลที่ช่วงเวลา (Sampling Interval) 5 หรือ 15 วินาที'
+      'หลักการรังวัดโครงข่ายแบบสถิต (Static Geodetic Baseline Network): การตั้งเครื่องรับสัญญาณรับสัญญาณพร้อมกัน (Simultaneous Observation) ณ หมุดควบคุมอย่างน้อย 2-3 สถานีขึ้นไปเพื่อสร้างเวกเตอร์เส้นฐาน (Baseline Vectors ΔX, ΔY, ΔZ) แบบ Double-Difference กำจัดความคลาดเคลื่อนของนาฬิกาดาวเทียมและนาฬิกาเครื่องรับ',
+      'เกณฑ์เวลาการรังวัดสถิต (Static Session Duration Criteria): ความยาวเส้นฐาน < 5 km สังเกตการณ์ ≥ 30-45 นาที, ระยะ 5-15 km สังเกตการณ์ 60-90 นาที, ระยะ > 20 km สังเกตการณ์ 3-4 ชั่วโมงขึ้นไป ที่ Sampling Interval 15 วินาที เพื่อให้มีข้อมูลรอบคลื่นดาวเทียมเพียงพอในการแก้ Ambiguity ได้ 100%',
+      'กฎค่าเรขาคณิตการกระจายตัวของดาวเทียม (DOP: Dilution of Precision): ค่า PDOP ต้องต่ำกว่า 2.5 เพื่อยืนยันว่าดาวเทียมกระจายตัวรอบขอบฟ้าและแนวดิ่งอย่างสมดุล ลดความคลาดเคลื่อนในการคำนวณตำแหน่ง',
+      'การแปลงระดับความสูงทางยีโอเดซี (Height System Transformation): ความสูงที่ได้จากดาวเทียมคือ Ellipsoidal Height (h) ต้องแปลงเป็น Orthometric Height (H) เหนือระดับน้ำทะเลปานกลาง (MSL) ด้วยสูตร H = h - N โดยใช้ค่า Geoid Undulation (N) จากแบบจำลอง TGM2017 ของประเทศไทย'
     ],
     fieldProcedures: [
       {
-        title: 'ขั้นตอนที่ 1: การวางแผนและการตั้งสถานีรับสัญญาณ (Mission Planning & Station Setup)',
-        details: 'ตรวจสอบปฏิทินตำแหน่งดาวเทียม (Satellite Constellation Visibility & Ionospheric Activity) หลีกเลี่ยงช่วงเวลาที่มีค่า PDOP พุ่งสูง ตั้งขาตั้งกล้องไม้เหนือหมุดหลักฐาน ปรับลูกน้ำฟองยาวบน Tribrach ให้เข้ากลางสนิท ตรวจสอบดิ่ง Optical Plummet ให้ตรงจุดกึ่งกลางหมุด ติดตั้งเครื่องรับสัญญาณ GNSS และวัดความสูงเสาอากาศ (Antenna Height) ทั้งแบบ Vertical Height หรือ Slant Height พร้อมบันทึกค่า Antenna Phase Center (APC) Offset'
+        title: 'ขั้นตอนที่ 1: การวางแผนและการตั้งสถานีรับสัญญาณสถิต (Mission Planning, Tribrach Setup & Height Hook)',
+        details: 'ตรวจสอบปฏิทินตำแหน่งดาวเทียม (Satellite Constellation Visibility & Ionospheric Activity) หลีกเลี่ยงช่วงเวลาที่มีค่า PDOP พุ่งสูง ตั้งขาตั้งกล้องไม้เหนือหมุดหลักฐาน ปรับลูกน้ำฟองยาวบน Tribrach ให้เข้ากลางสนิท ตรวจสอบดิ่ง Optical Plummet ให้ตรงจุดกึ่งกลางหมุด ติดตั้งเครื่องรับสัญญาณ GNSS และใช้ Height Hook วัดความสูงเสาอากาศ (Antenna Height) ทั้งแบบ Vertical Height หรือ Slant Height พร้อมบันทึกค่า Antenna Phase Center (APC) Offset'
       },
       {
-        title: 'ขั้นตอนที่ 2: การตั้งค่าเครื่องรับสัญญาณและการตัดสัญญาณมุมต่ำ (Receiver Configuration & Elevation Mask)',
-        details: 'เปิดเครื่องรับสัญญาณ ตั้งค่า Elevation Cut-off Mask ที่ 15 องศา เพื่อตัดสัญญาณจากดาวเทียมมุมต่ำที่ผ่านชั้นบรรยากาศหนาและมีคลื่นสะท้อนหลายทิศทาง (Multipath Error) ตั้งค่า Epoch Interval เป็น 1 วินาทีสำหรับ RTK หรือ 5-15 วินาทีสำหรับ Static ตรวจสอบจำนวนดาวเทียมที่รับสัญญาณได้ (ควรมากกว่า 18-24 ดวงในระบบ Multi-GNSS)'
+        title: 'ขั้นตอนที่ 2: การตั้งค่าเครื่องรับสัญญาณและการบันทึกข้อมูลดิบ RINEX (Receiver Configuration & Logging)',
+        details: 'เปิดเครื่องรับสัญญาณ ตั้งค่า Elevation Cut-off Mask ที่ 15 องศา เพื่อตัดสัญญาณจากดาวเทียมมุมต่ำที่ผ่านชั้นบรรยากาศหนาและมีคลื่นสะท้อนหลายทิศทาง (Multipath Error) ตั้งค่า Epoch Interval เป็น 15 วินาทีสำหรับ Static Geodesy หรือ 1 วินาทีสำหรับ RTK ตรวจสอบจำนวนดาวเทียมที่รับสัญญาณได้ (ควรมากกว่า 20-28 ดวงในระบบ Multi-GNSS) และตั้งชื่อไฟล์หมุดตามรหัส 4 หลักของกรมที่ดิน/รฟม.'
       },
       {
-        title: 'ขั้นตอนที่ 3: การเชื่อมต่อระบบโครงข่าย CORS ผ่าน NTRIP (Network RTK CORS VRS Connection)',
+        title: 'ขั้นตอนที่ 3: การรังวัดสถิตโครงข่ายต่อเนื่องตามเกณฑ์เวลา (Simultaneous Static Observation)',
+        details: 'ประสานงานกับทีมงานสถานีอื่นเพื่อเริ่มบันทึกข้อมูลพร้อมกัน (Common Observation Window) ตามเกณฑ์เวลา: เส้นฐานสั้น (<10 km) รังวัดต่อเนื่อง 45-60 นาที, เส้นฐานยาว (>20 km) รังวัด 3-4 ชั่วโมง ตรวจสอบสถานะการบันทึก, แบตเตอรี่, จำนวนดาวเทียม และค่า PDOP ทุก 15 นาที ห้ามขยับหรือแตะต้องขาตั้งกล้องตลอดคาบการรังวัด'
+      },
+      {
+        title: 'ขั้นตอนที่ 4: การเชื่อมต่อระบบโครงข่าย CORS ผ่าน NTRIP (Network RTK CORS VRS Connection)',
         details: 'เชื่อมต่อเครื่องควบคุม Controller เข้ากับเครือข่ายอินเทอร์เน็ต ใส่ IP, Port, Username และ Password ของระบบสถานีรับสัญญาณต่อเนื่อง (เช่น RTK Network กรมที่ดิน หรือ กรมแผนที่ทหาร) เลือก Mountpoint ชนิด VRS (Virtual Reference Station) หรือ MAC ส่งพิกัด NMEA GGA ของ Rover ไปยัง Caster และรอรับค่าปรับแก้ RTCM 3.2'
       },
       {
-        title: 'ขั้นตอนที่ 4: การตรวจสอบคุณภาพพิกัดและการบันทึกข้อมูล (Coordinate Quality QA/QC & Averaging)',
+        title: 'ขั้นตอนที่ 5: การตรวจสอบคุณภาพพิกัดและการบันทึกข้อมูลเฉลี่ย (Coordinate QA/QC & Averaging)',
         details: 'รอให้สถานะการรังวัดเปลี่ยนเป็น "RTK FIXED" ตรวจสอบค่าความไม่แน่นอนพิกัด (Coordinate Quality: CQ) แนวราบ (Hz) ต้อง < 15 mm และแนวดิ่ง (Vt) ต้อง < 25 mm ปรับเสาโพลคาร์บอนให้ลูกน้ำฟองกลมเข้ากึ่งกลางพอดี กดบันทึกพิกัดแบบรังวัดเฉลี่ย (Averaging Observation) ไม่น้อยกว่า 30-180 Epochs เพื่อลดผลกระทบจากสัญญาณรบกวนชั่วขณะ'
       },
       {
-        title: 'ขั้นตอนที่ 5: การตรวจสอบหมุดควบคุมและ Site Calibration (Known Control Check)',
+        title: 'ขั้นตอนที่ 6: การตรวจสอบหมุดควบคุมและ Site Calibration (Known Control Check)',
         details: 'นำ Rover ไปส่องรังวัดตรวจสอบหมุดหลักฐานเดิม (Known Benchmark) ในบริเวณใกล้เคียงอย่างน้อย 1-2 หมุด เปรียบเทียบค่าพิกัดที่รังวัดได้กับค่าในบัญชีหมุด หากผลต่างเกินเกณฑ์ (ΔN > 20 mm, ΔE > 20 mm, ΔH > 30 mm) ให้ตรวจสอบความสูงเสาอากาศและทำการตรวจสอบระนาบ Site Calibration ทันที'
       }
     ],
@@ -792,6 +837,29 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
         ],
         explanation: 'เครื่องทำการบันทึกค่าพิกัดทุกๆ 1 วินาทีจำนวน 180 คาบเวลา และคำนวณค่าเฉลี่ยทางสถิติพร้อมค่าเบี่ยงเบนมาตรฐาน (Standard Deviation σ) ก่อนบันทึกพิกัดลงฐานข้อมูล',
         qaCheck: 'ค่า σ ของ N และ E ต้องไม่เกิน 0.010 m และ σ ของความสูงต้องไม่เกิน 0.020 m'
+      },
+      {
+        stepNumber: 3,
+        stageName: 'การตั้งค่าและบันทึกข้อมูลรังวัดสถิต (Static Geodetic RINEX Logging)',
+        targetHardware: 'GNSS Geodetic Receiver WebUI / Controller (Static App)',
+        buttonKey: '[STATIC LOG] บันทึกไฟล์ดิบ RINEX 3.04 อัตรา 15 วินาที',
+        actionLabel: 'เริ่มบันทึกข้อมูลโครงข่ายสถิต',
+        screenTitle: 'GEODETIC STATIC RINEX OBSERVATION SESSION',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ STATIC SESSION : BM-KU01_20260930_0830       │',
+          '│ FILE FORMAT    : RINEX v3.04 (MULTI-GNSS)    │',
+          '│ SAMPLING RATE  : 15.0 SEC   ELEV MASK: 15.0° │',
+          '│ ANTENNA HEIGHT : 1.485 m (SLANT TO BUMPER)   │',
+          '│ SATELLITES     : 32 (12 GPS, 8 GLO, 8 GAL, 4)│',
+          '│ SESSION ELAPSED: 01:15:30 / 01:30:00 (84%)   │',
+          '│ PDOP: 1.21     : MEMORY FREE: 28.4 GB (SD)   │',
+          '│ BATTERY STATUS : BATT1: 88%  BATT2: 92%      │',
+          '│ STATUS: RECORDING HIGH-RATE PHASE OBSERVABLES│',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'หน้าจอแสดงการบันทึกข้อมูลดิบคลื่นพาหะเฟสสำหรับการประมวลผลเวกเตอร์โครงข่ายสถิตความละเอียดสูง แสดงเวลาที่บันทึกผ่านไปแล้ว 1 ชม. 15 นาที ค่า PDOP 1.21 และสถานะหน่วยความจำ',
+        qaCheck: 'ห้ามหยุดการบันทึกก่อนครบเกณฑ์เวลาขั้นต่ำ และต้องตรวจสอบความสูงเสาอากาศ Slant Height อีกครั้งหลังจบเซสชัน'
       }
     ],
     formulas: [
@@ -799,6 +867,11 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
         label: 'ความสัมพันธ์ระดับความสูงรูปทรงรี จีออยด์ และระดับน้ำทะเลปานกลาง (Height Relationship)',
         formula: 'H = h - N',
         explanation: 'H คือ Orthometric Height (ระดับน้ำทะเลปานกลาง MSL), h คือ Ellipsoidal Height จาก GNSS, N คือ Geoid Undulation จากแบบจำลองยีออยด์ (TGM2017)'
+      },
+      {
+        label: 'เกณฑ์เวลาการรังวัดโครงข่ายสถิตขั้นต่ำ (Static Minimum Observation Session Duration)',
+        formula: 'T_{\\text{min}} = 30 + (2 \\times D) \\quad (\\text{นาที เมื่อ } D \\text{ คือระยะทางเส้นฐานกิโลเมตร})',
+        explanation: 'สูตรประเมินระยะเวลาการสังเกตการณ์ขั้นต่ำสำหรับเครื่องรับสัญญาณหลายความถี่ เพื่อให้ได้ความน่าจะเป็นในการ Fix Ambiguity สูงกว่า 99.9%'
       },
       {
         label: 'การประเมินความแม่นยำเชิงระยะทางของ GNSS Baseline (Baseline Accuracy Specification)',
@@ -813,13 +886,14 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     ],
     errorSourcesAndMitigation: [
       'Multipath Signal Reflection (สัญญาณสะท้อนหลายทิศทาง): เกิดขึ้นเมื่อตั้งเสาอากาศใกล้กำแพงกระจก อาคารสูง ผิวน้ำ หรือโครงสร้างเหล็ก แก้ไขด้วยการใช้เสาอากาศแบบ Choke Ring หรือตั้งค่า Elevation Mask สูงกว่า 15 องศา',
-      'Ionospheric & Tropospheric Delays (การหน่วงเวลาในชั้นบรรยากาศ): สัญญาณดาวเทียมช้าลงเมื่อผ่านชั้นบรรยากาศ แก้ไขด้วยการใช้สัญญาณความถี่คู่ (Dual Frequency L1/L2) ร่วมกับการรับค่าปรับแก้จากสถานี CORS',
-      'Loss of RTK Radio/Cellular Link: จุดอับสัญญาณโทรศัพท์ 4G ทำให้หลุดจาก NTRIP แก้ไขด้วยการใช้ระบบ UHF Radio ระหว่าง Base-Rover หรือรังวัดแบบ PPK (Post-Processed Kinematic)',
-      'Human Error on Antenna Height: การวัดความสูงเสาโพลผิด หรือสับสนระหว่าง Vertical Height กับ Slant Height เป็นสาเหตุหลักที่ทำให้ระดับความสูงผิดพลาด ต้องล็อกตัวปรับระดับเสาโพลให้แน่นหนาและทวนสอบทุกครั้ง'
+      'Ionospheric & Tropospheric Delays (การหน่วงเวลาในชั้นบรรยากาศ): สัญญาณดาวเทียมช้าลงเมื่อผ่านชั้นบรรยากาศ แก้ไขด้วยการใช้สัญญาณความถี่คู่/หลายความถี่ (L1/L2/L5) ร่วมกับการรับค่าปรับแก้จากสถานี CORS หรือการประมวลผล Double-Difference',
+      'Loss of RTK Radio/Cellular Link: จุดอับสัญญาณโทรศัพท์ 4G ทำให้หลุดจาก NTRIP แก้ไขด้วยการสลับใช้ระบบคลื่นวิทยุ UHF Internal Radio ระหว่าง Base-Rover หรือรังวัดแบบ Static / PPK (Post-Processed Kinematic)',
+      'Human Error on Antenna Height: การวัดความสูงเสาโพลผิด หรือสับสนระหว่าง Vertical Height กับ Slant Height เป็นสาเหตุหลักที่ทำให้ระดับความสูงผิดพลาด ต้องล็อกตัวปรับระดับเสาโพลให้แน่นหนาและใช้แถบ Height Hook ทวนสอบทุกครั้ง',
+      'Short Observation Session on Long Baselines: รังวัดสถิตเวลาสั้นเกินไปบนเส้นฐานยาวกว่า 10 กิโลเมตร ส่งผลให้แก้ Ambiguity ไม่ผ่าน ต้องเคร่งครัดตามเกณฑ์เวลา T_min = 30 + 2D นาที'
     ],
     downstreamWorkflow: {
-      outputDataFormat: 'CSV (PT,LAT,LON,ELLIP_H,N,E,ORTHO_H), GeoJSON',
-      outputDescription: 'พิกัดภูมิศาสตร์ WGS84 และค่าพิกัดกริด UTM Zone 47N/48N พร้อมระดับความสูงเหนือหมุด Geoid TGM2017',
+      outputDataFormat: 'CSV (PT,LAT,LON,ELLIP_H,N,E,ORTHO_H), GeoJSON, RINEX 3.0x (.obs / .nav)',
+      outputDescription: 'พิกัดภูมิศาสตร์ WGS84 และค่าพิกัดกริด UTM Zone 47N/48N พร้อมระดับความสูงเหนือหมุด Geoid TGM2017 และไฟล์ดิบ RINEX สำหรับปรับแก้โครงข่าย',
       nextStepTitle: 'การแปลงพิกัดและตรวจสอบค่าปรับเทียบ (Coordinate Transformation & Validation)',
       nextStepProcedure: 'นำค่าพิกัด WGS84 ที่ได้จากการรังวัด RTK/Static นำเข้าสู่เครื่องมือแปลงพิกัด (Coordinate Converter) เพื่อแปลงเป็น UTM และ Indian 1975 หรือส่งออกเป็น GeoJSON เข้าสู่ WebGIS Terminal',
       recommendedToolTab: 'coord',

@@ -25,3 +25,4 @@ dist-ssr
 *.bak
 desktop.ini
 .agents/
+.freebuff/
