@@ -987,7 +987,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
 
       {/* Bottom Telemetry HUD Bar (Solid Surface, Tabular Precision Rule) */}
       <div
-        className="absolute bottom-20 md:bottom-4 left-3 sm:left-4 z-[990] px-3.5 py-2 rounded-lg font-mono tabular-nums text-xs pointer-events-none flex flex-wrap items-center gap-x-3 gap-y-1"
+        className="absolute bottom-20 md:bottom-4 left-3 right-3 md:right-auto sm:left-4 z-[990] max-w-[calc(100%-24px)] md:max-w-none px-3.5 py-2 rounded-lg font-mono tabular-nums text-xs pointer-events-none flex flex-wrap items-center gap-x-3 gap-y-1"
         style={{
           backgroundColor: 'var(--surface)',
           color: 'var(--text-1)',

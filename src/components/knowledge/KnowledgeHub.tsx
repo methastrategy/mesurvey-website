@@ -277,36 +277,36 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             </div>
 
             {/* 4 Telemetry Metric Cards (2x2 Grid — Geist Mono Tabular-Nums) */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="fusion-card p-4">
-                <div className="text-[var(--text-3)] text-xs font-mono uppercase tracking-wider mb-1">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
+              <div className="fusion-card p-3 sm:p-4 min-w-0">
+                <div className="text-[var(--text-3)] text-[11px] sm:text-xs font-mono uppercase tracking-wider mb-1 truncate">
                   RTK Sigma
                 </div>
-                <div className="text-xl sm:text-2xl font-semibold font-mono tabular-nums text-[var(--accent)]">
+                <div className="text-base sm:text-2xl font-semibold font-mono tabular-nums text-[var(--accent)] truncate">
                   ±0.004m
                 </div>
               </div>
-              <div className="fusion-card p-4">
-                <div className="text-[var(--text-3)] text-xs font-mono uppercase tracking-wider mb-1">
+              <div className="fusion-card p-3 sm:p-4 min-w-0">
+                <div className="text-[var(--text-3)] text-[11px] sm:text-xs font-mono uppercase tracking-wider mb-1 truncate">
                   Closure
                 </div>
-                <div className="text-xl sm:text-2xl font-semibold font-mono tabular-nums text-[var(--text-1)]">
+                <div className="text-base sm:text-2xl font-semibold font-mono tabular-nums text-[var(--text-1)] truncate">
                   1:32,400
                 </div>
               </div>
-              <div className="fusion-card p-4">
-                <div className="text-[var(--text-3)] text-xs font-mono uppercase tracking-wider mb-1">
+              <div className="fusion-card p-3 sm:p-4 min-w-0">
+                <div className="text-[var(--text-3)] text-[11px] sm:text-xs font-mono uppercase tracking-wider mb-1 truncate">
                   Elevation
                 </div>
-                <div className="text-xl sm:text-2xl font-semibold font-mono tabular-nums text-[var(--text-1)]">
+                <div className="text-base sm:text-2xl font-semibold font-mono tabular-nums text-[var(--text-1)] truncate">
                   +42.815m
                 </div>
               </div>
-              <div className="fusion-card p-4">
-                <div className="text-[var(--text-3)] text-xs font-mono uppercase tracking-wider mb-1">
+              <div className="fusion-card p-3 sm:p-4 min-w-0">
+                <div className="text-[var(--text-3)] text-[11px] sm:text-xs font-mono uppercase tracking-wider mb-1 truncate">
                   Parcel
                 </div>
-                <div className="text-xl sm:text-2xl font-semibold font-mono tabular-nums text-[var(--text-1)]">
+                <div className="text-base sm:text-2xl font-semibold font-mono tabular-nums text-[var(--text-1)] truncate">
                   12-2-48.5 ไร่
                 </div>
               </div>
@@ -314,7 +314,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
           </div>
 
           {/* ── Controls Near Content: Inline Search + Category Filter Bar ── */}
-          <div className="fusion-card p-4 space-y-3">
+          <div className="fusion-card p-3 sm:p-4 space-y-3">
             <div className="relative">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-3)] pointer-events-none" />
               <input
@@ -323,20 +323,20 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 aria-label="ค้นหาคู่มือปฏิบัติงานสำรวจ"
-                placeholder="ค้นหาชื่อเครื่องมือ, คำสั่งกล้อง, หรือเทคนิคสนาม (เช่น Two-Peg, Bowditch, 0-SET, Three-Wire, RTK, SLAM)... [กด /]"
-                className="w-full min-h-[44px] pl-10 pr-28 py-2.5 rounded-[var(--btn-radius)] border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-1)] placeholder-[var(--text-3)] text-xs sm:text-sm focus:outline-none focus:border-[var(--accent)] transition-colors"
+                placeholder="ค้นหาชื่อเครื่องมือ, คำสั่งกล้อง, เทคนิคสนาม (เช่น Two-Peg, Bowditch, RTK)... [กด /]"
+                className="w-full min-h-[44px] pl-10 pr-24 sm:pr-36 py-2.5 rounded-[var(--btn-radius)] border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-1)] placeholder-[var(--text-3)] text-xs sm:text-sm focus:outline-none focus:border-[var(--accent)] transition-colors"
               />
-              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
-                    className="min-h-[32px] px-2.5 py-1 rounded text-xs font-semibold text-[var(--text-2)] hover:text-[var(--text-1)] bg-[var(--surface)] border border-[var(--border)] transition-colors"
+                    className="min-h-[32px] px-2 py-1 rounded text-xs font-semibold text-[var(--text-2)] hover:text-[var(--text-1)] bg-[var(--surface)] border border-[var(--border)] transition-colors shrink-0"
                   >
-                    ล้างคำค้น
+                    ล้าง
                   </button>
                 )}
-                <span className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--border)] text-[11px] font-mono tabular-nums text-[var(--text-2)]">
+                <span className="hidden xs:inline-block px-1.5 sm:px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--border)] text-[10px] sm:text-[11px] font-mono tabular-nums text-[var(--text-2)] shrink-0">
                   {filteredTopics.length} SOPs
                 </span>
               </div>
@@ -406,15 +406,15 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       </div>
 
                       {/* Title & Monospace English Subtitle */}
-                      <h2 className="text-[18px] font-bold text-[var(--text-1)] group-hover:text-[var(--accent)] transition-colors mb-1 leading-snug">
+                      <h2 className="text-[17px] sm:text-[18px] font-bold text-[var(--text-1)] group-hover:text-[var(--accent)] transition-colors mb-1 leading-snug break-words">
                         {topic.title}
                       </h2>
-                      <p className="font-mono text-[12px] text-[var(--accent)] mb-3">
+                      <p className="font-mono text-[11px] sm:text-[12px] text-[var(--accent)] mb-3 break-words">
                         {topic.titleEn}
                       </p>
 
                       {/* Summary */}
-                      <p className="text-[13px] text-[var(--text-2)] mb-4 leading-relaxed line-clamp-3 flex-grow">
+                      <p className="text-[13px] text-[var(--text-2)] mb-4 leading-relaxed line-clamp-3 flex-grow break-words">
                         {topic.summary}
                       </p>
 
@@ -432,8 +432,8 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     </div>
 
                     {/* Card Footer: Telemetry Specs & Action Link */}
-                    <div className="pt-3.5 border-t border-[var(--border)] flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2.5 text-[11px] font-mono text-[var(--text-3)]">
+                    <div className="pt-3.5 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-[11px] font-mono text-[var(--text-3)] shrink-0">
                         <span>{topic.fieldProcedures.length} ขั้นตอน</span>
                         {topic.deviceWorkflow && topic.deviceWorkflow.length > 0 && (
                           <span className="text-[var(--accent)] font-semibold">• LCD Sim</span>
@@ -852,7 +852,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                         ))}
                       </div>
 
-                      <div className="pt-2 border-t border-emerald-900/60 flex items-center justify-between text-[10px] text-emerald-400 font-mono font-bold">
+                      <div className="pt-2 border-t border-emerald-900/60 flex flex-wrap items-center justify-between gap-1 text-[9px] sm:text-[10px] text-emerald-400 font-mono font-bold">
                         <span>[F1: DIST]</span>
                         <span>[F2: COORD]</span>
                         <span>[F3: SET]</span>

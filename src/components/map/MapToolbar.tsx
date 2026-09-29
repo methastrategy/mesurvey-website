@@ -52,7 +52,7 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
   return (
     <aside
       aria-label="แผงควบคุมแผนที่ภาคสนาม MESURV"
-      className="absolute top-3 sm:top-4 left-3 sm:left-4 z-[1000] w-[calc(100vw-24px)] sm:w-[380px] max-w-[390px] pointer-events-auto select-none"
+      className="absolute top-3 sm:top-4 left-3 right-3 sm:right-auto sm:left-4 sm:w-[380px] max-w-[390px] pointer-events-auto select-none"
     >
       <div
         className="p-3 space-y-3"

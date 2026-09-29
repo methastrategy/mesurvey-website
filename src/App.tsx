@@ -130,11 +130,11 @@ export function App() {
   };
 
   return (
-    <div className="relative flex flex-col min-h-screen bg-[var(--bg)] text-[var(--text-1)] font-sans antialiased">
+    <div className="relative flex flex-col min-h-screen w-full max-w-full overflow-x-hidden bg-[var(--bg)] text-[var(--text-1)] font-sans antialiased">
       {/* Main Content Viewport (Full Width, No Left Sidebar) */}
       <div
-        className={`relative z-10 flex flex-col flex-1 min-w-0 ${
-          activeTab === 'map' ? 'h-screen h-[100dvh] overflow-hidden' : 'min-h-screen'
+        className={`relative z-10 flex flex-col flex-1 min-w-0 w-full max-w-full ${
+          activeTab === 'map' ? 'h-screen h-[100dvh] overflow-hidden' : 'min-h-screen overflow-x-hidden'
         }`}
       >
         {/* Top Navigation Bar (Fusion DNA: 64px height, 2px underline tabs, RTSD READY badge, Theme toggle) */}
@@ -151,10 +151,10 @@ export function App() {
 
         {/* Dynamic Main Workspace Container (max-w-6xl centered per Fusion DNA) */}
         <main
-          className={`flex-1 w-full ${
+          className={`flex-1 w-full max-w-full ${
             activeTab === 'map'
               ? 'h-screen h-[100dvh] p-0 m-0 overflow-hidden relative'
-              : 'max-w-6xl mx-auto px-4 sm:px-6 py-8 pb-16'
+              : 'max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-8 pb-16'
           }`}
         >
           {activeTab === 'knowledge' && (

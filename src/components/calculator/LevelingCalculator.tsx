@@ -141,7 +141,7 @@ export const LevelingCalculator: React.FC = () => {
       </div>
 
       {/* Leveling Table Input */}
-      <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] p-5 sm:p-6 shadow-sm overflow-x-auto">
+      <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] p-4 sm:p-6 shadow-sm overflow-x-auto w-full max-w-full">
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-bold text-slate-900 dark:text-white text-sm">
             บันทึกการอ่านไม้ระดับ (Staff Readings Log)
@@ -312,7 +312,7 @@ export const LevelingCalculator: React.FC = () => {
           </div>
 
           {/* Computed Leveling Table */}
-          <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] p-5 sm:p-6 shadow-sm overflow-x-auto">
+          <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] p-4 sm:p-6 shadow-sm overflow-x-auto w-full max-w-full">
             <div className="flex items-center justify-between mb-4">
               <h4 className="font-bold text-slate-900 dark:text-white text-sm">
                 ตารางสรุปผลการคำนวณระดับ (Computed Reduced Level Table)

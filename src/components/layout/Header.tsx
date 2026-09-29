@@ -35,16 +35,16 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="nav-bar select-none">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-2">
+      <div className="max-w-6xl mx-auto px-2.5 sm:px-6 h-full flex items-center justify-between gap-1 sm:gap-2">
         
         {/* Left: MESURV Brand Identity + Field Terminal Tag + Contextual Sub-Breadcrumb */}
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 shrink-0">
           <button
             onClick={() => setActiveTab('knowledge')}
-            className="flex items-center gap-3 min-h-[44px] py-1 pr-2 text-left micro-press focus-ring shrink-0"
+            className="flex items-center gap-2 sm:gap-3 min-h-[44px] py-1 pr-1.5 sm:pr-2 text-left micro-press focus-ring shrink-0"
             title="MESURV Field Terminal"
           >
-            <div className="font-bold text-lg tracking-tight text-[var(--text-1)]">
+            <div className="font-bold text-base sm:text-lg tracking-tight text-[var(--text-1)] shrink-0">
               ME<span style={{ color: 'var(--accent)' }}>SURV</span>
             </div>
             <div className="hidden sm:block h-4 w-px bg-[var(--border)]" />
@@ -140,7 +140,7 @@ export const Header: React.FC<HeaderProps> = ({
         </nav>
 
         {/* Right: RTSD READY Telemetry Status Badge + Dual-Theme Toggle (Fieldbook ↔ Terminal) */}
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           <div className="hidden sm:inline-flex status-badge" title="Royal Thai Survey Department Standard Ready">
             <span className="status-dot" />
             <span>RTSD READY</span>
@@ -152,7 +152,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={onToggleTheme}
               aria-label={theme === 'fieldbook' ? 'สลับเป็นโหมดมืด Terminal' : 'สลับเป็นโหมดสว่าง Fieldbook'}
               title={theme === 'fieldbook' ? 'Theme: Fieldbook (คลิกเพื่อสลับเป็น Terminal Dark)' : 'Theme: Terminal (คลิกเพื่อสลับเป็น Fieldbook Light)'}
-              className="min-h-[44px] min-w-[44px] px-3 py-2 rounded-[var(--btn-radius)] bg-[var(--surface)] hover:bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-strong)] text-[var(--text-1)] flex items-center justify-center gap-2 transition-colors micro-press focus-ring"
+              className="min-h-[44px] min-w-[44px] px-2 sm:px-3 py-2 rounded-[var(--btn-radius)] bg-[var(--surface)] hover:bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-strong)] text-[var(--text-1)] flex items-center justify-center gap-2 transition-colors micro-press focus-ring"
             >
               {theme === 'fieldbook' ? (
                 <>

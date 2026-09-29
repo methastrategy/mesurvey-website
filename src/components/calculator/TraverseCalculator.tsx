@@ -307,7 +307,7 @@ export const TraverseCalculator: React.FC = () => {
       </div>
 
       {/* Traverse Legs Table Input */}
-      <div className="bg-surface-1 dark:bg-[#111113] rounded-3xl border border-hairline p-5 sm:p-6 shadow-sm overflow-x-auto">
+      <div className="bg-surface-1 dark:bg-[#111113] rounded-3xl border border-hairline p-4 sm:p-6 shadow-sm overflow-x-auto w-full max-w-full">
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-bold text-slate-900 dark:text-white text-sm">
             ตารางข้อมูลเส้นวงรอบ (Traverse Legs Input)
@@ -442,7 +442,7 @@ export const TraverseCalculator: React.FC = () => {
           </div>
 
           {/* Adjusted Traverse Table */}
-          <div className="bg-surface-1 dark:bg-[#111113] rounded-3xl border border-hairline p-5 sm:p-6 shadow-sm overflow-x-auto">
+          <div className="bg-surface-1 dark:bg-[#111113] rounded-3xl border border-hairline p-4 sm:p-6 shadow-sm overflow-x-auto w-full max-w-full">
             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
               <h4 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />

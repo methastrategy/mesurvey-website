@@ -203,7 +203,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                   <div className="space-y-4">
                     {/* Card Header */}
                     <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3.5">
+                      <div className="flex items-center gap-3.5 min-w-0 flex-1">
                         <div
                           className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 transition-colors"
                           style={{
@@ -214,7 +214,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                         >
                           <Icon className="w-5 h-5 stroke-[2]" />
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
                             <span
                               className="text-[11px] font-mono font-semibold"
@@ -225,13 +225,13 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                             <span className="badge badge-core text-[10px]">RTSD SPEC</span>
                           </div>
                           <h2
-                            className="text-base sm:text-lg font-bold tracking-tight leading-snug mt-0.5"
+                            className="text-base sm:text-lg font-bold tracking-tight leading-snug mt-0.5 break-words"
                             style={{ color: 'var(--text-1)' }}
                           >
                             {tool.label}
                           </h2>
                           <span
-                            className="text-[11px] font-mono block mt-0.5"
+                            className="text-[11px] font-mono block mt-0.5 break-words"
                             style={{ color: 'var(--text-3)' }}
                           >
                             {tool.labelEn}
@@ -390,25 +390,25 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       {/* 3. BOTTOM CORS TELEMETRY STRIP (MESURV Fusion DNA Signature)              */}
       {/* ========================================================================= */}
       <div
-        className="p-4 flex flex-wrap items-center justify-between gap-4 font-mono text-xs tabular-nums"
+        className="p-3.5 sm:p-4 flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-3 sm:gap-4 font-mono text-xs tabular-nums w-full min-w-0"
         style={{
           backgroundColor: 'var(--surface)',
           border: '1px solid var(--border)',
           borderRadius: 'var(--card-radius)'
         }}
       >
-        <div className="flex items-center gap-2.5 font-semibold" style={{ color: 'var(--accent-2)' }}>
+        <div className="flex items-center gap-2.5 font-semibold shrink-0" style={{ color: 'var(--accent-2)' }}>
           <span className="status-dot" />
-          <Radio className="w-3.5 h-3.5" />
+          <Radio className="w-3.5 h-3.5 shrink-0" />
           <span>CORS TELEMETRY: KU-BANGKHEN BASE</span>
         </div>
-        <div style={{ color: 'var(--text-2)' }}>
+        <div className="break-words" style={{ color: 'var(--text-2)' }}>
           E: <strong style={{ color: 'var(--text-1)' }}>669,842.118 m</strong> &nbsp;|&nbsp; N: <strong style={{ color: 'var(--text-1)' }}>1,531,204.592 m</strong> (UTM 47N)
         </div>
-        <div style={{ color: 'var(--text-2)' }}>
+        <div className="break-words" style={{ color: 'var(--text-2)' }}>
           GEOID: <strong style={{ color: 'var(--text-1)' }}>TGM2017 (-28.412 m)</strong>
         </div>
-        <div style={{ color: 'var(--text-3)' }}>
+        <div className="break-words" style={{ color: 'var(--text-3)' }}>
           MISCLOSURE LIMIT: <strong style={{ color: 'var(--accent)' }}>1 : 10,000 (RTSD)</strong>
         </div>
       </div>
