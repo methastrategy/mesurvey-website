@@ -6,7 +6,8 @@ import { AboutModal } from './components/layout/AboutModal';
 import { KnowledgeHub } from './components/knowledge/KnowledgeHub';
 import { CalculatorHub } from './components/calculator/CalculatorHub';
 import { WebMap } from './components/map/WebMap';
-import { ScrollCanvasBackground } from './components/layout/ScrollCanvasBackground';
+
+export type MesurvTheme = 'fieldbook' | 'terminal';
 
 function parseRouteHash(rawHash: string) {
   const hash = rawHash.replace(/^#\/?/, '').trim();
@@ -41,17 +42,46 @@ export function App() {
   const activeTab = route.tab;
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
+  // Dual-Theme State: 'fieldbook' (Light Daytime) | 'terminal' (Dark Matrix)
+  const [theme, setTheme] = useState<MesurvTheme>(() => {
+    try {
+      const saved = localStorage.getItem('mesurv-theme');
+      if (saved === 'terminal' || saved === 'fieldbook') return saved;
+    } catch {}
+    return 'fieldbook';
+  });
+
   const [externalMapPoint, setExternalMapPoint] = useState<{
     lat: number;
     lng: number;
     label: string;
   } | null>(null);
 
-  // Enforce permanent Dark Mode (Raycast × Linear Dark Glassmorphism)
+  // Synchronize data-theme on both <html> and <body> + Tailwind .dark class + meta theme-color
   useEffect(() => {
-    document.documentElement.classList.add('dark');
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }, []);
+    const root = document.documentElement;
+    const body = document.body;
+
+    root.setAttribute('data-theme', theme);
+    body.setAttribute('data-theme', theme);
+
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (theme === 'terminal') {
+      root.classList.add('dark');
+      if (metaTheme) metaTheme.setAttribute('content', '#050505');
+    } else {
+      root.classList.remove('dark');
+      if (metaTheme) metaTheme.setAttribute('content', '#f3f1eb');
+    }
+
+    try {
+      localStorage.setItem('mesurv-theme', theme);
+    } catch {}
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'fieldbook' ? 'terminal' : 'fieldbook'));
+  };
 
   // Lock outer page scrolling when in WebGIS map mode
   useEffect(() => {
@@ -100,31 +130,31 @@ export function App() {
   };
 
   return (
-    <div className="relative flex flex-col min-h-screen bg-[#07080a]/40 text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white">
-      {/* 60fps Scroll-Driven + Ambient Crossfade Underwater Canvas Background */}
-      <ScrollCanvasBackground activeTab={activeTab} />
-
-      {/* Main Content Viewport (Full Width — No Left Sidebar Clutter) */}
+    <div className="relative flex flex-col min-h-screen bg-[var(--bg)] text-[var(--text-1)] font-sans antialiased">
+      {/* Main Content Viewport (Full Width, No Left Sidebar) */}
       <div
         className={`relative z-10 flex flex-col flex-1 min-w-0 ${
           activeTab === 'map' ? 'h-screen h-[100dvh] overflow-hidden' : 'min-h-screen'
         }`}
       >
-        {/* Top Floating Glass Command Bar (Hidden in full-screen Map mode) */}
+        {/* Top Navigation Bar (Fusion DNA: 64px height, 2px underline tabs, RTSD READY badge, Theme toggle) */}
         {activeTab !== 'map' && (
           <Header
             activeTab={activeTab}
             setActiveTab={handleTabChange}
             route={route}
+            theme={theme}
+            onToggleTheme={toggleTheme}
+            onOpenAbout={() => setIsAboutOpen(true)}
           />
         )}
 
-        {/* Dynamic Main Workspace Container */}
+        {/* Dynamic Main Workspace Container (max-w-6xl centered per Fusion DNA) */}
         <main
           className={`flex-1 w-full ${
             activeTab === 'map'
               ? 'h-screen h-[100dvh] p-0 m-0 overflow-hidden relative'
-              : 'max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 pb-16'
+              : 'max-w-6xl mx-auto px-4 sm:px-6 py-8 pb-16'
           }`}
         >
           {activeTab === 'knowledge' && (
@@ -145,7 +175,7 @@ export function App() {
         </main>
 
         {/* Footer: Hidden on map mode to prevent map scrolling */}
-        {activeTab !== 'map' && <Footer />}
+        {activeTab !== 'map' && <Footer onOpenAbout={() => setIsAboutOpen(true)} />}
       </div>
 
       {/* Global Floating About Corner Icon (Hidden in fullscreen map mode) */}
@@ -154,7 +184,7 @@ export function App() {
           onClick={() => setIsAboutOpen(true)}
           aria-label="เกี่ยวกับระบบ"
           title="เกี่ยวกับระบบ MESURV"
-          className="fixed bottom-4 right-4 z-50 w-9 h-9 flex items-center justify-center rounded-full bg-[#111318]/85 hover:bg-indigo-600/20 backdrop-blur-xl border border-white/[0.10] hover:border-indigo-500/40 text-slate-400 hover:text-indigo-300 shadow-[0_4px_20px_rgba(0,0,0,0.5)] transition-all micro-press focus-ring"
+          className="fixed bottom-4 right-4 z-50 w-11 h-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-[var(--surface)] hover:bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-strong)] text-[var(--text-2)] hover:text-[var(--accent)] shadow-[var(--shadow)] transition-colors micro-press focus-ring"
         >
           <Info className="w-4 h-4 stroke-[2]" />
         </button>
@@ -167,3 +197,4 @@ export function App() {
 }
 
 export default App;
+

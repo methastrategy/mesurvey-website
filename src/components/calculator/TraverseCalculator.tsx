@@ -70,11 +70,18 @@ export const TraverseCalculator: React.FC = () => {
     });
 
     return (
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-56 bg-slate-900 rounded-2xl border border-slate-800">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="w-full h-56 rounded-xl"
+        style={{
+          backgroundColor: 'var(--surface-2)',
+          border: '1px solid var(--border)'
+        }}
+      >
         <polygon
           points={points.join(' ')}
-          fill="rgba(16, 185, 129, 0.15)"
-          stroke="#10b981"
+          fill="rgba(4, 120, 87, 0.14)"
+          stroke="var(--accent-2)"
           strokeWidth="2.5"
           strokeDasharray="4 2"
         />
@@ -84,13 +91,13 @@ export const TraverseCalculator: React.FC = () => {
           const stationName = Object.keys(result!.stationCoordinates)[i];
           return (
             <g key={i}>
-              <circle cx={x} cy={y} r="5" fill="#f59e0b" stroke="#ffffff" strokeWidth="1.5" />
+              <circle cx={x} cy={y} r="5" fill="var(--accent)" stroke="var(--surface)" strokeWidth="1.5" />
               <text
                 x={x + 7}
                 y={y - 7}
-                fill="#ffffff"
+                fill="var(--text-1)"
                 fontSize="10"
-                fontFamily="sans-serif"
+                fontFamily="Geist Mono, JetBrains Mono, monospace"
                 fontWeight="bold"
               >
                 {stationName}
@@ -332,6 +339,7 @@ export const TraverseCalculator: React.FC = () => {
                 <td className="py-2 px-2">
                   <input
                     type="text"
+                    aria-label={`สถานีต้นทางแถวที่ ${idx + 1}`}
                     value={leg.station}
                     onChange={(e) => updateTraverseLeg(idx, 'station', e.target.value)}
                     className="w-24 px-2.5 py-1.5 rounded-lg border border-hairline bg-surface-2 dark:bg-[#0a0a0b] text-slate-900 dark:text-white font-mono text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
@@ -340,6 +348,7 @@ export const TraverseCalculator: React.FC = () => {
                 <td className="py-2 px-2">
                   <input
                     type="text"
+                    aria-label={`สถานีปลายทางแถวที่ ${idx + 1}`}
                     value={leg.targetStation}
                     onChange={(e) => updateTraverseLeg(idx, 'targetStation', e.target.value)}
                     className="w-24 px-2.5 py-1.5 rounded-lg border border-hairline bg-surface-2 dark:bg-[#0a0a0b] text-slate-900 dark:text-white font-mono text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
@@ -349,6 +358,7 @@ export const TraverseCalculator: React.FC = () => {
                   <input
                     type="number"
                     step="0.001"
+                    aria-label={`ระยะราบแถวที่ ${idx + 1}`}
                     value={leg.distance}
                     onChange={(e) => updateTraverseLeg(idx, 'distance', e.target.value)}
                     className="w-28 px-2.5 py-1.5 rounded-lg border border-hairline bg-surface-2 dark:bg-[#0a0a0b] text-slate-900 dark:text-white font-mono text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
@@ -358,6 +368,7 @@ export const TraverseCalculator: React.FC = () => {
                   <input
                     type="number"
                     step="0.0001"
+                    aria-label={`มุม Azimuth แถวที่ ${idx + 1}`}
                     value={leg.azimuthDeg}
                     onChange={(e) => updateTraverseLeg(idx, 'azimuthDeg', e.target.value)}
                     className="w-28 px-2.5 py-1.5 rounded-lg border border-hairline bg-surface-2 dark:bg-[#0a0a0b] text-slate-900 dark:text-white font-mono text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
@@ -367,6 +378,8 @@ export const TraverseCalculator: React.FC = () => {
                   <button
                     onClick={() => removeTraverseLeg(idx)}
                     disabled={traverseLegs.length <= 1}
+                    aria-label={`ลบเส้นวงรอบแถวที่ ${idx + 1}`}
+                    title={`ลบเส้นวงรอบแถวที่ ${idx + 1}`}
                     className="min-h-[36px] min-w-[36px] p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 disabled:opacity-30 transition-colors inline-flex items-center justify-center"
                   >
                     <Trash2 className="w-4 h-4" />

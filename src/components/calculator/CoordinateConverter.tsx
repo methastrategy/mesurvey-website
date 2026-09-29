@@ -347,6 +347,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                 <div className="grid grid-cols-4 gap-2">
                   <input
                     type="number"
+                    aria-label="องศาละติจูด (Latitude Degrees)"
                     value={dmsLatDeg}
                     onChange={(e) => setDmsLatDeg(e.target.value)}
                     placeholder="Deg"
@@ -354,6 +355,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                   />
                   <input
                     type="number"
+                    aria-label="ลิปดาละติจูด (Latitude Minutes)"
                     value={dmsLatMin}
                     onChange={(e) => setDmsLatMin(e.target.value)}
                     placeholder="Min"
@@ -362,12 +364,14 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                   <input
                     type="number"
                     step="0.01"
+                    aria-label="พิลิปดาละติจูด (Latitude Seconds)"
                     value={dmsLatSec}
                     onChange={(e) => setDmsLatSec(e.target.value)}
                     placeholder="Sec"
                     className="min-h-[44px] px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
                   />
                   <select
+                    aria-label="ซีกโลกเหนือ-ใต้ (Latitude Direction)"
                     value={dmsLatDir}
                     onChange={(e) => setDmsLatDir(e.target.value as 'N' | 'S')}
                     className="min-h-[44px] px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#18181b] font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
@@ -385,6 +389,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                 <div className="grid grid-cols-4 gap-2">
                   <input
                     type="number"
+                    aria-label="องศาลองจิจูด (Longitude Degrees)"
                     value={dmsLngDeg}
                     onChange={(e) => setDmsLngDeg(e.target.value)}
                     placeholder="Deg"
@@ -392,6 +397,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                   />
                   <input
                     type="number"
+                    aria-label="ลิปดาลองจิจูด (Longitude Minutes)"
                     value={dmsLngMin}
                     onChange={(e) => setDmsLngMin(e.target.value)}
                     placeholder="Min"
@@ -400,12 +406,14 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                   <input
                     type="number"
                     step="0.01"
+                    aria-label="พิลิปดาลองจิจูด (Longitude Seconds)"
                     value={dmsLngSec}
                     onChange={(e) => setDmsLngSec(e.target.value)}
                     placeholder="Sec"
                     className="min-h-[44px] px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
                   />
                   <select
+                    aria-label="ซีกโลกตะวันออก-ตะวันตก (Longitude Direction)"
                     value={dmsLngDir}
                     onChange={(e) => setDmsLngDir(e.target.value as 'E' | 'W')}
                     className="min-h-[44px] px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#18181b] font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"

@@ -882,28 +882,41 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
       />
 
       {/* MeMap Top-Right Branding Widget (Hidden on mobile to avoid MapToolbar collision) */}
-      <div className="hidden sm:flex absolute top-3 sm:top-4 right-3 sm:right-4 z-[1000] items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0c0d12]/90 backdrop-blur-2xl border border-white/[0.12] text-white shadow-[0_8px_32px_rgba(0,0,0,0.6)] pointer-events-auto select-none">
-        <span className="relative flex h-2.5 w-2.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />
+      <div
+        className="hidden sm:flex absolute top-3 sm:top-4 right-3 sm:right-4 z-[1000] items-center gap-2 px-3.5 py-1.5 rounded-lg pointer-events-auto select-none"
+        style={{
+          backgroundColor: 'var(--surface)',
+          border: '1px solid var(--border)',
+          color: 'var(--text-1)',
+          boxShadow: 'var(--shadow)'
+        }}
+      >
+        <span className="status-dot" />
+        <span className="font-extrabold text-xs sm:text-sm tracking-wider" style={{ color: 'var(--text-1)' }}>
+          Me<span style={{ color: 'var(--accent)' }}>Map</span>
         </span>
-        <span className="font-extrabold text-xs sm:text-sm tracking-wider bg-gradient-to-r from-white via-slate-100 to-cyan-300 bg-clip-text text-transparent">
-          MeMap
-        </span>
-        <span className="w-px h-3 bg-white/20" />
-        <span className="text-[10px] font-mono text-cyan-300 tracking-widest uppercase font-semibold">
+        <span className="w-px h-3" style={{ backgroundColor: 'var(--border)' }} />
+        <span className="text-[10px] font-mono tracking-widest uppercase font-semibold" style={{ color: 'var(--accent)' }}>
           WebGIS
         </span>
       </div>
 
-      {/* Floating Inspect Mode Guidance Banner (Rested Surface) */}
+      {/* Floating Inspect Mode Guidance Banner (Solid Surface) */}
       {measureMode === 'inspect' && (
-        <div className="absolute top-52 sm:top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-white border border-slate-700/80 px-3.5 py-1.5 rounded-xl shadow-sm text-xs font-medium flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 max-w-[90vw]">
-          <Crosshair className="w-4 h-4 text-sky-400 shrink-0" />
+        <div
+          className="absolute top-52 sm:top-20 left-1/2 -translate-x-1/2 z-[1000] px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-2 max-w-[90vw]"
+          style={{
+            backgroundColor: 'var(--surface)',
+            color: 'var(--text-1)',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow)'
+          }}
+        >
+          <Crosshair className="w-4 h-4 shrink-0" style={{ color: 'var(--accent)' }} />
           <span className="truncate">แตะจุดใดๆ บนแผนที่เพื่อดูและคัดลอกพิกัด</span>
           <button 
             onClick={() => setMeasureMode('none')}
-            className="ml-2 min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center justify-center gap-1 shadow-xs transition-colors shrink-0"
+            className="btn-primary ml-2 min-h-[44px] min-w-[44px] px-3.5 py-2 text-xs font-semibold flex items-center justify-center gap-1 shrink-0"
           >
             <Check className="w-3.5 h-3.5" />
             <span>เสร็จสิ้น</span>
@@ -911,12 +924,20 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
         </div>
       )}
 
-      {/* Floating Dynamic Measurement Result Pill (Rested Surface, Tabular-nums) */}
+      {/* Floating Dynamic Measurement Result Pill (Solid Surface, Tabular-nums) */}
       {measurementResultText && (
-        <div className="absolute top-52 sm:top-20 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-white border border-slate-700/80 px-3.5 py-1.5 rounded-xl shadow-sm text-xs font-medium flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 max-w-[90vw]">
-          <span className="w-2 h-2 rounded-full bg-sky-500 shrink-0" />
+        <div
+          className="absolute top-52 sm:top-20 left-1/2 -translate-x-1/2 z-[1000] px-3.5 py-2 rounded-lg text-xs font-medium flex items-center space-x-2 max-w-[90vw]"
+          style={{
+            backgroundColor: 'var(--surface)',
+            color: 'var(--text-1)',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow)'
+          }}
+        >
+          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: 'var(--accent)' }} />
           <span className="font-mono tabular-nums tracking-tight truncate">{measurementResultText}</span>
-          <span className="text-xs text-slate-400 hidden lg:inline pl-1">(คลิกขวาเพื่อย้อนจุด)</span>
+          <span className="text-xs hidden lg:inline pl-1" style={{ color: 'var(--text-3)' }}>(คลิกขวาเพื่อย้อนจุด)</span>
         </div>
       )}
 
@@ -925,14 +946,27 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
         <div 
           className={`absolute ${
             measureMode === 'inspect' || measurementResultText ? 'top-64 sm:top-36' : 'top-52 sm:top-20'
-          } left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-white border border-emerald-500/80 px-3.5 py-1.5 rounded-xl shadow-xs text-xs font-medium flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 max-w-[90vw]`}
+          } left-1/2 -translate-x-1/2 z-[1000] px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-2 max-w-[90vw]`}
+          style={{
+            backgroundColor: 'var(--surface)',
+            color: 'var(--text-1)',
+            border: '1px solid var(--accent-2)',
+            boxShadow: 'var(--shadow)'
+          }}
         >
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-          <span className="font-semibold text-emerald-400">
+          <span className="status-dot shrink-0" />
+          <span className="font-semibold" style={{ color: 'var(--accent-2)' }}>
             กำลังแสดงโครงข่ายวงรอบ: {plottedTraverseOverlay.stations.length} สถานี
           </span>
           {plottedTraverseOverlay.precisionGrade && (
-            <span className="hidden sm:inline font-mono tabular-nums text-[11px] text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">
+            <span
+              className="hidden sm:inline font-mono tabular-nums text-[11px] px-1.5 py-0.5 rounded"
+              style={{
+                backgroundColor: 'var(--surface-2)',
+                color: 'var(--text-2)',
+                border: '1px solid var(--border)'
+              }}
+            >
               {plottedTraverseOverlay.precisionGrade} (1:{plottedTraverseOverlay.precisionRatio?.toLocaleString()})
             </span>
           )}
@@ -942,7 +976,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
               showToast('ปิดการแสดงโครงข่ายวงรอบแล้ว');
             }}
             aria-label="ปิดการแสดงโครงข่ายวงรอบ"
-            className="ml-2 min-h-[44px] min-w-[44px] px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-1 border border-slate-700 transition-colors"
+            className="btn-outline ml-2 min-h-[44px] min-w-[44px] px-2.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1"
             title="ปิดการแสดงผลโครงข่ายวงรอบ"
           >
             <X className="w-3.5 h-3.5" />
@@ -951,37 +985,59 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
         </div>
       )}
 
-      {/* Bottom Telemetry HUD Bar (Rested Surface, Tabular Precision Rule) */}
-      <div className="absolute bottom-20 md:bottom-4 left-3 sm:left-4 z-[990] bg-white/95 dark:bg-[#131b2c]/95 backdrop-blur-md text-slate-800 dark:text-slate-200 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs font-mono tabular-nums text-xs pointer-events-none flex flex-wrap items-center gap-x-3 gap-y-1">
-        <div className="flex items-center gap-1.5 text-sky-600 dark:text-sky-400 font-semibold">
+      {/* Bottom Telemetry HUD Bar (Solid Surface, Tabular Precision Rule) */}
+      <div
+        className="absolute bottom-20 md:bottom-4 left-3 sm:left-4 z-[990] px-3.5 py-2 rounded-lg font-mono tabular-nums text-xs pointer-events-none flex flex-wrap items-center gap-x-3 gap-y-1"
+        style={{
+          backgroundColor: 'var(--surface)',
+          color: 'var(--text-1)',
+          border: '1px solid var(--border)',
+          boxShadow: 'var(--shadow)'
+        }}
+      >
+        <div className="flex items-center gap-1.5 font-semibold" style={{ color: 'var(--accent)' }}>
           <Compass className="w-3.5 h-3.5 shrink-0" />
           <span>ศูนย์กลางแผนที่</span>
         </div>
-        <div className="text-slate-600 dark:text-slate-300">
+        <div style={{ color: 'var(--text-2)' }}>
           WGS84: {telemetry.lat.toFixed(6)}°, {telemetry.lng.toFixed(6)}°
         </div>
-        <div className="text-slate-400 dark:text-slate-600 hidden sm:inline">
+        <div className="hidden sm:inline" style={{ color: 'var(--text-3)' }}>
           |
         </div>
-        <div className="text-slate-600 dark:text-slate-300 hidden sm:inline">
+        <div className="hidden sm:inline" style={{ color: 'var(--text-2)' }}>
           UTM {telemetry.zone}N: E {telemetry.utmE.toLocaleString()} m, N {telemetry.utmN.toLocaleString()} m
         </div>
-        <div className="text-slate-500 dark:text-slate-400 text-xs px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60">
+        <div
+          className="text-xs px-1.5 py-0.5 rounded"
+          style={{
+            backgroundColor: 'var(--surface-2)',
+            color: 'var(--text-2)',
+            border: '1px solid var(--border)'
+          }}
+        >
           Z: {telemetry.zoom}
         </div>
       </div>
 
-      {/* Right-Click Geomatics Context Menu (Instrument Rarity: Single Sky Accent) */}
+      {/* Right-Click Geomatics Context Menu */}
       {contextMenu && (
         <div 
-          className="absolute z-[1100] bg-white/95 dark:bg-[#131b2c]/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-1 shadow-md min-w-[220px] text-xs font-medium text-slate-800 dark:text-slate-200 animate-in fade-in zoom-in-95"
+          className="absolute z-[1100] rounded-lg p-1 min-w-[220px] text-xs font-medium"
           style={{
             top: Math.max(84, Math.min(contextMenu.y, window.innerHeight - 330)),
-            left: Math.min(contextMenu.x, window.innerWidth - 240)
+            left: Math.min(contextMenu.x, window.innerWidth - 240),
+            backgroundColor: 'var(--surface)',
+            color: 'var(--text-1)',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow)'
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="px-3 py-1.5 text-xs font-mono text-slate-400 border-b border-slate-100 dark:border-slate-800">
+          <div
+            className="px-3 py-1.5 text-xs font-mono"
+            style={{ color: 'var(--text-3)', borderBottom: '1px solid var(--border)' }}
+          >
             {contextMenu.lat.toFixed(6)}°, {contextMenu.lng.toFixed(6)}°
           </div>
 
@@ -991,9 +1047,9 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
               setContextMenu(null);
               showToast('ปักหมุดรังวัดเรียบร้อยแล้ว');
             }}
-            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 transition-colors"
+            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"
           >
-            <MapPin className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors" />
+            <MapPin className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
             <span>ปักหมุดรังวัดที่นี่</span>
           </button>
 
@@ -1002,9 +1058,9 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
               inspectCoordinate(contextMenu.lat, contextMenu.lng);
               setContextMenu(null);
             }}
-            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 transition-colors"
+            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"
           >
-            <Crosshair className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors" />
+            <Crosshair className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
             <span>ตรวจสอบพิกัดละเอียด</span>
           </button>
 
@@ -1013,9 +1069,9 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
               handleSendToConverter(contextMenu.lat, contextMenu.lng);
               setContextMenu(null);
             }}
-            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 transition-colors"
+            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"
           >
-            <Calculator className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors" />
+            <Calculator className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
             <span>ส่งพิกัดไปยังเครื่องมือแปลงพิกัด</span>
           </button>
 
@@ -1025,9 +1081,9 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
               setMeasurePoints([{ lat: contextMenu.lat, lng: contextMenu.lng }]);
               setContextMenu(null);
             }}
-            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 transition-colors"
+            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"
           >
-            <Ruler className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors" />
+            <Ruler className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
             <span>เริ่มวัดระยะทางจากจุดนี้</span>
           </button>
 
@@ -1037,13 +1093,13 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
               setMeasurePoints([{ lat: contextMenu.lat, lng: contextMenu.lng }]);
               setContextMenu(null);
             }}
-            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 transition-colors"
+            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2 transition-colors"
           >
-            <Square className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors" />
+            <Square className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
             <span>เริ่มวัดพื้นที่จากจุดนี้</span>
           </button>
 
-          <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
+          <div className="my-1" style={{ borderTop: '1px solid var(--border)' }} />
 
           <button
             onClick={() => {
@@ -1057,17 +1113,25 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
               setContextMenu(null);
               showToast('ล้างหมุดและเส้นรังวัดทั้งหมดแล้ว');
             }}
-            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/60 dark:hover:bg-rose-950/30 flex items-center gap-2 transition-colors"
+            className="group w-full min-h-[44px] text-left px-3 py-2.5 rounded text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 flex items-center gap-2 transition-colors"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors" />
+            <RotateCcw className="w-3.5 h-3.5 text-rose-500" />
             <span>ล้างหมุดและเส้นทั้งหมด</span>
           </button>
         </div>
       )}
 
-      {/* Floating Canvas Toast (Rested Surface) */}
+      {/* Floating Canvas Toast (Solid Surface) */}
       {toastMessage && (
-        <div className="absolute bottom-28 md:bottom-16 left-1/2 -translate-x-1/2 z-[1150] bg-slate-900/90 text-white px-3.5 py-1.5 rounded-xl border border-slate-800 shadow-sm text-xs font-medium flex items-center space-x-1.5 animate-in fade-in slide-in-from-bottom-2">
+        <div
+          className="absolute bottom-28 md:bottom-16 left-1/2 -translate-x-1/2 z-[1150] px-3.5 py-2 rounded-lg text-xs font-medium flex items-center space-x-1.5"
+          style={{
+            backgroundColor: 'var(--surface)',
+            color: 'var(--text-1)',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow)'
+          }}
+        >
           <span>{toastMessage}</span>
         </div>
       )}

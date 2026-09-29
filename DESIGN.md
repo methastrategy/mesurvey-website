@@ -1,160 +1,98 @@
----
-name: MESURV
-description: Survey & Geomatics Engineering Field Terminal (Linear x Vercel Aesthetic)
-colors:
-  primary: "#6366f1"
-  primary-hover: "#818cf8"
-  primary-pressed: "#4f46e5"
-  primary-subtle: "rgba(99, 102, 241, 0.08)"
-  neutral-bg-dark: "#0a0a0b"
-  neutral-surface-1-dark: "#111113"
-  neutral-surface-2-dark: "#161618"
-  neutral-surface-3-dark: "#1c1c1f"
-  neutral-bg-light: "#ffffff"
-  neutral-surface-1-light: "#f9fafb"
-  neutral-surface-2-light: "#f3f4f6"
-  neutral-surface-3-light: "#e5e7eb"
-  hairline-dark: "rgba(255, 255, 255, 0.08)"
-  hairline-light: "rgba(0, 0, 0, 0.08)"
-  semantic-amber: "#f59e0b"
-  semantic-emerald: "#10b981"
-  semantic-rose: "#f43f5e"
-typography:
-  display:
-    fontFamily: "'DM Sans', Prompt, -apple-system, sans-serif"
-    fontSize: "1.875rem"
-    fontWeight: 800
-    lineHeight: 1.25
-    letterSpacing: "-0.025em"
-  headline:
-    fontFamily: "'DM Sans', Prompt, -apple-system, sans-serif"
-    fontSize: "1.25rem"
-    fontWeight: 700
-    lineHeight: 1.35
-    letterSpacing: "-0.015em"
-  title:
-    fontFamily: "'DM Sans', Prompt, -apple-system, sans-serif"
-    fontSize: "1rem"
-    fontWeight: 600
-    lineHeight: 1.4
-    letterSpacing: "normal"
-  body:
-    fontFamily: "'DM Sans', Prompt, -apple-system, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 400
-    lineHeight: 1.625
-    letterSpacing: "normal"
-  label:
-    fontFamily: "'JetBrains Mono', monospace"
-    fontSize: "0.75rem"
-    fontWeight: 500
-    lineHeight: 1.4
-    letterSpacing: "0.025em"
-rounded:
-  micro: "2px"
-  sm: "6px"
-  md: "10px"
-  lg: "16px"
-  xl: "24px"
-  full: "9999px"
----
-
-# Design System: MESURV (Linear × Vercel Precision Instrument)
-
-## Overview
-
-**Creative North Star: "Precision Engineering Field Terminal"**
-
-MESURV is an advanced geomatics, civil engineering, and land surveying terminal for field surveyors and engineering students in Thailand. The visual system fuses the ultra-clean, near-black, hairline-bordered clarity of **Linear** with the typography, focus mechanics, and **Electric Indigo** accents of **Vercel** and **Supabase**.
-
-The interface balances outdoor field resilience with desktop engineering precision:
-- **Zero Blurry Drop Shadows:** Depth is achieved through flat, rested surfaces separated by crisp 1px hairline borders (`rgba(255,255,255,0.08)` in dark, `rgba(0,0,0,0.08)` in light).
-- **Single Primary Accent:** Electric Indigo (`#6366f1`) is the authoritative focal point across buttons, active tab indicators, and selection rings.
-- **Instrument Rarity Rule:** Functional accents strictly signify operational state:
-  - **Electric Indigo (`#6366f1`)**: Primary actions, active navigation, focus rings.
-  - **Emerald (`#10b981`)**: Verified SOP badges, online telemetry ("RTSD READY"), closed traverses.
-  - **Amber (`#f59e0b`)**: DRAFT provenance badges, warning thresholds, misclosure flags.
-  - **Rose (`#f43f5e`)**: Destructive resets, gross errors, boundary check failures.
+# DESIGN.md — MESURV: Geomatics & Survey Engineering Field Terminal
+> **Design System Status**: **LOCKED PRODUCTION SPEC** (`/medesign` §6 Champion Fusion + `/ui-ux-pro-max`)
+> **DNA Synthesis**: **Topographic Fieldbook** (`#f3f1eb` Warm Sand Light) × **Obsidian Telemetry Terminal** (`#050505` Pitch Dark)
+> **Domain**: Survey Engineering & Geoinformatics, Kasetsart University (RTSD Standards, Geodetic Projections, Traverse, Leveling, WebGIS)
 
 ---
 
-## 1. Design Token System
+## 1. Visual Direction & Domain Philosophy
 
-### 1.1 Color Tokens
-
-| Token | Light Mode | Dark Mode | Usage |
-|---|---|---|---|
-| `--canvas` | `#ffffff` | `#0a0a0b` | Base viewport substrate |
-| `--surface-1` | `#f9fafb` | `#111113` | Primary cards, sidebars, modals |
-| `--surface-2` | `#f3f4f6` | `#161618` | Inset wells, table headers, hovered rows |
-| `--surface-3` | `#e5e7eb` | `#1c1c1f` | Tertiary elevation, badge backgrounds |
-| `--border-hairline`| `rgba(0,0,0,0.08)` | `rgba(255,255,255,0.08)` | 1px precision boundary |
-| `--border-subtle`  | `rgba(0,0,0,0.12)` | `rgba(255,255,255,0.12)` | Interactive borders, focus boundaries |
-| `--accent-indigo`  | `#6366f1` | `#6366f1` | Primary brand accent |
-| `--accent-indigo-hover` | `#818cf8` | `#818cf8` | Hover state for buttons/links |
-| `--accent-indigo-pressed` | `#4f46e5` | `#4f46e5` | Active/pressed micro-interaction |
-| `--semantic-amber` | `#f59e0b` | `#f59e0b` | DRAFT status, warnings |
-| `--semantic-emerald` | `#10b981` | `#10b981` | VERIFIED status, RTSD online |
-| `--semantic-rose`  | `#f43f5e` | `#f43f5e` | Errors, misclosures |
-
-### 1.2 Typography Tokens
-
-- **UI / Body Font**: `DM Sans` (Google Fonts, weights 400, 500, 600, 700). Modern, geometric, clean Latin letterforms.
-- **Thai Headroom Fallback**: `Prompt` (Google Fonts). Retains natural diacritic headroom (leading-normal: 1.5) preventing Thai tone mark clipping.
-- **Mathematical & Coordinate Mono**: `JetBrains Mono` with `font-variant-numeric: tabular-nums`. Used for all latitudes, longitudes, UTM coordinates, elevations, and misclosure ratios.
-
-### 1.3 Precision Radius Scale
-
-- `micro: 2px` — Inline badges, code snippets, tags
-- `sm: 6px` — Compact dropdown items, micro-buttons
-- `md: 10px` — Form inputs, standard buttons, tabs
-- `lg: 16px` — Content cards, popups, modals
-- `xl: 24px` — Hero containers, floating overlays
-- `full: 9999px` — Status pills, circular icon buttons
-
-### 1.4 Micro-Interactions
-
-- **Hover Lift (`.micro-lift`)**: `transform: translateY(-1px)` with subtle 150ms ease.
-- **Press Scale (`.micro-press`)**: `transform: scale(0.97)` on `:active`.
-- **Focus Ring (`.focus-ring`)**: `outline: none; box-shadow: 0 0 0 2px #6366f1;`.
-- **Precision Card (`.card-precision`)**: Rests flat with `var(--border-hairline)`. On hover, border shifts to `rgba(99, 102, 241, 0.4)` with `box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08)`.
+**MESURV** is built as a **high-precision Geomatics Field Terminal & SOP Knowledge Hub** for Survey Engineers:
+1. **Dual-Environment Adaptability**: Survey engineers work across two extreme lighting environments—direct outdoor sunlight (requiring warm, glare-free paper contrast) and indoor CAD/GIS post-processing labs (requiring pitch-black obsidian contrast). MESURV provides an instant, zero-FOUC toggle between `FIELDBOOK` (`data-theme="fieldbook"`) and `TERMINAL` (`data-theme="terminal"`).
+2. **Solid Architectural Surfaces**: Every card, console, and HUD panel uses solid surfaces with crisp `1px solid var(--border)` structural hairlines. Frosted glass (`backdrop-filter: blur`) and decorative gradients are strictly prohibited.
+3. **Tabular Numeric Discipline**: Every coordinate (`Easting`, `Northing`, `Lat/Lon`), azimuth (`DDD°MM'SS"`), closure ratio (`1:N`), and elevation readout (`RL`) enforces `Geist Mono` + `font-variant-numeric: tabular-nums`.
 
 ---
 
-## 2. Navigation Architecture
+## 2. Dual-Theme Token Architecture (`src/index.css`)
 
-MESURV adopts a multi-tier responsive navigation shell:
+### Theme A — `data-theme="fieldbook"` (Outdoor Sunlight / Warm Fieldbook Default)
+| Token | Value | Role |
+| :--- | :--- | :--- |
+| `--bg` | `#f3f1eb` | Warm Sand / Topographic Map Paper Canvas |
+| `--surface` | `#ffffff` | Primary Card & Console Surface |
+| `--surface-2` | `#eceae4` | Recessed Readout / Input Well / Code Surface |
+| `--border` | `rgba(20, 36, 27, 0.14)` | `1px` Structural Hairline Border |
+| `--border-strong` | `rgba(20, 36, 27, 0.5)` | High-Contrast Active Focus / Spec Border |
+| `--text-1` | `#14241b` | Primary Forest-Black Ink (Headings, Coordinates, Primary Data) |
+| `--text-2` | `#43544a` | Secondary Ink (Descriptions, SOP Body Copy) |
+| `--text-3` | `#57665c` | Muted Ink (Metadata, Unit Labels, Code IDs — WCAG 2.1 AA `≥ 5.0:1`) |
+| `--accent` | `#15803d` | KU Survey Forest Emerald (Primary CTA, Active Tab Bar, Target Pins) |
+| `--accent-2` | `#b45309` | Survey Brass / Ochre (`RTSD` Badges, Telemetry Accent) |
+| `--accent-text` | `#ffffff` | Foreground Ink on `--accent` Buttons |
+| `--card-radius` | `12px` | Tactile Fieldbook Card Radius |
+| `--btn-radius` | `8px` | Tactile Instrument Button Radius |
 
-### 2.1 Desktop Collapsible Sidebar (`>= 1024px`)
-- **Position**: Fixed left column (`top-0 bottom-0 left-0 z-40`).
-- **Widths**:
-  - Expanded: `240px` (`w-[240px]`)
-  - Collapsed: `56px` (`w-[56px]`, icon-only mode)
-- **State Persistence**: Saved in `localStorage` under `mesurv-sidebar-collapsed`.
-- **Leaflet Integration**: Dispatches `window.dispatchEvent(new Event('resize'))` upon width transition to eliminate map tile clipping.
-- **Modules (4)**:
-  1. `แผนที่ WebGIS` (`#/map`)
-  2. `เครื่องมือคำนวณ` (`#/calculator`)
-  3. `คู่มือสำรวจ` (`#/knowledge`)
-  4. `เกี่ยวกับระบบ` (Modal trigger)
-- **Active Module Styling**: `bg-indigo-500/10 text-indigo-400 border-l-2 border-indigo-500 font-semibold`.
+### Theme B — `data-theme="terminal"` (Indoor Post-Processing / Obsidian Terminal)
+| Token | Value | Role |
+| :--- | :--- | :--- |
+| `--bg` | `#050505` | True Pitch-Black Obsidian Canvas |
+| `--surface` | `#111111` | Primary Instrument Module Surface |
+| `--surface-2` | `#0a0a0a` | Telemetry Well / Input Surface |
+| `--border` | `#262626` | `1px` Exposed Technical Hairline |
+| `--border-strong` | `#3d3d3d` | Active Structural Border |
+| `--text-1` | `#ffffff` | Crisp Alabaster Primary Readout |
+| `--text-2` | `#a3a3a3` | Neutral Slate Body & Formula Copy |
+| `--text-3` | `#8a8a8a` | Muted Metadata & Station Indices (WCAG 2.1 AA `≥ 5.6:1`) |
+| `--accent` | `#34d399` | Phosphor Telemetry Emerald (Active Tabs, Primary Action) |
+| `--accent-2` | `#fcd535` | High-Visibility Total Station Amber |
+| `--accent-text` | `#000000` | High-Contrast Dark Ink on `#34d399` Buttons |
+| `--card-radius` | `2px` | Precision Terminal Micro-Radius |
+| `--btn-radius` | `2px` | Precision Terminal Button Radius |
 
-### 2.2 Mobile Fixed Bottom Navigation (`< 1024px`)
-- **Position**: Fixed bottom dock (`fixed bottom-0 left-0 right-0 z-50`).
-- **Dimensions**: `min-h-[56px]`, touch targets >= `44x44px`.
-- **Safe Area**: Respects `pb-[env(safe-area-inset-bottom)]`.
-- **Viewport Protection**: In WebGIS map mode on mobile, map height is set to `h-[calc(100dvh-48px-56px)]` so bottom navigation never obscures Leaflet controls or inspection crosshairs.
+---
 
-### 2.3 Slim 48px Header (`h-12`)
-- **Desktop**: Replaces previous 64px tabbed header. Displays:
-  - Left: Interactive breadcrumbs (`MESURV / Module / Submodule`).
-  - Right: System status badge (Emerald pulsing dot + "RTSD READY") and Theme Toggle (Sun/Moon, min-h-[44px] min-w-[44px]).
-- **Mobile**: Minimalist brand title with current section badge and quick actions.
+## 3. Typography & Scannable Hierarchy
 
-### 2.4 Hash Routing Continuity
-The entire navigation shell operates purely as a presentation layer over `window.location.hash`:
-- `#/map`
-- `#/calculator` (`#/calculator/coord`, `#/calculator/traverse`, `#/calculator/leveling`, `#/calculator/area`)
-- `#/knowledge` (`#/knowledge/:topicId`)
+- **UI & Thai Engineering Copy (`--font-sans`)**: `'Plus Jakarta Sans'`, `'Prompt'`, `-apple-system`, `sans-serif`
+  - Hero Title: `clamp(1.75rem, 3vw, 2.25rem)`, `font-weight: 800`, `letter-spacing: -0.025em`, `line-height: 1.25`
+  - Section / Console Header: `1.125rem`–`1.5rem`, `font-weight: 700`
+  - SOP Body Copy: `0.9375rem` (`15px`), `line-height: 1.65`, `60ch–70ch` measure
+- **Telemetry & Mathematical Readouts (`--font-mono`)**: `'Geist Mono'`, `'JetBrains Mono'`, `monospace`
+  - Mandatory `font-variant-numeric: tabular-nums` on all coordinate tables, misclosure badges, and map HUD coordinates.
 
-Browser back/forward history is 100% synchronized and all deep-linking unit tests pass without deviation.
+---
+
+## 4. Layout, Navigation & Component Specifications
+
+1. **Top Navigation Bar (`Header.tsx`)**:
+   - `64px` fixed height (`min-h-[64px]`), solid `--nav-bg` surface with `1px solid var(--border)` bottom hairline.
+   - Brand Identity: `MESURV | FIELD TERMINAL v4.2` with accent highlight on `SURV`.
+   - Navigation Tabs (`Knowledge Hub`, `Calculators`, `WebGIS Map`): Clean `2px` bottom border indicator (`border-bottom: 2px solid var(--accent)`) on active state—no pill or box backgrounds.
+   - Right Controls: `RTSD READY` pulsing status badge + `FIELDBOOK` / `TERMINAL` theme toggle + `About` modal trigger (`44×44px` touch targets).
+2. **Hero & Telemetry Split (`KnowledgeHub.tsx`)**:
+   - 2-column asymmetric split (`1.35fr : 1fr`) on desktop.
+   - Left: `FIELD SPECIFICATION • RTSD STANDARD` eyebrow, main heading, description, and action buttons (`Open Traverse Calculator`, `Browse Field SOPs`).
+   - Right: 2×2 `Geist Mono` telemetry benchmark cards (`1 : 10,000` Third-Order Traverse, `±12 mm√K` Leveling, `UTM 47N / 48N` WGS84, `3 Axis` Collimation).
+3. **SOP Card Grid (`KnowledgeHub.tsx`)**:
+   - 3-column grid (`grid-cols-1 md:grid-cols-2 lg:grid-cols-3`, `16px` gap) with max 4 data points per card:
+     1. Monospace SOP Code (`SOP-01`..`SOP-09`) + Difficulty Badge (`BEGINNER` / `CORE` / `ADVANCED`)
+     2. Bold Thai Title (`line-clamp-2`)
+     3. Concise 2-line Summary (`line-clamp-2`)
+     4. Footer Metadata + `Inspect Spec →` link
+4. **Geodetic Calculators & CORS Telemetry Strip (`CalculatorHub.tsx`)**:
+   - 2×2 console picker with live `Geist Mono` telemetry preview windows, `2px` underline quick-switcher bar when a calculator is active, and a persistent bottom `CORS TELEMETRY: KU-BANGKHEN BASE` bar (`E: 669,842.118 m | N: 1,531,204.592 m`, `GEOID: TGM2017`).
+5. **WebGIS Full-Viewport Canvas (`WebMap.tsx` & `MapToolbar.tsx`)**:
+   - Locked viewport (`height: calc(100dvh - 4rem)`) with solid Dual-Theme floating toolbar and bottom coordinate HUD.
+   - Every interactive control (`<button>`, `<select>`, `.leaflet-control-zoom a`, `.leaflet-popup-close-button`) enforces a minimum `44×44px` touch target for outdoor field glove/thumb operation.
+
+---
+
+## 5. Anti-Patterns (Strictly Forbidden)
+
+- **No Fixed Left Sidebar**: Never add a persistent left navigation rail; preserve 100% horizontal viewport width for wide leveling/traverse tables and WebGIS canvas.
+- **No Frosted Glass or Blur**: Never use `backdrop-filter: blur(...)` or translucent glassmorphism cards.
+- **No Gaudy Gradients**: Never use multi-stop neon/purple gradients on backgrounds, buttons, or text.
+- **No Box/Pill Active Nav Tabs**: Main navigation and category filter bars must use a clean `2px` bottom border indicator (`border-bottom: 2px solid var(--accent)`).
+- **No Emojis in Headings**: Use crisp Lucide vector icons (`1.75px`–`2px` stroke) or monospace spec codes (`SOP-01`, `CALC-01`).
+- **No Hover Bounce**: Hover states transition border color (`border-color: var(--accent)`) cleanly in `150ms` without vertical bounce (`translateY`) or scale transforms.

@@ -8,7 +8,8 @@ import {
   ArrowRight, 
   CheckCircle2, 
   Calculator,
-  Terminal
+  Terminal,
+  Radio
 } from 'lucide-react';
 import { CoordinateConverter } from './CoordinateConverter';
 import { TraverseCalculator } from './TraverseCalculator';
@@ -64,12 +65,11 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
   const tools = [
     {
       id: 'coord' as const,
+      code: 'CALC-01',
       shortName: 'แปลงพิกัด',
       label: 'แปลงค่าพิกัดสากล & ประเทศไทย',
       labelEn: 'Geodetic Coordinate Transformation Console',
       icon: ArrowRightLeft,
-      topBar: 'from-indigo-500/60 via-indigo-400/20 to-transparent',
-      iconBox: 'bg-indigo-500/15 border-indigo-400/30 text-indigo-400',
       badge: 'EPSG:4326 • UTM 47N/48N • Indian 1975',
       summary: 'แปลงค่าพิกัดแบบสองทิศทางระหว่าง WGS84 (DD/DMS), UTM Zone 47N/48N และ Indian 1975 พร้อมคำนวณ Grid Convergence และ Point Scale Factor',
       telemetryPreview: [
@@ -85,12 +85,11 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
     },
     {
       id: 'traverse' as const,
+      code: 'CALC-02',
       shortName: 'ปรับแก้วงรอบ',
       label: 'ปรับแก้วงรอบภาคสนาม (Bowditch Rule)',
       labelEn: 'Bowditch Traverse Adjustment & Precision Console',
       icon: Compass,
-      topBar: 'from-sky-500/60 via-sky-400/20 to-transparent',
-      iconBox: 'bg-sky-500/15 border-sky-400/30 text-sky-400',
       badge: 'Closed-Loop / Link Traverse • 1:N Ratio',
       summary: 'คำนวณความคลาดเคลื่อนทางมุมและระยะเชิงเส้น ปรับแก้พิกัดตามกฎเข็มทิศ Bowditch พร้อมประเมินชั้นงานสำรวจมาตรฐานกรมแผนที่ทหาร (RTSD)',
       telemetryPreview: [
@@ -106,12 +105,11 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
     },
     {
       id: 'leveling' as const,
+      code: 'CALC-03',
       shortName: 'คำนวณระดับ',
       label: 'สมุดคำนวณระดับทางวิศวกรรม (Differential Leveling)',
       labelEn: 'HI & Rise-and-Fall Leveling Fieldbook Console',
       icon: Ruler,
-      topBar: 'from-emerald-500/60 via-emerald-400/20 to-transparent',
-      iconBox: 'bg-emerald-500/15 border-emerald-400/30 text-emerald-400',
       badge: 'HI Method • Rise & Fall • RTSD ±k√K mm',
       summary: 'ประมวลผลค่าระดับด้วยวิธีแกนกล้อง (HI) และวิธีขึ้น-ลง (Rise & Fall) พร้อมตรวจสอบ Page Check Arithmetic และเกณฑ์ความคลาดเคลื่อน ±4√K ถึง ±24√K',
       telemetryPreview: [
@@ -127,12 +125,11 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
     },
     {
       id: 'area' as const,
+      code: 'CALC-04',
       shortName: 'แปลงหน่วยที่ดิน',
       label: 'แปลงหน่วยพื้นที่ดินไทย (ไร่ - งาน - ตารางวา)',
       labelEn: 'Thai Cadastral Land Area Conversion Console',
       icon: Layers,
-      topBar: 'from-amber-500/60 via-amber-400/20 to-transparent',
-      iconBox: 'bg-amber-500/15 border-amber-400/30 text-amber-400',
       badge: 'ไร่ - งาน - ตารางวา ↔ m² / Hectare / Acre',
       summary: 'แปลงหน่วยวัดพื้นที่ตามมาตรฐานกรมที่ดินไทย เชื่อมโยงระหว่าง ไร่-งาน-ตารางวา กับตารางเมตร (m²), เฮกตาร์ (ha) และเอเคอร์ พร้อมแยกสัดส่วนอัตโนมัติ',
       telemetryPreview: [
@@ -157,17 +154,37 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       {activeSubTab === null && (
         <div className="space-y-6">
           {/* Console Hero Banner */}
-          <div className="raycast-panel relative overflow-hidden rounded-2xl p-6 sm:p-8">
-            <div className="pointer-events-none absolute -top-28 right-12 w-96 h-64 rounded-full bg-indigo-500/15 blur-3xl" />
-            <div className="relative space-y-2.5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-300 text-[10px] font-mono font-semibold tracking-widest uppercase">
-                <Calculator className="w-3 h-3 text-indigo-400" />
-                MESURV Digital Field Consoles · 4 Geodetic Engines
+          <div
+            className="p-6 sm:p-8"
+            style={{
+              backgroundColor: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--card-radius)',
+              boxShadow: 'var(--shadow)'
+            }}
+          >
+            <div className="space-y-2.5">
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1 rounded text-[11px] font-mono font-semibold tracking-widest uppercase"
+                style={{
+                  backgroundColor: 'var(--surface-2)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--accent)'
+                }}
+              >
+                <Calculator className="w-3.5 h-3.5" />
+                MESURV DIGITAL FIELD CONSOLES · 4 GEODETIC ENGINES
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+              <h1
+                className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight"
+                style={{ color: 'var(--text-1)' }}
+              >
                 แผงควบคุมเครื่องมือคำนวณวิศวกรรมสำรวจ
               </h1>
-              <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
+              <p
+                className="text-xs sm:text-sm max-w-2xl leading-relaxed"
+                style={{ color: 'var(--text-2)' }}
+              >
                 เลือกเครื่องมือที่ต้องการใช้งาน ระบบคำนวณทุกตัวทำงานแบบ Real-time พร้อมระบบตรวจสอบความคลาดเคลื่อนตามเกณฑ์มาตรฐานกรมแผนที่ทหาร (RTSD)
               </p>
             </div>
@@ -181,48 +198,96 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                 <div
                   key={tool.id}
                   onClick={() => handleSubTabChange(tool.id)}
-                  className="raycast-card group relative rounded-2xl p-6 cursor-pointer flex flex-col justify-between overflow-hidden space-y-5"
+                  className="fusion-card group p-6 cursor-pointer flex flex-col justify-between space-y-5"
                 >
-                  {/* Top Specular Accent Gradient */}
-                  <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${tool.topBar}`} />
-
                   <div className="space-y-4">
                     {/* Card Header */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3.5">
-                        <div className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-sm ${tool.iconBox}`}>
+                        <div
+                          className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 transition-colors"
+                          style={{
+                            backgroundColor: 'var(--surface-2)',
+                            border: '1px solid var(--border)',
+                            color: 'var(--accent)'
+                          }}
+                        >
                           <Icon className="w-5 h-5 stroke-[2]" />
                         </div>
                         <div>
-                          <h2 className="text-base sm:text-lg font-bold text-white group-hover:text-indigo-300 transition-colors tracking-tight leading-snug">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="text-[11px] font-mono font-semibold"
+                              style={{ color: 'var(--text-3)' }}
+                            >
+                              {tool.code}
+                            </span>
+                            <span className="badge badge-core text-[10px]">RTSD SPEC</span>
+                          </div>
+                          <h2
+                            className="text-base sm:text-lg font-bold tracking-tight leading-snug mt-0.5"
+                            style={{ color: 'var(--text-1)' }}
+                          >
                             {tool.label}
                           </h2>
-                          <span className="text-[11px] font-mono text-slate-400 block mt-0.5">
+                          <span
+                            className="text-[11px] font-mono block mt-0.5"
+                            style={{ color: 'var(--text-3)' }}
+                          >
                             {tool.labelEn}
                           </span>
                         </div>
                       </div>
-                      <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-white/[0.05] text-slate-300 border border-white/[0.08] shrink-0">
+                      <span
+                        className="hidden sm:inline-block px-2.5 py-1 rounded text-[10px] font-mono font-semibold shrink-0"
+                        style={{
+                          backgroundColor: 'var(--surface-2)',
+                          color: 'var(--text-2)',
+                          border: '1px solid var(--border)'
+                        }}
+                      >
                         {tool.badge}
                       </span>
                     </div>
 
                     {/* Description */}
-                    <p className="text-xs sm:text-[13px] text-slate-300/90 leading-relaxed">
+                    <p
+                      className="text-xs sm:text-[13px] leading-relaxed"
+                      style={{ color: 'var(--text-2)' }}
+                    >
                       {tool.summary}
                     </p>
 
                     {/* Live Telemetry Readout Preview Window */}
-                    <div className="rounded-xl bg-[#07080a]/95 border border-white/[0.08] p-3.5 font-mono tabular-nums space-y-1.5 shadow-inner">
-                      <div className="flex items-center justify-between text-[10px] text-slate-500 border-b border-white/[0.06] pb-1.5 mb-1">
-                        <span className="flex items-center gap-1.5 text-indigo-400 font-semibold">
+                    <div
+                      className="rounded-lg p-3.5 font-mono tabular-nums space-y-1.5"
+                      style={{
+                        backgroundColor: 'var(--surface-2)',
+                        border: '1px solid var(--border)'
+                      }}
+                    >
+                      <div
+                        className="flex items-center justify-between text-[10px] pb-1.5 mb-1"
+                        style={{
+                          color: 'var(--text-3)',
+                          borderBottom: '1px solid var(--border)'
+                        }}
+                      >
+                        <span
+                          className="flex items-center gap-1.5 font-semibold"
+                          style={{ color: 'var(--accent)' }}
+                        >
                           <Terminal className="w-3 h-3" />
                           TELEMETRY READOUT PREVIEW
                         </span>
-                        <span className="text-emerald-400">● READY</span>
+                        <span style={{ color: 'var(--accent-2)' }}>● READY</span>
                       </div>
                       {tool.telemetryPreview.map((line, lIdx) => (
-                        <div key={lIdx} className="text-[11px] text-slate-300 truncate leading-relaxed">
+                        <div
+                          key={lIdx}
+                          className="text-[11px] truncate leading-relaxed"
+                          style={{ color: 'var(--text-1)' }}
+                        >
                           {line}
                         </div>
                       ))}
@@ -231,8 +296,15 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                     {/* Features Checklist */}
                     <ul className="space-y-1.5 pt-1">
                       {tool.features.map((feat, fIdx) => (
-                        <li key={fIdx} className="flex items-start gap-2 text-xs text-slate-400">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                        <li
+                          key={fIdx}
+                          className="flex items-start gap-2 text-xs"
+                          style={{ color: 'var(--text-2)' }}
+                        >
+                          <CheckCircle2
+                            className="w-3.5 h-3.5 shrink-0 mt-0.5"
+                            style={{ color: 'var(--accent-2)' }}
+                          />
                           <span>{feat}</span>
                         </li>
                       ))}
@@ -247,10 +319,10 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                         e.stopPropagation();
                         handleSubTabChange(tool.id);
                       }}
-                      className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.06] group-hover:bg-indigo-600 text-white border border-white/[0.10] group-hover:border-indigo-500 text-xs sm:text-sm font-semibold transition-all shadow-sm group-hover:shadow-[0_0_20px_rgba(99,102,241,0.35)] micro-press"
+                      className="btn-primary w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold"
                     >
                       <span>เปิดแผงควบคุมเครื่องมือนี้</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -266,17 +338,25 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       {activeSubTab !== null && (
         <div className="space-y-6">
           {/* Sticky Console Switcher Bar */}
-          <div className="raycast-panel rounded-2xl p-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sticky top-16 z-30">
+          <div
+            className="p-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sticky top-16 z-30"
+            style={{
+              backgroundColor: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--card-radius)',
+              boxShadow: 'var(--shadow)'
+            }}
+          >
             <button
               onClick={handleBackToHub}
-              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-200 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] transition-colors border border-white/[0.10] shrink-0 min-h-[44px] micro-press"
+              className="btn-outline inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold shrink-0 min-h-[44px]"
             >
-              <ArrowLeft className="w-4 h-4 text-indigo-400" />
+              <ArrowLeft className="w-4 h-4" style={{ color: 'var(--accent)' }} />
               <span>แผงเลือกเครื่องมือทั้งหมด</span>
             </button>
 
-            {/* Quick Instrument Switcher Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+            {/* Quick Instrument Switcher (2px underline style per Fusion DNA) */}
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar px-1">
               {tools.map((tool) => {
                 const Icon = tool.icon;
                 const isActive = activeSubTab === tool.id;
@@ -284,10 +364,8 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                   <button
                     key={tool.id}
                     onClick={() => handleSubTabChange(tool.id)}
-                    className={`inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all shrink-0 min-h-[44px] micro-press ${
-                      isActive
-                        ? 'bg-indigo-600 text-white shadow-[0_0_16px_rgba(99,102,241,0.35)] border border-indigo-400/40'
-                        : 'text-slate-400 hover:text-white hover:bg-white/[0.06] border border-transparent'
+                    className={`nav-tab inline-flex items-center gap-2 px-3 text-xs font-semibold shrink-0 min-h-[44px] ${
+                      isActive ? 'active' : ''
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -307,6 +385,33 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
           </div>
         </div>
       )}
+
+      {/* ========================================================================= */}
+      {/* 3. BOTTOM CORS TELEMETRY STRIP (MESURV Fusion DNA Signature)              */}
+      {/* ========================================================================= */}
+      <div
+        className="p-4 flex flex-wrap items-center justify-between gap-4 font-mono text-xs tabular-nums"
+        style={{
+          backgroundColor: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--card-radius)'
+        }}
+      >
+        <div className="flex items-center gap-2.5 font-semibold" style={{ color: 'var(--accent-2)' }}>
+          <span className="status-dot" />
+          <Radio className="w-3.5 h-3.5" />
+          <span>CORS TELEMETRY: KU-BANGKHEN BASE</span>
+        </div>
+        <div style={{ color: 'var(--text-2)' }}>
+          E: <strong style={{ color: 'var(--text-1)' }}>669,842.118 m</strong> &nbsp;|&nbsp; N: <strong style={{ color: 'var(--text-1)' }}>1,531,204.592 m</strong> (UTM 47N)
+        </div>
+        <div style={{ color: 'var(--text-2)' }}>
+          GEOID: <strong style={{ color: 'var(--text-1)' }}>TGM2017 (-28.412 m)</strong>
+        </div>
+        <div style={{ color: 'var(--text-3)' }}>
+          MISCLOSURE LIMIT: <strong style={{ color: 'var(--accent)' }}>1 : 10,000 (RTSD)</strong>
+        </div>
+      </div>
 
     </div>
   );

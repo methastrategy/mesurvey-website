@@ -1,5 +1,6 @@
 import React from 'react';
-import { Compass, BookOpen, Calculator, Map, ChevronRight } from 'lucide-react';
+import { BookOpen, Calculator, Map, ChevronRight, Sun, Moon, Info } from 'lucide-react';
+import type { MesurvTheme } from '../../App';
 
 interface HeaderProps {
   activeTab: 'knowledge' | 'calculator' | 'map';
@@ -9,12 +10,18 @@ interface HeaderProps {
     subTab?: 'coord' | 'traverse' | 'leveling' | 'area';
     topicId?: string;
   };
+  theme?: MesurvTheme;
+  onToggleTheme?: () => void;
+  onOpenAbout?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   activeTab,
   setActiveTab,
   route,
+  theme = 'fieldbook',
+  onToggleTheme,
+  onOpenAbout,
 }) => {
   const subTabNames: Record<string, string> = {
     coord: 'แปลงพิกัด',
@@ -27,113 +34,143 @@ export const Header: React.FC<HeaderProps> = ({
   const currentTopicId = route?.topicId;
 
   return (
-    <header className="sticky top-0 z-40 h-14 w-full bg-[#07080a]/75 backdrop-blur-xl border-b border-white/[0.08] shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.04)] transition-colors select-none">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-2">
+    <header className="nav-bar select-none">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-2">
         
-        {/* Left: MESURV Brand Identity + Contextual Sub-Breadcrumb */}
-        <div className="flex items-center gap-2 min-w-0">
+        {/* Left: MESURV Brand Identity + Field Terminal Tag + Contextual Sub-Breadcrumb */}
+        <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={() => setActiveTab('knowledge')}
-            className="flex items-center gap-2.5 py-1.5 pr-2 rounded-lg text-left group micro-press focus-ring shrink-0"
-            title="MESURV Geomatics Terminal"
+            className="flex items-center gap-3 min-h-[44px] py-1 pr-2 text-left micro-press focus-ring shrink-0"
+            title="MESURV Field Terminal"
           >
-            <div className="w-8 h-8 rounded-lg bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 group-hover:text-indigo-300 group-hover:border-indigo-400/50 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.2)] transition-all">
-              <Compass className="w-4 h-4 stroke-[2.2]" />
+            <div className="font-bold text-lg tracking-tight text-[var(--text-1)]">
+              ME<span style={{ color: 'var(--accent)' }}>SURV</span>
             </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-sm tracking-tight text-white">
-                  MESURV
-                </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_#6366f1]" />
-              </div>
-              <span className="hidden sm:block text-[9px] font-mono tracking-widest uppercase text-slate-500 leading-none">
-                Field Terminal
-              </span>
+            <div className="hidden sm:block h-4 w-px bg-[var(--border)]" />
+            <div className="hidden sm:block font-mono text-xs text-[var(--text-2)] tracking-wider">
+              FIELD TERMINAL v4.2
             </div>
           </button>
 
           {/* Sub-level Breadcrumb Indicator (Desktop) */}
           {activeTab === 'calculator' && currentSubTab && (
-            <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-500 truncate">
-              <ChevronRight className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+            <div className="hidden lg:flex items-center gap-1.5 text-xs text-[var(--text-3)] truncate">
+              <ChevronRight className="w-3.5 h-3.5 shrink-0" />
               <button
                 onClick={() => setActiveTab('calculator')}
-                className="hover:text-slate-300 transition-colors"
+                className="hover:text-[var(--text-1)] transition-colors"
               >
-                คำนวณ
+                Calculator
               </button>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-600 shrink-0" />
-              <span className="text-indigo-400 font-semibold truncate">
+              <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+              <span className="text-[var(--accent)] font-mono font-semibold truncate">
                 {subTabNames[currentSubTab] || currentSubTab}
               </span>
             </div>
           )}
 
           {activeTab === 'knowledge' && currentTopicId && (
-            <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-500 truncate max-w-[220px]">
-              <ChevronRight className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+            <div className="hidden lg:flex items-center gap-1.5 text-xs text-[var(--text-3)] truncate max-w-[200px]">
+              <ChevronRight className="w-3.5 h-3.5 shrink-0" />
               <button
                 onClick={() => setActiveTab('knowledge')}
-                className="hover:text-slate-300 transition-colors shrink-0"
+                className="hover:text-[var(--text-1)] transition-colors shrink-0"
               >
-                คู่มือ
+                Knowledge
               </button>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-600 shrink-0" />
-              <span className="text-indigo-400 font-mono text-[11px] truncate">
+              <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+              <span className="text-[var(--accent)] font-mono text-[11px] truncate">
                 {currentTopicId}
               </span>
             </div>
           )}
         </div>
 
-        {/* Center: Raycast-Style Floating Segmented Switcher (2 Core Modules) */}
+        {/* Center: Fusion 2px Underline Tab Bar (NO Box / NO Pill) */}
         <nav
-          aria-label="Primary Workspace Switcher"
-          className="flex items-center p-1 rounded-xl bg-[#111318]/90 border border-white/[0.08] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]"
+          aria-label="Primary Workspace Navigation"
+          className="flex items-center h-full overflow-x-auto no-scrollbar"
         >
           <button
+            type="button"
             onClick={() => setActiveTab('knowledge')}
-            className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[38px] micro-press ${
-              activeTab === 'knowledge'
-                ? 'bg-indigo-600 text-white shadow-[0_2px_12px_rgba(99,102,241,0.35)]'
-                : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+            className={`nav-tab min-h-[44px] focus-ring ${
+              activeTab === 'knowledge' ? 'active' : ''
             }`}
           >
-            <BookOpen className="w-3.5 h-3.5 shrink-0" />
-            <span>คู่มือ</span>
+            <BookOpen className="w-4 h-4 shrink-0" />
+            <span>คู่มือสำรวจ</span>
+            <span className="hidden md:inline font-mono text-xs text-[var(--text-3)]">Knowledge</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setActiveTab('calculator')}
-            className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[38px] micro-press ${
-              activeTab === 'calculator'
-                ? 'bg-indigo-600 text-white shadow-[0_2px_12px_rgba(99,102,241,0.35)]'
-                : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+            className={`nav-tab min-h-[44px] focus-ring ${
+              activeTab === 'calculator' ? 'active' : ''
             }`}
           >
-            <Calculator className="w-3.5 h-3.5 shrink-0" />
-            <span>เครื่องมือ<span className="hidden sm:inline">คำนวณ</span></span>
+            <Calculator className="w-4 h-4 shrink-0" />
+            <span>คำนวณ</span>
+            <span className="hidden md:inline font-mono text-xs text-[var(--text-3)]">Calculator</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('map')}
+            className={`nav-tab min-h-[44px] focus-ring ${
+              activeTab === 'map' ? 'active' : ''
+            }`}
+          >
+            <Map className="w-4 h-4 shrink-0" />
+            <span>WebGIS</span>
+          </button>
+
+          {onOpenAbout && (
+            <button
+              type="button"
+              onClick={onOpenAbout}
+              className="hidden sm:inline-flex nav-tab min-h-[44px] focus-ring"
+            >
+              <Info className="w-4 h-4 shrink-0" />
+              <span className="hidden lg:inline">เกี่ยวกับระบบ</span>
+            </button>
+          )}
         </nav>
 
-        {/* Right: Map Launcher Icon Button (Icon Only, 44x44 Touch Target) */}
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => setActiveTab(activeTab === 'map' ? 'knowledge' : 'map')}
-            aria-label="แผนที่ภาคสนาม MeMap"
-            title="เปิดแผนที่ MeMap"
-            className="relative w-11 h-11 min-h-[44px] min-w-[44px] rounded-full border border-white/[0.10] hover:border-cyan-500/40 bg-[#111318]/90 hover:bg-[#181b22] text-slate-300 hover:text-cyan-300 flex items-center justify-center transition-all micro-press focus-ring"
-          >
-            <span className="absolute top-2 right-2 flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
-            </span>
-            <Map className="w-4 h-4 shrink-0" />
-          </button>
+        {/* Right: RTSD READY Telemetry Status Badge + Dual-Theme Toggle (Fieldbook ↔ Terminal) */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          <div className="hidden sm:inline-flex status-badge" title="Royal Thai Survey Department Standard Ready">
+            <span className="status-dot" />
+            <span>RTSD READY</span>
+          </div>
+
+          {onToggleTheme && (
+            <button
+              type="button"
+              onClick={onToggleTheme}
+              aria-label={theme === 'fieldbook' ? 'สลับเป็นโหมดมืด Terminal' : 'สลับเป็นโหมดสว่าง Fieldbook'}
+              title={theme === 'fieldbook' ? 'Theme: Fieldbook (คลิกเพื่อสลับเป็น Terminal Dark)' : 'Theme: Terminal (คลิกเพื่อสลับเป็น Fieldbook Light)'}
+              className="min-h-[44px] min-w-[44px] px-3 py-2 rounded-[var(--btn-radius)] bg-[var(--surface)] hover:bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-strong)] text-[var(--text-1)] flex items-center justify-center gap-2 transition-colors micro-press focus-ring"
+            >
+              {theme === 'fieldbook' ? (
+                <>
+                  <Moon className="w-4 h-4 text-[var(--text-1)] shrink-0" />
+                  <span className="hidden lg:inline font-mono text-[11px] font-semibold">TERMINAL</span>
+                </>
+              ) : (
+                <>
+                  <Sun className="w-4 h-4 text-[var(--accent-2)] shrink-0" />
+                  <span className="hidden lg:inline font-mono text-[11px] font-semibold">FIELDBOOK</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
 
       </div>
     </header>
   );
 };
+

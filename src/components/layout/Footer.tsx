@@ -1,33 +1,53 @@
 import React from 'react';
-import { Compass, GitBranch } from 'lucide-react';
+import { Compass, GitBranch, Info } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onOpenAbout?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onOpenAbout }) => {
   return (
-    <footer className="bg-[#07080a]/60 backdrop-blur-md text-slate-500 text-xs py-4 px-4 sm:px-6 border-t border-white/[0.06]">
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+    <footer className="bg-[var(--surface)] text-[var(--text-2)] text-xs py-4 px-4 sm:px-6 border-t border-[var(--border)]">
+      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
         <div className="flex items-center space-x-2">
-          <Compass className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-          <span className="font-bold text-slate-300 tracking-tight">MESURV</span>
-          <span className="text-white/15">|</span>
-          <span className="text-slate-500 font-mono text-[11px]">
-            Geomatics & Survey Engineering Field Terminal
+          <Compass className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
+          <span className="font-bold text-[var(--text-1)] tracking-tight">
+            ME<span style={{ color: 'var(--accent)' }}>SURV</span>
+          </span>
+          <span className="text-[var(--border-strong)]">|</span>
+          <span className="text-[var(--text-2)] font-mono text-[11px]">
+            FIELD TERMINAL v4.2 • Geomatics & Survey Engineering
           </span>
         </div>
 
-        <div className="flex items-center space-x-3 text-slate-500 font-mono text-[11px]">
+        <div className="flex items-center space-x-3 text-[var(--text-2)] font-mono text-[11px]">
+          {onOpenAbout && (
+            <>
+              <button
+                type="button"
+                onClick={onOpenAbout}
+                className="inline-flex items-center gap-1 hover:text-[var(--accent)] transition-colors cursor-pointer"
+              >
+                <Info className="w-3.5 h-3.5 text-[var(--accent)]" />
+                <span>เกี่ยวกับระบบ</span>
+              </button>
+              <span className="text-[var(--border-strong)]">•</span>
+            </>
+          )}
           <a
             href="https://github.com/methastrategy/mesurvey-website"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center space-x-1 hover:text-indigo-300 transition-colors"
+            className="flex items-center space-x-1 hover:text-[var(--accent)] transition-colors"
           >
-            <GitBranch className="w-3.5 h-3.5 text-indigo-400" />
+            <GitBranch className="w-3.5 h-3.5 text-[var(--accent)]" />
             <span>GitHub</span>
           </a>
-          <span className="text-white/15">•</span>
+          <span className="text-[var(--border-strong)]">•</span>
           <span>© {new Date().getFullYear()}</span>
         </div>
       </div>
     </footer>
   );
 };
+

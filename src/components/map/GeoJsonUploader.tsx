@@ -68,34 +68,45 @@ export const GeoJsonUploader: React.FC<GeoJsonUploaderProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[2000] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 relative">
+    <div className="fixed inset-0 z-[2000] bg-black/75 flex items-center justify-center p-4">
+      <div
+        className="w-full max-w-md p-6 relative"
+        style={{
+          backgroundColor: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--card-radius)',
+          boxShadow: 'var(--shadow)'
+        }}
+      >
         <button
           onClick={onClose}
           aria-label="ปิดหน้าต่างนำเข้าข้อมูล"
-          className="absolute top-4 right-4 min-w-[44px] min-h-[44px] rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors flex items-center justify-center"
+          className="btn-outline absolute top-4 right-4 min-w-[44px] min-h-[44px] flex items-center justify-center"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2 mb-1">
-          <FileCode className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+        <h3
+          className="font-bold text-base flex items-center gap-2 mb-1"
+          style={{ color: 'var(--text-1)' }}
+        >
+          <FileCode className="w-5 h-5" style={{ color: 'var(--accent)' }} />
           นำเข้าข้อมูลเชิงพื้นที่ (Import Spatial Data)
         </h3>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-normal">
+        <p className="text-xs mb-4 leading-normal" style={{ color: 'var(--text-2)' }}>
           รองรับไฟล์เวกเตอร์ GeoJSON มาตรฐาน RFC 7946 (WGS84 EPSG:4326) เพื่อแสดงผลขอบเขตแปลงที่ดิน แนวกึ่งกลางคลอง หรือหมุดสำรวจบนแผนที่
         </p>
 
         {errorMsg && (
-          <div className="mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs flex items-start gap-2 leading-relaxed">
-            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+          <div className="mb-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs flex items-start gap-2 leading-relaxed">
+            <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {warningMsg && (
-          <div className="mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 text-xs flex items-start gap-2 leading-relaxed">
-            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-xs flex items-start gap-2 leading-relaxed">
+            <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
             <span>{warningMsg}</span>
           </div>
         )}
@@ -107,17 +118,22 @@ export const GeoJsonUploader: React.FC<GeoJsonUploaderProps> = ({
           }}
           onDragLeave={() => setDragActive(false)}
           onDrop={handleDrop}
-          className={`border border-dashed rounded-2xl p-8 text-center transition-all ${
-            dragActive
-              ? 'border-sky-500 bg-sky-50/50 dark:bg-sky-950/30'
-              : 'border-slate-300 dark:border-slate-700 hover:border-sky-500'
-          }`}
+          className="border border-dashed rounded-lg p-8 text-center transition-colors relative"
+          style={{
+            backgroundColor: dragActive ? 'var(--surface-2)' : 'transparent',
+            borderColor: dragActive ? 'var(--accent)' : 'var(--border)'
+          }}
         >
-          <Upload className="w-10 h-10 text-sky-600 dark:text-sky-400 mx-auto mb-2.5 stroke-[1.8]" />
-          <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">
+          <Upload
+            className="w-10 h-10 mx-auto mb-2.5 stroke-[1.8]"
+            style={{ color: 'var(--accent)' }}
+          />
+          <p className="text-xs sm:text-sm font-semibold" style={{ color: 'var(--text-1)' }}>
             ลากและวางไฟล์ GeoJSON ลงที่นี่
           </p>
-          <p className="text-xs text-slate-400 mt-1">หรือคลิกเพื่อเลือกไฟล์จากคอมพิวเตอร์ (.geojson, .json)</p>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-3)' }}>
+            หรือคลิกเพื่อเลือกไฟล์จากคอมพิวเตอร์ (.geojson, .json)
+          </p>
 
           <input
             type="file"
@@ -134,7 +150,7 @@ export const GeoJsonUploader: React.FC<GeoJsonUploaderProps> = ({
         <div className="mt-4 flex justify-end">
           <button
             onClick={onClose}
-            className="min-h-[44px] min-w-[44px] px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center justify-center"
+            className="btn-outline min-h-[44px] min-w-[44px] px-5 py-2.5 font-medium text-xs flex items-center justify-center"
           >
             ยกเลิก
           </button>

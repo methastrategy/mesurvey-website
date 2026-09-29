@@ -174,6 +174,7 @@ export const LevelingCalculator: React.FC = () => {
                 <td className="py-2 px-2">
                   <input
                     type="text"
+                    aria-label={`ชื่อสถานีแถวที่ ${idx + 1}`}
                     value={row.station}
                     onChange={(e) => updateLevelingRow(idx, 'station', e.target.value)}
                     className="w-24 min-h-[36px] px-2.5 py-1 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
@@ -183,6 +184,7 @@ export const LevelingCalculator: React.FC = () => {
                   <input
                     type="number"
                     step="0.001"
+                    aria-label={`ค่าส่องหลัง BS แถวที่ ${idx + 1}`}
                     value={row.bs !== null ? row.bs : ''}
                     placeholder="BS"
                     onChange={(e) => updateLevelingRow(idx, 'bs', e.target.value)}
@@ -193,6 +195,7 @@ export const LevelingCalculator: React.FC = () => {
                   <input
                     type="number"
                     step="0.001"
+                    aria-label={`ค่าส่องกลาง IFS แถวที่ ${idx + 1}`}
                     value={row.ifs !== null ? row.ifs : ''}
                     placeholder="IFS"
                     onChange={(e) => updateLevelingRow(idx, 'ifs', e.target.value)}
@@ -203,6 +206,7 @@ export const LevelingCalculator: React.FC = () => {
                   <input
                     type="number"
                     step="0.001"
+                    aria-label={`ค่าส่องหน้า FS แถวที่ ${idx + 1}`}
                     value={row.fs !== null ? row.fs : ''}
                     placeholder="FS"
                     onChange={(e) => updateLevelingRow(idx, 'fs', e.target.value)}
@@ -212,6 +216,7 @@ export const LevelingCalculator: React.FC = () => {
                 <td className="py-2 px-2">
                   <input
                     type="text"
+                    aria-label={`หมายเหตุแถวที่ ${idx + 1}`}
                     value={row.remark || ''}
                     placeholder="คำอธิบาย..."
                     onChange={(e) => updateLevelingRow(idx, 'remark', e.target.value)}
@@ -222,6 +227,8 @@ export const LevelingCalculator: React.FC = () => {
                   <button
                     onClick={() => removeLevelingRow(idx)}
                     disabled={levelingRows.length <= 1}
+                    aria-label={`ลบแถวรังวัดที่ ${idx + 1}`}
+                    title={`ลบแถวรังวัดที่ ${idx + 1}`}
                     className="min-h-[36px] min-w-[36px] p-2 rounded-lg text-rose-500 hover:bg-rose-500/10 dark:hover:bg-rose-950/30 disabled:opacity-30 transition-colors inline-flex items-center justify-center"
                   >
                     <Trash2 className="w-4 h-4" />
