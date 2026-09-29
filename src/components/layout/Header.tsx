@@ -37,15 +37,54 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="nav-bar select-none">
       <div className="max-w-6xl mx-auto px-2.5 sm:px-6 h-full flex items-center justify-between gap-1 sm:gap-2">
         
-        {/* Left: MESURV Brand Identity + Field Terminal Tag + Contextual Sub-Breadcrumb */}
+        {/* Left: MESURV Modern Precision Brand Identity (Triggers About Modal) */}
         <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 shrink-0">
           <button
-            onClick={() => setActiveTab('knowledge')}
-            className="flex items-center gap-2 min-h-[44px] py-1 pr-1.5 sm:pr-2 text-left micro-press focus-ring shrink-0"
-            title="MESURV Geomatics Platform"
+            onClick={() => {
+              if (onOpenAbout) {
+                onOpenAbout();
+              } else {
+                setActiveTab('knowledge');
+              }
+            }}
+            className="group flex items-center gap-2.5 min-h-[44px] py-1 px-2 -ml-2 rounded-xl hover:bg-[var(--surface-2)] transition-all micro-press focus-ring shrink-0 cursor-pointer"
+            title="เกี่ยวกับระบบ MESURV (คลิกเพื่อดูข้อมูล)"
+            aria-label="เกี่ยวกับระบบ MESURV"
           >
-            <div className="font-bold text-base sm:text-lg tracking-tight text-[var(--text-1)] shrink-0">
-              ME<span style={{ color: 'var(--accent)' }}>SURV</span>
+            {/* Custom High-Precision Geomatics Reticle / Prism SVG Icon */}
+            <div className="relative w-8 h-8 rounded-lg bg-[var(--surface-2)] group-hover:bg-[var(--accent)]/15 border border-[var(--border)] group-hover:border-[var(--accent)]/40 flex items-center justify-center transition-all shadow-sm">
+              <svg 
+                className="w-4 h-4 text-[var(--accent)] transition-transform duration-300 group-hover:rotate-45" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2.2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="9" strokeDasharray="3 3" opacity="0.6" />
+                <path d="M12 3v4m0 10v4M3 12h4m10 0h4" />
+                <circle cx="12" cy="12" r="2.5" fill="currentColor" />
+              </svg>
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[var(--accent)] shadow-[0_0_6px_var(--accent)] animate-pulse" />
+            </div>
+
+            {/* Stylized Modern Brand Typography */}
+            <div className="flex flex-col text-left">
+              <div className="flex items-center tracking-tight leading-none">
+                <span className="font-extrabold text-base sm:text-lg tracking-wider font-mono text-[var(--text-1)] group-hover:text-[var(--accent)] transition-colors">
+                  ME
+                </span>
+                <span className="font-black text-base sm:text-lg tracking-widest font-mono text-[var(--accent)] drop-shadow-sm">
+                  SURV
+                </span>
+                <span className="ml-1 text-[9px] font-mono font-semibold px-1 py-0.5 rounded bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/30 leading-none">
+                  GEO
+                </span>
+              </div>
+              <span className="text-[9px] font-mono text-[var(--text-3)] group-hover:text-[var(--text-2)] tracking-wider uppercase transition-colors">
+                PLATFORM ⓘ
+              </span>
             </div>
           </button>
 
@@ -122,17 +161,6 @@ export const Header: React.FC<HeaderProps> = ({
             <Map className="w-4 h-4 shrink-0" />
             <span>WebGIS</span>
           </button>
-
-          {onOpenAbout && (
-            <button
-              type="button"
-              onClick={onOpenAbout}
-              className="hidden sm:inline-flex nav-tab min-h-[44px] focus-ring"
-            >
-              <Info className="w-4 h-4 shrink-0" />
-              <span className="hidden lg:inline">เกี่ยวกับระบบ</span>
-            </button>
-          )}
         </nav>
 
         {/* Right: Dual-Theme Toggle (Fieldbook ↔ Terminal) */}

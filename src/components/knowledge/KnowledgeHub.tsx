@@ -313,74 +313,26 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
       {!activeTopic && (
         <div className="space-y-8">
 
-          {/* ── Hero 2-Column Split (Title + CTA Left, 4 Metric Cards Right) ── */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 font-mono text-xs text-[var(--accent)] uppercase tracking-wider mb-2">
-                <span>KU GEOMATICS • RTSD FIELD SOP</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-1)] mb-3 tracking-tight">
-                คู่มือสำรวจ / Knowledge Hub
-              </h1>
-              <p className="text-[var(--text-2)] mb-6 text-sm leading-relaxed">
-                มาตรฐานการตั้งกล้อง ขั้นตอนการรังวัดภาคสนาม สมการปรับแก้ความคลาดเคลื่อน และจำลองหน้าจอควบคุมเครื่องมือสำรวจตามเกณฑ์กรมแผนที่ทหาร (RTSD) และ FGCC
-              </p>
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => searchInputRef.current?.focus()}
-                  className="btn-primary min-h-[44px] inline-flex items-center gap-2 text-sm"
-                >
-                  <span>ค้นหามาตรฐาน SOP</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    window.location.hash = '#/calculator';
-                    if (onNavigateTab) onNavigateTab('calculator');
-                  }}
-                  className="btn-outline min-h-[44px] inline-flex items-center gap-2 text-sm"
-                >
-                  <span>เปิดเครื่องมือคำนวณสนาม</span>
-                </button>
-              </div>
+          {/* ── Hero Section (Streamlined Banner) ── */}
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 font-mono text-xs text-[var(--accent)] uppercase tracking-wider">
+              <span>KU GEOMATICS • FIELD SOP & STANDARDS</span>
             </div>
-
-            {/* 4 Telemetry Metric Cards (2x2 Grid — Geist Mono Tabular-Nums) */}
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
-              <div className="fusion-card p-3 sm:p-4 min-w-0">
-                <div className="text-[var(--text-3)] text-[11px] sm:text-xs font-mono uppercase tracking-wider mb-1 truncate">
-                  RTK Sigma
-                </div>
-                <div className="text-base sm:text-2xl font-semibold font-mono tabular-nums text-[var(--accent)] truncate">
-                  ±0.004m
-                </div>
-              </div>
-              <div className="fusion-card p-3 sm:p-4 min-w-0">
-                <div className="text-[var(--text-3)] text-[11px] sm:text-xs font-mono uppercase tracking-wider mb-1 truncate">
-                  Closure
-                </div>
-                <div className="text-base sm:text-2xl font-semibold font-mono tabular-nums text-[var(--text-1)] truncate">
-                  1:32,400
-                </div>
-              </div>
-              <div className="fusion-card p-3 sm:p-4 min-w-0">
-                <div className="text-[var(--text-3)] text-[11px] sm:text-xs font-mono uppercase tracking-wider mb-1 truncate">
-                  Elevation
-                </div>
-                <div className="text-base sm:text-2xl font-semibold font-mono tabular-nums text-[var(--text-1)] truncate">
-                  +42.815m
-                </div>
-              </div>
-              <div className="fusion-card p-3 sm:p-4 min-w-0">
-                <div className="text-[var(--text-3)] text-[11px] sm:text-xs font-mono uppercase tracking-wider mb-1 truncate">
-                  Parcel
-                </div>
-                <div className="text-base sm:text-2xl font-semibold font-mono tabular-nums text-[var(--text-1)] truncate">
-                  12-2-48.5 ไร่
-                </div>
-              </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-1)] tracking-tight">
+              คู่มือสำรวจ / Knowledge Hub
+            </h1>
+            <p className="text-[var(--text-2)] text-sm max-w-3xl leading-relaxed">
+              มาตรฐานการตั้งกล้อง ขั้นตอนการรังวัดภาคสนาม สมการปรับแก้ความคลาดเคลื่อน และขั้นตอนการใช้งานเครื่องมือสำรวจตามเกณฑ์วิศวกรรมสำรวจและภูมิสารสนเทศ
+            </p>
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => searchInputRef.current?.focus()}
+                className="btn-primary min-h-[44px] inline-flex items-center gap-2 text-sm"
+              >
+                <span>ค้นหามาตรฐาน SOP</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
 
@@ -507,7 +459,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       <div className="flex items-center gap-2 text-[11px] font-mono text-[var(--text-3)] shrink-0">
                         <span>{topic.fieldProcedures.length} ขั้นตอน</span>
                         {topic.deviceWorkflow && topic.deviceWorkflow.length > 0 && (
-                          <span className="text-[var(--accent)] font-semibold">• LCD Sim</span>
+                          <span className="text-[var(--accent)] font-semibold">• {topic.deviceWorkflow.length} คำสั่งอุปกรณ์</span>
                         )}
                       </div>
 
@@ -590,12 +542,12 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
               {activeTopic.deviceWorkflow && activeTopic.deviceWorkflow.length > 0 && (
                 <button
                   type="button"
-                  onClick={() => scrollToSection('sec-lcd-sim')}
+                  onClick={() => scrollToSection('sec-device-guide')}
                   className="lg:hidden btn-outline min-h-[44px] inline-flex items-center gap-1.5 text-xs"
-                  title="เลื่อนไปดูหน้าจอจำลอง LCD"
+                  title="เลื่อนไปดูขั้นตอนควบคุมอุปกรณ์"
                 >
-                  <Terminal className="w-3.5 h-3.5 text-[var(--accent)]" />
-                  <span>จอ LCD</span>
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-[var(--accent)]" />
+                  <span>ขั้นตอนอุปกรณ์</span>
                 </button>
               )}
 
@@ -891,46 +843,51 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
               </div>
             </div>
 
-            {/* Right Column: Sticky Interactive LCD Simulator & Quick Section Navigator (4 cols) */}
+            {/* Right Column: Sticky Instrument Step Guide & Quick Section Navigator (4 cols) */}
             <div className="lg:col-span-5 xl:col-span-4 space-y-5 lg:sticky lg:top-20">
 
-              {/* Interactive Instrument LCD & Keypad Simulator */}
+              {/* Interactive Instrument Interface & Step Guide */}
               {deviceSteps.length > 0 && currentStep && (
-                <div id="sec-lcd-sim" className="fusion-card overflow-hidden scroll-mt-24">
-                  {/* Instrument Chassis Header */}
+                <div id="sec-device-guide" className="fusion-card overflow-hidden scroll-mt-24">
+                  {/* Instrument Guide Header */}
                   <div className="px-4 py-3 bg-[var(--surface-2)] border-b border-[var(--border)] flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="status-dot" />
-                      <span className="text-xs font-mono font-bold tracking-wider text-[var(--text-1)] truncate max-w-[180px]">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <SlidersHorizontal className="w-4 h-4 text-[var(--accent)] shrink-0" />
+                      <span className="text-xs font-mono font-bold tracking-wider text-[var(--text-1)] truncate">
                         {currentStep.targetHardware}
                       </span>
                     </div>
-                    <span className="badge badge-beginner tabular-nums">
-                      STEP {currentStep.stepNumber}/{deviceSteps.length}
+                    <span className="badge badge-leveling tabular-nums shrink-0">
+                      ขั้นตอน {currentStep.stepNumber}/{deviceSteps.length}
                     </span>
                   </div>
 
                   <div className="p-4 sm:p-5 space-y-4">
-                    {/* High-Contrast Backlit Digital LCD Screen (Always dark instrument LCD for authenticity) */}
-                    <div className="rounded-[var(--btn-radius)] border-2 border-emerald-900/80 bg-[#050a08] p-4 font-mono tabular-nums space-y-2">
-                      <div className="text-[11px] font-bold text-emerald-400 border-b border-emerald-900/60 pb-1.5 flex items-center justify-between">
-                        <span className="truncate">▶ {currentStep.screenTitle}</span>
-                        <span className="text-[10px] text-emerald-500 shrink-0">BAT 100%</span>
+                    {/* Modern Clean Parameter Display Card */}
+                    <div className="rounded-[var(--btn-radius)] border border-[var(--border)] bg-[var(--surface-2)] p-4 space-y-2.5">
+                      <div className="text-xs font-bold text-[var(--text-1)] border-b border-[var(--border)] pb-2 flex items-center justify-between gap-2">
+                        <span className="truncate flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
+                          {currentStep.screenTitle}
+                        </span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--accent)] border border-[var(--border)] shrink-0">
+                          {currentStep.stageName}
+                        </span>
                       </div>
 
-                      <div className="space-y-1 text-xs text-emerald-300 font-mono tabular-nums tracking-wide leading-relaxed min-h-[96px]">
-                        {currentStep.screenLines.map((line, lIdx) => (
-                          <div key={lIdx} className="hover:bg-emerald-950/50 px-1 rounded transition-colors">
-                            {line}
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="pt-2 border-t border-emerald-900/60 flex flex-wrap items-center justify-between gap-1 text-[9px] sm:text-[10px] text-emerald-400 font-mono font-bold">
-                        <span>[F1: DIST]</span>
-                        <span>[F2: COORD]</span>
-                        <span>[F3: SET]</span>
-                        <span>[F4: REC]</span>
+                      {/* Clean Structured Data Lines */}
+                      <div className="space-y-1.5 py-1 text-xs">
+                        {currentStep.screenLines
+                          .filter(line => !line.includes('┌') && !line.includes('└') && !line.includes('─'))
+                          .map((line, lIdx) => {
+                            const cleanLine = line.replace(/^│\s*/, '').replace(/\s*│$/, '').trim();
+                            if (!cleanLine) return null;
+                            return (
+                              <div key={lIdx} className="px-3 py-1.5 rounded bg-[var(--surface)] border border-[var(--border)] font-mono text-[11px] sm:text-xs text-[var(--text-1)] flex items-center justify-between break-words">
+                                <span>{cleanLine}</span>
+                              </div>
+                            );
+                          })}
                       </div>
                     </div>
 
@@ -940,7 +897,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                         type="button"
                         onClick={() => setActiveStepIndex((prev) => Math.max(0, prev - 1))}
                         disabled={activeStepIndex === 0}
-                        className="btn-outline min-h-[44px] inline-flex items-center gap-1 text-xs disabled:opacity-30"
+                        className="btn-outline min-h-[44px] inline-flex items-center gap-1 text-xs disabled:opacity-30 cursor-pointer"
                       >
                         <ChevronLeft className="w-4 h-4" />
                         <span>ก่อนหน้า</span>
@@ -953,7 +910,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                             type="button"
                             onClick={() => setActiveStepIndex(dotIdx)}
                             aria-label={`ขั้นตอนที่ ${dotIdx + 1}`}
-                            className={`h-2.5 rounded-full transition-all ${
+                            className={`h-2.5 rounded-full transition-all cursor-pointer ${
                               dotIdx === activeStepIndex ? 'w-6 bg-[var(--accent)]' : 'w-2.5 bg-[var(--border-strong)]'
                             }`}
                             title={`ขั้นตอนที่ ${dotIdx + 1}`}
@@ -965,7 +922,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                         type="button"
                         onClick={() => setActiveStepIndex((prev) => Math.min(deviceSteps.length - 1, prev + 1))}
                         disabled={activeStepIndex === deviceSteps.length - 1}
-                        className="btn-outline min-h-[44px] inline-flex items-center gap-1 text-xs disabled:opacity-30"
+                        className="btn-outline min-h-[44px] inline-flex items-center gap-1 text-xs disabled:opacity-30 cursor-pointer"
                       >
                         <span>ถัดไป</span>
                         <ChevronRight className="w-4 h-4" />
@@ -973,13 +930,12 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     </div>
 
                     {/* Keypress & QA Explanation */}
-                    <div className="rounded-[var(--btn-radius)] bg-[var(--surface-2)] border border-[var(--border)] p-3.5 space-y-2">
-                      <div className="flex flex-wrap items-center justify-between gap-1.5">
-                        <span className="text-xs font-bold text-[var(--text-1)] flex items-center gap-1.5">
-                          <Terminal className="w-3.5 h-3.5 text-[var(--accent)]" />
-                          ปุ่มกด: <code className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--border)] text-[var(--accent)] font-mono text-[11px]">{currentStep.buttonKey}</code>
-                        </span>
-                        <span className="text-[10px] font-mono text-[var(--text-3)]">{currentStep.stageName}</span>
+                    <div className="rounded-[var(--btn-radius)] bg-[var(--surface)] border border-[var(--border)] p-3.5 space-y-2.5">
+                      <div className="flex items-start gap-2">
+                        <span className="text-xs font-bold text-[var(--text-1)] shrink-0 mt-0.5">คำสั่ง/ปุ่มกด:</span>
+                        <code className="px-2 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border-strong)] text-[var(--accent)] font-mono text-[11px] font-semibold break-words">
+                          {currentStep.buttonKey}
+                        </code>
                       </div>
                       <p className="text-xs text-[var(--text-2)] leading-relaxed">
                         {currentStep.explanation}
