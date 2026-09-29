@@ -88,7 +88,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
               </div>
               <span className="text-[10px] tracking-wider font-mono text-slate-400 dark:text-slate-500 uppercase leading-none">
-                Field Terminal
+                Geomatics Platform
               </span>
             </div>
           )}
