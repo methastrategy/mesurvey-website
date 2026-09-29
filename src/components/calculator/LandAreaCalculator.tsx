@@ -70,6 +70,7 @@ export const LandAreaCalculator: React.FC = () => {
             <input
               type="number"
               step="0.01"
+              aria-label="พื้นที่เป็นตารางเมตร (Square Meters)"
               value={sqMetersInput}
               onChange={(e) => handleUpdateM2(e.target.value)}
               className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
@@ -107,9 +108,10 @@ export const LandAreaCalculator: React.FC = () => {
               </label>
               <input
                 type="number"
+                aria-label="ไร่ (Rai)"
                 value={raiInput}
                 onChange={(e) => handleUpdateThai(e.target.value, nganInput, wahInput)}
-                className="w-full min-h-[44px] px-3 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
+                className="w-full min-h-[44px] px-2.5 sm:px-3 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
               />
             </div>
             <div>
@@ -120,9 +122,10 @@ export const LandAreaCalculator: React.FC = () => {
                 type="number"
                 min="0"
                 max="3"
+                aria-label="งาน (Ngan)"
                 value={nganInput}
                 onChange={(e) => handleUpdateThai(raiInput, e.target.value, wahInput)}
-                className="w-full min-h-[44px] px-3 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
+                className="w-full min-h-[44px] px-2.5 sm:px-3 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
               />
             </div>
             <div>
@@ -134,9 +137,10 @@ export const LandAreaCalculator: React.FC = () => {
                 step="0.01"
                 min="0"
                 max="99.99"
+                aria-label="ตารางวา (Wah)"
                 value={wahInput}
                 onChange={(e) => handleUpdateThai(raiInput, nganInput, e.target.value)}
-                className="w-full min-h-[44px] px-3 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
+                className="w-full min-h-[44px] px-2.5 sm:px-3 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono tabular-nums text-base font-bold text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
               />
             </div>
           </div>
@@ -172,6 +176,7 @@ export const LandAreaCalculator: React.FC = () => {
             </label>
             <input
               type="number"
+              aria-label="ราคาประเมินต่อตารางวา (บาท/ตร.ว.)"
               value={pricePerWah}
               onChange={(e) => setPricePerWah(e.target.value)}
               className="w-full min-h-[44px] px-3.5 py-2 rounded-lg bg-surface-2 dark:bg-[#0a0a0b] border border-border dark:border-[#27272a] text-slate-900 dark:text-white font-mono tabular-nums text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"

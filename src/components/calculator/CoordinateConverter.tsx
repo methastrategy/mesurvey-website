@@ -251,10 +251,10 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
             </a>
 
             {/* Precision Segmented Control */}
-            <div className="inline-flex p-1 rounded-xl bg-surface-2 dark:bg-[#18181b] border border-border dark:border-[#27272a] text-xs">
+            <div className="flex flex-wrap p-1 rounded-xl bg-surface-2 dark:bg-[#18181b] border border-border dark:border-[#27272a] text-xs gap-1 max-w-full">
               <button
                 onClick={() => { setInputMode('dd'); setInputError(null); }}
-                className={`min-h-[36px] px-3.5 py-1.5 rounded-lg font-medium transition-all ${
+                className={`min-h-[36px] px-3 sm:px-3.5 py-1.5 rounded-lg font-medium transition-all ${
                   inputMode === 'dd'
                     ? 'bg-indigo-600 text-white shadow-sm font-semibold'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -344,14 +344,14 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                   Latitude ละติจูด (Deg° Min' Sec")
                 </label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
                   <input
                     type="number"
                     aria-label="องศาละติจูด (Latitude Degrees)"
                     value={dmsLatDeg}
                     onChange={(e) => setDmsLatDeg(e.target.value)}
                     placeholder="Deg"
-                    className="min-h-[44px] px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
                   />
                   <input
                     type="number"
@@ -359,7 +359,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                     value={dmsLatMin}
                     onChange={(e) => setDmsLatMin(e.target.value)}
                     placeholder="Min"
-                    className="min-h-[44px] px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
                   />
                   <input
                     type="number"
@@ -368,13 +368,13 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                     value={dmsLatSec}
                     onChange={(e) => setDmsLatSec(e.target.value)}
                     placeholder="Sec"
-                    className="min-h-[44px] px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
                   />
                   <select
                     aria-label="ซีกโลกเหนือ-ใต้ (Latitude Direction)"
                     value={dmsLatDir}
                     onChange={(e) => setDmsLatDir(e.target.value as 'N' | 'S')}
-                    className="min-h-[44px] px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#18181b] font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    className="min-h-[44px] px-1.5 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#18181b] font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
                   >
                     <option value="N">N (เหนือ)</option>
                     <option value="S">S (ใต้)</option>
@@ -386,14 +386,14 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
                   Longitude ลองจิจูด (Deg° Min' Sec")
                 </label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
                   <input
                     type="number"
                     aria-label="องศาลองจิจูด (Longitude Degrees)"
                     value={dmsLngDeg}
                     onChange={(e) => setDmsLngDeg(e.target.value)}
                     placeholder="Deg"
-                    className="min-h-[44px] px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
                   />
                   <input
                     type="number"
@@ -401,7 +401,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                     value={dmsLngMin}
                     onChange={(e) => setDmsLngMin(e.target.value)}
                     placeholder="Min"
-                    className="min-h-[44px] px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
                   />
                   <input
                     type="number"
@@ -410,13 +410,13 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
                     value={dmsLngSec}
                     onChange={(e) => setDmsLngSec(e.target.value)}
                     placeholder="Sec"
-                    className="min-h-[44px] px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
                   />
                   <select
                     aria-label="ซีกโลกตะวันออก-ตะวันตก (Longitude Direction)"
                     value={dmsLngDir}
                     onChange={(e) => setDmsLngDir(e.target.value as 'E' | 'W')}
-                    className="min-h-[44px] px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#18181b] font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    className="min-h-[44px] px-1.5 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#18181b] font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
                   >
                     <option value="E">E (ออก)</option>
                     <option value="W">W (ตก)</option>
