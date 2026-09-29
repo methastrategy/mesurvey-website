@@ -42,12 +42,12 @@ describe('Challenger 1 Adversarial Suite: Manuals, Badges & Deep-Linking', () =>
   // =========================================================================
   // SECTION 1: Adversarial Verification of all 9 Knowledge Topics
   // =========================================================================
-  describe('1. Authoritative Corpus & Schema Verification (9 Topics)', () => {
-    it('must have exactly 9 topics with unique, valid kebab-case IDs', () => {
-      expect(KNOWLEDGE_TOPICS).toHaveLength(9);
+  describe('1. Authoritative Corpus & Schema Verification (13 Topics)', () => {
+    it('must have 13 topics with unique, valid kebab-case IDs', () => {
+      expect(KNOWLEDGE_TOPICS).toHaveLength(13);
       const ids = KNOWLEDGE_TOPICS.map(t => t.id);
       const uniqueIds = new Set(ids);
-      expect(uniqueIds.size).toBe(9);
+      expect(uniqueIds.size).toBe(13);
 
       // Verify kebab-case format
       ids.forEach(id => {

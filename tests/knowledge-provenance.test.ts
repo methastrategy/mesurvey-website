@@ -3,18 +3,22 @@ import { KNOWLEDGE_TOPICS } from '../src/data/knowledge-topics';
 import { KnowledgeTopic } from '../src/types/survey';
 
 describe('Knowledge Topic Provenance & Verification Badge System', () => {
-  it('should contain exactly 9 authoritative survey engineering topics', () => {
+  it('should contain all 13 authoritative survey engineering topics (5 คู่มือใช้งาน + 8 คู่มือทำงาน)', () => {
     expect(KNOWLEDGE_TOPICS).toBeDefined();
     expect(Array.isArray(KNOWLEDGE_TOPICS)).toBe(true);
-    expect(KNOWLEDGE_TOPICS.length).toBe(9);
+    expect(KNOWLEDGE_TOPICS.length).toBe(13);
 
     const expectedTopicIds = [
       'differential-leveling-survey',
+      'level-instrument-manual',
       'theodolite-station-setup',
       'closed-loop-traverse',
       'link-open-traverse',
+      'gnss-instrument-manual',
       'gnss-rtk-static-survey',
+      'uav-instrument-manual',
       'uav-drone-photogrammetry',
+      'lidar-slam-instrument-manual',
       'terrestrial-lidar-slam',
       'hydrographic-bathymetric-survey',
       'tbm-tunnel-guidance-survey'
@@ -22,6 +26,11 @@ describe('Knowledge Topic Provenance & Verification Badge System', () => {
 
     const actualTopicIds = KNOWLEDGE_TOPICS.map(t => t.id);
     expect(actualTopicIds).toEqual(expectedTopicIds);
+
+    const equipmentManuals = KNOWLEDGE_TOPICS.filter(t => t.badge === 'คู่มือใช้งาน');
+    const surveyMethods = KNOWLEDGE_TOPICS.filter(t => t.badge === 'คู่มือทำงาน');
+    expect(equipmentManuals.length).toBe(5);
+    expect(surveyMethods.length).toBe(8);
   });
 
   it('should ensure all 9 topics are marked with verificationStatus === "draft" pending academic/field peer review', () => {

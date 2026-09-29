@@ -1,6 +1,6 @@
 export type BasemapProvider = 'osm' | 'satellite' | 'topo' | 'dark';
 
-export type MapInteractionMode = 'none' | 'inspect' | 'distance' | 'area' | 'marker';
+export type MapInteractionMode = 'none' | 'inspect' | 'distance' | 'area' | 'marker' | 'cross-section';
 
 export interface BasemapConfig {
   id: BasemapProvider;

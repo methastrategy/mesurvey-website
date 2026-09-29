@@ -160,6 +160,26 @@ export interface DownstreamWorkflow {
   toolActionLabel?: string;
 }
 
+export interface InstrumentAnatomyPart {
+  number: number;
+  name: string;
+  nameEn: string;
+  description: string;
+}
+
+export interface InstrumentAnatomy {
+  imagePath?: string; // e.g. "/images/instruments/auto-level.jpg"
+  imageCaption: string;
+  modelExamples: string;
+  parts: InstrumentAnatomyPart[];
+}
+
+export interface InstrumentVariantUseCase {
+  name: string;
+  equipmentCombo: string;
+  useCases: string[];
+}
+
 export interface KnowledgeTopic {
   id: string;
   title: string;
@@ -171,6 +191,8 @@ export interface KnowledgeTopic {
   iconName: string;
   verificationStatus: 'draft' | 'verified';
   verificationProof?: string;
+  instrumentVariants?: InstrumentVariantUseCase[];
+  instrumentAnatomy?: InstrumentAnatomy;
   equipmentRequired?: string[];
   workingPrinciple: string[];
   fieldProcedures: FieldChecklistStep[];
@@ -180,3 +202,5 @@ export interface KnowledgeTopic {
   courseRelation?: string;
   formulas?: { label: string; formula: string; explanation: string }[];
 }
+
+

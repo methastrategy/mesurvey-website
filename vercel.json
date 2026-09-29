@@ -4,6 +4,10 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/api/rid-dams",
+      "destination": "https://app.rid.go.th/reservoir/api/dam/public"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

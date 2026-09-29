@@ -7,6 +7,13 @@ export default defineConfig({
   server: {
     port: 3000,
     open: false,
+    proxy: {
+      '/api/rid-dams': {
+        target: 'https://app.rid.go.th',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/rid-dams/, '/reservoir/api/dam/public'),
+      },
+    },
   },
   build: {
     outDir: 'dist',
@@ -22,6 +29,9 @@ export default defineConfig({
           }
           if (id.includes('src/data/knowledge-topics')) {
             return 'data-knowledge';
+          }
+          if (id.includes('src/data/thailand-hydro-network')) {
+            return 'data-hydro';
           }
         },
       },

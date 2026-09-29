@@ -40,6 +40,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(initialTopicId || null);
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
   const [copiedText, setCopiedText] = useState<boolean>(false);
+  const [anatomyImgLoaded, setAnatomyImgLoaded] = useState<boolean>(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   const getWorkflowTarget = (topic: KnowledgeTopic) => {
@@ -75,29 +76,25 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
     }
   };
 
-  // Specific Domain & Methodology Badge Resolver per SOP Topic
+  // Specific Dual-Taxonomy Badge Resolver per SOP Topic (คู่มือใช้งาน vs คู่มือทำงาน)
   const getTopicDomainBadge = (topicId: string): { label: string; className: string } => {
     switch (topicId) {
-      case 'differential-leveling-survey':
-        return { label: 'กล้องระดับ', className: 'badge badge-leveling' };
+      case 'level-instrument-manual':
       case 'theodolite-station-setup':
-        return { label: 'Total Station & กล้องวัดมุม', className: 'badge badge-totalstation' };
+      case 'gnss-instrument-manual':
+      case 'uav-instrument-manual':
+      case 'lidar-slam-instrument-manual':
+        return { label: 'คู่มือใช้งาน', className: 'badge badge-leveling' };
+      case 'differential-leveling-survey':
       case 'closed-loop-traverse':
-        return { label: 'วงรอบปิด', className: 'badge badge-traverse-closed' };
       case 'link-open-traverse':
-        return { label: 'วงรอบเปิดเชื่อมโยง', className: 'badge badge-traverse-link' };
       case 'gnss-rtk-static-survey':
-        return { label: 'GNSS Static & RTK CORS', className: 'badge badge-gnss' };
       case 'uav-drone-photogrammetry':
-        return { label: 'โดรนสำรวจ UAV', className: 'badge badge-drone' };
       case 'terrestrial-lidar-slam':
-        return { label: '3D Laser & SLAM', className: 'badge badge-laser' };
       case 'hydrographic-bathymetric-survey':
-        return { label: 'หยั่งน้ำ Bathymetric', className: 'badge badge-bathymetry' };
       case 'tbm-tunnel-guidance-survey':
-        return { label: 'อุโมงค์ TBM', className: 'badge badge-tunnel' };
       default:
-        return { label: 'คู่มือสำรวจ', className: 'badge badge-leveling' };
+        return { label: 'คู่มือทำงาน', className: 'badge badge-traverse-closed' };
     }
   };
 
@@ -106,20 +103,28 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
     switch (topicId) {
       case 'differential-leveling-survey':
         return ['Three-Wire Leveling', 'Two-Peg Test', 'Stadia D=100s', 'FGCC Standards'];
+      case 'level-instrument-manual':
+        return ['Automatic Level', 'Digital Level', 'Compensator', 'E-Scale Staff', 'Parallax'];
       case 'theodolite-station-setup':
-        return ['Total Station', 'Free Station Resection', '0-SET Backsight', 'Prism Constant', 'FL/FR Two-Face'];
+        return ['Digital Theodolite', 'Total Station', 'Robotic TS', 'Prism Constant', 'FL/FR Two-Face'];
       case 'closed-loop-traverse':
         return ['Closed Polygon', 'Angular Misclosure', 'Bowditch Rule', 'UTM Grid'];
       case 'link-open-traverse':
         return ['Link Traverse', 'Benchmark Tie-in', 'Azimuth Closure', 'Alignment Control'];
+      case 'gnss-instrument-manual':
+        return ['GNSS Receiver', 'RTK Base/Rover', 'NTRIP CORS', 'IMU Tilt 60°', 'Multipath Check'];
       case 'gnss-rtk-static-survey':
-        return ['Static Geodesy', 'RTK CORS VRS', 'RINEX Logging', 'TGM2017 Geoid', 'NTRIP Base-Rover'];
+        return ['Static Geodesy', 'RTK CORS VRS', 'RINEX Logging', 'TGM2017 Geoid', 'Baseline QA'];
+      case 'uav-instrument-manual':
+        return ['UAV Drone RTK', 'Mechanical Shutter', 'Airborne LiDAR', 'IMU Calibration', 'GSD Sensor'];
       case 'uav-drone-photogrammetry':
-        return ['UAV Photogrammetry', 'GSD Calculation', 'GCP / Check Points', 'SfM'];
+        return ['UAV Photogrammetry', 'GSD Calculation', 'GCP / Check Points', 'SfM Aerotriangulation'];
+      case 'lidar-slam-instrument-manual':
+        return ['3D Laser Scanner TLS', 'Mobile SLAM', 'Target Spheres', 'Point Cloud Density', 'HDR Panorama'];
       case 'terrestrial-lidar-slam':
-        return ['Terrestrial LiDAR', 'Mobile SLAM', 'Point Cloud ICP', 'Scan-to-BIM'];
+        return ['TLS Registration', 'Cloud-to-Cloud ICP', 'Loop Closure SLAM', 'Scan-to-BIM LOD 300'];
       case 'hydrographic-bathymetric-survey':
-        return ['Multi-Beam Echo', 'Bathymetric Survey', 'MRU Roll/Pitch', 'IHO Standards'];
+        return ['Multi-Beam Echo', 'Bathymetric Survey', 'MRU Roll/Pitch', 'IHO S-44 Standards'];
       case 'tbm-tunnel-guidance-survey':
         return ['TBM Guidance', 'Motorized TS', 'DTA Deviations', 'Gyrotheodolite'];
       default:
@@ -127,33 +132,19 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
     }
   };
 
-  // Category Facets: Equipment Manuals vs Field Survey Methods + Domain Facets
+  // Category Facets: Equipment Manuals (คู่มือใช้งาน) vs Field Survey Methods (คู่มือทำงาน) + Domain Facets
   const categories: { id: string; label: string; count: number; icon: React.ReactNode }[] = useMemo(() => [
     { id: 'all', label: 'ทั้งหมด (All SOPs)', count: KNOWLEDGE_TOPICS.length, icon: <BookOpen className="w-3.5 h-3.5" /> },
     { 
       id: 'equipment-manual', 
-      label: 'คู่มือการใช้อุปกรณ์', 
-      count: KNOWLEDGE_TOPICS.filter(t => [
-        'differential-leveling-survey',
-        'theodolite-station-setup',
-        'gnss-rtk-static-survey',
-        'uav-drone-photogrammetry',
-        'terrestrial-lidar-slam',
-        'hydrographic-bathymetric-survey'
-      ].includes(t.id)).length, 
+      label: 'คู่มือใช้งานอุปกรณ์', 
+      count: KNOWLEDGE_TOPICS.filter(t => t.badge === 'คู่มือใช้งาน').length, 
       icon: <Compass className="w-3.5 h-3.5" /> 
     },
     { 
       id: 'survey-method', 
-      label: 'วิธีการทำงานภาคสนาม', 
-      count: KNOWLEDGE_TOPICS.filter(t => [
-        'differential-leveling-survey',
-        'closed-loop-traverse',
-        'link-open-traverse',
-        'gnss-rtk-static-survey',
-        'tbm-tunnel-guidance-survey',
-        'uav-drone-photogrammetry'
-      ].includes(t.id)).length, 
+      label: 'คู่มือวิธีการทำงาน', 
+      count: KNOWLEDGE_TOPICS.filter(t => t.badge === 'คู่มือทำงาน').length, 
       icon: <Layers className="w-3.5 h-3.5" /> 
     },
     { id: 'survey-instrument', label: 'กล้องสำรวจ & วงรอบ', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'survey-instrument' || t.category === 'total-station' || t.category === 'differential-leveling').length, icon: <Ruler className="w-3.5 h-3.5" /> },
@@ -170,43 +161,25 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
       let matchCategory = selectedCategory === 'all';
       if (!matchCategory) {
         if (selectedCategory === 'equipment-manual') {
-          matchCategory = [
-            'differential-leveling-survey',
-            'theodolite-station-setup',
-            'gnss-rtk-static-survey',
-            'uav-drone-photogrammetry',
-            'terrestrial-lidar-slam',
-            'hydrographic-bathymetric-survey'
-          ].includes(t.id);
+          matchCategory = t.badge === 'คู่มือใช้งาน';
         } else if (selectedCategory === 'survey-method') {
-          matchCategory = [
-            'differential-leveling-survey',
-            'closed-loop-traverse',
-            'link-open-traverse',
-            'gnss-rtk-static-survey',
-            'tbm-tunnel-guidance-survey',
-            'uav-drone-photogrammetry'
-          ].includes(t.id);
+          matchCategory = t.badge === 'คู่มือทำงาน';
         } else if (selectedCategory === 'survey-instrument') {
           matchCategory = (
             t.category === 'survey-instrument' || 
             t.category === 'total-station' || 
-            t.category === 'differential-leveling' ||
-            t.id === 'differential-leveling-survey' ||
-            t.id === 'theodolite-station-setup' ||
-            t.id === 'closed-loop-traverse' ||
-            t.id === 'link-open-traverse'
+            t.category === 'differential-leveling'
           );
         } else if (selectedCategory === 'gnss-gps') {
-          matchCategory = t.category === 'gnss-gps' || t.category === 'gnss-geodesy' || t.id === 'gnss-rtk-static-survey';
+          matchCategory = t.category === 'gnss-gps' || t.category === 'gnss-geodesy';
         } else if (selectedCategory === 'drone-uav') {
-          matchCategory = t.category === 'drone-uav' || t.category === 'drone-photogrammetry' || t.id === 'uav-drone-photogrammetry';
+          matchCategory = t.category === 'drone-uav' || t.category === 'drone-photogrammetry';
         } else if (selectedCategory === 'scanner-slam') {
-          matchCategory = t.category === 'scanner-slam' || t.category === 'lidar-scan-bim' || t.id === 'terrestrial-lidar-slam';
+          matchCategory = t.category === 'scanner-slam' || t.category === 'lidar-scan-bim';
         } else if (selectedCategory === 'hydrographic') {
-          matchCategory = t.category === 'hydrographic' || t.id === 'hydrographic-bathymetric-survey';
+          matchCategory = t.category === 'hydrographic';
         } else if (selectedCategory === 'tbm-tunnel') {
-          matchCategory = t.category === 'tbm-tunnel' || t.id === 'tbm-tunnel-guidance-survey';
+          matchCategory = t.category === 'tbm-tunnel';
         } else {
           matchCategory = t.category === selectedCategory;
         }
@@ -228,8 +201,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
     if (!selectedTopicId) return undefined;
     return KNOWLEDGE_TOPICS.find((t) => t.id === selectedTopicId);
   }, [selectedTopicId]);
-
-  const activeWorkflowTarget = activeTopic ? getWorkflowTarget(activeTopic) : null;
 
   const deviceSteps: DeviceScreenStep[] = activeTopic?.deviceWorkflow || [];
   const currentStep: DeviceScreenStep | undefined = deviceSteps[activeStepIndex] || deviceSteps[0];
@@ -278,6 +249,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
   const handleSelectTopic = (id: string) => {
     setSelectedTopicId(id);
     setActiveStepIndex(0);
+    setAnatomyImgLoaded(false);
     window.location.hash = `#/knowledge/${id}`;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -398,7 +370,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredTopics.map((topic) => {
                 const topicIndex = KNOWLEDGE_TOPICS.findIndex((t) => t.id === topic.id);
-                const sopCode = `SOP-0${topicIndex + 1}`;
+                const sopCode = `SOP-${String(topicIndex + 1).padStart(2, '0')}`;
                 const domainBadge = getTopicDomainBadge(topic.id);
                 const wf = getWorkflowTarget(topic);
 
@@ -551,22 +523,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                 </button>
               )}
 
-              {activeWorkflowTarget && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    window.location.hash = activeWorkflowTarget.hash;
-                    if (onNavigateTab) {
-                      onNavigateTab(activeWorkflowTarget.hash.includes('map') ? 'map' : 'calculator');
-                    }
-                  }}
-                  className="btn-primary min-h-[44px] inline-flex items-center gap-1.5 text-xs"
-                >
-                  <span>{activeWorkflowTarget.label}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              )}
-
               <button
                 type="button"
                 onClick={handleCopySummary}
@@ -660,6 +616,201 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     </p>
                   </div>
                 </div>
+
+                {/* SECTION 0A: INSTRUMENT VARIANTS & FIELD USE CASES (ประเภทเครื่องมือและรูปแบบงานที่นำไปใช้) */}
+                {activeTopic.instrumentVariants && activeTopic.instrumentVariants.length > 0 && (
+                  <div id="sec-variants" className="space-y-4 scroll-mt-24">
+                    <h2 className="text-base font-bold text-[var(--text-1)] flex items-center gap-2 border-l-2 border-[var(--accent)] pl-3">
+                      <Layers className="w-4 h-4 text-[var(--accent)]" />
+                      <span>ประเภทเครื่องมือและรูปแบบงานที่นำไปใช้ (Instrument Variants & Field Applications)</span>
+                    </h2>
+                    <div className="grid grid-cols-1 gap-4">
+                      {activeTopic.instrumentVariants.map((variant, vIdx) => (
+                        <div
+                          key={vIdx}
+                          className="p-4 sm:p-5 rounded-[var(--btn-radius)] bg-[var(--surface-2)] border border-[var(--border)] space-y-3"
+                        >
+                          <div className="flex flex-wrap items-start justify-between gap-2 border-b border-[var(--border)] pb-2.5">
+                            <div>
+                              <h3 className="text-sm sm:text-[15px] font-bold text-[var(--text-1)]">
+                                {variant.name}
+                              </h3>
+                              <p className="text-[11px] font-mono text-[var(--accent)] mt-0.5">
+                                🔧 ชุดอุปกรณ์: {variant.equipmentCombo}
+                              </p>
+                            </div>
+                            <span className="badge badge-leveling shrink-0">
+                              รูปแบบที่ {vIdx + 1}
+                            </span>
+                          </div>
+                          <div className="space-y-1.5 pt-1">
+                            <div className="text-xs font-bold text-[var(--text-1)]">
+                              📋 รูปแบบงานที่นำไปใช้ (Field Use Cases):
+                            </div>
+                            <div className="grid grid-cols-1 gap-1.5">
+                              {variant.useCases.map((job, jIdx) => (
+                                <div
+                                  key={jIdx}
+                                  className="p-2.5 rounded bg-[var(--surface)] border border-[var(--border)] flex items-start gap-2.5 text-xs text-[var(--text-1)] leading-relaxed"
+                                >
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-[var(--accent)] shrink-0 mt-0.5" />
+                                  <span>{job}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* SECTION 0: INSTRUMENT ANATOMY & IMAGE SLOT (คู่มือใช้งานอุปกรณ์) */}
+                {activeTopic.instrumentAnatomy && (
+                  <div id="sec-anatomy" className="space-y-4 scroll-mt-24">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h2 className="text-base font-bold text-[var(--text-1)] flex items-center gap-2 border-l-2 border-[var(--accent)] pl-3">
+                        <Compass className="w-4 h-4 text-[var(--accent)]" />
+                        <span>โครงสร้างและส่วนประกอบตัวเครื่อง (Instrument Anatomy & Visual Reference)</span>
+                      </h2>
+                      <span className="font-mono text-[11px] px-2.5 py-0.5 rounded bg-[var(--surface-2)] text-[var(--accent)] border border-[var(--border)]">
+                        {activeTopic.instrumentAnatomy.modelExamples}
+                      </span>
+                    </div>
+
+                    {/* Visual Reference Frame (Displays custom image if placed in public/images/instruments/, else Technical Schematic SVG) */}
+                    <div className="rounded-[var(--btn-radius)] bg-[var(--surface-2)] border border-[var(--border)] overflow-hidden">
+                      {activeTopic.instrumentAnatomy.imagePath && (
+                        <img
+                          src={activeTopic.instrumentAnatomy.imagePath}
+                          alt={activeTopic.instrumentAnatomy.imageCaption}
+                          onLoad={() => setAnatomyImgLoaded(true)}
+                          onError={() => setAnatomyImgLoaded(false)}
+                          className={`w-full max-h-[380px] object-contain bg-[var(--surface)] border-b border-[var(--border)] p-4 ${
+                            anatomyImgLoaded ? 'block' : 'hidden'
+                          }`}
+                        />
+                      )}
+
+                      {!anatomyImgLoaded && (
+                        <div className="p-5 sm:p-6 bg-[var(--surface)] border-b border-[var(--border)] flex flex-col items-center justify-center text-center space-y-3">
+                          {/* Clean Technical Blueprint SVG of Survey Instrument with Callout Numbers 1-9 */}
+                          <svg
+                            viewBox="0 0 600 220"
+                            className="w-full max-w-[540px] h-auto text-[var(--text-1)]"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            {/* Horizontal Collimation Line of Sight */}
+                            <line x1="20" y1="88" x2="580" y2="88" stroke="var(--accent)" strokeWidth="1.5" strokeDasharray="6 4" />
+                            <text x="26" y="78" fill="var(--accent)" fontSize="10" fontFamily="monospace" fontWeight="bold">
+                              LINE OF SIGHT (HI)
+                            </text>
+
+                            {/* Tripod Head & Base Plate */}
+                            <rect x="200" y="176" width="200" height="14" rx="2" fill="var(--surface-2)" stroke="currentColor" strokeWidth="1.75" />
+                            {/* 3 Foot Leveling Screws (8) */}
+                            <rect x="225" y="148" width="18" height="28" rx="2" fill="var(--surface-2)" stroke="currentColor" strokeWidth="1.5" />
+                            <rect x="291" y="148" width="18" height="28" rx="2" fill="var(--surface-2)" stroke="currentColor" strokeWidth="1.5" />
+                            <rect x="357" y="148" width="18" height="28" rx="2" fill="var(--surface-2)" stroke="currentColor" strokeWidth="1.5" />
+
+                            {/* Horizontal Circle Ring (7) */}
+                            <rect x="212" y="132" width="176" height="16" rx="2" fill="var(--surface-2)" stroke="currentColor" strokeWidth="1.75" />
+
+                            {/* Main Telescope Body */}
+                            <rect x="175" y="56" width="245" height="66" rx="6" fill="var(--surface-2)" stroke="currentColor" strokeWidth="2" />
+
+                            {/* Objective Lens Hood (1) */}
+                            <rect x="420" y="62" width="32" height="54" rx="3" fill="var(--surface-3)" stroke="currentColor" strokeWidth="2" />
+
+                            {/* Eyepiece Ring (4) */}
+                            <rect x="142" y="68" width="33" height="42" rx="3" fill="var(--surface-3)" stroke="currentColor" strokeWidth="2" />
+
+                            {/* Optical Peep Sight (2) */}
+                            <polygon points="275,56 325,56 318,42 282,42" fill="var(--surface-3)" stroke="currentColor" strokeWidth="1.5" />
+
+                            {/* Focusing Knob (3) */}
+                            <circle cx="345" cy="90" r="18" fill="var(--surface)" stroke="currentColor" strokeWidth="2" />
+                            <circle cx="345" cy="90" r="10" fill="var(--surface-2)" stroke="var(--accent)" strokeWidth="1.5" />
+
+                            {/* Circular Bubble & Mirror (5) */}
+                            <rect x="215" y="40" width="32" height="16" rx="2" fill="var(--surface)" stroke="currentColor" strokeWidth="1.5" />
+                            <line x1="218" y1="40" x2="242" y2="22" stroke="var(--accent)" strokeWidth="2" />
+
+                            {/* Horizontal Tangent Knob (6) */}
+                            <circle cx="255" cy="122" r="11" fill="var(--surface)" stroke="currentColor" strokeWidth="1.75" />
+
+                            {/* Compensator Check Button (9) */}
+                            <rect x="186" y="106" width="16" height="10" rx="2" fill="var(--accent)" />
+
+                            {/* Numbered Callout Badges (1 to 9) */}
+                            {[
+                              { n: 1, x: 468, y: 89 },
+                              { n: 2, x: 300, y: 26 },
+                              { n: 3, x: 345, y: 90 },
+                              { n: 4, x: 120, y: 89 },
+                              { n: 5, x: 205, y: 26 },
+                              { n: 6, x: 255, y: 122 },
+                              { n: 7, x: 408, y: 140 },
+                              { n: 8, x: 198, y: 162 },
+                              { n: 9, x: 168, y: 124 },
+                            ].map((pin) => (
+                              <g key={pin.n}>
+                                <circle cx={pin.x} cy={pin.y} r="10" fill="var(--accent)" />
+                                <text
+                                  x={pin.x}
+                                  y={pin.y + 3.5}
+                                  textAnchor="middle"
+                                  fill="var(--accent-text)"
+                                  fontSize="10"
+                                  fontFamily="monospace"
+                                  fontWeight="bold"
+                                >
+                                  {pin.n}
+                                </text>
+                              </g>
+                            ))}
+                          </svg>
+
+                          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-[var(--surface-2)] border border-[var(--border)] text-[11px] font-mono text-[var(--text-2)]">
+                            <span>📌 รองรับรูปภาพจริง: นำไฟล์ภาพอุปกรณ์มาวางได้ที่</span>
+                            <code className="text-[var(--accent)] font-bold">public{activeTopic.instrumentAnatomy.imagePath}</code>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Parts Grid (1-9) */}
+                      <div className="p-4 sm:p-5 space-y-3">
+                        <div className="text-xs font-bold text-[var(--text-1)]">
+                          รายละเอียดส่วนประกอบสำคัญบนตัวกล้อง ({activeTopic.instrumentAnatomy.parts.length} จุดหลัก):
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          {activeTopic.instrumentAnatomy.parts.map((part) => (
+                            <div
+                              key={part.number}
+                              className="p-3 rounded-[var(--btn-radius)] bg-[var(--surface)] border border-[var(--border)] flex items-start gap-3"
+                            >
+                              <span className="w-6 h-6 rounded-full bg-[var(--accent)] text-[var(--accent-text)] font-mono text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                                {part.number}
+                              </span>
+                              <div className="space-y-0.5 min-w-0">
+                                <div className="text-xs font-bold text-[var(--text-1)] leading-snug">
+                                  {part.name}
+                                </div>
+                                <div className="text-[10px] font-mono text-[var(--accent)]">
+                                  {part.nameEn}
+                                </div>
+                                <p className="text-[11px] sm:text-xs text-[var(--text-2)] leading-relaxed pt-0.5">
+                                  {part.description}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* SECTION 1: EQUIPMENT */}
                 {activeTopic.equipmentRequired && activeTopic.equipmentRequired.length > 0 && (
@@ -798,48 +949,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                   </div>
                 )}
 
-                {/* SECTION 6: DOWNSTREAM WORKFLOW */}
-                {activeTopic.downstreamWorkflow && (
-                  <div id="sec-workflow" className="space-y-3.5 scroll-mt-24">
-                    <h2 className="text-base font-bold text-[var(--text-1)] flex items-center gap-2 border-l-2 border-[var(--accent)] pl-3">
-                      <ArrowRight className="w-4 h-4 text-[var(--accent)]" />
-                      <span>6. เวิร์กโฟลว์ต่อเนื่องและเครื่องมือคำนวณ (Downstream Execution)</span>
-                    </h2>
-                    <div className="p-5 rounded-[var(--btn-radius)] bg-[var(--surface-2)] border border-[var(--border)] space-y-4">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <span className="text-[11px] text-[var(--text-2)] block mb-1">รูปแบบข้อมูลนำออก (Output Data Format):</span>
-                          <span className="font-mono text-xs font-bold text-[var(--accent)] bg-[var(--surface)] px-3 py-1 rounded border border-[var(--border)] inline-block">
-                            {activeTopic.downstreamWorkflow.outputDataFormat}
-                          </span>
-                        </div>
-                        {activeWorkflowTarget && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              window.location.hash = activeWorkflowTarget.hash;
-                              if (onNavigateTab) {
-                                onNavigateTab(activeWorkflowTarget.hash.includes('map') ? 'map' : 'calculator');
-                              }
-                            }}
-                            className="btn-primary min-h-[44px] inline-flex items-center gap-2 text-xs sm:text-sm"
-                          >
-                            <span>{activeWorkflowTarget.label}</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                      <p className="text-xs sm:text-sm text-[var(--text-2)] leading-relaxed">
-                        {activeTopic.downstreamWorkflow.outputDescription}
-                      </p>
-                      <div className="p-3.5 rounded-[var(--btn-radius)] bg-[var(--surface)] border border-[var(--border)] space-y-1">
-                        <span className="text-xs font-bold text-[var(--text-1)]">{activeTopic.downstreamWorkflow.nextStepTitle}</span>
-                        <p className="text-xs text-[var(--text-2)] leading-relaxed">{activeTopic.downstreamWorkflow.nextStepProcedure}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
               </div>
             </div>
 
@@ -958,6 +1067,18 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                   <span>สารบัญหัวข้อในคู่มือนี้</span>
                 </div>
                 <div className="space-y-1 text-xs">
+                  {activeTopic.instrumentVariants && activeTopic.instrumentVariants.length > 0 && (
+                    <button type="button" onClick={() => scrollToSection('sec-variants')} className="w-full min-h-[40px] text-left px-3 py-2 rounded text-[var(--accent)] hover:bg-[var(--surface-2)] transition-colors flex items-center justify-between font-semibold">
+                      <span>0A. ประเภทเครื่องมือและรูปแบบงาน</span>
+                      <ChevronRight className="w-3.5 h-3.5 text-[var(--accent)]" />
+                    </button>
+                  )}
+                  {activeTopic.instrumentAnatomy && (
+                    <button type="button" onClick={() => scrollToSection('sec-anatomy')} className="w-full min-h-[40px] text-left px-3 py-2 rounded text-[var(--accent)] hover:bg-[var(--surface-2)] transition-colors flex items-center justify-between font-semibold">
+                      <span>0B. โครงสร้างและส่วนประกอบตัวเครื่อง</span>
+                      <ChevronRight className="w-3.5 h-3.5 text-[var(--accent)]" />
+                    </button>
+                  )}
                   <button type="button" onClick={() => scrollToSection('sec-equipment')} className="w-full min-h-[40px] text-left px-3 py-2 rounded text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface-2)] transition-colors flex items-center justify-between">
                     <span>1. รายการอุปกรณ์ภาคสนาม</span>
                     <ChevronRight className="w-3.5 h-3.5 text-[var(--text-3)]" />
@@ -980,12 +1101,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     <span>5. การควบคุมคุณภาพ (QA/QC)</span>
                     <ChevronRight className="w-3.5 h-3.5 text-[var(--text-3)]" />
                   </button>
-                  {activeTopic.downstreamWorkflow && (
-                    <button type="button" onClick={() => scrollToSection('sec-workflow')} className="w-full min-h-[40px] text-left px-3 py-2 rounded text-[var(--accent)] hover:bg-[var(--surface-2)] transition-colors flex items-center justify-between font-semibold">
-                      <span>6. เชื่อมต่อเครื่องมือคำนวณ</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-[var(--accent)]" />
-                    </button>
-                  )}
                 </div>
               </div>
 

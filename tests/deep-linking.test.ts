@@ -108,8 +108,8 @@ describe('Deep-Linking & Hash Routing Engine', () => {
       expect(route.topicId).toBeUndefined();
     });
 
-    it('should resolve all 9 specific knowledge topics by id', () => {
-      expect(KNOWLEDGE_TOPICS.length).toBe(9);
+    it('should resolve all 13 specific knowledge topics by id', () => {
+      expect(KNOWLEDGE_TOPICS.length).toBe(13);
 
       KNOWLEDGE_TOPICS.forEach(topic => {
         const hash = `#/knowledge/${topic.id}`;

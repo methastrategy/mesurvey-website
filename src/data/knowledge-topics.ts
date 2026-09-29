@@ -2,16 +2,16 @@ import { KnowledgeTopic } from '../types/survey';
 
 export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
   // -------------------------------------------------------------------------
-  // TOPIC 1: DIFFERENTIAL LEVELING & TWO-PEG TEST
+  // TOPIC 1: DIFFERENTIAL LEVELING FIELD PROCEDURE (คู่มือทำงาน)
   // -------------------------------------------------------------------------
   {
     id: 'differential-leveling-survey',
-    title: 'กล้องระดับและการทำระดับวิศวกรรม (Differential Leveling, Three-Wire & Two-Peg Test)',
+    title: 'วิธีการทำงานระดับ (Differential Leveling, Three-Wire & Two-Peg Test)',
     titleEn: 'Geometric Differential Leveling, Three-Wire Stadia & Two-Peg Collimation Adjustment',
     category: 'survey-instrument',
-    categoryName: 'กล้องสำรวจ',
-    summary: 'คู่มือปฏิบัติการทำระดับเรขาคณิตความละเอียดสูง (Differential Leveling): ขั้นตอนการตั้งกล้องระดับอัตโนมัติ (Auto Level) และการปรับระดับลูกน้ำฟองกลม, เทคนิคการอ่านไม้ระดับสายใยเดี่ยวและสายใย 3 เส้น (Three-Wire Reading) พร้อมการตรวจสอบระยะ Stadia (D = 100s), กฎการรักษาระยะหน้า-หลังให้สมดุลเพื่อหักล้างผลความโค้งของโลกและการหักเหของแสง (Curvature & Refraction: h = 0.0675 K²), การตรวจสอบความคลาดเคลื่อนแกนเล็งด้วยวิธี Two-Pegs Test และเกณฑ์ความคลาดเคลื่อนชั้นงานตามมาตรฐาน FGCC และกรมแผนที่ทหาร (RTSD)',
-    badge: 'มาตรฐานงานระดับชั้น 1-3',
+    categoryName: 'วิธีการทำงานภาคสนาม',
+    summary: 'คู่มือวิธีการปฏิบัติงานทำระดับเรขาคณิตความละเอียดสูง (Differential Leveling): ขั้นตอนการเดินระดับสายใยเดี่ยวและสายใย 3 เส้น (Three-Wire Reading) พร้อมการตรวจสอบระยะ Stadia (D = 100s), กฎการรักษาระยะหน้า-หลังให้สมดุลเพื่อหักล้างผลความโค้งของโลกและการหักเหของแสง (Curvature & Refraction: h = 0.0675 K²), การตรวจสอบความคลาดเคลื่อนแกนเล็งด้วยวิธี Two-Pegs Test และเกณฑ์ความคลาดเคลื่อนชั้นงานตามมาตรฐาน FGCC และกรมแผนที่ทหาร (RTSD)',
+    badge: 'คู่มือทำงาน',
     iconName: 'Ruler',
     verificationStatus: 'draft',
     verificationProof: 'FGCC Standards and Specifications for Geodetic Control Networks (1984); ระเบียบกรมแผนที่ทหารว่าด้วยการรังวัดระดับ พ.ศ. 2548; Ghilani, C.D. & Wolf, P.R. (2012) Elementary Surveying (13th ed.)',
@@ -33,12 +33,12 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     ],
     fieldProcedures: [
       {
-        title: 'ขั้นตอนที่ 1: การกางขาตั้งกล้องและการปรับระดับลูกน้ำฟองกลม (Setup & Circular Leveling)',
-        details: 'กางขาตั้งกล้อง 3 ขาให้มั่นคง ให้หัวขาตั้งขนานกับพื้นระดับอก กดปลายขากล้องลงดินให้แน่น ยกกล้องระดับติดตั้งบนแป้นหัวขาตั้ง ขันสกรูยึดใต้ฐานกล้องให้แน่น ปรับสกรูควงเท้า 3 ตัว (Leveling Foot Screws) ให้ลูกน้ำฟองกลมเคลื่อนเข้าสู่วงกลมกึ่งกลาง เมื่อฟองกลมเข้ากลาง กลไกชดเชยอัตโนมัติ (Automatic Compensator) ภายในตัวกล้องจะทำงานชดเชยการเอียงของแกนเล็งทันที'
+        title: 'ขั้นตอนที่ 1: การวางแผนแนวเดินระดับและการตั้งกล้องสถานีแรก (Loop Planning & First Station Setup)',
+        details: 'เลือกจุดตั้งกล้องสถานีแรกระหว่างหมุดหลักฐานเริ่มต้น (BM) และจุดเปลี่ยนที่ 1 (TP1) โดยกะระยะให้ห่างจาก BM และ TP1 เท่าๆ กัน (ประมาณ 25-40 เมตร) กางขาตั้งกล้องให้มั่นคงและปรับฟองกลมเข้ากึ่งกลาง'
       },
       {
         title: 'ขั้นตอนที่ 2: การส่องหมุดหลักฐานสายใยหลัง (Backsight: BS on Known BM)',
-        details: 'คนถือไม้ระดับตั้งไม้บนหมุดหลักฐาน (BM) ทราบค่าระดับ โดยประกบหลอดลูกน้ำฟองกลมติดหลังไม้ระดับให้ฟองอยู่ตรงกลางตลอดเวลา ผู้ส่องกล้องหมุนตัวกล้องไปยังไม้ระดับ ปรับวงแหวนเลนส์ใกล้ตา (Eyepiece Ring) ให้มองเห็นเส้นสายใยคมชัดสีดำสนิท จากนั้นปรับวงแหวนโฟกัสภาพ (Focusing Knob) ให้ตัวเลขบนไม้ระดับคมชัด อ่านค่าสายใยบน สายใยกลาง และสายใยล่าง บันทึกลงในสมุดจด'
+        details: 'คนถือไม้ระดับตั้งไม้บนหมุดหลักฐาน (BM) ทราบค่าระดับ โดยประกบหลอดลูกน้ำฟองกลมติดหลังไม้ระดับให้ฟองอยู่ตรงกลางตลอดเวลา ผู้ส่องกล้องหมุนตัวกล้องไปยังไม้ระดับ ปรับชัดสายใยและโฟกัสภาพ อ่านค่าสายใยบน สายใยกลาง และสายใยล่าง บันทึกลงในช่อง BS'
       },
       {
         title: 'ขั้นตอนที่ 3: การตรวจสอบเลข 3 สายใยและระยะทางในสนาม (Three-Wire & Distance Check)',
@@ -54,7 +54,7 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
         details: 'ทำการรังวัดระดับต่อไปจนกระทั่งบรรจบกลับมายังหมุด BM เริ่มต้น (Loop Leveling) หรือไปบรรจบหมุด BM อื่นที่ทราบค่า (Double Run Leveling) ตรวจสอบความถูกต้องทางคณิตศาสตร์: ΣBS - ΣFS = Elev_end - Elev_start = ΔH ค่าความคลาดเคลื่อนปิดวงรอบ (Misclosure: c) ต้องไม่เกินเกณฑ์ชั้นงาน เช่น ชั้น 1: ±3√K mm, ชั้น 2: ±6√K mm หรือ ±8√K mm (K คือระยะทางรวมเป็นกิโลเมตร)'
       },
       {
-        title: 'ขั้นตอนที่ 6: การตรวจสอบความคลาดเคลื่อนแกนเล็ง (Two-Pegs Collimation Test Procedure)',
+        title: 'ขั้นตอนที่ 6: การตรวจสอบความคลาดเคลื่อนแกนเล็งก่อนเริ่มงาน (Two-Pegs Collimation Test Procedure)',
         details: 'ตอกหมุด 2 จุด A และ B ห่างกันประมาณ 50-60 เมตร (1) ตั้งกล้องกึ่งกลางที่จุด C (ห่างจุด A 25-30m และจุด B 25-30m) ส่องอ่านไม้ระดับ BS_A1 และ FS_B1 ผลต่างความสูงจริง Δh_true = BS_A1 - FS_B1 (2) ย้ายกล้องไปตั้งที่จุด D ชิดกับหมุด A (ห่างประมาณ 2-3 เมตร) ส่องอ่านค่าไม้ระดับที่ A ได้ BS_A2 และส่องไปยัง B ได้ FS_B2 ผลต่างความสูงปรากฏ Δh_app = BS_A2 - FS_B2 หาก Δh_true ≠ Δh_app แสดงว่ามี Collimation Error (c) คำนวณค่าอ่านที่ถูกต้องของ B: FS_B_correct = BS_A2 - Δh_true ใช้หมุดไขปรับสกรูสายใยเลื่อนสายใยกลางให้ทับค่า FS_B_correct พอดี',
         criticalCaution: 'การปรับแก้ Two-Peg Test ด้วยการไขสกรูสายใยต้องทำอย่างระมัดระวัง ใช้เข็มปรับที่ติดมากับกล่องกล้องและหมุนทีละนิดเพื่อป้องกันเกลียวสายใยชำรุด'
       }
@@ -62,11 +62,11 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     deviceWorkflow: [
       {
         stepNumber: 1,
-        stageName: 'การปรับระนาบลูกน้ำฟองกลม (Circular Bubble Centering)',
+        stageName: 'การอ่านสายใย 3 เส้นและวัดระยะสมดุล (Three-Wire Stadia Balance)',
         targetHardware: 'Topcon AT-B4A / Leica NA700 Series Auto Level',
-        buttonKey: '[LEVELING FOOT SCREWS] หมุนสกรู 2 ตัวเข้า/ออกพร้อมกัน แล้วปรับตัวที่ 3',
-        actionLabel: 'ปรับฟองกลมเข้าวงใน',
-        screenTitle: 'OPTICAL RETICLE STADIA VIEW (EYEPIECE FOCUS)',
+        buttonKey: '[BS & FS READING] อ่านค่าสายใย U, M, L และควบคุม D_BS ≈ D_FS',
+        actionLabel: 'ส่องอ่านและเช็คระยะ Stadia',
+        screenTitle: 'OPTICAL RETICLE STADIA VIEW (THREE-WIRE CHECK)',
         screenLines: [
           '┌──────────────────────────────────────────────┐',
           '│            CIRCULAR BUBBLE: CENTERED         │',
@@ -81,30 +81,30 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
           '│  Arithmetic Check: (1.482 + 1.218)/2 = 1.350m│',
           '└──────────────────────────────────────────────┘'
         ],
-        explanation: 'มองผ่านช่องกระจกสะท้อนลูกน้ำฟองกลม หมุนสกรูควงเท้า 3 ตัวให้ฟองกลมเข้าสู่กึ่งกลางวงกลมสีดำ เมื่อเข้ากลาง กลไก Compensator แม่เหล็กชดเชยการเอียงของแกนเล็งจะรักษาระนาบให้อัตโนมัติ',
-        qaCheck: 'สายใยเฉลี่ย (U+L)/2 ต้องตรงกับค่าสายใยกลาง M ภายใน ±1 mm ก่อนจดบันทึก'
+        explanation: 'อ่านค่าสายใยบน กลาง ล่าง จากนั้นคำนวณค่าเฉลี่ย (U+L)/2 เทียบกับสายใยกลาง M ทันทีหน้างาน และจดระยะทาง D = 100s เพื่อตั้งระยะ FS ให้เท่ากับ BS',
+        qaCheck: 'สายใยเฉลี่ย (U+L)/2 ต้องตรงกับค่าสายใยกลาง M ภายใน ±1 ถึง ±2 mm ก่อนย้ายไม้ระดับ'
       },
       {
         stepNumber: 2,
-        stageName: 'การทดสอบกลไกชดเชย (Compensator Push Button Test)',
-        targetHardware: 'Topcon AT-B4A / Sokkia B40A Auto Level',
-        buttonKey: '[COMPENSATOR BUTTON] กดปุ่มสปริงใต้ตัวกล้องเบาๆ ขณะเล็งไม้ระดับ',
-        actionLabel: 'ทดสอบการคืนตัวของสายใย',
-        screenTitle: 'COMPENSATOR INTEGRITY VERIFICATION',
+        stageName: 'การบันทึกตารางระดับและการย้ายจุดเปลี่ยน (Turning Point Loop Log)',
+        targetHardware: 'Standard Differential Leveling Field Book',
+        buttonKey: '[FIELD BOOK] คำนวณ HI = Elev + BS และ Elev_TP = HI - FS',
+        actionLabel: 'บันทึกตารางเดินระดับ',
+        screenTitle: 'FIELD BOOK STATION LOG (HI & TURNING POINT)',
         screenLines: [
           '┌──────────────────────────────────────────────┐',
-          '│        COMPENSATOR OSCILLATION TEST          │',
+          '│ STA      BS(m)     HI(m)     FS(m)   ELEV(m) │',
+          '│ BM-1     1.350   101.350      -     100.000 │',
+          '│ TP-1     1.820   101.728    1.442    99.908 │',
+          '│ TP-2     1.105   101.220    1.613    99.607 │',
+          '│ BM-1       -        -       1.218   100.002 │',
           '│                                              │',
-          '│  Action: Depress Compensator Check Button    │',
-          '│  Visual: Reticle bounces and returns         │',
-          '│  Result: Reading returns to 1.350 m exactly  │',
-          '│                                              │',
-          '│  STATUS: COMPENSATOR DAMPING OK [NO STICK]   │',
-          '│  READY FOR OBSERVATION ON BENCHMARK (BM)     │',
+          '│ Sum BS = 4.275 m   |   Sum FS = 4.273 m      │',
+          '│ Loop Misclosure = +0.002 m (+2.0 mm) [PASS]  │',
           '└──────────────────────────────────────────────┘'
         ],
-        explanation: 'กดปุ่มตรวจสอบ Compensator ใต้กล้อง เส้นสายใยจะแกว่งขึ้นลงชั่วขณะและต้องดีดกลับมาทับตำแหน่งเดิมพอดีเพื่อยืนยันว่าลูกตุ้มชดเชยไม่ติดขัด',
-        qaCheck: 'หากกดปุ่มแล้วสายใยไม่ขยับ หรือขยับแล้วคืนตัวไม่ตรงตำแหน่งเดิม ห้ามนำกล้องไปใช้งานระดับ ต้องส่งศูนย์บริการสอบเทียบ'
+        explanation: 'ที่ทุกจุดเปลี่ยน (TP) คนถือไม้ต้องยืนบนแผ่นรองเต่า (Turtle Plate) ห้ามยกไม้ขึ้นพื้นเด็ดขาด เพียงแค่หมุนหน้าไม้ตามเข็มนาฬิกาหันเข้าหากล้องที่ย้ายไปตั้งสถานีถัดไป',
+        qaCheck: 'ตรวจสอบ Page Check ทุกหน้าสมุดสนาม: ΣBS - ΣFS ต้องเท่ากับ Elev_สุดท้าย - Elev_เริ่มต้น เสมอ'
       },
       {
         stepNumber: 3,
@@ -185,20 +185,350 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
   },
 
   // -------------------------------------------------------------------------
-  // TOPIC 2: THEODOLITE STATION SETUP & 2-FACE OBSERVATION
+  // TOPIC 2: LEVEL INSTRUMENT OPERATION MANUAL (คู่มือใช้งาน)
+  // -------------------------------------------------------------------------
+  {
+    id: 'level-instrument-manual',
+    title: 'คู่มือการใช้งานกล้องระดับ (Automatic & Digital Level Instrument Manual)',
+    titleEn: 'Automatic & Digital Level Hardware Anatomy, Optical Reticle & Basic Operation',
+    category: 'survey-instrument',
+    categoryName: 'คู่มือการใช้งานอุปกรณ์',
+    summary: 'คู่มือแนะนำโครงสร้างตัวเครื่อง หลักการทำงาน และวิธีการใช้งานกล้องระดับอัตโนมัติ (Optical Auto Level + ไม้สต๊าฟ E) และกล้องระดับดิจิทัล (Digital Level + สต๊าฟบาร์โค้ด/ไม้อินวาร์) เบื้องต้น: อธิบายส่วนประกอบสำคัญของตัวกล้อง รูปแบบงานที่เหมาะสมในภาคสนาม ระบบลูกตุ้มแม่เหล็กชดเชยแนวเล็งอัตโนมัติ (Magnetic-Damped Compensator) วิธีตั้งขาตั้งกล้อง การปรับลูกน้ำฟองกลมด้วยสกรู 3 เส้า การปรับโฟกัสขจัดภาพซ้อน (Parallax) และวิธีอ่านค่าไม้วัดระดับอย่างถูกต้อง',
+    badge: 'คู่มือใช้งาน',
+    iconName: 'Ruler',
+    verificationStatus: 'draft',
+    verificationProof: 'Topcon AT-B Series & Leica NA700 Operator Manuals; ระเบียบกรมแผนที่ทหารว่าด้วยการรังวัดระดับ พ.ศ. 2548; วิชา 01218211 Surveying for Mapping (KU Geomatics)',
+    courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & มาตรฐานเครื่องมือสำรวจ กรมแผนที่ทหาร (RTSD)',
+    instrumentVariants: [
+      {
+        name: 'กล้องระดับ / กล้องออโต้ (Optical Auto Level)',
+        equipmentCombo: 'ใช้งานร่วมกับ ไม้สต๊าฟอลูมิเนียมชักสไลด์ / สต๊าฟสเกลตัว E (E-Pattern Staff)',
+        useCases: [
+          'งานทำระดับทั่วไป (Differential & Profile Leveling)',
+          'งานถ่ายระดับความสูงจากหมุดหลักฐานเข้าสู่พื้นที่ก่อสร้าง (Transfer Elevation)',
+          'งานส่องเช็กระดับดินขุด-ดินถม (Earthwork Cut & Fill Grading)',
+          'งานเช็กระดับเทคอนกรีตฐานราก คาน และพื้นอาคาร',
+          'งานตั้งระดับแบบหล่อคอนกรีตและโครงสร้าง (Formwork Leveling)'
+        ]
+      },
+      {
+        name: 'กล้องระดับดิจิทัล (Digital Level)',
+        equipmentCombo: 'ใช้งานร่วมกับ สต๊าฟบาร์โค้ด (Barcode Staff) / ไม้อินวาร์ (Invar Precision Staff)',
+        useCases: [
+          'งานทำโครงข่ายหมุดระดับชั้น 1 หรือ ชั้น 2 (High-Precision Geodetic Leveling Network)',
+          'งานตรวจวัดการทรุดตัวของอาคารสูง เขื่อน และสะพาน (Settlement & Deformation Monitoring) ที่ต้องการความละเอียดสูงระดับมิลลิเมตรถึงซับมิลลิเมตร'
+        ]
+      }
+    ],
+    instrumentAnatomy: {
+      imagePath: '/images/instruments/auto-level.jpg',
+      imageCaption: 'แผนผังส่วนประกอบมาตรฐานของกล้องระดับอัตโนมัติ (สามารถวางไฟล์ภาพจริงได้ที่ public/images/instruments/auto-level.jpg)',
+      modelExamples: 'Topcon AT-B4A / Sokkia B40A / Leica NA720 / Leica Sprinter',
+      parts: [
+        {
+          number: 1,
+          name: 'เลนส์ใกล้วัตถุ (Objective Lens)',
+          nameEn: 'Objective Lens (24x–32x)',
+          description: 'เลนส์ด้านหน้าลำกล้องสำหรับรับแสงและรวมภาพจากไม้วัดระดับ มีขอบบังแสงแดดและละอองน้ำในตัว'
+        },
+        {
+          number: 2,
+          name: 'ศูนย์เล็งหยาบ (Optical Peep Sight / Gun Sight)',
+          nameEn: 'Optical Peep Sight',
+          description: 'ช่องเล็งสามเหลี่ยมด้านบนตัวกล้อง ใช้เล็งทิศทางเข้าหาไม้วัดระดับอย่างรวดเร็วก่อนมองผ่านเลนส์ตา'
+        },
+        {
+          number: 3,
+          name: 'ปุ่มปรับโฟกัสภาพ (Focusing Knob)',
+          nameEn: 'Focusing Knob',
+          description: 'ปุ่มหมุนข้างตัวกล้องสำหรับเลื่อนชุดเลนส์ภายในเพื่อปรับความคมชัดของภาพไม้วัดระดับตามระยะใกล้-ไกล'
+        },
+        {
+          number: 4,
+          name: 'วงแหวนปรับชัดสายใย (Eyepiece Diopter Ring)',
+          nameEn: 'Eyepiece Ring',
+          description: 'วงแหวนหน้าเลนส์ใกล้ตา หมุนปรับให้เส้นสายใย (Reticle Crosshairs) ดำสนิทคมชัดตามค่าสายตาของผู้ส่อง'
+        },
+        {
+          number: 5,
+          name: 'ลูกน้ำฟองกลมและกระจกเงา 45° (Circular Level & Mirror)',
+          nameEn: 'Circular Bubble & Pentaprism',
+          description: 'หลอดระดับฟองกลมพร้อมกระจกสะท้อนหรือปริซึมมองระดับสายตา ใช้ตั้งระนาบกล้องขั้นต้นให้เข้าย่าน ±15 ลิปดา'
+        },
+        {
+          number: 6,
+          name: 'ปุ่มหมุนละเอียดแนวราบ (Horizontal Tangent Screw)',
+          nameEn: 'Endless Horizontal Drive Knobs',
+          description: 'ปุ่มหมุนคู่ซ้าย-ขวาแบบไร้จุดสุด (Endless Drive) ใช้ขยับเส้นสายใยดิ่งให้ทาบกึ่งกลางหน้าไม้ระดับอย่างละเอียด'
+        },
+        {
+          number: 7,
+          name: 'วงแหวนจานองศาราบ (Horizontal Circle)',
+          nameEn: 'Horizontal Graduated Circle (0°–360°)',
+          description: 'จานแบ่งขีดองศาราบความละเอียด 1° หมุนตั้งศูนย์ได้ ใช้สำหรับเปิดมุมราบหรือวางผังฉากเบื้องต้นในสนาม'
+        },
+        {
+          number: 8,
+          name: 'สกรูควงเท้าปรับระดับ 3 เส้า (Leveling Foot Screws)',
+          nameEn: 'Three Leveling Foot Screws',
+          description: 'สกรู 3 ตัวบนแผ่นฐานกล้อง (Base Plate) ใช้หมุนปรับความลาดเอียงเพื่อบังคับลูกน้ำฟองกลมเข้าสู่วงกลมกึ่งกลาง'
+        },
+        {
+          number: 9,
+          name: 'ปุ่มทดสอบกลไกชดเชย (Compensator Check Button)',
+          nameEn: 'Compensator Push Button',
+          description: 'ปุ่มสปริงสำหรับกดทดสอบว่าลูกตุ้มชดเชยอัตโนมัติ (Compensator) ภายในกล้องแกว่งตัวอิสระและคืนตัวสู่ระดับเดิมได้ปกติ'
+        }
+      ]
+    },
+    equipmentRequired: [
+      'กล้องระดับอัตโนมัติ (Automatic Level) กำลังขยาย 24x-32x หรือกล้องระดับดิจิทัล (Digital Level) พร้อมกล่องกันกระแทก',
+      'ขาตั้งกล้องอลูมิเนียมชนิดหัวเรียบหรือหัวโค้ง (Aluminum Tripod) เกลียวยึดมาตรฐาน 5/8 นิ้ว',
+      'ไม้วัดระดับอลูมิเนียมชักสไลด์ 4-5 เมตร (Telescopic Metric Staff) สเกลตัว E หรือบาร์โค้ด',
+      'หลอดลูกน้ำฟองกลมติดหลังไม้ระดับ (Rod Level Bubble) สำหรับคุมแนวดิ่งของไม้ระดับ',
+      'ผ้าเช็ดเลนส์ไมโครไฟเบอร์ ลูกยางเป่าฝุ่น และร่มบังแดดสนาม'
+    ],
+    workingPrinciple: [
+      'หลักการสร้างแนวเล็งระดับราบ (Horizontal Line of Sight): กล้องระดับทำหน้าที่สร้างเส้นแนวเล็งในแนวราบที่ตั้งฉากกับทิศทางของแรงโน้มถ่วงโลก (Plumb Line) ณ จุดตั้งกล้อง ทำให้ทุกจุดที่กล้องหมุนไปส่องอ่านบนไม้วัดระดับอ้างอิงจากระนาบความสูงแนวเล็งเดียวกัน (Height of Instrument: HI)',
+      'กลไกลูกตุ้มชดเชยอัตโนมัติ (Automatic Magnetic-Damped Compensator): แทนที่จะต้องปรับหลอดลูกน้ำยาวทุกครั้งที่หมุนกล้องแบบกล้องระดับรุ่นเก่า (Dumpy/Tilting Level) กล้องระดับอัตโนมัติจะมีชุดปริซึมแขวนด้วยลวดโลหะพิเศษภายในลำกล้อง เมื่อปรับลูกน้ำฟองกลมเข้าในวงกลม (เอียงไม่เกิน ±15 ลิปดา) ลูกตุ้มปริซึมจะแกว่งเข้าสู่สมดุลแรงโน้มถ่วงและหน่วงให้หยุดนิ่งอย่างรวดเร็วด้วยสนามแม่เหล็ก (Magnetic Eddy-Current Damper) ชดเชยแนวเล็งให้ได้ระดับราบอัตโนมัติด้วยความละเอียด ±0.3 ถึง ±0.5 พิลิปดา',
+      'ระบบเลนส์และแผ่นสายใย (Optical Telescope & Stadia Reticle): ภาพที่มองผ่านกล้องระดับสมัยใหม่เป็นภาพหัวตั้ง (Erect Image) บนแผ่นสายใยมีเส้นดิ่ง 1 เส้นสำหรับเล็งกึ่งกลางไม้ระดับ และเส้นนอน 3 เส้น ได้แก่ เส้นกลาง (Middle Wire) สำหรับอ่านค่าระดับความสูง และเส้นสเตเดียบน-ล่าง (Upper/Lower Stadia Wires) สำหรับคำนวณระยะทาง D = 100 × (U - L)',
+      'หลักการอ่านไม้วัดระดับสเกล E-Pattern (Metric Staff Graduation): ไม้ระดับมาตรฐานแบ่งสเกลเป็นช่องขาวสลับดำ ช่องละ 1 เซนติเมตร (0.01 m) เรียงกันเป็นรูปตัว E สูงตัวละ 5 เซนติเมตร (0.05 m) และมีตัวเลขบอกระยะทุกๆ 1 เดซิเมตร (0.10 m) ผู้ส่องกล้องจะอ่านค่าเมตรและเดซิเมตรจากตัวเลข นับช่องเซนติเมตร และกะประมาณสายตาในช่อง 1 ซม. ให้ได้ความละเอียดระดับ 1 มิลลิเมตร (0.001 m)',
+      'การทำงานของกล้องระดับดิจิทัล (Digital Barcode Level Principle): สำหรับกล้อง Digital Level (เช่น Leica Sprinter / DNA หรือ Topcon DL) จะใช้เซนเซอร์รับภาพ CCD/CMOS อ่านรหัสบาร์โค้ดบนไม้ระดับเทียบกับสัญญาณอ้างอิงภายในตัวกล้อง แล้วคำนวณค่าระดับความสูงและระยะทางแสดงผลเป็นตัวเลขดิจิทัลทันที ช่วยตัดความผิดพลาดจากการอ่านสเกลด้วยสายตามนุษย์'
+    ],
+    fieldProcedures: [
+      {
+        title: 'ขั้นตอนที่ 1: การกางขาตั้งกล้องและการติดตั้งตัวกล้องระดับ (Tripod Setup & Mounting)',
+        details: 'ปลดตัวล็อกขาตั้งกล้องทั้ง 3 ขา ดึงขากล้องให้มีความสูงประมาณระดับอกของผู้ส่อง กางขาทั้ง 3 ออกให้เป็นรูปสามเหลี่ยมด้านเท่า กดแป้นเหยียบปลายขาตั้งกล้องลงในดินให้แน่นและจัดให้แป้นหัวขาตั้งอยู่ในแนวราบด้วยสายตา จากนั้นนำกล้องระดับวางบนแป้นหัวขาตั้งแล้วหมุนสกรูยึดแกนกลาง (Center Fixing Screw) เข้ากับฐานกล้องให้แน่นพอตึงมือ',
+        criticalCaution: 'ขณะยกกล้องออกจากกล่องและวางบนขาตั้ง ต้องใช้มือข้างหนึ่งจับประคองตัวกล้องไว้เสมอจนกว่าจะขันสกรูยึดใต้ฐานกล้องแน่นสนิท'
+      },
+      {
+        title: 'ขั้นตอนที่ 2: การปรับลูกน้ำฟองกลมด้วยสกรู 3 เส้า (Circular Bubble Centering)',
+        details: 'หมุนตัวกล้องให้แกนลำกล้องขนานกับแนวสกรูควงเท้าคู่ใดคู่หนึ่ง (สกรู A และ B) ใช้มือทั้งสองหมุนสกรู A และ B เข้าหากันหรือออกจากกันพร้อมๆ กัน (ทิศทางฟองลูกน้ำจะเคลื่อนที่ตามทิศหัวแม่มือซ้าย) จนฟองกลมขยับมาอยู่ในแนวตั้งฉากกับสกรูตัวที่ 3 (สกรู C) จากนั้นใช้มือหมุนสกรู C เพียงตัวเดียวเพื่อบังคับฟองกลมเข้าสู่กึ่งกลางวงกลมพอดี ทดลองหมุนกล้องไปรอบๆ 360° ฟองกลมต้องไม่หนีออกจากวงกลม'
+      },
+      {
+        title: 'ขั้นตอนที่ 3: การเล็งเป้าหมายและปรับโฟกัสขจัดภาพซ้อน (Sighting, Focusing & Parallax Removal)',
+        details: 'หันลำกล้องไปทางไม้วัดระดับโดยเล็งผ่านศูนย์เล็งหยาบ (Peep Sight) ด้านบนตัวกล้องให้ตรงไม้ระดับ จากนั้นมองผ่านเลนส์ใกล้ตา (Eyepiece) หมุนวงแหวนหน้าเลนส์ใกล้ตาจนเห็นเส้นสายใยสีดำคมชัดที่สุด แล้วหมุนปุ่มปรับโฟกัสภาพ (Focusing Knob) ข้างตัวกล้องจนเห็นตัวเลขและขีดสเกลบนไม้ระดับคมชัด ใช้ปุ่มหมุนละเอียดแนวราบ (Horizontal Tangent Screw) ขยับให้เส้นสายใยดิ่งทาบกึ่งกลางไม้ระดับ',
+        criticalCaution: 'ทดสอบ Parallax ทุกครั้งโดยขยับศีรษะขึ้น-ลงเบาๆ หน้าเลนส์ตา หากเส้นสายใยขยับเลื่อนไปมาบนตัวเลขไม้ระดับ ต้องหมุนปรับโฟกัสภาพและวงแหวนเลนส์ตาใหม่จนสายใยเกาะนิ่งสนิทกับภาพไม้ระดับ'
+      },
+      {
+        title: 'ขั้นตอนที่ 4: การกดปุ่มทดสอบ Compensator และการอ่านค่าไม้วัดระดับ (Compensator Test & Reading)',
+        details: 'ก่อนอ่านค่า ให้กดปุ่มเช็คกลไกชดเชย (Compensator Button) เบาๆ แล้วปล่อย เส้นสายใยต้องกระดกและดีดกลับมาหยุดที่ตำแหน่งเดิมอย่างรวดเร็ว แสดงว่าลูกตุ้มชดเชยทำงานปกติ จากนั้นอ่านค่าที่เส้นสายใยตัดกับไม้ระดับเป็นทศนิยม 3 ตำแหน่ง (เมตร.เดซิเมตร-เซนติเมตร-มิลลิเมตร เช่น 1.350 m) โดยอ่านสายใยกลาง (M) หรืออ่านครบทั้ง 3 สายใย (U, M, L) เพื่อเช็คความถูกต้อง'
+      },
+      {
+        title: 'ขั้นตอนที่ 5: การดูแลรักษาและการเก็บกล้องลงกล่องหลังเสร็จงาน (Instrument Care & Storage)',
+        details: 'เมื่อเสร็จสิ้นการใช้งาน ใช้ลูกยางเป่าฝุ่นที่เกาะหน้าเลนส์และเช็ดตัวกล้องด้วยผ้านุ่มสะอาด ปิดฝาครอบเลนส์ใกล้วัตถุ คลายสกรูยึดใต้ฐานกล้องโดยใช้มือประคองตัวกล้องไว้ แล้วนำกล้องเก็บลงในช่องโฟมกันกระแทกภายในกล่องให้ตรงล็อก (กล้องระดับอัตโนมัติไม่มีคลัตช์ล็อกตัวกล้อง ดังนั้นห้ามฝืนหมุนขณะติดอยู่ในร่องกล่อง)'
+      }
+    ],
+    deviceWorkflow: [
+      {
+        stepNumber: 1,
+        stageName: 'กฎหัวแม่มือปรับสกรู 3 เส้า (Thumb Rule Leveling)',
+        targetHardware: '3-Screw Leveling Base & Circular Bubble',
+        buttonKey: '[FOOT SCREW A+B] หมุนเข้า/ออกพร้อมกัน -> [SCREW C] ปรับเข้าศูนย์',
+        actionLabel: 'ตั้งลูกน้ำฟองกลมเข้ากลาง',
+        screenTitle: 'CIRCULAR BUBBLE THUMB RULE GUIDE',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ STEP A: Rotate Screws 1 & 2 Simultaneously   │',
+          '│   [Inward  -> <-]  or  [<- -> Outward]       │',
+          '│   Bubble moves in direction of LEFT THUMB    │',
+          '│                                              │',
+          '│ STEP B: Rotate Screw 3 Alone                 │',
+          '│   Bring bubble dead-center into black ring   │',
+          '│   Compensator Working Range: ±15 arc-minutes │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'หมุนสกรูคู่หน้าเข้าหากันหรือออกจากกันพร้อมกัน ฟองลูกน้ำจะเคลื่อนที่ไปตามทิศทางของนิ้วหัวแม่มือซ้ายเสมอ จากนั้นหมุนสกรูตัวที่สามเพื่อดึงฟองเข้ากลางวงกลม',
+        qaCheck: 'เมื่อหมุนกล้องไปทิศทางใดๆ ฟองกลมต้องยังอยู่ในกรอบวงกลมสีดำเพื่อให้ Compensator ทำงานได้'
+      },
+      {
+        stepNumber: 2,
+        stageName: 'การอ่านสเกลไม้ระดับตัว E (E-Pattern Staff Reading)',
+        targetHardware: 'Metric Leveling Staff (4m / 5m E-Scale)',
+        buttonKey: '[EYEPIECE VIEW] อ่านค่า เมตร.เดซิเมตร-ซม.-มม. (ทศนิยม 3 ตำแหน่ง)',
+        actionLabel: 'ฝึกอ่านขีดสเกลตัว E',
+        screenTitle: 'METRIC E-STAFF GRADUATION DECODER',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│   1 Block of "E" Pattern = 5 cm (0.050 m)    │',
+          '│   1 White or Black Bar   = 1 cm (0.010 m)    │',
+          '│   Sub-bar Estimation     = 1 mm (0.001 m)    │',
+          '│                                              │',
+          '│   Example Crosshair Reading:                 │',
+          '│   Number Label "13" = 1.300 m (13 dm)        │',
+          '│   + 5 bars (top of E) = +0.050 m             │',
+          '│   + 2 mm above bar    = +0.002 m             │',
+          '│   Final Staff Reading = 1.352 m              │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'ตัวเลขบนไม้ระดับ (เช่น 13) หมายถึง 13 เดซิเมตร หรือ 1.300 เมตร ขีดขาวและดำแต่ละขีดมีความหนา 1 ซม. (0.010 ม.) ให้กะประมาณตำแหน่งสายใยในช่องขีดเป็นหลักมิลลิเมตร (0.001 ม.)',
+        qaCheck: 'อ่านค่าระดับที่ขอบฐานล่างหรือขีดที่กำหนดตามชนิดไม้ระดับ และเช็คค่าเฉลี่ย (U+L)/2 = M ทุกครั้ง'
+      },
+      {
+        stepNumber: 3,
+        stageName: 'การกดวัดด้วยกล้องระดับดิจิทัล (Digital Level Measurement)',
+        targetHardware: 'Leica Sprinter / Topcon DL Series Digital Level',
+        buttonKey: '[MEAS TRIGGER] เล็งไม้บาร์โค้ด -> โฟกัสให้ชัด -> กดปุ่มวัดข้างตัวกล้อง',
+        actionLabel: 'อ่านค่าบาร์โค้ดอัตโนมัติ',
+        screenTitle: 'DIGITAL BARCODE LEVEL DISPLAY',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ MODE: SINGLE / REPEAT STAFF MEASUREMENT      │',
+          '│ BARCODE SIGNAL QUALITY: 98% [OPTIMAL FOCUS]  │',
+          '│                                              │',
+          '│   Staff Height (H) :   1.3524 m              │',
+          '│   Horizontal Dist  :  26.42   m              │',
+          '│   Compensator Tilt :  +0°01\'12" [IN RANGE]   │',
+          '│                                              │',
+          '│ [STORE] Save to Internal Memory  [NEXT STA]  │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'สำหรับกล้องระดับดิจิทัล ให้หันด้านที่เป็นแถบบาร์โค้ดของไม้ระดับเข้าหากล้อง ปรับโฟกัสให้คมชัด แล้วกดปุ่มวัด (Measure Trigger) กล้องจะคำนวณทั้งค่าอ่านไม้ระดับ (H) และระยะทาง (D) ให้อัตโนมัติ',
+        qaCheck: 'อย่าให้กิ่งไม้หรือเงามืดพาดทับแถบบาร์โค้ดเกิน 30% ของกรอบภาพ เพราะจะทำให้กล้องติดรหัส Error อ่านค่าไม่ได้'
+      }
+    ],
+    formulas: [
+      {
+        label: 'การตรวจสอบความถูกต้องของการอ่านสายใย 3 เส้น (Three-Wire Check)',
+        formula: 'M \\approx \\frac{U + L}{2} \\quad (\\text{ต่างกันไม่เกิน } \\pm 0.002\\text{ m})',
+        explanation: 'ค่าเฉลี่ยของสายใยบน (Upper) และสายใยล่าง (Lower) ต้องใกล้เคียงกับค่าที่อ่านได้จากสายใยกลาง (Middle) เพื่อยืนยันว่าผู้ส่องไม่ได้อ่านขีดตัว E ผิดช่อง'
+      },
+      {
+        label: 'การคำนวณระยะทางจากสายใยสเตเดีย (Stadia Distance)',
+        formula: 'D = 100 \\times (U - L)',
+        explanation: 'นำค่าสายใยบนลบสายใยล่าง (หน่วยเป็นเมตร) คูณด้วยค่าคงที่สเตเดีย 100 จะได้ระยะทางแนวราบจากจุดตั้งกล้องถึงไม้วัดระดับเป็นเมตรทันที'
+      },
+      {
+        label: 'ความละเอียดของสเกลไม้วัดระดับมาตรฐาน (Metric Staff Resolution)',
+        formula: '\\text{Reading} = \\text{dm} \\times 0.100 + \\text{cm} \\times 0.010 + \\text{mm}_{\\text{est}} \\times 0.001\\text{ (m)}',
+        explanation: 'อ่านค่าเดซิเมตรจากตัวเลขหลัก บวกจำนวนขีดเซนติเมตร (ขีดละ 0.010 m) และกะประมาณเศษมิลลิเมตร (0.001 m)'
+      }
+    ],
+    errorSourcesAndMitigation: [
+      'Parallax Error (ภาพไม้ระดับไม่ทับระนาบสายใย): เกิดจากยังไม่ได้ปรับวงแหวนเลนส์ตา (Diopter) หรือโฟกัสภาพไม่สุด แก้ไขโดยปรับให้สายใยดำสนิทก่อน แล้วหมุนโฟกัสภาพจนขยับตาขึ้น-ลงแล้วสายใยไม่เลื่อนหนีตัวเลข',
+      'Compensator Out of Range / Sticking (ลูกตุ้มชดเชยค้างหรือเอียงเกินช่วง): เกิดจากฟองกลมออกนอกวงกลมสีดำ หรือลูกตุ้มติดขัด แก้ไขโดยตั้งลูกน้ำฟองกลมให้อยู่กลางวงเสมอและกดปุ่ม Compensator Check ก่อนอ่านค่า',
+      'Out-of-Plumb Staff (ถือไม้ระดับเอียงหน้า-หลังหรือซ้าย-ขวา): ทำให้ค่าอ่านสูงกว่าความจริงเสมอ ต้องใช้หลอดลูกน้ำฟองกลมประกบหลังไม้ระดับ หรือโยกไม้ระดับช้าๆ หน้า-หลังเพื่ออ่านค่าที่น้อยที่สุด (Wave the Rod)',
+      'Tripod Instability (ขาตั้งกล้องคลอนหรือล็อกไม่แน่น): ทำให้แนวเล็งทรุดตัวขณะหมุนกล้อง ต้องขันปุ่มล็อกขาตั้งและเหยียบปลายขาเหล็กให้จมแน่นลงดินก่อนตั้งกล้องทุกครั้ง'
+    ],
+    downstreamWorkflow: {
+      outputDataFormat: 'ค่าอ่านสายใย (U, M, L) และระยะสเตเดีย (D) สำหรับบันทึกลงตารางทำระดับ',
+      outputDescription: 'เมื่อเข้าใจส่วนประกอบและวิธีใช้งานกล้องระดับแล้ว สามารถนำค่าที่อ่านได้ไปปฏิบัติงานเดินระดับวงรอบตามคู่มือวิธีการทำงานระดับ (SOP-01) และคำนวณปรับแก้ในระบบ',
+      nextStepTitle: 'เข้าสู่ขั้นตอนการเดินระดับภาคสนามและการคำนวณปรับแก้ค่าระดับวงรอบ',
+      nextStepProcedure: 'ศึกษาขั้นตอนการเดินระดับวงรอบใน "คู่มือวิธีการทำงานระดับด้วยกล้องระดับ (SOP-01)" หรือเปิดเครื่องมือคำนวณการทำระดับเพื่อทดลองคีย์ค่า BS / IFS / FS และตรวจสอบเกณฑ์ชั้นงาน',
+      recommendedToolTab: 'leveling',
+      toolActionLabel: 'เปิดโมดูลคำนวณการทำระดับ'
+    }
+  },
+
+
+  // -------------------------------------------------------------------------
+  // TOPIC 3: THEODOLITE & TOTAL STATION INSTRUMENT MANUAL (คู่มือใช้งาน)
   // -------------------------------------------------------------------------
   {
     id: 'theodolite-station-setup',
-    title: 'กล้องประมวลผลรวมและกล้องวัดมุม (Total Station & Theodolite Station Setup, Resection & 2-Face Observation)',
-    titleEn: 'Total Station & Theodolite Centering, Free Station Resection, 0-SET & Two-Face Angle Measurement',
+    title: 'คู่มือการใช้งานกล้องวัดมุมและ Total Station (Digital Theodolite, Total Station & Robotic)',
+    titleEn: 'Digital Theodolite, Total Station & Robotic TS Hardware Anatomy, Station Setup & 2-Face Operation',
     category: 'survey-instrument',
-    categoryName: 'กล้องสำรวจ',
-    summary: 'คู่มือการตั้งสถานีกล้องวัดมุมและกล้องประมวลผลรวม (Total Station & Electronic Theodolite): การตั้งดิ่งลงกึ่งกลางหมุดด้วย Optical / Laser Plummet, การปรับลูกน้ำฟองกลมและฟองยาว (Plate Level Bubble), เซนเซอร์ชดเชยการเอียงสองแกน (Dual-Axis Tilt Compensator), ขั้นตอนการเปิดมุมราบ 2 หน้ากล้อง (Face Left: FL & Face Right: FR) เพื่อหักล้าง Collimation & Trunnion Axis Error, การตั้งค่าศูนย์องศา (0-SET) เล็งหมุดหลัง (Backsight), การตั้งสถานีแบบอิสระ (Free Station / Resection) จากหมุดควบคุม 2-3 หมุด, การกำหนดค่าคงที่ปริซึม (Prism Constant: 0 mm / -30 mm) และค่าปรับแก้ชั้นบรรยากาศ (Atmospheric PPM Correction), ตลอดจนการทำผังหมุดผูกโยง 3 ระยะ (Station Description & 3-Tie Measurements)',
-    badge: 'เสาหลักงานสำรวจ Total Station & กล้องวัดมุม',
+    categoryName: 'คู่มือการใช้งานอุปกรณ์',
+    summary: 'คู่มือโครงสร้างอุปกรณ์ หลักการทำงาน และวิธีการใช้งานตระกูลกล้องวัดมุมและกล้องประมวลผลรวมครบวงจร (กล้องวัดมุมดิจิทัล Digital Theodolite, กล้อง Total Station และกล้อง Robotic Total Station): รูปแบบงานที่นำไปใช้ในภาคสนาม การตั้งดิ่งลงกึ่งกลางหมุดด้วย Optical / Laser Plummet การปรับลูกน้ำฟองกลมและฟองยาว (Plate Level Bubble) เซนเซอร์ชดเชยการเอียงสองแกน (Dual-Axis Tilt Compensator) การเปิดมุมราบ 2 หน้ากล้อง (Face Left & Face Right) การตั้งค่าศูนย์องศา (0-SET) การตั้งสถานีแบบอิสระ (Free Station / Resection) และการกำหนดค่าคงที่ปริซึม (Prism Constant)',
+    badge: 'คู่มือใช้งาน',
     iconName: 'Compass',
     verificationStatus: 'draft',
     verificationProof: 'คู่มือปฏิบัติการวิชา 01218211 Geomatics Engineering (ม.เกษตรศาสตร์); มาตรฐานงานรังวัดหมุดควบคุม กรมที่ดิน; Leica Geosystems FlexLine TS06/TS07 Manual; Topcon GM-50 Series Instruction Manual',
     courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & ข้อกำหนดงานรังวัดวงรอบและผังโครงการ',
+    instrumentVariants: [
+      {
+        name: 'กล้องวัดมุมดิจิทัล (Digital Theodolite)',
+        equipmentCombo: 'ใช้งานร่วมกับ ไม้สต๊าฟ หรือ เสาโพลเล็งแนว (Range Pole / Sighting Rod)',
+        useCases: [
+          'งานเช็กดิ่งเสาอาคาร กำแพง และโครงสร้างสูง (Vertical Plumb Alignment)',
+          'งานเปิดมุมฉาก 90° และวางแนวแกนอาคาร (Grid Line Alignment)',
+          'งานวางแนวรั้ว แนวเขตที่ดิน และแนวเสาเข็มที่เน้นการเปิดมุมและเล็งแนวตรงโดยไม่เน้นวัดระยะทางไกล'
+        ]
+      },
+      {
+        name: 'กล้องประมวลผลรวม (Total Station)',
+        equipmentCombo: 'ใช้งานร่วมกับ ชุดเป้าปริซึมสะท้อนแสง (Single/Mini Prism) หรือ โหมดยิงเลเซอร์ไร้ปริซึม (Reflectorless EDM)',
+        useCases: [
+          'งานเดินวงรอบควบคุมพิกัด N, E, Z (Closed-Loop & Link Traverse Control)',
+          'งานวางผังก่อสร้างและตีผังตอกหมุดตำแหน่งเสาเข็ม/ฐานราก (Setting Out / Stake-out)',
+          'งานเก็บรายละเอียดภูมิประเทศทำแผนที่เส้นชั้นความสูง (Topographic & Contour Mapping)',
+          'งานรังวัดสอบเขตที่ดินและคำนวณเนื้อที่แปลง (Cadastral Boundary Survey)',
+          'งานคำนวณปริมาตรกองดิน หลุมขุด และบ่อเหมือง (Earthwork Volume Computation)',
+          'งานเก็บค่าพิกัดตรวจสอบหลังก่อสร้างจริง (As-built Survey)'
+        ]
+      },
+      {
+        name: 'กล้อง Total Station แบบโรบอท (Robotic Total Station)',
+        equipmentCombo: 'ใช้งานร่วมกับ ปริซึม 360 องศา (360° Omni-Directional Prism) และ คอนโทรลเลอร์ไร้สาย (Long-Range Radio Field Controller)',
+        useCases: [
+          'งานสำรวจและวางผังก่อสร้างแบบฉายเดี่ยว (One-Man Survey System) โดยกล้องหมุนล็อกติดตามปริซึมอัตโนมัติ (Auto-Tracking)',
+          'งานวางผังระบบท่อและงาน MEP ภายในอาคารซับซ้อน (BIM-to-Field Layout)',
+          'งานเฝ้าระวังการเคลื่อนตัวของโครงสร้าง โค้งสะพาน และผนังอุโมงค์แบบอัตโนมัติตามคาบเวลา (Automated Deformation Monitoring)'
+        ]
+      }
+    ],
+    instrumentAnatomy: {
+      imagePath: '/images/instruments/total-station.jpg',
+      imageCaption: 'แผนผังส่วนประกอบมาตรฐานของกล้องประมวลผลรวม Total Station และกล้องวัดมุมดิจิทัล (สามารถวางไฟล์ภาพจริงได้ที่ public/images/instruments/total-station.jpg)',
+      modelExamples: 'Leica TS07 / Topcon GM-52 / Sokkia iM-52 / Trimble S7 Robotic',
+      parts: [
+        {
+          number: 1,
+          name: 'หูหิ้วตัวกล้องและช่องเล็งหยาบ (Carrying Handle & Peep Sight)',
+          nameEn: 'Carrying Handle & Optical Collimator',
+          description: 'ด้ามจับยึดด้านบนตัวกล้องพร้อมช่องเล็งสามเหลี่ยมสำหรับเล็งทิศทางเข้าหาเป้าปริซึมอย่างรวดเร็ว'
+        },
+        {
+          number: 2,
+          name: 'เลนส์ใกล้วัตถุและหัวส่งคลื่น EDM (Objective Lens & Coaxial EDM)',
+          nameEn: 'Telescope Objective & Coaxial EDM Emitter',
+          description: 'ชุดเลนส์หลักกำลังขยาย 30x ร่วมแกนเดียวกับตัวส่งคลื่นแสงอินฟราเรด/เลเซอร์วัดระยะทางอิเล็กทรอนิกส์'
+        },
+        {
+          number: 3,
+          name: 'วงแหวนปรับโฟกัสและเลนส์ใกล้ตา (Focusing Ring & Eyepiece)',
+          nameEn: 'Telescope Focusing Ring & Diopter Eyepiece',
+          description: 'วงแหวนหมุนปรับความคมชัดของเป้าปริซึม และวงแหวนปรับความชัดของเส้นสายใยตามสายตาผู้ใช้งาน'
+        },
+        {
+          number: 4,
+          name: 'ปุ่มล็อกและปุ่มหมุนละเอียดมุมดิ่ง (Vertical Clamp & Tangent Screw)',
+          nameEn: 'Vertical Motion Clamp & Fine Drive',
+          description: 'ชุดล็อกกระดกเลนส์แนวดิ่งและสกรูหมุนละเอียดเพื่อเล็งกากบาทสายใยเข้ากึ่งกลางเป้าปริซึมในแนวดิ่ง'
+        },
+        {
+          number: 5,
+          name: 'ปุ่มล็อกและปุ่มหมุนละเอียดมุมราบ (Horizontal Clamp & Tangent Screw)',
+          nameEn: 'Horizontal Motion Clamp & Fine Drive',
+          description: 'ชุดล็อกการหมุนตัวกล้องแนวราบและสกรูหมุนละเอียดเพื่อเล็งสายใยดิ่งทับโคนเสาเป้าหรือศูนย์กลางปริซึม'
+        },
+        {
+          number: 6,
+          name: 'หน้าจอแสดงผลและแผงปุ่มกด (Alphanumeric LCD & Keypad)',
+          nameEn: 'Dual-Face Control Display & Keypad',
+          description: 'จอแสดงค่ามุมราบ (HR), มุมดิ่ง (V), ระยะลาด (SD), ระยะราบ (HD) และปุ่มคำสั่ง [0-SET], [MEAS], [COORD]'
+        },
+        {
+          number: 7,
+          name: 'หลอดลูกน้ำฟองยาวและฟองกลม (Plate Level & Circular Bubble)',
+          nameEn: 'Plate Level Vial & Circular Bubble',
+          description: 'หลอดระดับความละเอียดสูงสำหรับตั้งแกนดิ่งของกล้องให้ได้ฉากกับระนาบโลก ร่วมกับเซนเซอร์ Dual-Axis Tilt'
+        },
+        {
+          number: 8,
+          name: 'กล้องส่องดิ่ง / เลเซอร์ดิ่ง (Optical / Laser Plummet)',
+          nameEn: 'Optical or Red Laser Plummet',
+          description: 'ระบบเล็งดิ่งลงสู่พื้นดินเพื่อให้แกนดิ่งของตัวกล้องตรงกับจุดศูนย์กลางหัวหมุดสำรวจระดับมิลลิเมตร'
+        },
+        {
+          number: 9,
+          name: 'ฐานกล้อง Tribrach และสกรูควงเท้า 3 เส้า (Tribrach & Foot Screws)',
+          nameEn: 'Detachable Tribrach & 3 Leveling Screws',
+          description: 'ฐานรองกล้องแบบถอดสลับได้ (Forced Centering) พร้อมสกรู 3 ตัวสำหรับปรับระดับและสลักล็อกฐานกล้อง'
+        }
+      ]
+    },
     equipmentRequired: [
       'กล้องประมวลผลรวม (Total Station เช่น Leica TS07 / Topcon GM-50 / Sokkia iM) หรือกล้องวัดมุมอิเล็กทรอนิกส์ (Electronic Theodolite) ความละเอียด 1 ถึง 5 พิลิปดา พร้อมเลเซอร์ดิ่ง',
       'ขาตั้งกล้องไม้ชนิดหนักหัวเรียบ (Heavy-duty Wood/Aluminum Flathead Tripod)',
@@ -386,16 +716,16 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
   },
 
   // -------------------------------------------------------------------------
-  // TOPIC 3: CLOSED LOOP TRAVERSE & BOWDITCH COMPASS RULE
+  // TOPIC 4: CLOSED LOOP TRAVERSE & BOWDITCH COMPASS RULE (คู่มือทำงาน)
   // -------------------------------------------------------------------------
   {
     id: 'closed-loop-traverse',
-    title: 'การรังวัดและปรับแก้วงรอบปิดแบบรูปปิดวง (Closed Loop Traverse Survey & Bowditch Compass Rule)',
+    title: 'วิธีการทำวงรอบปิด (Closed Loop Traverse Survey & Bowditch Compass Rule)',
     titleEn: 'Closed Polygon Loop Traverse, Angular Misclosure Check & Bowditch Compass Balancing',
     category: 'survey-instrument',
-    categoryName: 'กล้องสำรวจ',
-    summary: 'คู่มือมาตรฐานการรังวัดโครงข่ายวงรอบปิดรูปหลายเหลี่ยม (Closed Loop Traverse): กฎผลรวมมุมภายใน (n - 2) × 180°, การตรวจสอบค่าคลาดเคลื่อนทางมุม (Angular Misclosure) เทียบเกณฑ์ชั้นงาน, การกระจายปรับแก้ค่ามุมเฉลี่ย (-c/n), การคำนวณมุมภาคของทิศต่อเนื่อง (Continuous Azimuth), การคำนวณผลต่างพิกัดราบ Latitude (ΔN) และ Departure (ΔE), การหาค่าคลาดเคลื่อนเชิงเส้น (Linear Misclosure), การหาอัตราส่วนความละเอียดชั้นงาน (Relative Precision 1:N) และการปรับแก้เส้นโครงวงรอบด้วยวิธี Compass Rule (Bowditch Method)',
-    badge: 'มาตรฐานงานควบคุมพิกัดผังเมือง',
+    categoryName: 'วิธีการทำงานภาคสนาม',
+    summary: 'คู่มือมาตรฐานวิธีการทำงานรังวัดโครงข่ายวงรอบปิดรูปหลายเหลี่ยม (Closed Loop Traverse): กฎผลรวมมุมภายใน (n - 2) × 180°, การตรวจสอบค่าคลาดเคลื่อนทางมุม (Angular Misclosure) เทียบเกณฑ์ชั้นงาน, การกระจายปรับแก้ค่ามุมเฉลี่ย (-c/n), การคำนวณมุมภาคของทิศต่อเนื่อง (Continuous Azimuth), การคำนวณผลต่างพิกัดราบ Latitude (ΔN) และ Departure (ΔE), การหาค่าคลาดเคลื่อนเชิงเส้น (Linear Misclosure), การหาอัตราส่วนความละเอียดชั้นงาน (Relative Precision 1:N) และการปรับแก้เส้นโครงวงรอบด้วยวิธี Compass Rule (Bowditch Method)',
+    badge: 'คู่มือทำงาน',
     iconName: 'Compass',
     verificationStatus: 'draft',
     verificationProof: 'Bowditch, N. (1807) Compass Rule; มาตรฐานการรังวัดและคำนวณวงรอบ กรมแผนที่ทหาร (RTSD 1st-3rd Order Traverse Specifications); Schofield, W. & Breach, M. (2007) Engineering Surveying',
@@ -560,16 +890,16 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
   },
 
   // -------------------------------------------------------------------------
-  // TOPIC 4: CONNECTING / LINK TRAVERSE SURVEY
+  // TOPIC 5: CONNECTING / LINK TRAVERSE SURVEY (คู่มือทำงาน)
   // -------------------------------------------------------------------------
   {
     id: 'link-open-traverse',
-    title: 'การรังวัดและปรับแก้วงรอบเปิดเชื่อมโยง (Connecting / Link Traverse Survey)',
+    title: 'วิธีการทำวงรอบเปิด (Connecting / Link Traverse Survey)',
     titleEn: 'Link / Connecting Traverse Between Known Geodetic Control Points & Coordinate Adjustment',
     category: 'survey-instrument',
-    categoryName: 'กล้องสำรวจ',
-    summary: 'คู่มือการรังวัดวงรอบเปิดแบบเชื่อมโยง (Connecting / Link Traverse): การเริ่มต้นจากหมุดหลักฐานคู่ต้นทางที่ทราบพิกัดและทิศทาง (A -> B) สู่หมุดหลักฐานคู่ปลายทาง (C -> D), การตรวจสอบความคลาดเคลื่อนมุมภาคทิศเริ่มต้นและสิ้นสุด (Azimuth Closure Check), การกระจายปรับแก้ค่ามุมหักเห, การตรวจสอบผลรวมระยะ Latitude และ Departure เทียบผลต่างพิกัดจริงระหว่างหมุดหลักฐาน, การปรับแก้ค่าพิกัดด้วยวิธี Compass Rule และข้อแตกต่างทางวิศวกรรมระหว่างวงรอบเปิดแบบลอย (Dead-end Traverse ที่ห้ามใช้ในงานชั้น 1-3) กับวงรอบเปิดแบบเชื่อมโยง',
-    badge: 'งานโครงสร้างแนวราบ ถนน รถไฟ ท่อส่ง',
+    categoryName: 'วิธีการทำงานภาคสนาม',
+    summary: 'คู่มือมาตรฐานวิธีการทำงานรังวัดวงรอบเปิดแบบเชื่อมโยง (Connecting / Link Traverse): การเริ่มต้นจากหมุดหลักฐานคู่ต้นทางที่ทราบพิกัดและทิศทาง (A -> B) สู่หมุดหลักฐานคู่ปลายทาง (C -> D), การตรวจสอบความคลาดเคลื่อนมุมภาคทิศเริ่มต้นและสิ้นสุด (Azimuth Closure Check), การกระจายปรับแก้ค่ามุมหักเห, การตรวจสอบผลรวมระยะ Latitude และ Departure เทียบผลต่างพิกัดจริงระหว่างหมุดหลักฐาน, การปรับแก้ค่าพิกัดด้วยวิธี Compass Rule และข้อแตกต่างทางวิศวกรรมระหว่างวงรอบเปิดแบบลอย (Dead-end Traverse ที่ห้ามใช้ในงานชั้น 1-3) กับวงรอบเปิดแบบเชื่อมโยง',
+    badge: 'คู่มือทำงาน',
     iconName: 'Compass',
     verificationStatus: 'draft',
     verificationProof: 'มาตรฐานงานสำรวจเส้นทาง กรมทางหลวง / การรถไฟแห่งประเทศไทย; Wolf, P.R. & Ghilani, C.D. (2006) Adjustment Computations: Spatial Data Analysis (4th/5th ed.); EIT Standard 1008-34 (วิศวกรรมสถานแห่งประเทศไทย วสท.)',
@@ -732,17 +1062,251 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
       toolActionLabel: 'เปิดโมดูลคำนวณวงรอบเปิดเชื่อมโยง'
     }
   },
+
   // -------------------------------------------------------------------------
-  // TOPIC 5: GNSS STATIC & RTK CORS NETWORK
+  // TOPIC 6: GNSS / GPS INSTRUMENT OPERATION MANUAL (คู่มือใช้งาน)
+  // -------------------------------------------------------------------------
+  {
+    id: 'gnss-instrument-manual',
+    title: 'คู่มือการใช้เครื่องรับสัญญาณดาวเทียม GNSS/GPS (RTK Base/Rover & CORS Receiver Manual)',
+    titleEn: 'Multi-Constellation GNSS Receiver Hardware Anatomy, RTK Base-Rover Radio & NTRIP CORS Operation',
+    category: 'gnss-gps',
+    categoryName: 'คู่มือการใช้งานอุปกรณ์',
+    summary: 'คู่มือโครงสร้างอุปกรณ์ หลักการทำงาน และวิธีการใช้งานเครื่องรับสัญญาณดาวเทียมนำทางสากล (Multi-Frequency GNSS Receiver) ทั้งระบบตั้งสถานีฐานส่งวิทยุ (RTK Base & Rover UHF Radio) และระบบเชื่อมต่อโครงข่ายสถานีอ้างอิงต่อเนื่องผ่านอินเทอร์เน็ต (Network RTK / CORS NTRIP): รูปแบบงานที่นำไปใช้ในภาคสนาม ส่วนประกอบสำคัญของหัวรับสัญญาณ Smart Antenna และเครื่องควบคุม Field Controller ระบบชดเชยความเอียงเสาโพล (IMU Tilt Compensation) การวัดความสูงเสาอากาศ (Slant vs. Vertical Antenna Height) และการอ่านสถานะคุณภาพสัญญาณ (FIXED / FLOAT / PDOP)',
+    badge: 'คู่มือใช้งาน',
+    iconName: 'Satellite',
+    verificationStatus: 'draft',
+    verificationProof: 'ระเบียบกรมที่ดินว่าด้วยการรังวัดด้วยดาวเทียม RTK GNSS Network พ.ศ. 2562; มาตรฐานเครื่องมือสำรวจดาวเทียม กรมแผนที่ทหาร (RTSD); วิชา 01218312 Satellite Geodesy (KU Geomatics); Trimble R12i & Leica GS18 T User Manuals',
+    courseRelation: 'วิชา 01218312 Satellite Geodesy & GNSS Positioning (KU Geomatics) & มาตรฐาน RTK GNSS Network กรมที่ดิน',
+    instrumentVariants: [
+      {
+        name: 'ชุดเครื่องรับสัญญาณดาวเทียมระบบ Base - Rover (GNSS RTK Base & Rover System)',
+        equipmentCombo: 'ใช้งานร่วมกับ ชุดวิทยุส่งสัญญาณ UHF External/Internal Radio (1W–35W), ขาตั้งกล้องสถานีฐาน และเสาโพลคาร์บอน 2.00 m',
+        useCases: [
+          'งานวางหมุดควบคุมหลัก (Main Control Points) ในพื้นที่ห่างไกลหรือจุดอับสัญญาณอินเทอร์เน็ตมือถือ (ป่าเขา เหมืองแร่ เขื่อน ทะเล)',
+          'งานเก็บภูมิประเทศวงกว้าง (Large-Scale Topographic Survey) โดยไม่ต้องมีการมองเห็นกันระหว่างจุดตั้งกล้อง Base และตัวลูก Rover',
+          'งานวางผังแนวถนน คลองชลประทาน โครงข่ายท่อส่ง และสายส่งไฟฟ้าแรงสูงระยะทางยาวหลายกิโลเมตร'
+        ]
+      },
+      {
+        name: 'เครื่องรับสัญญาณดาวเทียมระบบโครงข่ายสถานีอ้างอิงต่อเนื่อง (GNSS Network RTK / CORS)',
+        equipmentCombo: 'ใช้งานร่วมกับ ซิมการ์ดอินเทอร์เน็ต 4G/5G (NTRIP Caster) เชื่อมต่อสถานีฐาน CORS ของกรมที่ดิน / กรมแผนที่ทหาร (RTSD) / สถานีเอกชน',
+        useCases: [
+          'งานรังวัดสอบเขตที่ดินและออกโฉนดแปลงที่ดินตามระเบียบกรมที่ดิน (Cadastral Parcel Survey)',
+          'งานเก็บพิกัดภูมิประเทศและวางผังก่อสร้างแบบเร่งด่วนโดยใช้หัวรับสัญญาณ Rover เพียงเครื่องเดียว (ไม่ต้องตั้งสถานี Base เอง)',
+          'งานรังวัดหมุดควบคุมภาพถ่ายทางอากาศ (GCP / Check Points) สำหรับงานบินโดรนสำรวจและการทำแผนที่ GIS'
+        ]
+      }
+    ],
+    instrumentAnatomy: {
+      imagePath: '/images/instruments/gnss-rtk.jpg',
+      imageCaption: 'แผนผังส่วนประกอบมาตรฐานของเครื่องรับสัญญาณดาวเทียม GNSS RTK Smart Antenna และชุดเสาโพล (สามารถวางไฟล์ภาพจริงได้ที่ public/images/instruments/gnss-rtk.jpg)',
+      modelExamples: 'Trimble R12i / Leica GS18 T / CHCNAV i83 / Topcon HiPer VR',
+      parts: [
+        {
+          number: 1,
+          name: 'ฝาครอบเสาอากาศรับคลื่นดาวเทียมหลายความถี่ (Multi-GNSS Radome Cover)',
+          nameEn: 'GNSS Smart Antenna Radome',
+          description: 'โดมป้องกันคลื่นแม่เหล็กไฟฟ้าภายในบรรจุแผ่นรับสัญญาณ L1/L2/L5 จาก GPS, GLONASS, Galileo, BeiDou และ QZSS'
+        },
+        {
+          number: 2,
+          name: 'เครื่องหมายจุดศูนย์กลางเฟสเสาอากาศ (Antenna Phase Center & Bumper Mark)',
+          nameEn: 'APC Reference Mark & Bumper Ring',
+          description: 'ขีดบอกระดับอ้างอิงข้างตัวเครื่องสำหรับเกี่ยวแถบวัดความสูงเอียง (Slant Height) และคำนวณระยะ офเซ็ตสู่จุดศูนย์กลางเฟส (APC)'
+        },
+        {
+          number: 3,
+          name: 'ไฟสถานะการทำงานและปุ่มเปิด-ปิดหน้าเครื่อง (LED Status Panel & Power Key)',
+          nameEn: 'LED Indicators (SAT / RTK / BAT / BT)',
+          description: 'ไฟแสดงจำนวนดาวเทียมที่ล็อกสัญญาณได้ สถานะการรับส่งข้อมูลปรับแก้ RTCM (กระพริบทุก 1 วินาที) และระดับแบตเตอรี่'
+        },
+        {
+          number: 4,
+          name: 'ขั้วต่อเสาอากาศวิทยุ UHF และช่องซิมการ์ด 4G (UHF Whip Antenna Port & Cellular Modem)',
+          nameEn: 'TNC UHF Radio Port & Nano-SIM Slot',
+          description: 'พอร์ตหมุนติดเสายางวิทยุความถี่ 410–470 MHz สำหรับโหมด Base-Rover และโมเด็ม 4G ในตัวสำหรับรับข้อมูล NTRIP CORS'
+        },
+        {
+          number: 5,
+          name: 'เซนเซอร์ชดเชยความเอียงเสาโพลอัตโนมัติ (Calibration-Free IMU Tilt Sensor)',
+          nameEn: 'Inertial Measurement Unit (IMU 60° Tilt)',
+          description: 'ระบบไจโรและมาตรความเร่งภายในตัวเครื่อง ช่วยคำนวณชดเชยตำแหน่งปลายโพลแม้วางเสาเอียงสูงสุดถึง 60 องศา'
+        },
+        {
+          number: 6,
+          name: 'ช่องใส่แบตเตอรี่คู่แบบถอดสลับได้ (Dual Hot-Swappable Li-Ion Battery Bay)',
+          nameEn: 'Dual Battery Compartment & Threads (5/8")',
+          description: 'ช่องแบตเตอรี่ลิเธียมไอออน 2 ก้อนพร้อมเกลียวมาตรฐาน 5/8 นิ้ว ด้านล่างสำหรับหมุนยึดเข้ากับเสาโพลหรือ Tribrach Adapter'
+        },
+        {
+          number: 7,
+          name: 'เครื่องควบคุมและบันทึกข้อมูลภาคสนาม (Rugged Field Controller / Data Logger)',
+          nameEn: 'Bluetooth Field Controller & Keypad',
+          description: 'ชุดควบคุมหน้าจอสัมผัสกันน้ำกันฝุ่น IP68 เชื่อมต่อกับหัวรับสัญญาณผ่าน Bluetooth สำหรับตั้งค่าโปรเจกต์ พิกัด UTM และ Geoid'
+        },
+        {
+          number: 8,
+          name: 'เสาโพลคาร์บอนไฟเบอร์และหลอดลูกน้ำฟองกลม (Carbon Fiber Range Pole & Bubble)',
+          nameEn: '2.000m Carbon Pole & Circular Vial',
+          description: 'เสาโพลน้ำหนักเบาล็อกความสูงมาตรฐาน 1.80 m หรือ 2.00 m พร้อมหลอดลูกน้ำฟองกลมสำหรับตั้งเสาให้ได้แนวดิ่ง'
+        },
+        {
+          number: 9,
+          name: 'ขาค้ำยันสองขาและปลายแหลมเหล็กกล้า (Thumb-Release Bipod & Hardened Point)',
+          nameEn: 'Survey Bipod & Steel Topo Shoe',
+          description: 'ขาค้ำยัน 2 ขาแบบกดปุ่มปรับระดับเร็ว ช่วยยึดเสาโพลให้นิ่งสนิทขณะกดรังวัดเฉลี่ยหลายคาบเวลา (Multi-Epoch Averaging)'
+        }
+      ]
+    },
+    equipmentRequired: [
+      'หัวรับสัญญาณดาวเทียม Multi-Frequency GNSS Smart Antenna (รองรับ GPS, GLONASS, Galileo, BeiDou)',
+      'เครื่องควบคุมภาคสนาม (GNSS Field Controller) พร้อมซอฟต์แวร์ภาคสนามและซิมการ์ดอินเทอร์เน็ต 4G/5G',
+      'เสาโพลคาร์บอนไฟเบอร์ความยาวมาตรฐาน 2.000 เมตร พร้อมหลอดลูกน้ำฟองกลมและขาค้ำสองขา (Bipod)',
+      'เสาอากาศวิทยุ UHF (Whip Antenna) สำหรับโหมด Base-Rover หรือชุดวิทยุกำลังส่งสูงภายนอก (External Radio 35W)',
+      'ตลับเมตรหรือแผ่นวัดความสูงเสาอากาศ (Height Hook) และฐานตั้งกล้อง Tribrach สำหรับตั้งสถานี Base/Static'
+    ],
+    workingPrinciple: [
+      'การรับสัญญาณคลื่นพาหะหลายกลุ่มดาวเทียม (Multi-Constellation Carrier Phase): เครื่องรับสัญญาณ GNSS ระดับงานสำรวจไม่ได้ใช้เพียงรหัสคลื่นหยาบ (C/A Code) เหมือน GPS ในสมาร์ทโฟน แต่ใช้วิธีวัดเฟสของคลื่นพาหะความถี่คู่/สามความถี่ (L1/L2/L5) จากดาวเทียม 4 ระบบหลักพร้อมกัน (GPS, GLONASS, Galileo, BeiDou) ทำให้ได้ความละเอียดระดับมิลลิเมตร',
+      'หลักการแก้ไขความกำกวมจำนวนเต็มรอบคลื่น (Integer Ambiguity Resolution - RTK FIXED): เมื่อหัวรับสัญญาณ Rover ได้รับค่าปรับแก้ (Correction Data RTCM 3.x) จากสถานีฐาน Base หรือสถานีโครงข่าย CORS อัลกอริทึม RTK Engine จะแก้สมการหาจำนวนรอบคลื่นเต็ม (Integer Cycles) จนสถานะเปลี่ยนจาก Single -> Float -> Fixed ซึ่งให้ความแม่นยำแนวราบ ±8 mm + 1 ppm และแนวดิ่ง ±15 mm + 1 ppm',
+      'โหมดการสื่อสาร Base-Rover (UHF Radio) เทียบกับ Network CORS (NTRIP): ในพื้นที่ไม่มีสัญญาณโทรศัพท์ จะตั้งเครื่องตัวหนึ่งเป็น Base บนหมุดที่ทราบพิกัดแล้วส่งค่าปรับแก้ผ่านคลื่นวิทยุ UHF (410–470 MHz) ไปยังตัวลูก Rover แต่หากอยู่ในพื้นที่ที่มีสัญญาณ 4G/5G ตัวลูก Rover สามารถล็อกอินเข้า NTRIP Caster ของกรมที่ดินหรือกรมแผนที่ทหารเพื่อรับค่าปรับแก้เสมือน (VRS) ได้ทันทีโดยใช้เครื่องเดียว',
+      'การอ้างอิงจุดศูนย์กลางเฟสเสาอากาศ (Antenna Reference Point: ARP & Phase Center Variation: PCV): จุดที่รับสัญญาณดาวเทียมจริงอยู่ภายในโดมเสาอากาศ (Phase Center) ไม่ใช่ที่ปลายเกลียวด้านล่าง (ARP) ดังนั้นต้องเลือกชื่อรุ่นเสาอากาศ (Antenna Model) ในโปรแกรมให้ถูกต้องและป้อนความสูงเสาโพล (Pole Height = 2.000 m) เสมอ',
+      'ระบบชดเชยความเอียงเสาโพลด้วย IMU (Inertial Tilt Compensation): เครื่องรับสัญญาณรุ่นใหม่มีเซนเซอร์ IMU ความถี่สูงที่คำนวณมุมเอียงและทิศทางของเสาโพลแบบเรียลไทม์ ช่วยให้สามารถจิ้มปลายโพลเข้ามุมกำแพง ขอบรั้ว หรือใต้ชายคาโดยเอียงเสาโพลได้โดยไม่ต้องประคองลูกน้ำฟองกลมให้ตั้งฉาก'
+    ],
+    fieldProcedures: [
+      {
+        title: 'ขั้นตอนที่ 1: การประกอบชุดเสาโพลและการตรวจสอบความสูงเสาอากาศ (Pole Assembly & Antenna Height)',
+        details: 'หมุนประกอบหัวรับสัญญาณ GNSS เข้ากับเกลียว 5/8 นิ้วด้านบนของเสาโพลคาร์บอนไฟเบอร์ให้แน่น ยืดเสาโพลขึ้นจนสลักล็อกตรงขีดความสูงมาตรฐาน 2.000 เมตร (หรือวัดจริงด้วยตลับเมตร) ติดตั้งเสายางวิทยุ UHF (หากใช้โหมด Base-Rover) และยึดเครื่องควบคุม Controller เข้ากับแคลมป์จับเสาโพล',
+        criticalCaution: 'ตรวจสอบความสูงเสาโพลจริงทุกครั้งว่าเป็น 2.000 m หรือ 1.800 m และตั้งโหมดการวัดความสูงใน Controller เป็น "Vertical / Bottom of Antenna Mount (ARP)" ให้ตรงกัน'
+      },
+      {
+        title: 'ขั้นตอนที่ 2: การเปิดเครื่องและการเชื่อมต่อ Bluetooth กับ Controller (Power-On & Pairing)',
+        details: 'กดปุ่ม Power หน้าตัวเครื่อง GNSS ค้างไว้จนไฟสถานะติด เปิดเครื่อง Controller เข้าโปรแกรมภาคสนาม เชื่อมต่อ Bluetooth เข้ากับหมายเลข Serial Number ของหัวรับสัญญาณ รอให้ไฟสถานะดาวเทียม (SAT LED) แสดงการล็อกสัญญาณดาวเทียมมากกว่า 15–25 ดวงในที่โล่งแจ้ง'
+      },
+      {
+        title: 'ขั้นตอนที่ 3: การตั้งค่าระบบพิกัดและไฟล์แบบจำลองยีออยด์ (Coordinate System & TGM2017 Geoid Setup)',
+        details: 'สร้างโปรเจกต์ใหม่ (New Job) ตั้งค่าระบบพิกัดเป็น UTM Zone 47N (EPSG:32647) หรือ UTM Zone 48N (EPSG:32648) บนพื้นหลักฐาน WGS84 และเปิดใช้งานไฟล์แบบจำลองยีออยด์ประเทศไทย (TGM2017.ggf / .byn) เพื่อให้เครื่องแปลงค่าระดับความสูงเหนือทรงรี (Ellipsoidal Height: h) เป็นค่าระดับน้ำทะเลปานกลาง (Orthometric Height: H) อัตโนมัติ'
+      },
+      {
+        title: 'ขั้นตอนที่ 4: การเชื่อมต่อรับค่าปรับแก้ RTK (NTRIP CORS หรือ UHF Base-Rover)',
+        details: 'เข้าเมนู Rover Data Link: (กรณีใช้ CORS) เลือก NTRIP ผ่านซิมการ์ด ใส่ IP, Port, Username, Password และเลือก Mountpoint (เช่น VRS_RTCM32) แล้วกด Start จนไฟสถานะดาต้าลิงก์กระพริบและหน้าจอขึ้นสถานะ "RTK FIXED" (กรณีใช้ Base-Rover) ตั้งความถี่วิทยุ UHF ช่องเดียวกันทั้ง Base และ Rover (เช่น 435.500 MHz, โปรโตคอล TrimTalk / Transparent)'
+      },
+      {
+        title: 'ขั้นตอนที่ 5: การตรวจสอบหมุดหลักฐานและการกดบันทึกค่าพิกัด (Check Shot & Point Logging)',
+        details: 'ก่อนเริ่มเก็บงานใหม่ ให้นำปลายเสาโพลไปตั้งบนหมุดควบคุมที่ทราบพิกัด (Check Point) ประคองลูกน้ำฟองกลมให้อยู่กึ่งกลาง (หรือแกว่งเริ่มต้นระบบ IMU Tilt) ตรวจสอบว่าสถานะเป็น "FIXED", ค่า PDOP < 2.5, และค่าความคลาดเคลื่อนแนวราบ/แนวดิ่ง (HRMS/VRMS) < 0.015–0.025 m จากนั้นกดปุ่มวัด [Measure] เพื่อบันทึกค่าและตรวจสอบว่าพิกัดตรงกับค่าเดิม'
+      }
+    ],
+    deviceWorkflow: [
+      {
+        stepNumber: 1,
+        stageName: 'การตั้งค่าโปรไฟล์ระบบพิกัดและยีออยด์ (Job Coordinate & Geoid Setup)',
+        targetHardware: 'GNSS Field Controller (CHCNAV LandStar / Trimble Access)',
+        buttonKey: '[PROJECT] -> [COORDINATE SYSTEM] -> [WGS84 / UTM 47N + TGM2017]',
+        actionLabel: 'ตั้งค่าโซน UTM และ Geoid',
+        screenTitle: 'GNSS PROJECT COORDINATE SYSTEM CONFIG',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ DATUM        : WGS84 (ITRF2014 / EPOCH 2026) │',
+          '│ PROJECTION   : UTM ZONE 47N (CM: 99°00\'00"E) │',
+          '│ SCALE FACTOR : 0.99960000  FE: 500,000.000 m │',
+          '│                                              │',
+          '│ VERTICAL DATUM : GEOID MODEL ENABLED         │',
+          '│ GEOID FILE     : THAILAND_TGM2017.GGF        │',
+          '│ ANTENNA TYPE   : INTERNAL ARP (POLE: 2.000m) │',
+          '│ [SAVE PROFILE & APPLY TO CURRENT JOB]        │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'กำหนดระบบพิกัดอ้างอิงให้ตรงกับพื้นที่ปฏิบัติงานในประเทศไทย (Zone 47N สำหรับภาคเหนือ/กลาง/ใต้/ตะวันตก และ Zone 48N สำหรับภาคอีสาน/ตะวันออก) พร้อมผูกไฟล์ TGM2017',
+        qaCheck: 'ตรวจสอบว่าได้เลือกโซน 47N หรือ 48N ถูกต้องตามจังหวัดหน้างาน และเปิดใช้งานไฟล์ Geoid TGM2017 แล้ว'
+      },
+      {
+        stepNumber: 2,
+        stageName: 'การอ่านสถานะคุณภาพสัญญาณดาวเทียม (RTK Fix & Precision Bar)',
+        targetHardware: 'GNSS Survey Top Status Bar',
+        buttonKey: '[SURVEY] -> [MAP VIEW] สังเกตแถบสถานะด้านบนก่อนกดวัด',
+        actionLabel: 'ตรวจสอบสถานะ RTK FIXED',
+        screenTitle: 'GNSS ROVER REAL-TIME QUALITY MONITOR',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ SOLUTION : [RTK FIXED]    AGE: 1.0 s [NTRIP] │',
+          '│ SATS USED: 29 / 34        PDOP: 1.18         │',
+          '│ HRMS     : ±0.007 m       VRMS: ±0.013 m     │',
+          '│                                              │',
+          '│ IMU TILT : ACTIVE [GREEN] POLE TILT: 14.2°   │',
+          '│ BATTERY  : RX: 84%        CTRL: 91%          │',
+          '│                                              │',
+          '│ [MEAS TOPO (3 EPOCHS)]   [STAKEOUT POINT]    │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'แถบสถานะหลักแสดงความพร้อมก่อนกดเก็บจุด: สถานะต้องเป็น RTK FIXED, อายุข้อมูลปรับแก้ (AGE) 1 วินาที, และความคลาดเคลื่อน HRMS/VRMS อยู่ในหลักมิลลิเมตร',
+        qaCheck: 'ห้ามกดเก็บจุดควบคุมหรือมุมเขตที่ดินเด็ดขาดหากสถานะเป็น FLOAT, DGPS หรือ SINGLE'
+      },
+      {
+        stepNumber: 3,
+        stageName: 'การเริ่มต้นใช้งานเซนเซอร์ชดเชยความเอียง (IMU Tilt Initialization)',
+        targetHardware: 'IMU Tilt-Compensated GNSS Rover',
+        buttonKey: '[TILT ICON] เปิดโหมด IMU แล้วแกว่งปลายโพลหน้า-หลัง 2-3 ครั้ง',
+        actionLabel: 'เปิดใช้งานชดเชยเสาเอียง IMU',
+        screenTitle: 'CALIBRATION-FREE IMU TILT INITIALIZATION',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ IMU SENSOR STATUS : INITIALIZING...          │',
+          '│ ACTION REQUIRED   : SWING POLE BACK & FORTH  │',
+          '│                     OR WALK 3 STEPS          │',
+          '│                                              │',
+          '│   [READY] IMU TILT COMPENSATION LOCKED!      │',
+          '│   MAX ALLOWABLE TILT ANGLE : 60.0°           │',
+          '│   TILT ACCURACY ADDITION   : ±8mm + 0.4mm/°  │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'เมื่อเปิดฟังก์ชัน IMU Tilt ให้ตั้งปลายโพลลงบนพื้นแล้วโยกเสาหน้า-หลังเบาๆ 2-3 ครั้ง (หรือเดิน 2-3 ก้าว) จนไอคอนลูกน้ำเปลี่ยนเป็นสีเขียวพร้อมใช้งาน',
+        qaCheck: 'หากวางเสาโพลนิ่งนานเกินไปจน IMU หลุดสถานะ ให้ขยับแกว่งเสาโพลสั้นๆ 1 ครั้งก็จะกลับมาพร้อมใช้งานทันที'
+      }
+    ],
+    formulas: [
+      {
+        label: 'การคำนวณความสูงจุดศูนย์กลางเฟสเสาอากาศเหนือหัวหมุด (True Antenna Phase Center Height)',
+        formula: 'H_{\\text{APC}} = H_{\\text{pole}} + \\Delta h_{\\text{ARP}\\to\\text{APC}}',
+        explanation: 'ความสูงจริงถึงจุดรับสัญญาณดาวเทียมเท่ากับความยาวเสาโพล (Hpole เช่น 2.000 m) บวกด้วยระยะออฟเซ็ตภายในหัวเครื่องจากฐานเกลียวถึงจุดศูนย์กลางเฟส'
+      },
+      {
+        label: 'การแปลงความสูงเอียงเป็นความสูงดิ่งสำหรับงานตั้งฐาน (Slant to Vertical Antenna Height)',
+        formula: 'h_{v} = \\sqrt{s^2 - R_a^2} - \\Delta h_{\\text{offset}}',
+        explanation: 'เมื่อตั้งกล้องบนขาตั้ง Tribrach แล้ววัดระยะเอียง (s) จากหัวหมุดมายังขอบยางรอบตัวเครื่องที่มีรัศมี Ra จะสามารถทอนเป็นความสูงแนวดิ่ง (hv) ได้อย่างแม่นยำ'
+      },
+      {
+        label: 'การแปลงความสูงเหนือทรงรีเป็นระดับน้ำทะเลปานกลาง (Orthometric Height Conversion)',
+        formula: 'H_{\\text{MSL}} = h_{\\text{ellipsoid}} - N_{\\text{TGM2017}}',
+        explanation: 'ระดับความสูงใช้งานจริง (MSL) คำนวณจากความสูงดาวเทียมเหนือทรงรี WGS84 ลบด้วยค่าความสูงต่างยีออยด์ (Geoid Undulation: N) จากแบบจำลอง TGM2017'
+      }
+    ],
+    errorSourcesAndMitigation: [
+      'Wrong Antenna Height or Measurement Method (ป้อนความสูงโพลหรือวิธีวัดผิด): เช่น ตั้งโพล 2.00 m แต่ในเครื่องค้างค่า 1.80 m ทำให้ค่าระดับ Z ผิดไป 20 ซม. ทุกจุด ต้องตรวจสอบตัวเลขความสูงเสาโพลก่อนเริ่มงานเสมอ',
+      'Multipath from Overhead Canopy & Metal Walls (สัญญาณสะท้อนใต้ต้นไม้หรือกำแพงเหล็ก): ทำให้สถานะ RTK FIXED เป็น False Fix หรือกระโดด แก้ไขโดยใช้โหมด IMU เอียงหัวรับสัญญาณออกจากชายคา หรือขยับตั้งจุดอ้างอิงในที่เปิดโล่งแล้วดึงเทป/ยิง Total Station เข้ามุมอับ',
+      'NTRIP Data Link Drop / High Latency (อินเทอร์เน็ตสะดุดทำให้อายุค่าปรับแก้เกิน 5 วินาที): ทำให้ความแม่นยำลดลงเป็น Float แก้ไขโดยใช้ซิมการ์ดเครือข่ายที่มีสัญญาณแรงในพื้นที่ หรือสลับใช้โหมด Base-Rover วิทยุ UHF',
+      'Wrong Coordinate Zone Selection (เลือกโซน UTM 47N กับ 48N สลับกัน): ทำให้ค่าพิกัด Easting เพี้ยนไปหลายแสนเมตร ต้องตรวจสอบเส้นแวงกึ่งกลางโซน (99°E สำหรับ 47N และ 105°E สำหรับ 48N) ให้ตรงกับพื้นที่ปฏิบัติงาน'
+    ],
+    downstreamWorkflow: {
+      outputDataFormat: 'ไฟล์พิกัดจุดสำรวจ CSV (Point, N, E, Z, Code) และข้อมูลตรวจสอบคุณภาพ HRMS/VRMS',
+      outputDescription: 'เมื่อเข้าใจโครงสร้างและวิธีใช้งานเครื่องรับสัญญาณ GNSS เบื้องต้นแล้ว สามารถปฏิบัติงานรังวัดหมุดควบคุม Static และ RTK CORS ตามคู่มือวิธีการทำงานและนำพิกัดไปแปลงในระบบ',
+      nextStepTitle: 'เข้าสู่ขั้นตอนวิธีการรังวัดหมุดควบคุมด้วยดาวเทียม GNSS และการแปลงพิกัดภูมิศาสตร์',
+      nextStepProcedure: 'ศึกษามาตรฐานเวลาการรังวัด Static และการทำ Site Calibration ใน "วิธีการรังวัดหมุดควบคุมด้วยดาวเทียม GNSS" หรือเปิดเครื่องมือแปลงพิกัดเพื่อแปลงค่า Lat/Lon กับ UTM',
+      recommendedToolTab: 'coord',
+      toolActionLabel: 'เปิดเครื่องมือแปลงพิกัดภูมิศาสตร์ (Coordinate Converter)'
+    }
+  },
+
+  // -------------------------------------------------------------------------
+  // TOPIC 7: GNSS STATIC & RTK CORS NETWORK PROCEDURE (คู่มือทำงาน)
   // -------------------------------------------------------------------------
   {
     id: 'gnss-rtk-static-survey',
-    title: 'การรังวัดหมุดควบคุมด้วยดาวเทียม GNSS (Static Geodetic Network & Network RTK CORS)',
+    title: 'วิธีการรังวัดหมุดควบคุมด้วยดาวเทียม GNSS (Static Geodetic Network & Network RTK CORS)',
     titleEn: 'GNSS Geodetic Control Survey: Multi-Frequency Static Baseline & Network RTK (VRS/CORS)',
     category: 'gnss-gps',
-    categoryName: 'GNSS,GPS',
-    summary: 'คู่มือการรังวัดโครงข่ายหมุดหลักฐานด้วยระบบดาวเทียมนำทางสากล (GNSS): การรังวัดโครงข่ายสถิตความละเอียดสูง (Static Geodetic Baseline Survey) สำหรับสร้างหมุดควบคุมปฐมภูมิและทุติยภูมิ (First/Second Order Geodetic Network), เกณฑ์เวลาการรังวัดขั้นต่ำตามความยาวเส้นฐาน (<10 km ≥ 45-60 นาที, >20 km ≥ 3-4 ชั่วโมง), การบันทึกข้อมูลดิบ Multi-Frequency RINEX 3.0x, การปรับแก้โครงข่ายเส้นฐานแบบ Least Squares Loop Closure, การรังวัดจลน์แบบทันทีกาลผ่านระบบโครงข่ายสถานีรับสัญญาณต่อเนื่อง (Network RTK / CORS VRS), การตั้งค่าเครื่องรับสัญญาณ (Receiver Configuration: UHF Internal Radio 1W/35W vs NTRIP GSM 4G/5G, Elevation Mask 15°, Epoch Interval 1s/15s), การประเมินค่าเรขาคณิตกลุ่มดาวเทียม (PDOP < 2.5), การแปลงความสูง Ellipsoidal (h) เป็น Orthometric Height (H) ด้วยแบบจำลองจีออยด์ TGM2017 และการตรวจสอบสถานะ Fix/Float',
-    badge: 'งานโครงข่ายหมุดดาวเทียมชั้น 1-2 & RTK CORS',
+    categoryName: 'วิธีการทำงานภาคสนาม',
+    summary: 'คู่มือมาตรฐานวิธีการทำงานรังวัดโครงข่ายหมุดหลักฐานด้วยระบบดาวเทียมนำทางสากล (GNSS): การรังวัดโครงข่ายสถิตความละเอียดสูง (Static Geodetic Baseline Survey) สำหรับสร้างหมุดควบคุมปฐมภูมิและทุติยภูมิ (First/Second Order Geodetic Network), เกณฑ์เวลาการรังวัดขั้นต่ำตามความยาวเส้นฐาน (<10 km ≥ 45-60 นาที, >20 km ≥ 3-4 ชั่วโมง), การบันทึกข้อมูลดิบ Multi-Frequency RINEX 3.0x, การปรับแก้โครงข่ายเส้นฐานแบบ Least Squares Loop Closure, การรังวัดจลน์แบบทันทีกาลผ่านระบบโครงข่ายสถานีรับสัญญาณต่อเนื่อง (Network RTK / CORS VRS), การประเมินค่าเรขาคณิตกลุ่มดาวเทียม (PDOP < 2.5), การแปลงความสูง Ellipsoidal (h) เป็น Orthometric Height (H) ด้วยแบบจำลองจีออยด์ TGM2017 และการตรวจสอบสถานะ Fix/Float',
+    badge: 'คู่มือทำงาน',
     iconName: 'Satellite',
     verificationStatus: 'draft',
     verificationProof: 'ระเบียบกรมที่ดินว่าด้วยการรังวัดด้วยดาวเทียม RTK GNSS Network พ.ศ. 2562; GISTDA National CORS Network Standard; คู่มือแบบจำลองยีออยด์ TGM2017 (กรมแผนที่ทหาร); Hofmann-Wellenhof, B. et al. (2008) GNSS - GPS, GLONASS, Galileo and more; FGCC Standards and Specifications for Geodetic Control Networks',
@@ -902,16 +1466,230 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
   },
 
   // -------------------------------------------------------------------------
-  // TOPIC 6: DRONE / UAV PHOTOGRAMMETRY & GCP SURVEY
+  // TOPIC 8: UAV DRONE PHOTOGRAMMETRY & LIDAR INSTRUMENT MANUAL (คู่มือใช้งาน)
+  // -------------------------------------------------------------------------
+  {
+    id: 'uav-instrument-manual',
+    title: 'คู่มือการใช้งานโดรนสำรวจ (UAV Photogrammetry & LiDAR Instrument Manual)',
+    titleEn: 'Enterprise RTK UAV, Mechanical Global Shutter Camera & Airborne LiDAR Payload Manual',
+    category: 'drone-uav',
+    categoryName: 'คู่มือการใช้งานอุปกรณ์',
+    summary: 'คู่มือโครงสร้างอุปกรณ์ หลักการทำงาน และวิธีการใช้งานอากาศยานไร้คนขับเพื่อการสำรวจทำแผนที่ (Enterprise Mapping UAV) ทั้งระบบโดรนถ่ายภาพทางอากาศ (UAV Photogrammetry) และระบบโดรนติดหัวสแกนเลเซอร์ (UAV Airborne LiDAR): รูปแบบงานที่นำไปใช้ในภาคสนาม ส่วนประกอบสำคัญของตัวลำและเสาอากาศ Dual-RTK ความแตกต่างระหว่าง Mechanical Global Shutter กับ Rolling Shutter หลักการเจาะทะลุเรือนยอดไม้แบบ Multi-Echo LiDAR การตั้งค่ารีโมทคอนโทรลเลอร์และการตรวจสอบความปลอดภัยก่อนบิน (Pre-Flight Inspection)',
+    badge: 'คู่มือใช้งาน',
+    iconName: 'Plane',
+    verificationStatus: 'draft',
+    verificationProof: 'ประกาศสำนักงานการบินพลเรือนแห่งประเทศไทย (CAAT); ASPRS Positional Accuracy Standards (2014); มาตรฐานงานแผนที่ภาพถ่ายทางอากาศ กรมแผนที่ทหาร (RTSD); วิชา 01218341 Photogrammetry for Surveying (KU Geomatics); DJI Matrice 350 RTK & Zenmuse P1/L2 Manuals',
+    courseRelation: 'วิชา 01218341 Photogrammetry for Surveying (KU Geomatics) & มาตรฐาน CAAT / กรมแผนที่ทหาร (RTSD)',
+    instrumentVariants: [
+      {
+        name: 'โดรนสำรวจถ่ายภาพทางอากาศ (UAV Photogrammetry System)',
+        equipmentCombo: 'ใช้งานร่วมกับ กล้องถ่ายภาพความละเอียดสูง Mechanical Global Shutter, ระบบพิกัด RTK/PPK และแผ่นเป้าควบคุมภาคพื้นดิน (GCP)',
+        useCases: [
+          'งานทำแผนที่ภาพถ่ายออร์โธ (Orthophoto Mosaic) ความละเอียดสูงระดับเซนติเมตรแทนภาพดาวเทียม',
+          'งานสำรวจภูมิประเทศพื้นที่กว้าง (มากกว่า 50–100 ไร่ขึ้นไป) เพื่อสร้างแบบจำลองระดับสูงเชิงเลข (DSM / DTM)',
+          'งานบินเก็บข้อมูลคำนวณปริมาตรกองวัสดุ กองหิน บ่อลูกรัง และเหมืองเปิด (Stockpile & Open-Pit Volume)',
+          'งานติดตามความคืบหน้าโครงการก่อสร้าง (Construction Progress Monitoring) รายสัปดาห์/รายเดือน'
+        ]
+      },
+      {
+        name: 'โดรนติดหัวสแกนเลเซอร์ทางอากาศ (UAV Airborne LiDAR System)',
+        equipmentCombo: 'ใช้งานร่วมกับ เพย์โหลด LiDAR Scanner + เซนเซอร์วัดความเฉื่อย IMU ความแม่นยำสูง และสถานีฐาน GNSS Base Station',
+        useCases: [
+          'งานสำรวจภูมิประเทศในพื้นที่ป่าทึบหรือสวนเกษตรหนาแน่น เพื่อยิงเลเซอร์ทะลุช่องว่างใบไม้ลงถึงระดับผิวดินจริง (Bare-Earth DTM)',
+          'งานสำรวจแนวสายส่งไฟฟ้าแรงสูง (Powerline Corridor Inspection) และวิเคราะห์ระยะปลอดภัยของกิ่งไม้ใกล้แนวสายไฟ',
+          'งานสำรวจแนวเส้นทางตัดถนนหรือรางรถไฟผ่านหุบเขาและพื้นที่เข้าถึงยากอันตราย'
+        ]
+      }
+    ],
+    instrumentAnatomy: {
+      imagePath: '/images/instruments/uav-drone.jpg',
+      imageCaption: 'แผนผังส่วนประกอบมาตรฐานของโดรนสำรวจระดับวิศวกรรม (Enterprise RTK UAV) พร้อมเพย์โหลดกล้องและ LiDAR (สามารถวางไฟล์ภาพจริงได้ที่ public/images/instruments/uav-drone.jpg)',
+      modelExamples: 'DJI Matrice 350 RTK + Zenmuse P1 / Zenmuse L2 / Mavic 3 Enterprise RTK',
+      parts: [
+        {
+          number: 1,
+          name: 'โมดูลเสาอากาศดาวเทียมคู่ (Dual-Antenna RTK GNSS Module)',
+          nameEn: 'High-Precision RTK GNSS & Heading Module',
+          description: 'เสาอากาศรับคลื่นดาวเทียมหลายความถี่สำหรับระบุพิกัดจุดถ่ายภาพระดับเซนติเมตรและคำนวณทิศทางหัวลำ (Dual-Antenna Yaw) ป้องกันสัญญาณรบกวนแม่เหล็ก'
+        },
+        {
+          number: 2,
+          name: 'ชุดกิมบอลและเพย์โหลดกล้องสำรวจ / LiDAR (3-Axis Gimbal & Survey Payload)',
+          nameEn: 'Stabilized 3-Axis Gimbal (Zenmuse P1 / L2)',
+          description: 'ชุดกันสั่น 3 แกนความแม่นยำสูง รองรับการสลับหัวกล้อง Full-Frame Global Shutter หรือหัวสแกนเนอร์ LiDAR พร้อมระบบ TimeSync ระดับไมโครวินาที'
+        },
+        {
+          number: 3,
+          name: 'เซนเซอร์ตรวจจับสิ่งกีดขวางรอบทิศทางและเรดาร์วัดความสูง (6-Directional Vision & ToF Sensing)',
+          nameEn: 'Omnidirectional Binocular Vision & Infrared ToF',
+          description: 'กล้องคู่และอินฟราเรดวัดระยะทั้ง 6 ด้าน ช่วยป้องกันการชนและรักษาระยะความสูงบินตามภูมิประเทศ (Real-Time Terrain Follow)'
+        },
+        {
+          number: 4,
+          name: 'กล้องมุมมองคนขับความละเอียดสูง (FPV Navigation Camera)',
+          nameEn: 'Wide-Angle FPV Pilot Camera',
+          description: 'กล้องด้านหน้าตัวลำสำหรับให้นักบินมองเห็นทิศทางและสภาพแวดล้อมขณะบินแยกอิสระจากมุมก้มของกล้องสำรวจด้านล่าง'
+        },
+        {
+          number: 5,
+          name: 'แขนพับคาร์บอนไฟเบอร์และมอเตอร์ไร้แปรงถ่าน (Foldable Frame Arms & Brushless Motors)',
+          nameEn: 'Carbon Frame Arms & Propulsion Motors',
+          description: 'โครงสร้างแขนคาร์บอนไฟเบอร์พร้อมตัวล็อกปลดเร็วและใบพัดแรงขับสูง ทนทานต่อลมกรรโชกในสนามสูงสุด 12 m/s'
+        },
+        {
+          number: 6,
+          name: 'แบตเตอรี่อัจฉริยะคู่แบบถอดสลับได้ (Dual Hot-Swappable Flight Batteries)',
+          nameEn: 'Dual Intelligent Flight Batteries (TB65)',
+          description: 'ระบบแบตเตอรี่คู่ความจุสูง รองรับการถอดเปลี่ยนทีละก้อนโดยไม่ต้องปิดเครื่อง (Hot-Swap) เพื่อบินต่อเนื่องหลายเที่ยวบิน'
+        },
+        {
+          number: 7,
+          name: 'ขาตั้งลงจอดปลดเร็วพร้อมเสาส่งสัญญาณ (Dual Landing Gear & O3 Enterprise Antennas)',
+          nameEn: 'Quick-Release Landing Skids & Transceiver',
+          description: 'ขารองรับตัวลำขณะขึ้น-ลงจอด ป้องกันหัวกล้องกระแทกพื้น พร้อมฝังเสาอากาศรับส่งภาพและข้อมูลควบคุมระยะไกล'
+        },
+        {
+          number: 8,
+          name: 'รีโมทคอนโทรลเลอร์อัจฉริยะหน้าจอความสว่างสูง (Smart Enterprise Controller)',
+          nameEn: 'Rugged Smart Controller (DJI RC Plus)',
+          description: 'ชุดควบคุมภาคสนามพร้อมหน้าจอสู้แดด 1,200 nits ติดตั้งซอฟต์แวร์วางแผนแนวบินอัตโนมัติ (Polygon / Corridor / Oblique)'
+        },
+        {
+          number: 9,
+          name: 'สถานีฐานดาวเทียมภาคพื้นดิน (D-RTK 2 Mobile Base Station)',
+          nameEn: 'Mobile GNSS RTK Base Station & Tripod',
+          description: 'เสาอากาศสถานีฐานตั้งบนหมุดควบคุมภาคพื้นดินสำหรับส่งค่าปรับแก้ RTK โดยตรงเข้าสู่ตัวโดรนในพื้นที่อับสัญญาณอินเทอร์เน็ต'
+        }
+      ]
+    },
+    equipmentRequired: [
+      'โดรนสำรวจระดับวิศวกรรม (Enterprise RTK UAV) พร้อมแบตเตอรี่สำรองอย่างน้อย 3–4 ชุด',
+      'เพย์โหลดกล้องถ่ายภาพสำรวจ (Mechanical Shutter Camera) หรือเพย์โหลดหัวสแกนเลเซอร์ (Airborne LiDAR + IMU)',
+      'รีโมทคอนโทรลเลอร์พร้อมซอฟต์แวร์วางแผนการบิน (DJI Pilot 2 / UgCS) และซิมการ์ด 4G NTRIP หรือสถานีฐาน D-RTK 2',
+      'แผ่นเป้าควบคุมภาคพื้นดิน (Aerial GCP Targets) ขนาด 60x60 cm ลายขาว-ดำ และแผ่นปูลงจอด (Landing Pad)',
+      'การ์ดหน่วยความจำความเร็วสูง (UHS-II SD Card V90) และเครื่องวัดความเร็วลมภาคสนาม (Anemometer)'
+    ],
+    workingPrinciple: [
+      'ความสำคัญของชัตเตอร์กลไก (Mechanical Global Shutter vs. Rolling Shutter): กล้องสำรวจทางอากาศต้องเปิดรับแสงทั่วทั้งแผ่นเซนเซอร์พร้อมกันในเสี้ยววินาทีเพื่อป้องกันภาพบิดเบี้ยว (Jello / Rolling Shutter Distortion) ขณะโดรนเคลื่อนที่ด้วยความเร็ว 8–12 m/s',
+      'ระบบซิงโครไนซ์เวลาระดับไมโครวินาที (Microsecond TimeSync): ตัวโดรนจะเชื่อมโยงสัญญาณเวลาระหว่างโมดูล RTK GNSS, เซนเซอร์ IMU, กิมบอล และจังหวะลั่นชัตเตอร์กล้อง แล้วคำนวณชดเชยระยะห่าง (Lever-Arm Offset) จากเสาอากาศมายังจุดศูนย์กลางเลนส์กล้องโดยอัตโนมัติ',
+      'หลักการสะท้อนกลับหลายครั้งของเลเซอร์ทางอากาศ (Multi-Return Airborne LiDAR): หัวสแกน LiDAR ยิงลำแสงเลเซอร์ลงสู่พื้นดินได้หลายแสนจุดต่อวินาที และรับสัญญาณสะท้อนกลับได้ถึง 3–5 ครั้งต่อลำแสง (1st Return จากยอดไม้, 2nd/3rd Return จากกิ่งก้าน และ Last Return จากผิวดินจริง) ทำให้สร้างเส้นชั้นความสูงใต้เรือนยอดไม้ได้',
+      'บทบาทของระบบ IMU ในงาน UAV LiDAR: เนื่องจากลำแสงเลเซอร์ไม่ได้ใช้การจับคู่ภาพเหมือน Photogrammetry ความแม่นยำของทุกจุดเลเซอร์จึงขึ้นอยู่กับพิกัด GNSS RTK ร่วมกับมุมเอียง Roll, Pitch, Heading จากเซนเซอร์ IMU ความแม่นยำสูง จึงต้องมีการบินวอร์มอัพ (IMU Calibration Maneuver) เป็นรูปเลข 8 หรือเร่งความเร็วตรงก่อนและหลังสแกนเสมอ',
+      'ระบบรักษาระยะสูงตามภูมิประเทศ (Terrain Follow Mode): ในพื้นที่ภูเขาหรือลาดชัน การบินที่ความสูงคงที่จากจุดปล่อยจะทำให้ขนาดพิกเซล (GSD) และความหนาแน่นจุดเลเซอร์ไม่สม่ำเสมอ โหมด Terrain Follow จะใช้ข้อมูลความสูง DSM/SRTM หรือเรดาร์ปรับความสูงโดรนให้ขนานกับความลาดชันของพื้นดินตลอดเที่ยวบิน'
+    ],
+    fieldProcedures: [
+      {
+        title: 'ขั้นตอนที่ 1: การประกอบตัวลำและการตรวจสอบความพร้อมก่อนบิน (Aircraft Assembly & Pre-Flight Check)',
+        details: 'กางแขนโดรนทั้ง 4 ด้านและหมุนปลอกล็อกแขนให้สุด ติดตั้งขาตั้งลงจอด (Landing Gear) และติดตั้งเพย์โหลดกล้องหรือ LiDAR เข้ากับพอร์ตกิมบอล ตรวจสอบใบพัดทุกใบว่าไม่มีรอยร้าวหรือบิ่น เสียบการ์ด SD ความเร็วสูง และใส่แบตเตอรี่คู่ทั้ง 2 ก้อนจนสลักล็อกดังคลิก',
+        criticalCaution: 'ห้ามเปิดสวิตช์ตัวโดรนก่อนถอดฝาครอบเลนส์และตัวล็อกกิมบอลออก เพราะมอเตอร์กิมบอลจะหมุนปรับศูนย์ทันทีที่เปิดเครื่อง'
+      },
+      {
+        title: 'ขั้นตอนที่ 2: การตั้งค่าระบบ RTK และการเชื่อมโยงสถานีฐาน (RTK Positioning Link Setup)',
+        details: 'วางโดรนบนแผ่น Landing Pad ในพื้นที่โล่งห่างจากโครงสร้างเหล็ก เปิดรีโมทคอนโทรลเลอร์และตัวโดรน เข้าเมนู RTK ตั้งค่าการรับสัญญาณปรับแก้จาก NTRIP Network CORS หรือเชื่อมต่อกับเสา D-RTK 2 Base Station ที่ตั้งอยู่บนหมุดทราบค่าพิกัด รอจนสถานะเปลี่ยนเป็น "RTK FIXED" และทิศทางหัวลำ (Dual-Antenna Heading) ขึ้นสถานะพร้อมบิน'
+      },
+      {
+        title: 'ขั้นตอนที่ 3: การตั้งค่ากล้องสำรวจหรือหัวสแกน LiDAR (Payload Parameter Configuration)',
+        details: '(กรณีกล้อง Photogrammetry) ตั้งโหมดชัตเตอร์เป็น Shutter Priority (S) ความเร็วชัตเตอร์ไม่ต่ำกว่า 1/1000 วินาที, ปรับรูรับแสงและ ISO อัตโนมัติ, ตั้งโฟกัสที่ระยะอนันต์ (Infinity / Manual Calibrated Focus) และเปิด Dewarping OFF สำหรับงานประมวลผล SfM (กรณีหัว LiDAR) ตั้งค่า Return Mode เป็น Triple/Penta Returns, Sampling Rate 240 kHz และเปิดโหมด RGB Coloring'
+      },
+      {
+        title: 'ขั้นตอนที่ 4: การสั่งบินปฏิบัติภารกิจและการบินคาริเบรต IMU (Mission Execution & IMU Calibration)',
+        details: 'ตรวจสอบความเร็วลมและตั้งความสูงบินกลับอัตโนมัติ (RTH Altitude) ให้พ้นยอดไม้และเสาไฟ กดเริ่มภารกิจอัตโนมัติ (Start Flight) สำหรับงาน LiDAR โดรนจะบินไต่ระดับแล้ววิ่งเร่งความเร็วหรือบินวนรูปเลข 8 เพื่อคาริเบรต IMU ก่อนเข้าแนวสแกนโดยอัตโนมัติ นักบินต้องคอยเฝ้าดูระดับแบตเตอรี่ สถานะ RTK และความแรงสัญญาณควบคุมตลอดเวลา'
+      },
+      {
+        title: 'ขั้นตอนที่ 5: การลงจอดและการสำรองไฟล์ข้อมูลภาคสนาม (Landing & Field Data Backup)',
+        details: 'เมื่อจบภารกิจและโดรนลงจอดสนิท ให้รอจนใบพัดหยุดหมุนและระบบบันทึกไฟล์ปิดเซสชันเสร็จสมบูรณ์ (สำหรับ LiDAR ห้ามปิดเครื่องทันทีขณะกำลังรวมไฟล์ Point Cloud) จากนั้นปิดเครื่อง ถอดการ์ด SD มาตรวจสอบจำนวนโฟลเดอร์ภาพถ่าย ไฟล์พิกัด .MRK / .RTK / .IMU ในคอมพิวเตอร์โน้ตบุ๊กภาคสนามทันที'
+      }
+    ],
+    deviceWorkflow: [
+      {
+        stepNumber: 1,
+        stageName: 'การตรวจสอบสถานะระบบก่อนขึ้นบิน (Pre-Flight Health & RTK Check)',
+        targetHardware: 'DJI Pilot 2 Enterprise Flight Controller',
+        buttonKey: '[PRE-FLIGHT CHECKLIST] ตรวจสอบสถานะ RTK, IMU, เข็มทิศ และการ์ด SD',
+        actionLabel: 'ตรวจเช็กความพร้อมก่อนบิน',
+        screenTitle: 'ENTERPRISE UAV PRE-FLIGHT SYSTEM CHECK',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ FLIGHT MODE    : N-MODE (GNSS + RTK FIXED)   │',
+          '│ RTK STATUS     : FIXED (SATS: 31, HEADING OK)│',
+          '│ COMPASS & IMU  : NORMAL [DUAL REDUNDANCY OK] │',
+          '│                                              │',
+          '│ PAYLOAD DETECT : ZENMUSE P1 (35mm F/2.8)     │',
+          '│ SHUTTER SPEED  : 1/1250 sec  [ISO: AUTO]     │',
+          '│ SD CARD FREE   : 118.4 GB (UHS-II READY)     │',
+          '│ BATTERY TEMP   : 31.5°C  [BATT1:99% BATT2:99]│',
+          '│ [SLIDE TO UPLOAD & EXECUTE MAPPING MISSION]  │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'หน้าจอตรวจเช็กความพร้อมก่อนปล่อยโดรนขึ้นบิน ยืนยันสถานะ RTK FIXED, เข็มทิศปกติ, ความเร็วชัตเตอร์ 1/1250s ป้องกันภาพเบลอ และแบตเตอรี่ทั้งสองก้อนสมบูรณ์',
+        qaCheck: 'ห้ามบินเด็ดขาดหากมีคำเตือน Compass Interference หรือแบตเตอรี่สองก้อนมีแรงดันต่างกันเกินเกณฑ์'
+      },
+      {
+        stepNumber: 2,
+        stageName: 'การตั้งค่าเพย์โหลดสแกนเนอร์ LiDAR ทางอากาศ (Airborne LiDAR Mission Config)',
+        targetHardware: 'DJI Zenmuse L2 / Airborne LiDAR Control Panel',
+        buttonKey: '[LIDAR MISSION] -> [RETURN: PENTA (5)] -> [IMU CALIB: AUTO]',
+        actionLabel: 'ตั้งค่าการยิงเลเซอร์และ IMU',
+        screenTitle: 'AIRBORNE LIDAR PAYLOAD CONFIGURATION',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ PAYLOAD        : ZENMUSE L2 LIDAR + RGB CAM  │',
+          '│ ECHO MODE      : PENTA RETURNS (5 ECHOES)    │',
+          '│ SAMPLING RATE  : 240 kHz   SCAN MODE: NON-REP│',
+          '│                                              │',
+          '│ FLIGHT ALTITUDE: 80.0 m (TERRAIN FOLLOW ON)  │',
+          '│ LIDAR OVERLAP  : 55% SIDE  SPEED: 7.0 m/s    │',
+          '│ POINT DENSITY  : ~285 pts/m²                 │',
+          '│ IMU WARM-UP    : AUTO CALIBRATE EVERY 100s   │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'สำหรับการบินสำรวจพื้นที่ปกคลุมด้วยต้นไม้ ให้เลือกโหมดรับค่าสะท้อนหลายครั้ง (Penta Returns) เพื่อให้ลำแสงเลเซอร์ชุดสุดท้ายทะลุลงถึงผิวดินจริง พร้อมเปิดระบบคาริเบรต IMU อัตโนมัติ',
+        qaCheck: 'ตรวจสอบว่าได้เปิดบันทึกไฟล์ดิบของสถานีฐาน (Base Station RINEX / RTCM) ครอบคลุมก่อนโดรนขึ้นบินอย่างน้อย 5 นาทีและหลังลงจอด 5 นาทีเพื่อใช้ประมวลผล PPK Trajectory'
+      }
+    ],
+    formulas: [
+      {
+        label: 'ความเร็วชัตเตอร์ขั้นต่ำเพื่อป้องกันภาพเบลอจากการเคลื่อนที่ (Motion Blur Limit)',
+        formula: 't_{\\text{shutter}} \\le \\frac{0.5 \\times \\text{GSD}}{v_{\\text{aircraft}}}',
+        explanation: 'ระยะที่โดรนเคลื่อนที่ขณะม่านชัตเตอร์เปิดรับแสงต้องไม่เกินครึ่งหนึ่งของขนาดพิกเซลภาคพื้นดิน (GSD) เช่น GSD 2 cm บินเร็ว 10 m/s ต้องใช้ชัตเตอร์เร็วกว่า 1/1000 วินาที'
+      },
+      {
+        label: 'ระยะห่างระหว่างจุดถ่ายภาพตามแนวบิน (Photo Trigger Base Distance)',
+        formula: 'B = H_{\\text{flight}} \\times \\left(\\frac{S_h}{F}\\right) \\times \\left(1 - \\frac{O_{\\text{forward}}}{100}\\right)',
+        explanation: 'ระยะทางที่โดรนบินไปข้างหน้าแล้วลั่นชัตเตอร์ 1 ภาพ คำนวณจากความสูงบิน ขนาดเซนเซอร์ตามยาว และเปอร์เซ็นต์ส่วนซ้อนทับด้านหน้า (Forward Overlap)'
+      },
+      {
+        label: 'ความหนาแน่นจุดเลเซอร์เฉลี่ยต่อตารางเมตร (Airborne LiDAR Point Density)',
+        formula: '\\rho_{\\text{pts}} = \\frac{f_{\\text{pulse}}}{v_{\\text{aircraft}} \\times W_{\\text{swath}}}',
+        explanation: 'จำนวนจุดเลเซอร์ต่อตารางเมตรแปรผันตรงกับความถี่การยิงเลเซอร์ (fpulse) และแปรผกผันกับความเร็วบินคูณด้วยความกว้างแถบสแกนบนพื้นดิน (Swath Width)'
+      }
+    ],
+    errorSourcesAndMitigation: [
+      'Forgotten Gimbal Lock or Lens Cap (ลืมถอดตัวล็อกกิมบอลก่อนเปิดเครื่อง): ทำให้มอเตอร์กิมบอลไหม้หรือศูนย์กล้องเพี้ยน ต้องตรวจเช็กตาม Pre-Flight Checklist ก่อนกดปุ่มเปิดเครื่องทุกครั้ง',
+      'Rolling Shutter & Slow Shutter Blur (ใช้กล้องชัตเตอร์ม่านไฟฟ้าหรือตั้งสปีดชัตเตอร์ช้า): ทำให้แผนที่บิดเบี้ยวและระดับความสูงเพี้ยน ต้องใช้กล้อง Mechanical Shutter และล็อกความเร็วชัตเตอร์ไม่ต่ำกว่า 1/1000s',
+      'Missing Base Station Log for LiDAR PPK (ข้อมูลสถานีฐานขาดช่วงระหว่างบิน LiDAR): ทำให้ไม่สามารถคำนวณเส้นทางบิน (SBET Trajectory) ได้ ต้องตั้งสถานีฐานให้เริ่มบันทึกก่อนโดรนขึ้นบิน 5 นาทีและปิดหลังลงจอด 5 นาทีเสมอ',
+      'Magnetic Interference at Takeoff Point (วางโดรนบนฝาท่อเหล็กหรือพื้นคอนกรีตเสริมเหล็กหนาแน่น): ทำให้เข็มทิศดิจิทัลเพี้ยนขณะขึ้นบิน ต้องวางจุดปล่อยโดรนบนพื้นดินธรรมชาติห่างจากโลหะและเปิดใช้ Dual-Antenna RTK Heading'
+    ],
+    downstreamWorkflow: {
+      outputDataFormat: 'ชุดภาพถ่ายติดพิกัด Geotagged JPEG + ไฟล์ .MRK/.RTK หรือไฟล์ Point Cloud .LAS/.LAZ',
+      outputDescription: 'เมื่อเข้าใจโครงสร้างและวิธีใช้งานโดรนสำรวจแล้ว สามารถปฏิบัติงานวางหมุด GCP วางแผนการบิน และนำข้อมูลแผนที่ไปตรวจสอบบน WebGIS ตามคู่มือวิธีการทำงาน',
+      nextStepTitle: 'เข้าสู่ขั้นตอนวิธีการสำรวจทำแผนที่ด้วยโดรนและวางหมุด GCP (SOP งานบินสำรวจ)',
+      nextStepProcedure: 'ศึกษาเกณฑ์การวางหมุดควบคุม GCP/Check Points และการคำนวณ GSD ใน "วิธีการสำรวจทำแผนที่ด้วยโดรนและวางหมุด GCP" หรือเปิดแผนที่ WebGIS เพื่อตรวจสอบขอบเขตพื้นที่บิน',
+      recommendedToolTab: 'map',
+      toolActionLabel: 'เปิดแผนที่สำรวจภาคสนาม (WebGIS Terminal)'
+    }
+  },
+
+  // -------------------------------------------------------------------------
+  // TOPIC 9: DRONE / UAV PHOTOGRAMMETRY & GCP SURVEY PROCEDURE (คู่มือทำงาน)
   // -------------------------------------------------------------------------
   {
     id: 'uav-drone-photogrammetry',
-    title: 'การสำรวจทำแผนที่ด้วยโดรนภาพถ่ายทางอากาศ (UAV Drone Photogrammetry & GCP Control)',
+    title: 'วิธีการสำรวจทำแผนที่ด้วยโดรนและวางหมุด GCP (UAV Aerial Photogrammetry & GCP Survey)',
     titleEn: 'UAV Aerial Photogrammetry: Flight Mission Planning, GCP Control, GSD & Orthomosaic Processing',
     category: 'drone-uav',
-    categoryName: 'DRONE/UAV',
-    summary: 'คู่มือวิศวกรรมการสำรวจรังวัดทำแผนที่ด้วยอากาศยานไร้คนขับ (UAV / Drone Photogrammetry): การวางแผนเส้นทางบินถ่ายภาพ (Flight Mission Planning), การคำนวณความละเอียดภาพภาคพื้นดิน (Ground Sample Distance: GSD), ข้อกำหนดการซ้อนทับภาพส่วนหน้า (Forward Overlap 75-80%) และส่วนข้าง (Side Overlap 65-70%), การวางและรังวัดหมุดควบคุมภาคพื้นดิน (Ground Control Points: GCP) และหมุดตรวจสอบอิสระ (Check Points: CP), การบินด้วยระบบ RTK/PPK, กระบวนการปรับแก้กลุ่มภาพทางอากาศ (Bundle Block Adjustment: BBA), การสร้างผังภาพถ่ายดัดแก้ระนาบ (Digital Orthophoto Mosaic - DOM) และแบบจำลองระดับสูงเชิงเลข (Digital Surface Model - DSM)',
-    badge: 'งานแผนที่ภาพถ่ายความละเอียดสูง & สำรวจภูมิประเทศ',
+    categoryName: 'วิธีการทำงานภาคสนาม',
+    summary: 'คู่มือมาตรฐานวิธีการทำงานสำรวจรังวัดทำแผนที่ด้วยอากาศยานไร้คนขับ (UAV / Drone Photogrammetry): การวางแผนเส้นทางบินถ่ายภาพ (Flight Mission Planning), การคำนวณความละเอียดภาพภาคพื้นดิน (Ground Sample Distance: GSD), ข้อกำหนดการซ้อนทับภาพส่วนหน้า (Forward Overlap 75-80%) และส่วนข้าง (Side Overlap 65-70%), การวางและรังวัดหมุดควบคุมภาคพื้นดิน (Ground Control Points: GCP) และหมุดตรวจสอบอิสระ (Check Points: CP), การบินด้วยระบบ RTK/PPK, กระบวนการปรับแก้กลุ่มภาพทางอากาศ (Bundle Block Adjustment: BBA), การสร้างผังภาพถ่ายดัดแก้ระนาบ (Digital Orthophoto Mosaic - DOM) และแบบจำลองระดับสูงเชิงเลข (Digital Surface Model - DSM)',
+    badge: 'คู่มือทำงาน',
     iconName: 'Plane',
     verificationStatus: 'draft',
     verificationProof: 'ASPRS Positional Accuracy Standards for Digital Geospatial Data (2014); ประกาศสำนักงานการบินพลเรือนแห่งประเทศไทย (CAAT) เรื่องการใช้อากาศยานไร้คนขับเพื่อการสำรวจ; Luhmann, T. et al. (2019) Close-Range Photogrammetry and 3D Imaging',
@@ -1012,16 +1790,231 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
   },
 
   // -------------------------------------------------------------------------
-  // TOPIC 7: 3D TERRESTRIAL LASER SCANNING & SLAM
+  // TOPIC 10: 3D LASER SCANNER (TLS & SLAM) INSTRUMENT MANUAL (คู่มือใช้งาน)
+  // -------------------------------------------------------------------------
+  {
+    id: 'lidar-slam-instrument-manual',
+    title: 'คู่มือการใช้งานเครื่องสแกน 3 มิติ (3D Laser Scanner TLS & SLAM Manual)',
+    titleEn: 'Terrestrial Laser Scanner (TLS) & Handheld Mobile SLAM Hardware Anatomy & Operation',
+    category: 'scanner-slam',
+    categoryName: 'คู่มือการใช้งานอุปกรณ์',
+    summary: 'คู่มือโครงสร้างอุปกรณ์ หลักการทำงาน และวิธีการใช้งานเครื่องสแกนเลเซอร์ 3 มิติความละเอียดสูง ทั้งแบบตั้งขาตั้งอยู่กับที่ (Terrestrial Laser Scanner - TLS) และแบบเดินถือเคลื่อนที่ (Handheld / Mobile SLAM Scanner): รูปแบบงานที่นำไปใช้ในภาคสนาม ส่วนประกอบสำคัญของชุดกระจกหมุนสแกน 360° กล้องถ่ายภาพ HDR รอบทิศทาง ระบบติดตามตำแหน่งด้วยภาพ (VIS) การตั้งค่าความละเอียดจุดภาพ (Point Density mm @ 10m) และวิธีจัดวางเป้าทรงกลม (Sphere) และเป้าตารางหมากรุก (Checkerboard)',
+    badge: 'คู่มือใช้งาน',
+    iconName: 'Scan',
+    verificationStatus: 'draft',
+    verificationProof: 'มาตรฐานวิศวกรรมสถานแห่งประเทศไทย (วสท.) EIT-Standard 022026-65 (มาตรฐาน BIM); วิชา 01218414 Advanced Geomatics & Laser Scanning (KU Geomatics); Leica RTC360 / BLK360 & FARO Focus / Orbis User Manuals',
+    courseRelation: 'วิชา 01218414 Advanced Geomatics & Laser Scanning (KU Geomatics) & มาตรฐาน BIM วสท. (EIT)',
+    instrumentVariants: [
+      {
+        name: 'เครื่องสแกนเลเซอร์ 3 มิติภาคพื้นดินแบบตั้งขาตั้ง (Terrestrial Laser Scanner - TLS)',
+        equipmentCombo: 'ใช้งานร่วมกับ ขาตั้งคาร์บอนไฟเบอร์, เป้าทรงกลมสะท้อนแสง (Reference Spheres) และแผ่นเป้าขาว-ดำ (Checkerboard Targets)',
+        useCases: [
+          'งานเก็บข้อมูลรูปทรงอาคาร โครงสร้างเหล็ก และระบบท่อในโรงงานอุตสาหกรรม (Plant & Piping As-built Survey) ความละเอียดระดับ 1–3 มิลลิเมตร',
+          'งานทำโมเดล 3 มิติสำหรับสถาปัตยกรรมและวิศวกรรมอาคาร (Scan-to-BIM / Reverse Engineering)',
+          'งานอนุรักษ์โบราณสถาน พระอุโบสถ และประติมากรรมทางประวัติศาสตร์เป็นข้อมูลดิจิทัล 3 มิติ (Digital Heritage Archiving)',
+          'งานตรวจสอบความเรียบของพื้นคอนกรีต (Floor Flatness & Levelness: FF/FL) และการโก่งตัวของโครงสร้าง'
+        ]
+      },
+      {
+        name: 'เครื่องสแกนเลเซอร์เคลื่อนที่ระบบ SLAM (Handheld / Backpack Mobile SLAM Scanner)',
+        equipmentCombo: 'ใช้งานร่วมกับ ด้ามจับ Handheld / ชุดสะพายหลัง, เซนเซอร์ IMU + กล้อง Panoramic 360° และแผ่นฐานอ้างอิงพิกัด (Control Point Base)',
+        useCases: [
+          'งานเดินสแกนเก็บผังภายในอาคารหลายชั้น ลานจอดรถ หรือห้องเครื่องที่มีซอกมุมซับซ้อนอย่างรวดเร็ว',
+          'งานสำรวจอุโมงค์ใต้ดิน เหมืองแร่ ถ้ำธรรมชาติ หรือใต้ท้องสะพานที่เป็นพื้นที่อับสัญญาณดาวเทียม (GPS-Denied Environments)',
+          'งานสำรวจคำนวณปริมาตรกองแร่ในโกดังปิดและนับจำนวนต้นไม้ในแปลงป่าไม้ (Forestry Inventory)'
+        ]
+      }
+    ],
+    instrumentAnatomy: {
+      imagePath: '/images/instruments/lidar-scanner.jpg',
+      imageCaption: 'แผนผังส่วนประกอบมาตรฐานของเครื่องสแกนเลเซอร์ 3 มิติภาคพื้นดิน (TLS) และเครื่องสแกนมือถือ SLAM (สามารถวางไฟล์ภาพจริงได้ที่ public/images/instruments/lidar-scanner.jpg)',
+      modelExamples: 'Leica RTC360 / Trimble X7 / FARO Focus Core / GeoSLAM ZEB Horizon / FARO Orbis',
+      parts: [
+        {
+          number: 1,
+          name: 'ช่องหน้าต่างยิงเลเซอร์และกระจกหมุนความเร็วสูง (360° Spinning Mirror & Laser Aperture)',
+          nameEn: 'High-Speed Rotating Mirror & Laser Window',
+          description: 'กระจกปริซึมหมุนกวาดลำแสงเลเซอร์แนวดิ่ง 300° ร่วมกับการหมุนฐานรอบตัว 360° ยิงเก็บจุดพิกัดสูงสุดถึง 2,000,000 จุด/วินาที'
+        },
+        {
+          number: 2,
+          name: 'ชุดกล้องถ่ายภาพ HDR รอบทิศทาง (Multi-Camera HDR Panoramic System)',
+          nameEn: 'Integrated HDR Spherical Cameras',
+          description: 'ชุดกล้องความละเอียดสูงด้านข้างตัวเครื่องสำหรับถ่ายภาพพาโนรามา 360° เพื่อนำสีจริง (True-Color RGB) ไปฉาบลงบนกลุ่มจุด Point Cloud'
+        },
+        {
+          number: 3,
+          name: 'กล้องตรวจจับการเคลื่อนที่ระหว่างย้ายสถานี (Visual Inertial System - VIS Cameras)',
+          nameEn: 'VIS Tracking Cameras & IMU',
+          description: 'กล้องเซนเซอร์รอบตัวเครื่องที่คอยบันทึกเส้นทางขณะผู้ใช้งานยกเครื่องย้ายจากสถานีที่ 1 ไปสถานีที่ 2 เพื่อต่อกลุ่มจุดภาพอัตโนมัติในสนาม'
+        },
+        {
+          number: 4,
+          name: 'หน้าจอสัมผัสสั่งการข้างตัวเครื่อง (On-Board Touchscreen UI)',
+          nameEn: 'Touchscreen Control Display',
+          description: 'หน้าจอสำหรับเลือกความละเอียดการสแกน (Low / Medium / High Density), เปิด-ปิดกล้อง HDR และกดปุ่มเริ่มสแกน (Start Scan)'
+        },
+        {
+          number: 5,
+          name: 'ฐานหมุนขับเคลื่อนด้วยมอเตอร์และแกนยึดปลดเร็ว (Motorized Azimuth Base & Quick-Release Mount)',
+          nameEn: 'Motorized Horizontal Drive & Tribrach Adapter',
+          description: 'ฐานหมุนแนวราบความละเอียดสูงพร้อมหัวปลดเร็วสำหรับวางล็อกเข้ากับขาตั้งคาร์บอนไฟเบอร์หรือฐาน Tribrach มาตรฐาน'
+        },
+        {
+          number: 6,
+          name: 'ช่องใส่แฟลชไดรฟ์ความเร็วสูงและแบตเตอรี่คู่ (USB 3.0 Flash Drive Slot & Dual Batteries)',
+          nameEn: 'Encrypted USB Storage & Li-Ion Battery Bay',
+          description: 'ช่องบันทึกข้อมูลกลุ่มจุดภาพขนาดใหญ่ลงหน่วยความจำพกพา พร้อมแบตเตอรี่คู่สำหรับสแกนต่อเนื่องตลอดวัน'
+        },
+        {
+          number: 7,
+          name: 'หัวสแกนเลเซอร์หมุนเอียงของเครื่อง SLAM มือถือ (Rotating Multi-Channel LiDAR Puck)',
+          nameEn: '16/32-Channel SLAM LiDAR Sensor Head',
+          description: 'หัวสแกนเลเซอร์หลายลำแสงบนด้ามจับมือถือที่หมุนกวาดรอบทิศทางขณะผู้ปฏิบัติงานเดินเพื่อสร้างแผนที่ 3 มิติแบบเรียลไทม์'
+        },
+        {
+          number: 8,
+          name: 'ชุดเป้าทรงกลมสะท้อนแสงและแผ่นเป้าหมากรุก (Reference Spheres & B&W Checkerboard Targets)',
+          nameEn: 'Magnetic Registration Spheres & Paper Targets',
+          description: 'เป้าอ้างอิงมาตรฐานสำหรับวางคั่นระหว่างสถานีสแกนและใช้ส่องพิกัดด้วยกล้อง Total Station เพื่อผูกเข้ากับระบบพิกัดจริง'
+        },
+        {
+          number: 9,
+          name: 'แท็บเล็ตควบคุมและตรวจสอบการต่อจุดภาคสนาม (Field Registration Tablet)',
+          nameEn: 'Wi-Fi Field Tablet (Cyclone FIELD 360 / Scene)',
+          description: 'แท็บเล็ตเชื่อมต่อ Wi-Fi กับเครื่องสแกนสำหรับดูภาพ Point Cloud 3 มิติทันทีหลังสแกนเสร็จและตรวจสอบความแม่นยำการต่อสถานี'
+        }
+      ]
+    },
+    equipmentRequired: [
+      'เครื่องสแกนเลเซอร์ 3 มิติภาคพื้นดิน (TLS) หรือเครื่องสแกนเลเซอร์เคลื่อนที่ระบบ SLAM พร้อมแบตเตอรี่และหน่วยความจำ',
+      'ขาตั้งกล้องคาร์บอนไฟเบอร์เกรดมั่นคงสูง (Heavy-Duty Carbon Fiber Tripod) สำหรับงาน TLS',
+      'ชุดเป้าทรงกลมสะท้อนแสง (Registration Spheres) อย่างน้อย 4–6 ลูก และแผ่นเป้าตารางหมากรุก (Checkerboard Targets)',
+      'แท็บเล็ตภาคสนาม (Field Tablet) ติดตั้งซอฟต์แวร์พรีวิวและต่อกลุ่มจุดภาพแบบเรียลไทม์ผ่าน Wi-Fi',
+      'ผ้าไมโครไฟเบอร์เช็ดหน้าต่างกระจกเลเซอร์ และร่มบังแดดสนาม'
+    ],
+    workingPrinciple: [
+      'การวัดระยะทางด้วยเลเซอร์ความเร็วสูง (Time-of-Flight & Phase-Shift LiDAR): เครื่องสแกนปล่อยลำแสงเลเซอร์ออกไปแล้ววัดเวลาเดินทางไป-กลับ (ToF) หรือวัดความต่างเฟสของคลื่นแสง ร่วมกับตัวเข้ารหัสมุมราบ (Horizontal Encoder) และมุมดิ่งของกระจกหมุน (Vertical Mirror Angle) เพื่อคำนวณพิกัดทรงกลม (Range, Hz, V) แปลงเป็นพิกัดฉาก 3 มิติ (X, Y, Z) ของพื้นผิวทุกจุดที่ลำแสงตกกระทบ',
+      'ค่าการสะท้อนพลังงานและสีจริง (Intensity & HDR RGB Colorization): นอกจากค่าพิกัด X, Y, Z แล้ว เครื่องสแกนยังบันทึกค่าความเข้มแสงสะท้อนกลับ (Intensity) ตามชนิดพื้นผิว และใช้กล้อง HDR ถ่ายภาพรอบทิศทางเพื่อนำค่าสี R, G, B ไปทาบบนแต่ละจุดเลเซอร์ให้ดูเสมือนจริง',
+      'ระบบติดตามตำแหน่งด้วยภาพและแรงเฉื่อย (Visual Inertial System - VIS): ในเครื่อง TLS รุ่นใหม่ เมื่อสแกนสถานีแรกเสร็จและยกเครื่องเดินไปยังสถานีถัดไป กล้อง VIS รอบตัวเครื่องจะจับภาพสภาพแวดล้อมร่วมกับ IMU เพื่อคำนวณตำแหน่งและความหมุนของสถานีใหม่ให้อัตโนมัติ (Auto Pre-Alignment) โดยไม่ต้องรอประมวลผลที่สำนักงาน',
+      'หลักการเดินสแกนด้วยอัลกอริทึม SLAM (Simultaneous Localization and Mapping): เครื่องสแกนมือถือ SLAM ไม่ต้องตั้งขาตั้งกล้อง แต่ใช้อัลกอริทึมจับคู่รูปทรงเรขาคณิตของผนัง เสา และเพดานที่สแกนได้ในแต่ละเสี้ยววินาทีควบคู่กับข้อมูล IMU เพื่อคำนวณเส้นทางเดินของผู้ถือ (Trajectory) พร้อมสร้างก้อน Point Cloud ต่อเนื่องกัน',
+      'การตั้งค่าความหนาแน่นของจุดภาพ (Point Spacing @ 10m): ความละเอียดของเครื่องสแกนกำหนดเป็นระยะห่างระหว่างจุดเลเซอร์ที่ระยะห่าง 10 เมตร เช่น 6 mm @ 10m (ใช้เวลาสแกน ~1 นาที เหมาะกับงานอาคารทั่วไป) หรือ 3 mm @ 10m (ใช้เวลาสแกน ~2 นาที เหมาะกับงานท่อและรายละเอียดซับซ้อน)'
+    ],
+    fieldProcedures: [
+      {
+        title: 'ขั้นตอนที่ 1: การทำความสะอาดกระจกเลเซอร์และการตั้งขาตั้งกล้อง (Optics Inspection & Tripod Setup)',
+        details: 'ตรวจสอบหน้าต่างยิงเลเซอร์และกระจกหมุนว่าไม่มีฝุ่นหรือรอยนิ้วมือ (หากสกปรกให้ใช้ลูกยางเป่าและเช็ดด้วยผ้าไมโครไฟเบอร์เฉพาะทาง) กางขาตั้งคาร์บอนไฟเบอร์บนพื้นผิวที่มั่นคงไม่สั่นไหว วางเครื่องสแกน TLS ลงบนหัวปลดเร็วและล็อกสลักให้แน่นสนิท',
+        criticalCaution: 'ห้ามใช้นิ้วมือสัมผัสกระจกหมุนสะท้อนเลเซอร์โดยตรงเด็ดขาด เพราะคราบไขมันจะทำให้ลำแสงเลเซอร์ฟุ้งกระจายและเกิด Noise ในข้อมูล Point Cloud'
+      },
+      {
+        title: 'ขั้นตอนที่ 2: การเปิดเครื่องและการเชื่อมต่อแท็บเล็ตภาคสนาม (Power-On & Wi-Fi Tablet Pairing)',
+        details: 'เสียบแบตเตอรี่และแฟลชไดรฟ์ความเร็วสูงเข้าตัวเครื่อง กดปุ่มเปิดเครื่อง รอให้ระบบบูตเข้าหน้าจอหลัก เปิดแท็บเล็ตภาคสนามเชื่อมต่อ Wi-Fi เข้ากับชื่อสัญญาณของเครื่องสแกน แล้วเปิดแอปพลิเคชันควบคุม (เช่น Cyclone FIELD 360) เพื่อสร้างโปรเจกต์และซิงก์ข้อมูล'
+      },
+      {
+        title: 'ขั้นตอนที่ 3: การเลือกความละเอียดการสแกนและการสั่งเริ่มสแกน (Scan Resolution & HDR Execution)',
+        details: 'เลือกโหมดความละเอียดให้เหมาะกับระยะห่างของวัตถุ (เช่น Medium: 6 mm @ 10 m) เปิดโหมดถ่ายภาพ HDR (หากต้องการสี RGB) และเปิดระบบ Dual-Axis Tilt Compensator จากนั้นกดปุ่ม [Start Scan] แล้วผู้ปฏิบัติงานต้องเดินหลบออกจากแนวหมุนของกล้องเพื่อไม่ให้ติดเงาตัวเองในข้อมูลสแกน'
+      },
+      {
+        title: 'ขั้นตอนที่ 4: การยกย้ายสถานีด้วยระบบ VIS และการตรวจสอบจุดซ้อนทับ (VIS Walk & Overlap Check)',
+        details: 'เมื่อสแกนและถ่ายภาพครบ 100% ให้ยกขาตั้งกล้องเดินด้วยจังหวะปกติไปยังจุดตั้งสถานีถัดไป (อย่าใช้มือบังกล้อง VIS ข้างตัวเครื่อง) วางขาตั้งและกดสแกนสถานีใหม่ เมื่อเสร็จแล้วให้ดูผลลัพธ์บนแท็บเล็ตว่ากลุ่มจุดของสถานีใหม่ประกบเข้ากับสถานีเดิมสนิทดี (สีเขียวทับซ้อนกัน) ก่อนเดินต่อไป'
+      },
+      {
+        title: 'ขั้นตอนที่ 5: การเริ่มต้นและจบการเดินสแกนสำหรับเครื่องมือถือ SLAM (Handheld SLAM Start/Stop Protocol)',
+        details: 'สำหรับเครื่อง SLAM: วางฐานเครื่องนิ่งสนิทบนพื้นหรือบนหมุดควบคุม 5–10 วินาทีหลังกดปุ่มเริ่มเพื่อคาริเบรต IMU จากนั้นยกเครื่องขึ้นเดินด้วยความเร็วสม่ำเสมอ เมื่อต้องการผ่านประตูแคบให้หันหัวสแกนมองเห็นทั้งห้องเก่าและห้องใหม่พร้อมกัน และเมื่อเดินครบพื้นที่จะต้องเดินกลับมาวางเครื่องที่จุดเริ่มต้นเดิมอีก 5 วินาทีก่อนกดหยุดบันทึก'
+      }
+    ],
+    deviceWorkflow: [
+      {
+        stepNumber: 1,
+        stageName: 'การเลือกพารามิเตอร์ความละเอียดและเวลาสแกน (TLS Scan Parameter Selection)',
+        targetHardware: 'Leica RTC360 / Trimble X7 On-Board Touchscreen',
+        buttonKey: '[SCAN SETTINGS] -> [RESOLUTION: 6mm @ 10m] -> [HDR: ON]',
+        actionLabel: 'ตั้งค่าความละเอียดและกล้อง HDR',
+        screenTitle: '3D LASER SCANNER ACQUISITION SETUP',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ JOB NAME       : PLANT_ASBUILT_BLDG_A        │',
+          '│ SCANNER MODE   : 360° x 300° FULL DOME SCAN  │',
+          '│                                              │',
+          '│ POINT DENSITY  : MEDIUM (6.0 mm @ 10.0 m)    │',
+          '│ DOUBLE SCAN    : OFF (MOVING OBJECT FILTER)  │',
+          '│ HDR IMAGING    : ON (5-BRACKET PANORAMA)     │',
+          '│ VIS TRACKING   : ENABLED [READY TO TRACK]    │',
+          '│                                              │',
+          '│ EST. SCAN TIME : 01 min 51 sec  [START SCAN] │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'ตั้งค่าความหนาแน่นของจุดภาพและเปิดกล้อง HDR ระบบจะคำนวณเวลาที่ใช้ต่อ 1 สถานี (ประมาณ 1–2 นาที) เมื่อกด Start Scan ให้หลบออกจากรัศมีหรือเดินตามหลังด้านทึบของตัวกล้อง',
+        qaCheck: 'หากสแกนในพื้นที่ที่มีคนหรือรถวิ่งผ่านตลอดเวลา ให้เปิดโหมด Double Scan เพื่อให้เครื่องสแกนซ้ำ 2 รอบและตัดวัตถุที่เคลื่อนที่ออกอัตโนมัติ'
+      },
+      {
+        stepNumber: 2,
+        stageName: 'การติดตามสถานะการเดินสแกนด้วยเครื่อง SLAM (Mobile SLAM Live Trajectory)',
+        targetHardware: 'FARO Orbis / GeoSLAM Horizon Smartphone Controller',
+        buttonKey: '[INITIALIZE IMU 5s] -> [WALK LOOP] -> [TAG CONTROL POINT]',
+        actionLabel: 'เดินสแกนและวางจุดควบคุม SLAM',
+        screenTitle: 'MOBILE SLAM REAL-TIME TRAJECTORY & QA',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ SLAM ENGINE    : ACTIVE [GREEN - HIGH CONF]  │',
+          '│ WALKING SPEED  : 1.1 m/s  [OPTIMAL]          │',
+          '│ ELAPSED TIME   : 08 min 24 sec               │',
+          '│                                              │',
+          '│ CONTROL POINTS TAGGED : 4 PTS (BASE PLATES)  │',
+          '│ FEATURE MATCH  : 96.8% (WALLS/PIPES LOCKED)  │',
+          '│                                              │',
+          '│ REMINDER: RETURN TO START POINT CP-01        │',
+          '│           TO CLOSE TRAJECTORY LOOP           │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'ขณะเดินถือเครื่อง SLAM หน้าจอจะแสดงเส้นทางเดิน (Trajectory) และสถานะการจับคู่พื้นผิว (Feature Match) หากเดินผ่านจุดหมุดควบคุมบนพื้น ให้วางฐานเครื่องทาบลงบนแผ่นหมุดค้างไว้ 3–5 วินาทีเพื่อกด Tag พิกัด',
+        qaCheck: 'อย่าเดินสแกนต่อเนื่องนานเกิน 15–20 นาทีต่อ 1 ไฟล์ ควรแบ่งพื้นที่ออกเป็นลูปย่อยๆ ที่เดินกลับมาปิดจุดเริ่มต้นเพื่อป้องกัน IMU Drift'
+      }
+    ],
+    formulas: [
+      {
+        label: 'การคำนวณระยะห่างระหว่างจุดเลเซอร์ที่ระยะทางใดๆ (Point Spacing at Target Range)',
+        formula: 's_{D} = s_{10\\text{m}} \\times \\left(\\frac{D}{10}\\right)',
+        explanation: 'เมื่อตั้งค่าความละเอียดเครื่องที่ระยะ 10 เมตร (เช่น s10m = 6 mm) หากวัตถุอยู่ห่างออกไป D = 25 เมตร ระยะห่างระหว่างจุดเลเซอร์บนวัตถุนั้นจะขยายเป็น 6 × (25/10) = 15 mm'
+      },
+      {
+        label: 'การคำนวณพิกัด 3 มิติจากระยะเลเซอร์และมุมกวาด (Spherical to Cartesian Conversion)',
+        formula: '\\begin{bmatrix} x \\\\ y \\\\ z \\end{bmatrix} = \\begin{bmatrix} R \\sin\\varphi \\cos\\theta \\\\ R \\sin\\varphi \\sin\\theta \\\\ R \\cos\\varphi \\end{bmatrix}',
+        explanation: 'แปลงค่าระยะทางเลเซอร์ (R), มุมดิ่งกระจกหมุน (φ) และมุมราบฐานหมุน (θ) ให้เป็นพิกัดฉาก 3 มิติสัมพัทธ์กับจุดศูนย์กลางเครื่องสแกน'
+      },
+      {
+        label: 'จำนวนจุดเลเซอร์ 최소ที่ต้องตกกระทบบนลูกบอลเป้าอ้างอิง (Minimum Sphere Target Hits)',
+        formula: 'N_{\\text{sphere}} \\approx \\frac{\\pi \\times (d_{\\text{sphere}} / 2)^2}{s_{D}^2} \\ge 60\\text{ points}',
+        explanation: 'เพื่อให้ซอฟต์แวร์คำนวณจุดศูนย์กลางของลูกบอล Sphere (เส้นผ่านศูนย์กลาง dsphere = 145 mm) ได้แม่นยำระดับมิลลิเมตร ต้องวางลูกบอลไม่ไกลเกินไปจนมีจุดเลเซอร์ตกกระทบน้อยกว่า 60–100 จุด'
+      }
+    ],
+    errorSourcesAndMitigation: [
+      'Dirty Laser Mirror / Window (กระจกหมุนเปื้อนฝุ่นหรือรอยนิ้วมือ): ทำให้เกิดจุดบอดหรือจุดลอยผิดปกติรอบตัวกล้อง ต้องตรวจสอบและเป่าทำความสะอาดกระจกก่อนเริ่มงานทุกวัน',
+      'Targets Placed Too Far or Collinear (วางลูกบอล Sphere ไกลเกินไปหรือวางเรียงเป็นเส้นตรงเดียวกัน): ทำให้ต่อสถานีคลาดเคลื่อนหรือรูปทรงบิดหมุน ต้องวางเป้าอย่างน้อย 3 ลูกแบบสามเหลี่ยมต่างระดับความสูงในระยะไม่เกิน 10–15 เมตร',
+      'Fast Turning at Doorways in SLAM (หันตัวเร็วขณะเดินผ่านประตูด้วยเครื่อง SLAM): ทำให้อัลกอริทึม SLAM หลุดการเกาะผนังห้องเดิม แก้ไขโดยเดินช้าลงและค่อยๆ ก้าวถอยหรือเอียงผ่านช่องประตูให้หัวเลเซอร์เห็นทั้งสองฝั่ง',
+      'Reflective Surfaces & Water Puddles (กระจกเงา สแตนเลสมันวาว หรือแอ่งน้ำบนพื้น): ลำแสงเลเซอร์สะท้อนเหมือนกระจกทำให้เกิดห้องจำลองซ้อนอยู่ใต้พื้นดิน ต้องระวังและตัดจุดสะท้อน (Reflection Noise) ออกในขั้นตอนคลีนข้อมูล'
+    ],
+    downstreamWorkflow: {
+      outputDataFormat: 'ข้อมูลกลุ่มจุดภาพดิบและลงทะเบียนเบื้องต้น (.RTC360 / .E57 / .LAS / .LAZ) พร้อมพิกัดเป้าควบคุม',
+      outputDescription: 'เมื่อเข้าใจโครงสร้างและวิธีใช้งานเครื่องสแกน 3 มิติแล้ว สามารถปฏิบัติงานวางโครงข่ายสถานีสแกน ต่อกลุ่มจุดภาพ (Registration) และผูกพิกัดจริงตามคู่มือวิธีการทำงาน',
+      nextStepTitle: 'เข้าสู่ขั้นตอนวิธีการสำรวจเก็บข้อมูล 3 มิติและต่อกลุ่มจุดภาพ (TLS Registration & Scan-to-BIM)',
+      nextStepProcedure: 'ศึกษาวิธีการวางโครงข่ายสถานีสแกน การทำ Cloud-to-Cloud / Target Registration และการผูกพิกัด UTM ใน "วิธีการสำรวจเก็บข้อมูล 3 มิติและต่อกลุ่มจุดภาพ" หรือเปิดเครื่องมือแปลงพิกัด',
+      recommendedToolTab: 'coord',
+      toolActionLabel: 'เปิดเครื่องมือแปลงพิกัด (Coordinate Converter)'
+    }
+  },
+
+  // -------------------------------------------------------------------------
+  // TOPIC 11: 3D TERRESTRIAL LASER SCANNING & SLAM PROCEDURE (คู่มือทำงาน)
   // -------------------------------------------------------------------------
   {
     id: 'terrestrial-lidar-slam',
-    title: 'การสำรวจด้วยเครื่องสแกน 3 มิติและโมบายล์ SLAM (3D Terrestrial LiDAR & Mobile SLAM)',
+    title: 'วิธีการสำรวจเก็บข้อมูล 3 มิติและต่อกลุ่มจุดภาพ (TLS Registration & Scan-to-BIM)',
     titleEn: 'Terrestrial Laser Scanning (TLS) & Mobile Handheld SLAM: Point Cloud Registration & BIM Georeferencing',
     category: 'scanner-slam',
-    categoryName: 'SCANNER/SLAM',
-    summary: 'คู่มือการสำรวจเก็บรายละเอียดเชิงพื้นที่ 3 มิติความละเอียดสูง (3D High-Definition Surveying): การใช้งานเครื่องสแกนภาคพื้นดิน (Terrestrial Laser Scanner - TLS) และเครื่องสแกนเคลื่อนที่ไร้รอยต่อ (Handheld / Mobile SLAM LiDAR), ทฤษฎี Time-of-Flight (ToF) และ Phase Shift, การกระจายสถานีสแกนเพื่อลดจุดอับสัญญาณ (Shadow / Occlusion Elimination), เทคนิคการต่อกลุ่มจุดภาพ (Point Cloud Registration) ด้วยวิธี Target-Based (Sphere / Checkerboard) และ Cloud-to-Cloud (ICP Algorithm), การแปลงระบบพิกัดเข้าสู่ระบบอ้างอิงหมุดสำรวจจริง (Georeferencing to UTM) เพื่อสร้างโมเดล BIM (Scan-to-BIM) และงาน As-Built Survey',
-    badge: 'งานสำรวจ 3 มิติ สถาปัตยกรรม & BIM',
+    categoryName: 'วิธีการทำงานภาคสนาม',
+    summary: 'คู่มือมาตรฐานวิธีการทำงานสำรวจเก็บรายละเอียดเชิงพื้นที่ 3 มิติความละเอียดสูง (3D High-Definition Surveying): การวางแผนกระจายสถานีสแกนเพื่อลดจุดอับสัญญาณ (Shadow / Occlusion Elimination), เทคนิคการต่อกลุ่มจุดภาพ (Point Cloud Registration) ด้วยวิธี Target-Based (Sphere / Checkerboard) และ Cloud-to-Cloud (ICP Algorithm), การเดินสแกน SLAM แบบปิดวงรอบ (Loop Closure) และการแปลงระบบพิกัดเข้าสู่ระบบอ้างอิงหมุดสำรวจจริง (Georeferencing to UTM) เพื่อสร้างโมเดล BIM (Scan-to-BIM) และงาน As-Built Survey',
+    badge: 'คู่มือทำงาน',
     iconName: 'Scan',
     verificationStatus: 'draft',
     verificationProof: 'มาตรฐานวิศวกรรมสถานแห่งประเทศไทย (วสท.) EIT-Standard 022026-65 (มาตรฐานแบบจำลองสารสนเทศอาคาร BIM); USACE EM 1110-1-1003 Navigational and Terrestrial LiDAR Surveying; Vosselman, G. & Maas, H.-G. (2010) Airborne and Terrestrial Laser Scanning',
@@ -1123,16 +2116,16 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
   },
 
   // -------------------------------------------------------------------------
-  // TOPIC 8: HYDROGRAPHIC & BATHYMETRIC VESSEL SURVEY
+  // TOPIC 12: HYDROGRAPHIC & BATHYMETRIC VESSEL SURVEY (คู่มือทำงาน)
   // -------------------------------------------------------------------------
   {
     id: 'hydrographic-bathymetric-survey',
-    title: 'การสำรวจทำแผนที่ภูมิประเทศใต้น้ำและหยั่งน้ำ (Hydrographic & Bathymetric Survey)',
+    title: 'วิธีการสำรวจอุทกศาสตร์และหยั่งความลึกท้องน้ำ (Hydrographic & Bathymetric Survey)',
     titleEn: 'Hydrographic Bathymetric Survey: Single/Multibeam Echo Sounder, Tide & Motion Compensation',
     category: 'hydrographic',
-    categoryName: 'เรือสำรวจ',
-    summary: 'คู่มือมาตรฐานการสำรวจหยั่งน้ำทำแผนที่ภูมิประเทศใต้น้ำด้วยเรือสำรวจ (Hydrographic Bathymetric Survey): การติดตั้งและรังวัดแขนวัดตำแหน่ง (Lever Arm Offset Survey) ระหว่างเสาอากาศ GNSS, เซ็นเซอร์ตรวจจับการโคลงของเรือ (Motion Reference Unit: MRU) และหัวส่งสัญญาณคลื่นเสียง (Sonar Transducer), ทฤษฎีการสะท้อนคลื่นเสียงใต้น้ำ (Acoustic Sounding: d = ½·v·t), การทดสอบคาริเบรตมุมเอียง Patch Test (Latency, Roll, Pitch, Yaw), การหยั่งวัดความเร็วเสียงในชั้นน้ำ (Sound Velocity Profile: SVP), การชดเชยระดับน้ำขึ้น-น้ำลง (Tide Gauge Reduction) เทียบระดับน้ำทะเลปานกลาง (MSL) และการวางแนวเส้นสำรวจทางชลศาสตร์ตามมาตรฐาน IHO Special Order',
-    badge: 'งานแผนที่ชลศาสตร์ & ทางน้ำแม่น้ำทะเล',
+    categoryName: 'วิธีการทำงานภาคสนาม',
+    summary: 'คู่มือมาตรฐานวิธีการทำงานสำรวจหยั่งน้ำทำแผนที่ภูมิประเทศใต้น้ำด้วยเรือสำรวจ (Hydrographic Bathymetric Survey): การติดตั้งและรังวัดแขนวัดตำแหน่ง (Lever Arm Offset Survey) ระหว่างเสาอากาศ GNSS, เซ็นเซอร์ตรวจจับการโคลงของเรือ (Motion Reference Unit: MRU) และหัวส่งสัญญาณคลื่นเสียง (Sonar Transducer), ทฤษฎีการสะท้อนคลื่นเสียงใต้น้ำ (Acoustic Sounding: d = ½·v·t), การทดสอบคาริเบรตมุมเอียง Patch Test (Latency, Roll, Pitch, Yaw), การหยั่งวัดความเร็วเสียงในชั้นน้ำ (Sound Velocity Profile: SVP), การชดเชยระดับน้ำขึ้น-น้ำลง (Tide Gauge Reduction) เทียบระดับน้ำทะเลปานกลาง (MSL) และการวางแนวเส้นสำรวจทางชลศาสตร์ตามมาตรฐาน IHO Special Order',
+    badge: 'คู่มือทำงาน',
     iconName: 'Ship',
     verificationStatus: 'draft',
     verificationProof: 'IHO Standards for Hydrographic Surveys S-44 (6th Edition, 2020); ระเบียบและข้อกำหนดการหยั่งน้ำ กรมอุทกศาสตร์ กองทัพเรือ; NOAA Hydrographic Surveys Specifications and Deliverables',
@@ -1235,16 +2228,16 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
   },
 
   // -------------------------------------------------------------------------
-  // TOPIC 9: TBM TUNNEL GUIDANCE & UNDERGROUND SURVEY
+  // TOPIC 13: TBM TUNNEL GUIDANCE & UNDERGROUND SURVEY (คู่มือทำงาน)
   // -------------------------------------------------------------------------
   {
     id: 'tbm-tunnel-guidance-survey',
-    title: 'ระบบรังวัดนำทางหัวเจาะอุโมงค์ TBM (TBM Guidance System & Underground Tunnel Alignment)',
+    title: 'วิธีการสำรวจควบคุมหัวเจาะอุโมงค์และงานใต้ดิน (TBM Guidance System & Underground Alignment)',
     titleEn: 'TBM Tunnel Guidance System: Motorized Laser Total Station, Articulation & Ring Convergence Survey',
     category: 'tbm-tunnel',
-    categoryName: 'เครื่องเจาะTBM',
-    summary: 'คู่มือระบบวิศวกรรมสำรวจควบคุมทิศทางหัวเจาะอุโมงค์ใต้ดิน (Tunnel Boring Machine - TBM Guidance System): การส่งถ่ายพิกัดและทิศทางจากผิวดินลงสู่ปล่องอุโมงค์ (Shaft Plumbing & Transfer Traverse), การติดตั้งกล้องประมวลผลรวมขับเคลื่อนด้วยมอเตอร์อัตโนมัติ (Motorized Laser Total Station) บนคอนโซลผนังอุโมงค์, การยิงแสงเลเซอร์ติดตามเป้าอิเล็กทรอนิกส์ (Active Electronic Laser Target: ELS) บนโครงสร้างหัวเจาะ, การวิเคราะห์พารามิเตอร์ทิศทางหัวเจาะ (Roll, Pitch, Yaw & Articulation Angle), การควบคุมค่าความเบี่ยงเบนจากแนวแกนอุโมงค์ออกแบบ (DTA: Design Tunnel Alignment Deviations), การใช้กล้องเข็มทิศไจโร (Gyrotheodolite) ตรวจสอบมุมทิศเหนือจริงใต้ดิน และการรังวัดรูปทรงการประกอบวงแหวนคอนกรีต (Segment Ring Convergence & Clearance Survey)',
-    badge: 'งานสำรวจอุโมงค์ใต้ดิน & รถไฟฟ้า',
+    categoryName: 'วิธีการทำงานภาคสนาม',
+    summary: 'คู่มือมาตรฐานวิธีการทำงานวิศวกรรมสำรวจควบคุมทิศทางหัวเจาะอุโมงค์ใต้ดิน (Tunnel Boring Machine - TBM Guidance System): การส่งถ่ายพิกัดและทิศทางจากผิวดินลงสู่ปล่องอุโมงค์ (Shaft Plumbing & Transfer Traverse), การติดตั้งกล้องประมวลผลรวมขับเคลื่อนด้วยมอเตอร์อัตโนมัติ (Motorized Laser Total Station) บนคอนโซลผนังอุโมงค์, การยิงแสงเลเซอร์ติดตามเป้าอิเล็กทรอนิกส์ (Active Electronic Laser Target: ELS) บนโครงสร้างหัวเจาะ, การวิเคราะห์พารามิเตอร์ทิศทางหัวเจาะ (Roll, Pitch, Yaw & Articulation Angle), การควบคุมค่าความเบี่ยงเบนจากแนวแกนอุโมงค์ออกแบบ (DTA: Design Tunnel Alignment Deviations), การใช้กล้องเข็มทิศไจโร (Gyrotheodolite) ตรวจสอบมุมทิศเหนือจริงใต้ดิน และการรังวัดรูปทรงการประกอบวงแหวนคอนกรีต (Segment Ring Convergence & Clearance Survey)',
+    badge: 'คู่มือทำงาน',
     iconName: 'HardHat',
     verificationStatus: 'draft',
     verificationProof: 'British Tunnelling Society (BTS) & ICE Specification for Tunnelling (3rd ed.); มาตรฐานการรังวัดแนวอุโมงค์ รฟม. (MRTA Underground Alignment Survey Standard); Korittke, N. (1993) High Precision Geodetic Networks for Underground Construction',
