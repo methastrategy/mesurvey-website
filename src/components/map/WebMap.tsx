@@ -40,6 +40,11 @@ import { GeoJsonUploader } from './GeoJsonUploader';
 import { RiverFlowCanvas } from './RiverFlowCanvas';
 import { DisasterCommandPanel } from './DisasterCommandPanel';
 import { HydroTelemetryDrawer } from './HydroTelemetryDrawer';
+import { WebMapLayoutType, CommonMapLayoutProps } from './layouts/types';
+import { DynamicIslandMapLayout } from './layouts/DynamicIslandMapLayout';
+import { FloatingPodsMapLayout } from './layouts/FloatingPodsMapLayout';
+import { MonolithRailMapLayout } from './layouts/MonolithRailMapLayout';
+import { SplitCadMapLayout } from './layouts/SplitCadMapLayout';
 import {
   Crosshair,
   Check,
@@ -53,6 +58,10 @@ import {
 } from 'lucide-react';
 import { trackEvent } from '../../lib/telemetry';
 import { useSurveyStore } from '../../store/useSurveyStore';
+import { PlaceSearchResult, RouteResult, SavedPlace } from '../../types/memaps';
+import { reverseGeocode } from '../../core/memaps-services';
+import { MeMapsMapControls } from './memaps/MeMapsMapControls';
+import { MeMapsPlaceCard } from './memaps/MeMapsPlaceCard';
 
 interface WebMapProps {
   externalPoint?: { lat: number; lng: number; label: string } | null;
@@ -81,7 +90,8 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
     setInspectedCoordinate,
     setLevelingStartElevation,
     levelingRows,
-    updateLevelingRow
+    updateLevelingRow,
+    setTraverseStart
   } = useSurveyStore();
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -108,6 +118,31 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
 
   const [currentBasemap, setCurrentBasemap] = useState<BasemapProvider>('satellite');
   const [activeWorkspace, setActiveWorkspace] = useState<MapWorkspaceTab>('survey');
+
+  // Primary Layout Architecture: Dynamic Island Engine for MeMaps
+  const [mapLayout, setMapLayout] = useState<WebMapLayoutType>(() => {
+    try {
+      localStorage.setItem('mesurv-map-layout', 'dynamic-island');
+    } catch {}
+    return 'dynamic-island';
+  });
+
+  // MeMaps Tactical Geodetic Navigation & Turn-by-Turn Routing State
+  const [activePlace, setActivePlace] = useState<PlaceSearchResult | null>(null);
+  const [originPlace, setOriginPlace] = useState<PlaceSearchResult | null>(null);
+  const [destinationPlace, setDestinationPlace] = useState<PlaceSearchResult | null>(null);
+  const [activeRoute, setActiveRoute] = useState<RouteResult | null>(null);
+  const [savedPlacesRefresh, setSavedPlacesRefresh] = useState<number>(0);
+  const routeLayerRef = useRef<L.LayerGroup | null>(null);
+  const searchMarkerRef = useRef<L.Marker | null>(null);
+
+  // Re-invalidate Leaflet map canvas size whenever layout switches (especially Split CAD pane changes)
+  useEffect(() => {
+    const t = setTimeout(() => {
+      mapInstanceRef.current?.invalidateSize();
+    }, 180);
+    return () => clearTimeout(t);
+  }, [mapLayout]);
   const [measureMode, setMeasureMode] = useState<MapInteractionMode>('none');
   const [measurePoints, setMeasurePoints] = useState<DistancePoint[]>([]);
   const [isUploaderOpen, setIsUploaderOpen] = useState(false);
@@ -403,6 +438,31 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
     const coordStr = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
     const utmStr = `UTM ${utm.zone}N: E ${utm.easting.toFixed(2)} m, N ${utm.northing.toFixed(2)} m`;
 
+    // Asynchronously resolve human readable place for MeMaps
+    reverseGeocode(lat, lng)
+      .then((info) => {
+        setActivePlace({
+          id: `click-${Date.now()}`,
+          name: info.name,
+          description: info.address,
+          address: info.address,
+          lat,
+          lng,
+          category: 'address'
+        });
+      })
+      .catch(() => {
+        setActivePlace({
+          id: `click-${Date.now()}`,
+          name: `พิกัด ${lat.toFixed(5)}°, ${lng.toFixed(5)}°`,
+          description: `WGS84: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+          address: `UTM: Zone ${utm.zone}N E: ${utm.easting.toFixed(1)} N: ${utm.northing.toFixed(1)}`,
+          lat,
+          lng,
+          category: 'address'
+        });
+      });
+
     const popupHtml = `
       <div style="padding: 4px 6px; min-width: 240px;">
         <div style="font-size: 12px; font-weight: 700; color: #0284c7; margin-bottom: 3px;">
@@ -532,6 +592,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
     const markerGroup = L.layerGroup().addTo(map);
     const gpsGroup = L.layerGroup().addTo(map);
     const traverseGroup = L.layerGroup().addTo(map);
+    const routeGroup = L.layerGroup().addTo(map);
 
     tileLayerRef.current = tileLayer;
     riverBaseLayerRef.current = riverBaseGroup;
@@ -543,6 +604,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
     markerGroupRef.current = markerGroup;
     gpsLocationLayerRef.current = gpsGroup;
     traverseOverlayLayerRef.current = traverseGroup;
+    routeLayerRef.current = routeGroup;
     mapInstanceRef.current = map;
     setMapInstance(map);
 
@@ -671,6 +733,98 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
     tileLayerRef.current = newLayer;
     trackEvent('map_switch_basemap', { basemap: currentBasemap });
   }, [currentBasemap]);
+
+  // MeMaps Active Route Leaflet Polyline Rendering & Auto-Fit Bounds
+  useEffect(() => {
+    if (!mapInstanceRef.current || !routeLayerRef.current) return;
+    routeLayerRef.current.clearLayers();
+
+    if (!activeRoute || activeRoute.coordinates.length === 0) return;
+
+    // 1. Casing polyline (darker shadow underlayer for crisp contrast)
+    L.polyline(activeRoute.coordinates, {
+      color: '#0f172a',
+      weight: 8,
+      opacity: 0.7,
+      lineCap: 'round',
+      lineJoin: 'round'
+    }).addTo(routeLayerRef.current);
+
+    // 2. High-contrast neon routing polyline
+    const routePolyline = L.polyline(activeRoute.coordinates, {
+      color: '#2563eb',
+      weight: 5,
+      opacity: 0.95,
+      lineCap: 'round',
+      lineJoin: 'round'
+    }).addTo(routeLayerRef.current);
+
+    // 3. Start marker (Green circle 'A')
+    const startCoord = activeRoute.coordinates[0];
+    const startIcon = L.divIcon({
+      className: 'memaps-route-start-pin',
+      html: `
+        <div style="background: #10b981; color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.35); border: 2px solid #ffffff;">
+          A
+        </div>
+      `,
+      iconSize: [26, 26],
+      iconAnchor: [13, 13]
+    });
+    L.marker(startCoord, { icon: startIcon }).addTo(routeLayerRef.current);
+
+    // 4. End marker (Red circle 'B')
+    const endCoord = activeRoute.coordinates[activeRoute.coordinates.length - 1];
+    const endIcon = L.divIcon({
+      className: 'memaps-route-end-pin',
+      html: `
+        <div style="background: #ef4444; color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.35); border: 2px solid #ffffff;">
+          B
+        </div>
+      `,
+      iconSize: [26, 26],
+      iconAnchor: [13, 13]
+    });
+    L.marker(endCoord, { icon: endIcon }).addTo(routeLayerRef.current);
+
+    // Smooth fit bounds to entire route
+    mapInstanceRef.current.fitBounds(routePolyline.getBounds(), {
+      padding: [60, 60],
+      maxZoom: 17,
+      animate: true
+    });
+  }, [activeRoute]);
+
+  // MeMaps Active Place Pin Marker
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    if (searchMarkerRef.current) {
+      mapInstanceRef.current.removeLayer(searchMarkerRef.current);
+      searchMarkerRef.current = null;
+    }
+
+    if (!activePlace) return;
+
+    const pinIcon = L.divIcon({
+      className: 'memaps-place-pin',
+      html: `
+        <div style="position: relative; width: 34px; height: 34px; transform: translate(-17px, -34px); display: flex; align-items: center; justify-content: center;">
+          <div style="width: 32px; height: 32px; border-radius: 50% 50% 50% 0; background: #2563eb; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(37,99,235,0.45); border: 2px solid #ffffff;">
+            <div style="transform: rotate(45deg); width: 8px; height: 8px; border-radius: 50%; background: #ffffff;"></div>
+          </div>
+        </div>
+      `,
+      iconSize: [0, 0],
+      iconAnchor: [0, 0]
+    });
+
+    const marker = L.marker([activePlace.lat, activePlace.lng], { icon: pinIcon }).addTo(mapInstanceRef.current);
+    searchMarkerRef.current = marker;
+
+    mapInstanceRef.current.flyTo([activePlace.lat, activePlace.lng], Math.max(mapInstanceRef.current.getZoom(), 15), {
+      duration: 0.8
+    });
+  }, [activePlace]);
 
   // Entity selection handlers with smooth camera flyTo & topological highlighting
   const handleSelectRiverEntity = (river: DirectedRiverSegment) => {
@@ -1680,11 +1834,147 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
     }
   };
 
+  const disasterPanelNode = (
+    <DisasterCommandPanel
+      activeWorkspace={activeWorkspace}
+      activeLayers={activeLayers}
+      onToggleLayer={handleToggleDisasterLayer}
+      onClearCategoryLayers={handleClearCategoryLayers}
+      measureMode={measureMode}
+      onSetMeasureMode={(m) => {
+        setMeasureMode(m);
+        setMeasurePoints([]);
+        setContextMenu(null);
+      }}
+      radarFrames={radarFrames}
+      activeRadarIndex={activeRadarIndex}
+      isRadarPlaying={isRadarPlaying}
+      onSetRadarIndex={setActiveRadarIndex}
+      onToggleRadarPlay={() => setIsRadarPlaying((p) => !p)}
+      gibsDate={gibsDate}
+      onChangeGibsDate={setGibsDate}
+      selectedTourId={selectedTourId}
+      onSelectTourId={(id) => {
+        setSelectedTourId(id);
+        setActiveTourStepIndex(null);
+        setIsTourPlaying(false);
+      }}
+      activeTourStepIndex={activeTourStepIndex}
+      isTourPlaying={isTourPlaying}
+      onStartOrToggleTour={handleStartOrToggleTour}
+      onNextTourStep={handleNextTourStep}
+      onStopTour={handleStopTour}
+      rivers={THAILAND_RIVER_SEGMENTS}
+      dams={dams}
+      gauges={gauges}
+      statusFilter={hydroStatusFilter}
+      onChangeStatusFilter={setHydroStatusFilter}
+      onSelectRiver={handleSelectRiverEntity}
+      onSelectDam={handleSelectDamEntity}
+      onSelectGauge={handleSelectGaugeEntity}
+      isRefreshing={isRefreshingHydro}
+      isLiveApi={isLiveApi}
+      onRefreshAll={() => loadAllDisasterTelemetry(true)}
+    />
+  );
+
+  const hydroDrawerNode = (
+    <HydroTelemetryDrawer
+      selectedRiver={selectedRiver}
+      selectedGauge={selectedGauge}
+      selectedDam={selectedDam}
+      crossSection={crossSectionProfile}
+      isLoadingCrossSection={isLoadingCrossSection}
+      allRivers={THAILAND_RIVER_SEGMENTS}
+      allDams={dams}
+      allGauges={gauges}
+      onSelectRiver={handleSelectRiverEntity}
+      onSelectDam={handleSelectDamEntity}
+      onSelectGauge={handleSelectGaugeEntity}
+      onClose={() => {
+        setSelectedRiver(null);
+        setSelectedGauge(null);
+        setSelectedDam(null);
+        setCrossSectionProfile(null);
+      }}
+      onSendToConverter={handleSendToConverter}
+      onSendElevationToLeveling={handleSendElevationToLeveling}
+    />
+  );
+
+  const commonLayoutProps: CommonMapLayoutProps = {
+    currentBasemap,
+    onSelectBasemap: setCurrentBasemap,
+    activeWorkspace,
+    onSelectWorkspace: handleSelectWorkspace,
+    activeOverlayCount,
+    onClearAllOverlays: () => {
+      handleClearAllOverlays();
+      showToast('ซ่อนชั้นข้อมูลสภาพอากาศและน้ำทั้งหมดแล้ว');
+    },
+    measureMode,
+    onSetMeasureMode: (m) => {
+      setMeasureMode(m);
+      setMeasurePoints([]);
+      setContextMenu(null);
+    },
+    onClearMeasurements: handleClearMeasurements,
+    onUndoPoint: handleUndoPoint,
+    canUndo: measurePoints.length > 0,
+    onLocateMe: handleLocateMe,
+    onSelectBookmark: handleSelectBookmark,
+    onOpenUploader: () => setIsUploaderOpen(true),
+    telemetry,
+    measurePoints,
+    measurementResultText,
+    onSendToCalculator,
+    disasterPanel: disasterPanelNode,
+    hydroDrawer: hydroDrawerNode,
+    activeLayout: mapLayout,
+    onChangeLayout: setMapLayout,
+
+    // MeMaps Integrated Navigation, Places & Routing
+    activePlace,
+    onSelectPlace: (place) => {
+      setActivePlace(place);
+      if (place && mapInstanceRef.current) {
+        mapInstanceRef.current.flyTo([place.lat, place.lng], Math.max(mapInstanceRef.current.getZoom(), 15), {
+          duration: 0.8
+        });
+      }
+    },
+    originPlace,
+    destinationPlace,
+    onSelectOrigin: setOriginPlace,
+    onSelectDestination: setDestinationPlace,
+    activeRoute,
+    onRouteCalculated: setActiveRoute,
+    onSendToSurveyTable: (stations) => {
+      stations.forEach((st) => {
+        setInspectedCoordinate({
+          lat: st.lat,
+          lng: st.lng,
+          label: st.name,
+          timestamp: Date.now()
+        });
+        if (st.utmE && st.utmN) {
+          setTraverseStart(st.utmE.toFixed(3), st.utmN.toFixed(3));
+        }
+      });
+      showToast(`ส่งพิกัด ${stations.length} จุดเข้าตารางรังวัดแล้ว`);
+    },
+    savedPlacesRefresh,
+    onPlaceSaved: () => {
+      setSavedPlacesRefresh((prev) => prev + 1);
+      showToast('บันทึกหมุดสถานที่ลงใน MeMaps สำเร็จ');
+    }
+  };
+
   return (
     <div
       className={`relative w-full h-full min-h-0 overflow-hidden bg-slate-900 select-none map-locked-viewport ${
-        measureMode === 'inspect' || measureMode === 'cross-section' ? 'cursor-crosshair' : ''
-      }`}
+        mapLayout === 'split-cad' ? 'flex flex-col md:flex-row' : ''
+      } ${measureMode === 'inspect' || measureMode === 'cross-section' ? 'cursor-crosshair' : ''}`}
       onAuxClick={(e) => {
         if (e.button === 1) {
           e.preventDefault();
@@ -1693,113 +1983,111 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
         }
       }}
     >
-      {/* Leaflet Map DOM Canvas */}
-      <div ref={mapContainerRef} className="w-full h-full z-0 touch-none overscroll-none" />
+      {/* If Split CAD is active, show the 50/50 Dual-Pane Left Workbench */}
+      {mapLayout === 'split-cad' && (
+        <div className="w-full md:w-[420px] lg:w-[480px] h-[36vh] md:h-full shrink-0 z-10">
+          <SplitCadMapLayout {...commonLayoutProps} />
+        </div>
+      )}
 
-      {/* 60 FPS Pre-Projected River Flow Particle Canvas Overlay */}
-      <RiverFlowCanvas
-        map={mapInstance}
-        segments={THAILAND_RIVER_SEGMENTS}
-        gauges={gauges}
-        visible={activeLayers['river-flow']}
-        selectedRiverId={selectedRiver?.id ?? null}
-        connectedRiverIds={connectedNetwork?.allConnectedIds}
-      />
+      {/* Map Canvas Viewport (Flex-1 if Split CAD, else Full-Width/Height) */}
+      <div className={`relative ${mapLayout === 'split-cad' ? 'flex-1 h-[64vh] md:h-full' : 'w-full h-full'} overflow-hidden`}>
+        {/* Leaflet Map DOM Canvas */}
+        <div ref={mapContainerRef} className="w-full h-full z-0 touch-none overscroll-none" />
 
-      {/* Unified Left-Side Dock: MapToolbar + Category Command Panel + Telemetry Drawer */}
-      <div className="absolute top-3 sm:top-4 left-3 right-3 sm:right-auto sm:left-4 sm:w-[392px] max-w-[400px] max-h-[calc(100dvh-96px)] md:max-h-[calc(100dvh-32px)] overflow-y-auto z-[1010] flex flex-col gap-2.5 pointer-events-none">
-        {/* Top Dock Card: Mode Switcher + Survey Tools + Compact Coordinate Readout */}
-        <MapToolbar
-          currentBasemap={currentBasemap}
-          onSelectBasemap={setCurrentBasemap}
-          activeWorkspace={activeWorkspace}
-          onSelectWorkspace={handleSelectWorkspace}
-          activeOverlayCount={activeOverlayCount}
-          onClearAllOverlays={() => {
-            handleClearAllOverlays();
-            showToast('ซ่อนชั้นข้อมูลสภาพอากาศและน้ำทั้งหมดแล้ว');
-          }}
-          measureMode={measureMode}
-          onSetMeasureMode={(m) => {
-            setMeasureMode(m);
-            setMeasurePoints([]);
-            setContextMenu(null);
-          }}
-          onClearMeasurements={handleClearMeasurements}
-          onUndoPoint={handleUndoPoint}
-          canUndo={measurePoints.length > 0}
-          onLocateMe={handleLocateMe}
-          onSelectBookmark={handleSelectBookmark}
-          onOpenUploader={() => setIsUploaderOpen(true)}
-          telemetry={telemetry}
-        />
-
-        {/* Middle Dock Card: Weather & Natural Hazards OR Hydrology Command Panel */}
-        <DisasterCommandPanel
-          activeWorkspace={activeWorkspace}
-          activeLayers={activeLayers}
-          onToggleLayer={handleToggleDisasterLayer}
-          onClearCategoryLayers={handleClearCategoryLayers}
-          measureMode={measureMode}
-          onSetMeasureMode={(m) => {
-            setMeasureMode(m);
-            setMeasurePoints([]);
-            setContextMenu(null);
-          }}
-          radarFrames={radarFrames}
-          activeRadarIndex={activeRadarIndex}
-          isRadarPlaying={isRadarPlaying}
-          onSetRadarIndex={setActiveRadarIndex}
-          onToggleRadarPlay={() => setIsRadarPlaying((p) => !p)}
-          gibsDate={gibsDate}
-          onChangeGibsDate={setGibsDate}
-          selectedTourId={selectedTourId}
-          onSelectTourId={(id) => {
-            setSelectedTourId(id);
-            setActiveTourStepIndex(null);
-            setIsTourPlaying(false);
-          }}
-          activeTourStepIndex={activeTourStepIndex}
-          isTourPlaying={isTourPlaying}
-          onStartOrToggleTour={handleStartOrToggleTour}
-          onNextTourStep={handleNextTourStep}
-          onStopTour={handleStopTour}
-          rivers={THAILAND_RIVER_SEGMENTS}
-          dams={dams}
+        {/* 60 FPS Pre-Projected River Flow Particle Canvas Overlay */}
+        <RiverFlowCanvas
+          map={mapInstance}
+          segments={THAILAND_RIVER_SEGMENTS}
           gauges={gauges}
-          statusFilter={hydroStatusFilter}
-          onChangeStatusFilter={setHydroStatusFilter}
-          onSelectRiver={handleSelectRiverEntity}
-          onSelectDam={handleSelectDamEntity}
-          onSelectGauge={handleSelectGaugeEntity}
-          isRefreshing={isRefreshingHydro}
-          isLiveApi={isLiveApi}
-          onRefreshAll={() => loadAllDisasterTelemetry(true)}
+          visible={activeLayers['river-flow']}
+          selectedRiverId={selectedRiver?.id ?? null}
+          connectedRiverIds={connectedNetwork?.allConnectedIds}
         />
 
-        {/* Bottom Dock Card: Engineering Hydrograph, River Entity & DEM Cross-Section Telemetry Drawer */}
-        <HydroTelemetryDrawer
-          selectedRiver={selectedRiver}
-          selectedGauge={selectedGauge}
-          selectedDam={selectedDam}
-          crossSection={crossSectionProfile}
-          isLoadingCrossSection={isLoadingCrossSection}
-          allRivers={THAILAND_RIVER_SEGMENTS}
-          allDams={dams}
-          allGauges={gauges}
-          onSelectRiver={handleSelectRiverEntity}
-          onSelectDam={handleSelectDamEntity}
-          onSelectGauge={handleSelectGaugeEntity}
-          onClose={() => {
-            setSelectedRiver(null);
-            setSelectedGauge(null);
-            setSelectedDam(null);
-            setCrossSectionProfile(null);
-          }}
-          onSendToConverter={handleSendToConverter}
-          onSendElevationToLeveling={handleSendElevationToLeveling}
-        />
-      </div>
+        {/* Floating MeMaps Essential Controls: 1-Click Satellite/Street Toggle, Compass North, Locate Me, Zoom */}
+        <div className="absolute top-4 right-4 z-[1000] pointer-events-auto">
+          <MeMapsMapControls
+            currentBasemap={currentBasemap}
+            onBasemapChange={setCurrentBasemap}
+            onZoomIn={() => mapInstanceRef.current?.zoomIn()}
+            onZoomOut={() => mapInstanceRef.current?.zoomOut()}
+            onResetNorth={() => {
+              mapInstanceRef.current?.setView(
+                mapInstanceRef.current.getCenter(),
+                mapInstanceRef.current.getZoom(),
+                { animate: true }
+              );
+              showToast('รีเซ็ตมุมมองทิศเหนือเรียบร้อย (Bearing 0°)');
+            }}
+            onLocateMe={handleLocateMe}
+          />
+        </div>
+
+        {/* Floating Place Card when not in Split CAD mode */}
+        {mapLayout !== 'split-cad' && activePlace && (
+          <div className="absolute top-16 left-4 z-[1005] w-[90vw] max-w-[360px] pointer-events-auto shadow-2xl">
+            <MeMapsPlaceCard
+              place={activePlace}
+              onClose={() => setActivePlace(null)}
+              onSetAsOrigin={(p) => setOriginPlace(p)}
+              onSetAsDestination={(p) => setDestinationPlace(p)}
+              onSendToSurvey={(st) => {
+                setInspectedCoordinate({
+                  lat: st.lat,
+                  lng: st.lng,
+                  label: st.name,
+                  timestamp: Date.now()
+                });
+                if (st.utmE && st.utmN) {
+                  setTraverseStart(st.utmE.toFixed(3), st.utmN.toFixed(3));
+                }
+                showToast(`ส่งพิกัด ${st.name} เข้าตารางรังวัดแล้ว`);
+              }}
+              onSaved={() => {
+                setSavedPlacesRefresh((prev) => prev + 1);
+                showToast('บันทึกสถานที่แล้ว');
+              }}
+            />
+          </div>
+        )}
+
+        {/* Active Redesigned Layout Overlays */}
+        {mapLayout === 'dynamic-island' && <DynamicIslandMapLayout {...commonLayoutProps} />}
+        {mapLayout === 'floating-pods' && <FloatingPodsMapLayout {...commonLayoutProps} />}
+        {mapLayout === 'monolith-rail' && <MonolithRailMapLayout {...commonLayoutProps} />}
+
+        {/* Classic Dock Layout (Original Left Stack) */}
+        {mapLayout === 'classic-dock' && (
+          <div className="absolute top-3 sm:top-4 left-3 right-3 sm:right-auto sm:left-4 sm:w-[392px] max-w-[400px] max-h-[calc(100dvh-96px)] md:max-h-[calc(100dvh-32px)] overflow-y-auto z-[1010] flex flex-col gap-2.5 pointer-events-none">
+            <MapToolbar
+              currentBasemap={currentBasemap}
+              onSelectBasemap={setCurrentBasemap}
+              activeWorkspace={activeWorkspace}
+              onSelectWorkspace={handleSelectWorkspace}
+              activeOverlayCount={activeOverlayCount}
+              onClearAllOverlays={() => {
+                handleClearAllOverlays();
+                showToast('ซ่อนชั้นข้อมูลสภาพอากาศและน้ำทั้งหมดแล้ว');
+              }}
+              measureMode={measureMode}
+              onSetMeasureMode={(m) => {
+                setMeasureMode(m);
+                setMeasurePoints([]);
+                setContextMenu(null);
+              }}
+              onClearMeasurements={handleClearMeasurements}
+              onUndoPoint={handleUndoPoint}
+              canUndo={measurePoints.length > 0}
+              onLocateMe={handleLocateMe}
+              onSelectBookmark={handleSelectBookmark}
+              onOpenUploader={() => setIsUploaderOpen(true)}
+              telemetry={telemetry}
+            />
+            {disasterPanelNode}
+            {hydroDrawerNode}
+          </div>
+        )}
 
       {/* Floating Inspect or Cross-Section Mode Guidance Banner (Solid Surface) */}
       {(measureMode === 'inspect' || measureMode === 'cross-section') && (
@@ -2035,6 +2323,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
         onClose={() => setIsUploaderOpen(false)}
         onGeoJsonLoaded={handleGeoJsonLoaded}
       />
+      </div>
     </div>
   );
 };

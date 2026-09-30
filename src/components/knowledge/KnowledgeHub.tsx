@@ -84,7 +84,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
       case 'gnss-instrument-manual':
       case 'uav-instrument-manual':
       case 'lidar-slam-instrument-manual':
-        return { label: 'คู่มือใช้งาน', className: 'badge badge-leveling' };
+        return { label: 'คู่มือใช้งาน', className: 'badge badge-manual-usage' };
       case 'differential-leveling-survey':
       case 'closed-loop-traverse':
       case 'link-open-traverse':
@@ -94,7 +94,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
       case 'hydrographic-bathymetric-survey':
       case 'tbm-tunnel-guidance-survey':
       default:
-        return { label: 'คู่มือทำงาน', className: 'badge badge-traverse-closed' };
+        return { label: 'คู่มือทำงาน', className: 'badge badge-manual-work' };
     }
   };
 
@@ -370,7 +370,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredTopics.map((topic) => {
                 const topicIndex = KNOWLEDGE_TOPICS.findIndex((t) => t.id === topic.id);
-                const sopCode = `SOP-${String(topicIndex + 1).padStart(2, '0')}`;
+                const sopCode = topic.code || `SOP-${String(topicIndex + 1).padStart(2, '0')}`;
                 const domainBadge = getTopicDomainBadge(topic.id);
                 const wf = getWorkflowTarget(topic);
 
@@ -436,22 +436,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       </div>
 
                       <div className="flex items-center gap-2">
-                        {wf && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              window.location.hash = wf.hash;
-                              if (onNavigateTab) {
-                                onNavigateTab(wf.hash.includes('map') ? 'map' : 'calculator');
-                              }
-                            }}
-                            className="min-h-[36px] px-2.5 py-1 rounded-[var(--btn-radius)] text-[11px] font-mono font-semibold bg-[var(--surface-2)] hover:bg-[var(--accent)] text-[var(--text-1)] hover:text-[var(--accent-text)] border border-[var(--border)] transition-colors"
-                            title={wf.label}
-                          >
-                            คำนวณ →
-                          </button>
-                        )}
                         <span className="text-[13px] font-semibold text-[var(--text-1)] group-hover:text-[var(--accent)] inline-flex items-center gap-1 transition-colors">
                           <span>Inspect Spec</span>
                           <span className="text-base leading-none">→</span>
@@ -506,6 +490,11 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
               <span className="text-[var(--border-strong)] hidden sm:inline">|</span>
 
               <div className="hidden sm:flex items-center gap-2 text-xs text-[var(--text-2)] truncate">
+                {activeTopic.code && (
+                  <span className="font-mono text-xs px-2 py-0.5 rounded bg-[var(--surface-2)] text-[var(--accent)] font-bold border border-[var(--border)] shrink-0">
+                    {activeTopic.code}
+                  </span>
+                )}
                 <span className="truncate text-[var(--text-1)] font-bold">{activeTopic.title}</span>
               </div>
             </div>
@@ -586,6 +575,11 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                 {/* Document Title & Objective */}
                 <div className="space-y-4 border-b border-[var(--border)] pb-6">
                   <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--text-2)]">
+                    {activeTopic.code && (
+                      <span className="font-mono text-xs bg-[var(--surface-2)] px-2.5 py-1 rounded text-[var(--accent)] border border-[var(--border)] font-bold">
+                        {activeTopic.code}
+                      </span>
+                    )}
                     <span className={getTopicDomainBadge(activeTopic.id).className}>
                       {getTopicDomainBadge(activeTopic.id).label}
                     </span>

@@ -6,9 +6,7 @@ import {
   Layers, 
   ArrowLeft, 
   ArrowRight, 
-  CheckCircle2, 
   Calculator,
-  Terminal,
   Radio
 } from 'lucide-react';
 import { CoordinateConverter } from './CoordinateConverter';
@@ -152,10 +150,10 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       {/* 1. BENTO INSTRUMENT CONSOLE PICKER (When no sub-calculator is selected)   */}
       {/* ========================================================================= */}
       {activeSubTab === null && (
-        <div className="space-y-6">
-          {/* Console Hero Banner */}
+        <div className="space-y-4">
+          {/* Compact Tools Header Banner */}
           <div
-            className="p-6 sm:p-8"
+            className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
             style={{
               backgroundColor: 'var(--surface)',
               border: '1px solid var(--border)',
@@ -163,167 +161,62 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
               boxShadow: 'var(--shadow)'
             }}
           >
-            <div className="space-y-2.5">
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1 rounded text-[11px] font-mono font-semibold tracking-widest uppercase"
-                style={{
-                  backgroundColor: 'var(--surface-2)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--accent)'
-                }}
-              >
-                <Calculator className="w-3.5 h-3.5" />
-                MESURV DIGITAL FIELD CONSOLES · 4 GEODETIC ENGINES
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Calculator className="w-4 h-4 text-[var(--accent)]" />
+                <h1 className="text-base sm:text-lg font-bold tracking-tight text-[var(--text-1)]">
+                  เครื่องมือคำนวณวิศวกรรมสำรวจ
+                </h1>
+                <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-3)] border border-[var(--border)]">
+                  4 ENGINES
+                </span>
               </div>
-              <h1
-                className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight"
-                style={{ color: 'var(--text-1)' }}
-              >
-                แผงควบคุมเครื่องมือคำนวณวิศวกรรมสำรวจ
-              </h1>
-              <p
-                className="text-xs sm:text-sm max-w-2xl leading-relaxed"
-                style={{ color: 'var(--text-2)' }}
-              >
-                เลือกเครื่องมือที่ต้องการใช้งาน ระบบคำนวณทุกตัวทำงานแบบ Real-time พร้อมระบบตรวจสอบความคลาดเคลื่อนตามเกณฑ์มาตรฐานกรมแผนที่ทหาร (RTSD)
+              <p className="text-xs text-[var(--text-2)]">
+                เลือกเครื่องมือคำนวณภาคสนามตามมาตรฐานงานสำรวจ RTSD
               </p>
             </div>
           </div>
 
-          {/* 4 Bento Instrument Cards (2x2 Grid) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* Compact Tool Cards Grid (4 columns on desktop, 2 on tablet, 1 on mobile) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
             {tools.map((tool) => {
               const Icon = tool.icon;
               return (
                 <div
                   key={tool.id}
                   onClick={() => handleSubTabChange(tool.id)}
-                  className="fusion-card group p-6 cursor-pointer flex flex-col justify-between space-y-5"
+                  className="fusion-card group p-4 cursor-pointer flex flex-col justify-between hover:border-[var(--accent)] transition-all micro-lift"
                 >
-                  <div className="space-y-4">
-                    {/* Card Header */}
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                        <div
-                          className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 transition-colors"
-                          style={{
-                            backgroundColor: 'var(--surface-2)',
-                            border: '1px solid var(--border)',
-                            color: 'var(--accent)'
-                          }}
-                        >
-                          <Icon className="w-5 h-5 stroke-[2]" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span
-                              className="text-[11px] font-mono font-semibold"
-                              style={{ color: 'var(--text-3)' }}
-                            >
-                              {tool.code}
-                            </span>
-                            <span className="badge badge-core text-[10px]">RTSD SPEC</span>
-                          </div>
-                          <h2
-                            className="text-base sm:text-lg font-bold tracking-tight leading-snug mt-0.5 break-words"
-                            style={{ color: 'var(--text-1)' }}
-                          >
-                            {tool.label}
-                          </h2>
-                          <span
-                            className="text-[11px] font-mono block mt-0.5 break-words"
-                            style={{ color: 'var(--text-3)' }}
-                          >
-                            {tool.labelEn}
-                          </span>
-                        </div>
-                      </div>
-                      <span
-                        className="hidden sm:inline-block px-2.5 py-1 rounded text-[10px] font-mono font-semibold shrink-0"
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div
+                        className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors"
                         style={{
                           backgroundColor: 'var(--surface-2)',
-                          color: 'var(--text-2)',
-                          border: '1px solid var(--border)'
+                          border: '1px solid var(--border)',
+                          color: 'var(--accent)'
                         }}
                       >
-                        {tool.badge}
+                        <Icon className="w-4 h-4 stroke-[2]" />
+                      </div>
+                      <span className="font-mono text-[10px] text-[var(--text-3)] px-1.5 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border)]">
+                        {tool.code}
                       </span>
                     </div>
 
-                    {/* Description */}
-                    <p
-                      className="text-xs sm:text-[13px] leading-relaxed"
-                      style={{ color: 'var(--text-2)' }}
-                    >
-                      {tool.summary}
-                    </p>
-
-                    {/* Live Telemetry Readout Preview Window */}
-                    <div
-                      className="rounded-lg p-3.5 font-mono tabular-nums space-y-1.5"
-                      style={{
-                        backgroundColor: 'var(--surface-2)',
-                        border: '1px solid var(--border)'
-                      }}
-                    >
-                      <div
-                        className="flex items-center justify-between text-[10px] pb-1.5 mb-1"
-                        style={{
-                          color: 'var(--text-3)',
-                          borderBottom: '1px solid var(--border)'
-                        }}
-                      >
-                        <span
-                          className="flex items-center gap-1.5 font-semibold"
-                          style={{ color: 'var(--accent)' }}
-                        >
-                          <Terminal className="w-3 h-3" />
-                          TELEMETRY READOUT PREVIEW
-                        </span>
-                        <span style={{ color: 'var(--accent-2)' }}>● READY</span>
-                      </div>
-                      {tool.telemetryPreview.map((line, lIdx) => (
-                        <div
-                          key={lIdx}
-                          className="text-[11px] truncate leading-relaxed"
-                          style={{ color: 'var(--text-1)' }}
-                        >
-                          {line}
-                        </div>
-                      ))}
+                    <div>
+                      <h2 className="text-sm font-bold text-[var(--text-1)] group-hover:text-[var(--accent)] transition-colors leading-snug">
+                        {tool.label}
+                      </h2>
+                      <p className="text-[11px] font-mono text-[var(--text-3)] mt-1 truncate" title={tool.badge}>
+                        {tool.badge}
+                      </p>
                     </div>
-
-                    {/* Features Checklist */}
-                    <ul className="space-y-1.5 pt-1">
-                      {tool.features.map((feat, fIdx) => (
-                        <li
-                          key={fIdx}
-                          className="flex items-start gap-2 text-xs"
-                          style={{ color: 'var(--text-2)' }}
-                        >
-                          <CheckCircle2
-                            className="w-3.5 h-3.5 shrink-0 mt-0.5"
-                            style={{ color: 'var(--accent-2)' }}
-                          />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
                   </div>
 
-                  {/* Launch Instrument Button */}
-                  <div className="pt-2">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSubTabChange(tool.id);
-                      }}
-                      className="btn-primary w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold"
-                    >
-                      <span>เปิดแผงควบคุมเครื่องมือนี้</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
+                  <div className="pt-3 mt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-semibold text-[var(--accent)]">
+                    <span className="text-[11px]">เปิดใช้งาน</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
               );

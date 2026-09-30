@@ -1,194 +1,12 @@
 import { KnowledgeTopic } from '../types/survey';
 
 export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
-  // -------------------------------------------------------------------------
-  // TOPIC 1: DIFFERENTIAL LEVELING FIELD PROCEDURE (คู่มือทำงาน)
-  // -------------------------------------------------------------------------
-  {
-    id: 'differential-leveling-survey',
-    title: 'วิธีการทำงานระดับ (Differential Leveling, Three-Wire & Two-Peg Test)',
-    titleEn: 'Geometric Differential Leveling, Three-Wire Stadia & Two-Peg Collimation Adjustment',
-    category: 'survey-instrument',
-    categoryName: 'วิธีการทำงานภาคสนาม',
-    summary: 'คู่มือวิธีการปฏิบัติงานทำระดับเรขาคณิตความละเอียดสูง (Differential Leveling): ขั้นตอนการเดินระดับสายใยเดี่ยวและสายใย 3 เส้น (Three-Wire Reading) พร้อมการตรวจสอบระยะ Stadia (D = 100s), กฎการรักษาระยะหน้า-หลังให้สมดุลเพื่อหักล้างผลความโค้งของโลกและการหักเหของแสง (Curvature & Refraction: h = 0.0675 K²), การตรวจสอบความคลาดเคลื่อนแกนเล็งด้วยวิธี Two-Pegs Test และเกณฑ์ความคลาดเคลื่อนชั้นงานตามมาตรฐาน FGCC และกรมแผนที่ทหาร (RTSD)',
-    badge: 'คู่มือทำงาน',
-    iconName: 'Ruler',
-    verificationStatus: 'draft',
-    verificationProof: 'FGCC Standards and Specifications for Geodetic Control Networks (1984); ระเบียบกรมแผนที่ทหารว่าด้วยการรังวัดระดับ พ.ศ. 2548; Ghilani, C.D. & Wolf, P.R. (2012) Elementary Surveying (13th ed.)',
-    courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & มาตรฐาน กรมแผนที่ทหาร (RTSD)',
-    equipmentRequired: [
-      'กล้องระดับอัตโนมัติ (Automatic Level) กำลังขยาย 28x-32x หรือ Digital Level พร้อมกล่องกันกระแทก',
-      'ขาตั้งกล้องอลูมิเนียมชนิดหัวเรียบ (Tripod) สกรูยึดมาตรฐาน 5/8 นิ้ว',
-      'ไม้วัดระดับอลูมิเนียมชักสไลด์ 4-5 เมตร หรือไม้ Invar Staff สำหรับงานระดับความละเอียดสูง',
-      'หลอดลูกน้ำฟองกลมติดหลังไม้ระดับ (Rod Level Bubble) เพื่อรักษาแนวดิ่งของไม้ระดับ',
-      'แผ่นรองไม้ระดับเหล็กหล่อ (Turtle Plate / Turning Plate) ป้องกันไม้ระดับจมตัวที่จุดเปลี่ยน (TP)',
-      'สมุดจดบันทึกระดับภาคสนาม (Leveling Field Book) หรือแผ่นตารางจด BS, IFS, FS'
-    ],
-    workingPrinciple: [
-      'Differential Leveling อาศัยแนวเล็งระดับราบ (Horizontal Collimation Line) เพื่อหาผลต่างความสูงระหว่างจุด: Δh = BS - FS และคำนวณระดับความสูงใหม่: Elev_new = Elev_BM + BS - FS',
-      'การอ่านสายใย 3 เส้น (Three-Wire Leveling): อ่านค่าสายใยบน (Upper), สายใยกลาง (Middle), และสายใยล่าง (Lower) โดยมีเงื่อนไขตรวจสอบในสนาม: (Upper + Lower) / 2 ต้องเท่ากับ Middle ภายใน ±1 ถึง ±2 มิลลิเมตร',
-      'การวัดระยะทาง Stadia: ระยะทางจากกล้องถึงไม้ระดับคำนวณได้ทันทีจากช่วงสายใย s = (Upper - Lower) เมตร โดย D = 100 × s เมตร ซึ่งช่วยให้ควบคุมระยะห่างในสนามได้อย่างแม่นยำ',
-      'กฎการรักษาระยะหน้า-หลังให้สมดุล (Equal Distance Rule): การตั้งกล้องให้ระยะสายใยหลัง (BS Distance) เท่ากับระยะสายใยหน้า (FS Distance) จะหักล้างผลกระทบจากความโค้งของโลกและการหักเหของแสง (Earth Curvature & Refraction: h_cr = 0.0675 K²) และความคลาดเคลื่อนของแกนเล็ง (Collimation Error) ออกไปได้อย่างสมบูรณ์',
-      'การตรวจสอบความคลาดเคลื่อนแกนเล็ง (Two-Pegs Collimation Test): ตรวจสอบว่าแกนเล็งของกล้องขนานกับระนาบระดับของลูกน้ำจริงหรือไม่ โดยตั้งกล้องกึ่งกลางระหว่าง 2 จุดเพื่อหาผลต่างความสูงจริง แล้วย้ายกล้องไปตั้งชิดจุดหนึ่ง หากได้ผลต่างไม่เท่ากัน แสดงว่าแกนเล็งเอียงทำมุม ต้องปรับแก้สกรูสายใย (Reticle Adjusting Screw)'
-    ],
-    fieldProcedures: [
-      {
-        title: 'ขั้นตอนที่ 1: การวางแผนแนวเดินระดับและการตั้งกล้องสถานีแรก (Loop Planning & First Station Setup)',
-        details: 'เลือกจุดตั้งกล้องสถานีแรกระหว่างหมุดหลักฐานเริ่มต้น (BM) และจุดเปลี่ยนที่ 1 (TP1) โดยกะระยะให้ห่างจาก BM และ TP1 เท่าๆ กัน (ประมาณ 25-40 เมตร) กางขาตั้งกล้องให้มั่นคงและปรับฟองกลมเข้ากึ่งกลาง'
-      },
-      {
-        title: 'ขั้นตอนที่ 2: การส่องหมุดหลักฐานสายใยหลัง (Backsight: BS on Known BM)',
-        details: 'คนถือไม้ระดับตั้งไม้บนหมุดหลักฐาน (BM) ทราบค่าระดับ โดยประกบหลอดลูกน้ำฟองกลมติดหลังไม้ระดับให้ฟองอยู่ตรงกลางตลอดเวลา ผู้ส่องกล้องหมุนตัวกล้องไปยังไม้ระดับ ปรับชัดสายใยและโฟกัสภาพ อ่านค่าสายใยบน สายใยกลาง และสายใยล่าง บันทึกลงในช่อง BS'
-      },
-      {
-        title: 'ขั้นตอนที่ 3: การตรวจสอบเลข 3 สายใยและระยะทางในสนาม (Three-Wire & Distance Check)',
-        details: 'คำนวณตรวจสอบทันทีในสนาม: ค่าเฉลี่ย (U + L) / 2 เทียบกับ M ต้องไม่เกิน ±0.002 m หากเกินให้ส่องอ่านใหม่ทันที จากนั้นคำนวณระยะทาง D_BS = 100 × (U - L) เพื่อจดจำระยะและวางแผนตั้งหมุดจุดเปลี่ยน (Turning Point: TP) ให้มีระยะเท่ากัน',
-        criticalCaution: 'ก่อนอ่านตัวเลข ให้ขยับศีรษะขึ้น-ลงเล็กน้อยเพื่อตรวจดู Parallax Error หากเส้นสายใยขยับเลื่อนออกจากตัวเลขบนไม้ระดับ ให้ปรับโฟกัสภาพซ้ำจนกระทั่งสายใยแนบสนิทกับภาพไม้ระดับ'
-      },
-      {
-        title: 'ขั้นตอนที่ 4: การตั้งจุดเปลี่ยน (Turning Point: TP) และการส่องสายใยหน้า (Foresight: FS)',
-        details: 'วางแผ่นรองเต่าเหล็กหล่อ (Turtle Plate) บนพื้นดินที่มั่นคงในระยะที่เท่ากับระยะ BS (D_FS ≈ D_BS) หมุนตัวกล้องไปส่องอ่านสายใย 3 เส้นที่จุดเปลี่ยน TP1 บันทึกเป็นค่า FS1 คำนวณความสูงของแนวเล็ง (HI = Elev_BM + BS) และระดับของจุดเปลี่ยน (Elev_TP1 = HI - FS1) จากนั้นย้ายกล้องไปตั้งสถานีถัดไป โดยที่คนถือไม้ระดับต้องยืนคงตำแหน่งเดิมบน Turtle Plate แล้วหมุนหน้าไม้ระดับกลับมาเป็น BS ของสถานีใหม่'
-      },
-      {
-        title: 'ขั้นตอนที่ 5: การบรรจบวงรอบและการตรวจสอบความคลาดเคลื่อน (Loop Closure & Tolerances)',
-        details: 'ทำการรังวัดระดับต่อไปจนกระทั่งบรรจบกลับมายังหมุด BM เริ่มต้น (Loop Leveling) หรือไปบรรจบหมุด BM อื่นที่ทราบค่า (Double Run Leveling) ตรวจสอบความถูกต้องทางคณิตศาสตร์: ΣBS - ΣFS = Elev_end - Elev_start = ΔH ค่าความคลาดเคลื่อนปิดวงรอบ (Misclosure: c) ต้องไม่เกินเกณฑ์ชั้นงาน เช่น ชั้น 1: ±3√K mm, ชั้น 2: ±6√K mm หรือ ±8√K mm (K คือระยะทางรวมเป็นกิโลเมตร)'
-      },
-      {
-        title: 'ขั้นตอนที่ 6: การตรวจสอบความคลาดเคลื่อนแกนเล็งก่อนเริ่มงาน (Two-Pegs Collimation Test Procedure)',
-        details: 'ตอกหมุด 2 จุด A และ B ห่างกันประมาณ 50-60 เมตร (1) ตั้งกล้องกึ่งกลางที่จุด C (ห่างจุด A 25-30m และจุด B 25-30m) ส่องอ่านไม้ระดับ BS_A1 และ FS_B1 ผลต่างความสูงจริง Δh_true = BS_A1 - FS_B1 (2) ย้ายกล้องไปตั้งที่จุด D ชิดกับหมุด A (ห่างประมาณ 2-3 เมตร) ส่องอ่านค่าไม้ระดับที่ A ได้ BS_A2 และส่องไปยัง B ได้ FS_B2 ผลต่างความสูงปรากฏ Δh_app = BS_A2 - FS_B2 หาก Δh_true ≠ Δh_app แสดงว่ามี Collimation Error (c) คำนวณค่าอ่านที่ถูกต้องของ B: FS_B_correct = BS_A2 - Δh_true ใช้หมุดไขปรับสกรูสายใยเลื่อนสายใยกลางให้ทับค่า FS_B_correct พอดี',
-        criticalCaution: 'การปรับแก้ Two-Peg Test ด้วยการไขสกรูสายใยต้องทำอย่างระมัดระวัง ใช้เข็มปรับที่ติดมากับกล่องกล้องและหมุนทีละนิดเพื่อป้องกันเกลียวสายใยชำรุด'
-      }
-    ],
-    deviceWorkflow: [
-      {
-        stepNumber: 1,
-        stageName: 'การอ่านสายใย 3 เส้นและวัดระยะสมดุล (Three-Wire Stadia Balance)',
-        targetHardware: 'Topcon AT-B4A / Leica NA700 Series Auto Level',
-        buttonKey: '[BS & FS READING] อ่านค่าสายใย U, M, L และควบคุม D_BS ≈ D_FS',
-        actionLabel: 'ส่องอ่านและเช็คระยะ Stadia',
-        screenTitle: 'OPTICAL RETICLE STADIA VIEW (THREE-WIRE CHECK)',
-        screenLines: [
-          '┌──────────────────────────────────────────────┐',
-          '│            CIRCULAR BUBBLE: CENTERED         │',
-          '│         COMPENSATOR STATUS: ENGAGED [ACTIVE] │',
-          '│                                              │',
-          '│                 + (Upper)   1.482 m          │',
-          '│        ─────────┼─────────  1.350 m (Middle) │',
-          '│                 + (Lower)   1.218 m          │',
-          '│                                              │',
-          '│  Stadia Interval (s): 1.482 - 1.218 = 0.264m │',
-          '│  Distance to Staff (D): 100 x 0.264 = 26.4 m │',
-          '│  Arithmetic Check: (1.482 + 1.218)/2 = 1.350m│',
-          '└──────────────────────────────────────────────┘'
-        ],
-        explanation: 'อ่านค่าสายใยบน กลาง ล่าง จากนั้นคำนวณค่าเฉลี่ย (U+L)/2 เทียบกับสายใยกลาง M ทันทีหน้างาน และจดระยะทาง D = 100s เพื่อตั้งระยะ FS ให้เท่ากับ BS',
-        qaCheck: 'สายใยเฉลี่ย (U+L)/2 ต้องตรงกับค่าสายใยกลาง M ภายใน ±1 ถึง ±2 mm ก่อนย้ายไม้ระดับ'
-      },
-      {
-        stepNumber: 2,
-        stageName: 'การบันทึกตารางระดับและการย้ายจุดเปลี่ยน (Turning Point Loop Log)',
-        targetHardware: 'Standard Differential Leveling Field Book',
-        buttonKey: '[FIELD BOOK] คำนวณ HI = Elev + BS และ Elev_TP = HI - FS',
-        actionLabel: 'บันทึกตารางเดินระดับ',
-        screenTitle: 'FIELD BOOK STATION LOG (HI & TURNING POINT)',
-        screenLines: [
-          '┌──────────────────────────────────────────────┐',
-          '│ STA      BS(m)     HI(m)     FS(m)   ELEV(m) │',
-          '│ BM-1     1.350   101.350      -     100.000 │',
-          '│ TP-1     1.820   101.728    1.442    99.908 │',
-          '│ TP-2     1.105   101.220    1.613    99.607 │',
-          '│ BM-1       -        -       1.218   100.002 │',
-          '│                                              │',
-          '│ Sum BS = 4.275 m   |   Sum FS = 4.273 m      │',
-          '│ Loop Misclosure = +0.002 m (+2.0 mm) [PASS]  │',
-          '└──────────────────────────────────────────────┘'
-        ],
-        explanation: 'ที่ทุกจุดเปลี่ยน (TP) คนถือไม้ต้องยืนบนแผ่นรองเต่า (Turtle Plate) ห้ามยกไม้ขึ้นพื้นเด็ดขาด เพียงแค่หมุนหน้าไม้ตามเข็มนาฬิกาหันเข้าหากล้องที่ย้ายไปตั้งสถานีถัดไป',
-        qaCheck: 'ตรวจสอบ Page Check ทุกหน้าสมุดสนาม: ΣBS - ΣFS ต้องเท่ากับ Elev_สุดท้าย - Elev_เริ่มต้น เสมอ'
-      },
-      {
-        stepNumber: 3,
-        stageName: 'การคำนวณและปรับแก้ Two-Pegs Collimation Test',
-        targetHardware: 'Field Collimation Verification Worksheet',
-        buttonKey: '[FIELD CALC] คำนวณค่าคลาดเคลื่อน c และค่าอ่านที่ถูกต้องของ FS_B',
-        actionLabel: 'ตรวจสอบและปรับสกรูสายใย',
-        screenTitle: 'TWO-PEGS COLLIMATION TEST REPORT',
-        screenLines: [
-          '┌──────────────────────────────────────────────┐',
-          '│ Setup 1 (Center at C, Dist A-B = 60.0 m):    │',
-          '│   BS_A1 = 1.624 m  |  FS_B1 = 1.488 m        │',
-          '│   True Delta H = 1.624 - 1.488 = +0.136 m    │',
-          '│                                              │',
-          '│ Setup 2 (Instrument near A, Dist to B = 58m):│',
-          '│   BS_A2 = 1.512 m  |  FS_B2 = 1.382 m        │',
-          '│   Apparent Delta H = 1.512 - 1.382 = +0.130 m│',
-          '│                                              │',
-          '│ Collimation Error (c) = +0.136 - +0.130      │',
-          '│                       = +0.006 m / 60 m      │',
-          '│ Correct Target Reading FS_B = 1.512 - 0.136  │',
-          '│                             = 1.376 m        │',
-          '│ Action: Adjust reticle screw from 1.382→1.376│',
-          '└──────────────────────────────────────────────┘'
-        ],
-        explanation: 'เมื่อค่าผลต่างความสูงที่ตั้งกล้องชิดหมุด A ต่างจากผลต่างความสูงจริง แสดงว่าแนวเล็งเอียง ให้ปรับสกรูสายใยกลางให้เล็งมาที่ 1.376 m',
-        qaCheck: 'เกณฑ์ที่ยอมรับได้สำหรับงานระดับทั่วไป: c ไม่เกิน ±3 mm ต่อ 60 เมตร'
-      }
-    ],
-    formulas: [
-      {
-        label: 'ผลต่างความสูงระหว่างสถานี (Differential Elevation)',
-        formula: '\\Delta h = \\text{BS} - \\text{FS}',
-        explanation: 'ผลต่างความสูงคำนวณจากค่าอ่านสายใยหลัง (Backsight) ลบด้วยค่าอ่านสายใยหน้า (Foresight) หากได้บวกแสดงว่าพื้นที่ยกสูงขึ้น (Rise) หากได้ลบแสดงว่าพื้นที่ลาดลง (Fall)'
-      },
-      {
-        label: 'ความสูงของแนวเล็งและค่าระดับสถานีถัดไป (HI Method)',
-        formula: '\\text{HI} = \\text{Elev}_{\\text{BM}} + \\text{BS}, \\quad \\text{Elev}_{\\text{new}} = \\text{HI} - \\text{FS}',
-        explanation: 'HI (Height of Instrument) คือระดับความสูงของแนวเล็งกล้องเหนือระดับน้ำทะเลปานกลาง (MSL)'
-      },
-      {
-        label: 'การหาระยะทางด้วยสายใยสเตเดีย (Stadia Distance Equation)',
-        formula: 'D = 100 \\times s = 100 \\times (\\text{Upper} - \\text{Lower})',
-        explanation: 'ระยะทางจากจุดตั้งกล้องถึงไม้ระดับ คำนวณจากผลต่างของค่าอ่านสายใยบนลบสายใยล่างคูณด้วยค่าคงที่กล้อง 100'
-      },
-      {
-        label: 'การแก้ความโค้งของโลกและการหักเหของแสง (Curvature & Refraction Correction)',
-        formula: 'h_{cr} = 0.0675 \\times K^2 \\quad (\\text{เมตร เมื่อ } K \\text{ เป็นกิโลเมตร})',
-        explanation: 'ผลรวมของส่วนโค้งโลก (ทำให้สายใยอ่านได้สูงขึ้น) และการหักเหของบรรยากาศ (ทำให้รังสีแสงโค้งลงสู่พื้นดิน) สามารถหักล้างได้หมดเมื่อระยะ BS = FS'
-      },
-      {
-        label: 'การคำนวณ Two-Peg Collimation Error (c)',
-        formula: 'c = \\frac{(\\text{BS}_{A1} - \\text{FS}_{B1}) - (\\text{BS}_{A2} - \\text{FS}_{B2})}{D_{AB}}',
-        explanation: 'อัตราความลาดเอียงของแกนเล็งกล้องระดับต่อหน่วยระยะทาง'
-      },
-      {
-        label: 'เกณฑ์ความคลาดเคลื่อนปิดวงรอบระดับ (FGCC & RTSD Leveling Standards)',
-        formula: 'C_{\\text{max}} = \\pm k \\sqrt{K} \\quad (\\text{มิลลิเมตร})',
-        explanation: 'ชั้น 1 (First Order): ±3√K ถึง ±4√K mm | ชั้น 2 (Second Order): ±6√K ถึง ±8√K mm | ชั้น 3 (Third Order): ±12√K mm (K คือระยะทางรวมกิโลเมตร)'
-      }
-    ],
-    errorSourcesAndMitigation: [
-      'Collimation Error (แกนเล็งไม่ระนาบ): เกิดจากสกรูยึดแผ่นสายใยขยับตัว หรือการกระแทก แก้ไขด้วยการเฉลี่ยระยะ BS และ FS ให้เท่ากัน และทำ Two-Peg Test ปรับแต่งก่อนออกภาคสนาม',
-      'Rod Bubble Out of Plumb (ไม้ระดับเอียง): ทำให้ค่าอ่านสายใยสูงกว่าความจริง ต้องใช้หลอดลูกน้ำฟองกลมแนบหลังไม้ระดับเสมอ และใช้เทคนิคแกว่งไม้ระดับ (Wave the Rod) เลือกจดค่าอ่านที่น้อยที่สุด',
-      'Turning Point Settlement (การทรุดตัวของจุดเปลี่ยน TP): ดินยุบตัวระหว่างหมุนไม้ระดับ ต้องใช้แผ่นรองเต่าเหล็กหล่อ (Turtle Plate) ตอกแน่นลงดินเสมอ ห้ามใช้ก้อนหินลอยหรือพื้นดินนิ่ม',
-      'Instrument Settlement (การทรุดตัวของขาตั้งกล้อง): เกิดจากการปักขาตั้งกล้องบนดินโคลนหรือผิวแอสฟัลต์ร้อนจัด ต้องเหยียบปลายขากล้องให้แน่นจมถึงชั้นดินแข็ง',
-      'Parallax Error (สายใยลอยไม่ทับระนาบภาพ): ทำให้ค่าอ่านแกว่งเมื่อขยับตา ต้องปรับวงแหวนเลนส์ใกล้ตาให้เห็นสายใยดำสนิท แล้วปรับโฟกัสภาพไม้ระดับให้คมชัดก่อนอ่านเสมอ',
-      'Heat Shimmer & Mirage (ไอร้อนพวยพุ่งจากผิวดิน): แสงเกิดการหักเหรุนแรงบริเวณใกล้พื้นผิว หลีกเลี่ยงการอ่านค่าสายใยต่ำกว่า 0.5 เมตรจากพื้นดิน และหลีกเลี่ยงการส่องระดับตอนเที่ยงวันแดดจัด'
-    ],
-    downstreamWorkflow: {
-      outputDataFormat: 'ไฟล์ตารางระดับ Leveling Loop Sheet (.xlsx / .csv) พร้อมค่าตรวจสอบ ΣBS - ΣFS',
-      outputDescription: 'ตารางบันทึกค่าระดับสถานี, จุดเปลี่ยน (TP), ความสูงแนวเล็ง (HI), และค่าระดับปรับแก้ (Adjusted Elevation)',
-      nextStepTitle: 'การตรวจสอบและกระจายปรับแก้ค่าระดับวงรอบ (Elevation Balancing)',
-      nextStepProcedure: 'นำค่าระดับเข้าสู่โมดูลคำนวณระดับเพื่อตรวจสอบเงื่อนไขทางคณิตศาสตร์ ΣBS - ΣFS = ΔH และตรวจสอบเกณฑ์ชั้นงาน FGCC หากผ่านเกณฑ์ ให้กระจายค่าปรับแก้ตามระยะทางสะสมของแต่ละช่วงสถานี',
-      recommendedToolTab: 'leveling',
-      toolActionLabel: 'เปิดโมดูลคำนวณการทำระดับ'
-    }
-  },
-
-  // -------------------------------------------------------------------------
-  // TOPIC 2: LEVEL INSTRUMENT OPERATION MANUAL (คู่มือใช้งาน)
+// -------------------------------------------------------------------------
+  // TOPIC EQ-01: LEVEL INSTRUMENT OPERATION MANUAL (คู่มือใช้งาน)
   // -------------------------------------------------------------------------
   {
     id: 'level-instrument-manual',
+    code: 'EQ-01',
     title: 'คู่มือการใช้งานกล้องระดับ (Automatic & Digital Level Instrument Manual)',
     titleEn: 'Automatic & Digital Level Hardware Anatomy, Optical Reticle & Basic Operation',
     category: 'survey-instrument',
@@ -420,12 +238,12 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     }
   },
 
-
-  // -------------------------------------------------------------------------
-  // TOPIC 3: THEODOLITE & TOTAL STATION INSTRUMENT MANUAL (คู่มือใช้งาน)
+// -------------------------------------------------------------------------
+  // TOPIC EQ-02: THEODOLITE & TOTAL STATION INSTRUMENT MANUAL (คู่มือใช้งาน)
   // -------------------------------------------------------------------------
   {
     id: 'theodolite-station-setup',
+    code: 'EQ-02',
     title: 'คู่มือการใช้งานกล้องวัดมุมและ Total Station (Digital Theodolite, Total Station & Robotic)',
     titleEn: 'Digital Theodolite, Total Station & Robotic TS Hardware Anatomy, Station Setup & 2-Face Operation',
     category: 'survey-instrument',
@@ -715,359 +533,12 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     }
   },
 
-  // -------------------------------------------------------------------------
-  // TOPIC 4: CLOSED LOOP TRAVERSE & BOWDITCH COMPASS RULE (คู่มือทำงาน)
-  // -------------------------------------------------------------------------
-  {
-    id: 'closed-loop-traverse',
-    title: 'วิธีการทำวงรอบปิด (Closed Loop Traverse Survey & Bowditch Compass Rule)',
-    titleEn: 'Closed Polygon Loop Traverse, Angular Misclosure Check & Bowditch Compass Balancing',
-    category: 'survey-instrument',
-    categoryName: 'วิธีการทำงานภาคสนาม',
-    summary: 'คู่มือมาตรฐานวิธีการทำงานรังวัดโครงข่ายวงรอบปิดรูปหลายเหลี่ยม (Closed Loop Traverse): กฎผลรวมมุมภายใน (n - 2) × 180°, การตรวจสอบค่าคลาดเคลื่อนทางมุม (Angular Misclosure) เทียบเกณฑ์ชั้นงาน, การกระจายปรับแก้ค่ามุมเฉลี่ย (-c/n), การคำนวณมุมภาคของทิศต่อเนื่อง (Continuous Azimuth), การคำนวณผลต่างพิกัดราบ Latitude (ΔN) และ Departure (ΔE), การหาค่าคลาดเคลื่อนเชิงเส้น (Linear Misclosure), การหาอัตราส่วนความละเอียดชั้นงาน (Relative Precision 1:N) และการปรับแก้เส้นโครงวงรอบด้วยวิธี Compass Rule (Bowditch Method)',
-    badge: 'คู่มือทำงาน',
-    iconName: 'Compass',
-    verificationStatus: 'draft',
-    verificationProof: 'Bowditch, N. (1807) Compass Rule; มาตรฐานการรังวัดและคำนวณวงรอบ กรมแผนที่ทหาร (RTSD 1st-3rd Order Traverse Specifications); Schofield, W. & Breach, M. (2007) Engineering Surveying',
-    courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & ข้อกำหนดงานรังวัดวงรอบ',
-    equipmentRequired: [
-      'กล้องประมวลผลรวม (Total Station) หรือกล้องวัดมุมและเครื่องวัดระยะอิเล็กทรอนิกส์ (EDM) ความละเอียดสูง',
-      'ชุดเป้าปริซึมสะท้อนแสง (Prism Target Set) พร้อมเสาโพลและขาทรงตัว (Bipod) อย่างน้อย 2 ชุด (Backsight & Foresight)',
-      'ชุดฐานกล้องและหัวรับเป้า (Tribrach & Optical Carrier) 2-3 ชุด สำหรับระบบ Forced Centering',
-      'หมุดสำรวจเหล็กกล้า (P.K. Nails / Concrete Survey Monuments) พร้อมสีสเปรย์และหมึกสะท้อนแสง',
-      'เทอร์โมบารอมิเตอร์วัดอุณหภูมิและความดันบรรยากาศ สำหรับตั้งค่าชดเชยระยะ EDM (ppm)',
-      'ตารางบันทึกการรังวัดวงรอบและชีทคำนวณพิกัด (Traverse Field & Computation Sheet)'
-    ],
-    workingPrinciple: [
-      'ทฤษฎีเรขาคณิตรูปปิดหลายเหลี่ยม: ผลรวมมุมภายในของรูปหลายเหลี่ยม n ด้าน ต้องเท่ากับ Σθ = (n - 2) × 180° หากรังวัดเป็นมุมภายนอก ผลรวมต้องเท่ากับ (n + 2) × 180°',
-      'การตรวจสอบค่าคลาดเคลื่อนทางมุม (Angular Misclosure: c_θ): c_θ = Σθ_actual - (n - 2) × 180° ค่าที่ได้ต้องไม่เกินเกณฑ์ชั้นงาน เช่น C_max = ±1.5\'√n หรือ ±30"√n หากผ่านเกณฑ์ ให้กระจายแก้ค่ามุมเฉลี่ย Corr = -c_θ / n ให้แต่ละมุมเท่าๆ กัน',
-      'การคำนวณ Azimuth ต่อเนื่อง: Az_i = Az_{i-1} + 180° + θ_adjusted (หากค่าเกิน 360° ให้ลบออก 360° หรือถ้าติดลบให้บวก 360°)',
-      'การคำนวณผลต่างพิกัดราบ: ละติจูด (Latitude: ΔN) = L × cos(Az) และ เดพาร์ทเจอร์ (Departure: ΔE) = L × sin(Az) โดยในวงรอบรูปปิดวง ผลรวมทางทฤษฎีต้องเป็นศูนย์: ΣΔN = 0 และ ΣΔE = 0',
-      'ความคลาดเคลื่อนเชิงเส้นและอัตราส่วนชั้นงาน: ระยะคลาดเคลื่อนเชิงเส้น E_L = √( (ΣΔN)² + (ΣΔE)² ) อัตราส่วนความละเอียด Precision = 1 : (Perimeter / E_L) เช่น 1:10,000 หรือ 1:20,000',
-      'ทฤษฎีการปรับแก้แบบ Bowditch (Compass Rule): มีสมมติฐานว่าการวัดมุมและการวัดระยะทางมีความแม่นยำเทียบเท่ากัน ค่าปรับแก้พิกัดของแต่ละด้านจะเป็นสัดส่วนโดยตรงกับความยาวของด้านนั้น: Corr_Lat_i = -(ΣΔN / Perimeter) × L_i และ Corr_Dep_i = -(ΣΔE / Perimeter) × L_i'
-    ],
-    fieldProcedures: [
-      {
-        title: 'ขั้นตอนที่ 1: การสำรวจตรวจพื้นที่และการฝังหมุดสถานี (Reconnaissance & Monumentation)',
-        details: 'เดินสำรวจพื้นที่ วางตำแหน่งหมุดวงรอบให้มองเห็นหากันได้ชัดเจน ไม่มีสิ่งกีดขวาง ไม่มีไอร้อนรบกวน หลีกเลี่ยงด้านที่มีระยะสั้นเกินไป (< 30 เมตร) และหลีกเลี่ยงการเกิดมุมแหลมจัด ตอกหมุดคอนกรีตหรือตะปู P.K. ลงบนพื้นผิวที่มั่นคงถาวร และทำผังหมุดผูกโยง (Station Description) ไว้ทุกสถานี'
-      },
-      {
-        title: 'ขั้นตอนที่ 2: การรังวัดมุมและระยะแบบ Forced Centering (Traverse Observation)',
-        details: 'ใช้ระบบสับเปลี่ยนหัวกล้องและเป้าบน Tribrach เดียวกัน (Forced Centering) เพื่อขจัด Centering Error ตั้งกล้องที่สถานี รังวัดมุมราบ 2 หน้ากล้องไปยังสถานีหลัง (BS) และสถานีหน้า (FS) วัดระยะทางลาดเอียง (SD), มุมดิ่ง (Zenith Angle) เพื่อทอนเป็นระยะราบ (HD) ป้อนค่าอุณหภูมิและความดันบรรยากาศเข้ากล้องเพื่อแก้ค่า ppm'
-      },
-      {
-        title: 'ขั้นตอนที่ 3: การตรวจสอบผลรวมมุมภายในทันทีในสนาม (Field Angular Closure Check)',
-        details: 'รวมผลรวมมุมภายในทุกสถานี: Σθ เทียบกับ (n - 2) × 180° ตรวจสอบค่าคลาดเคลื่อน c_θ ว่าผ่านเกณฑ์ชั้นงานหรือไม่ หากเกินเกณฑ์แสดงว่ามีการเล็งเป้าผิดหรือจดตัวเลขพลาด ต้องตรวจสอบและรังวัดซ้ำทันทีก่อนย้ายหรือถอนสถานี'
-      },
-      {
-        title: 'ขั้นตอนที่ 4: การคำนวณผลต่างพิกัดและการปรับแก้แบบ Bowditch ในห้องประมวลผล',
-        details: 'คำนวณ Azimuth ของทุกด้าน คำนวณ Latitude (ΔN = L cos Az) และ Departure (ΔE = L sin Az) รวมผลรวม ΣΔN และ ΣΔE คำนวณระยะคลาดเคลื่อน E_L และอัตราส่วนชั้นงาน หากผ่านเกณฑ์ ให้ปรับแก้ค่า ΔN และ ΔE ของทุกด้านด้วยสูตร Bowditch และคำนวณพิกัดสะสม N, E ของทุกสถานี'
-      },
-      {
-        title: 'ขั้นตอนที่ 5: การตรึงพิกัดเข้าสู่ระบบกริดแห่งชาติ (Grid Coordinate Transformation)',
-        details: 'เชื่อมโยงพิกัดวงรอบเข้ากับหมุดหลักฐานแผนที่กรมที่ดินหรือกรมแผนที่ทหาร (RTSD) โดยแปลงพิกัดเข้าสู่ระบบ UTM Zone 47N / 48N บนพื้นผิวอ้างอิง WGS84 หรือ Indian 1975 พร้อมนำค่ามาตราส่วนกริด (Grid Scale Factor) และการแก้มุมกริดคอนเวอร์เจนซ์ (Grid Convergence) มาปรับแก้'
-      }
-    ],
-    deviceWorkflow: [
-      {
-        stepNumber: 1,
-        stageName: 'การเลือกโหมดวงรอบและตั้งสถานีแรก (Traverse Setup & Occupation)',
-        targetHardware: 'Topcon OS / Sokkia FX Series On-board Software',
-        buttonKey: '[MENU] -> [PROGRAMS] -> [TRAVERSE] -> [OCC.SETUP]',
-        actionLabel: 'ป้อนข้อมูลสถานีจุดเริ่มและหมุดหลัง',
-        screenTitle: 'TRAVERSE STATION OCCUPATION & BACKSIGHT',
-        screenLines: [
-          '┌──────────────────────────────────────────────┐',
-          '│ TRAVERSE SETUP: CLOSED POLYGON               │',
-          '│ OCC.POINT : ST-01  (N: 1000.000, E: 1000.000)│',
-          '│ BACKSIGHT : ST-04  (Known Azimuth: 315°00\'00")│',
-          '│ INST.HEIGHT: 1.520 m | PRISM HEIGHT: 1.600 m │',
-          '│                                              │',
-          '│ [AIM BACKSIGHT] -> PRESS [0-SET] OR [AZIMUTH]│',
-          '│ STATUS: ORIENTED TO ST-04                    │',
-          '└──────────────────────────────────────────────┘'
-        ],
-        explanation: 'เข้าสู่โปรแกรมรังวัดวงรอบ ป้อนชื่อและพิกัดสมมุติหรือพิกัดจริงของสถานีแรก เล็งเป้าไปยังสถานีหลังเพื่อกำหนดแนวทิศทางอ้างอิง',
-        qaCheck: 'ตรวจสอบค่าความสูงกล้อง (Instrument Height) และความสูงเป้าปริซึม (Prism Height) ให้ถูกต้องก่อนกดรับค่า'
-      },
-      {
-        stepNumber: 2,
-        stageName: 'การวัดมุมและระยะสถานีหน้า (Foresight Measurement)',
-        targetHardware: 'Total Station Field Software',
-        buttonKey: '[MSR] หรือ [AUTO-RUN 2-FACE] เล็งเป้าสถานีหน้าแล้วกดวัด',
-        actionLabel: 'บันทึกมุมราบ ระยะราบ และมุมดิ่ง',
-        screenTitle: 'FORESIGHT OBSERVATION (ST-01 -> ST-02)',
-        screenLines: [
-          '┌──────────────────────────────────────────────┐',
-          '│ MEASURING TO FS: ST-02                       │',
-          '│ HA (Mean) :  85°20\'14"                       │',
-          '│ VA (Zenith):  89°54\'10"                      │',
-          '│ SD (Slope): 124.582 m | HD (Horiz): 124.581 m│',
-          '│                                              │',
-          '│ CALC AZIMUTH (ST01->ST02): 40°20\'14"         │',
-          '│ LAT (dN): +94.945 m  | DEP (dE): +80.612 m   │',
-          '│                                              │',
-          '│ [STORE POINT & MOVE TO NEXT STATION]         │',
-          '└──────────────────────────────────────────────┘'
-        ],
-        explanation: 'เล็งเป้าสถานีหน้า กล้องจะทำการวัดมุม 2 หน้ากล้องและวัดระยะทาง EDM พร้อมคำนวณระยะราบ (HD) และผลต่างพิกัดทันที',
-        qaCheck: 'ตรวจสอบค่า ppm บรรยากาศและค่าคงที่ปริซึม (Prism Constant e.g. -30mm) บนหน้าจอ'
-      },
-      {
-        stepNumber: 3,
-        stageName: 'การตรวจสอบผลการปิดวงรอบ (Traverse Closure Summary Report)',
-        targetHardware: 'Total Station On-screen Closure Report',
-        buttonKey: '[CALC CLOSURE] เมื่อรังวัดครบทุกสถานีจนบรรจบจุดเริ่มต้น',
-        actionLabel: 'แสดงรายงานผลการปิดวงรอบ',
-        screenTitle: 'CLOSED LOOP TRAVERSE CLOSURE REPORT',
-        screenLines: [
-          '┌──────────────────────────────────────────────┐',
-          '│ TOTAL STATIONS (n) : 4 SIDES                 │',
-          '│ SUM OF INTERIOR ANGLES : 359°59\'42"          │',
-          '│ THEORETICAL SUM (n-2)*180: 360°00\'00"        │',
-          '│ ANGULAR MISCLOSURE : -0°00\'18" (TOL: ±1\'00") │',
-          '│ STATUS: ANGULAR CHECK PASSED [CORR: +4.5"/STA│',
-          '│                                              │',
-          '│ TOTAL PERIMETER (P): 486.240 m               │',
-          '│ MISCLOSURE dN: +0.018 m | dE: -0.012 m       │',
-          '│ LINEAR MISCLOSURE (EL) : 0.0216 m            │',
-          '│ RELATIVE PRECISION : 1 : 22,511 (PASS 2nd ORD│',
-          '│                                              │',
-          '│ [APPLY BOWDITCH ADJUSTMENT -> EXPORT CSV]    │',
-          '└──────────────────────────────────────────────┘'
-        ],
-        explanation: 'หน้าจอแสดงผลการวิเคราะห์วงรอบ: ตรวจสอบมุมภายใน, ผลต่างพิกัดปิดวง, ระยะคลาดเคลื่อนเชิงเส้น และอัตราส่วนชั้นงานความละเอียด',
-        qaCheck: 'อัตราส่วนชั้นงานต้องดีกว่า 1:10,000 สำหรับงานควบคุมทั่วไป และ 1:20,000 สำหรับงานวิศวกรรมโครงสร้าง'
-      }
-    ],
-    formulas: [
-      {
-        label: 'ผลรวมมุมภายในทางทฤษฎีของรูปเหลี่ยม (Theoretical Sum of Interior Angles)',
-        formula: '\\sum \\theta_{\\text{ideal}} = (n - 2) \\times 180^\\circ',
-        explanation: 'ผลรวมมุมภายในของรูปปิดหลายเหลี่ยม n ด้าน (หากเป็นมุมภายนอกใช้ (n + 2) × 180°)'
-      },
-      {
-        label: 'ค่าคลาดเคลื่อนทางมุมและการปรับแก้มุม (Angular Misclosure & Correction)',
-        formula: 'c_{\\theta} = \\sum \\theta_{\\text{actual}} - (n - 2) \\times 180^\\circ, \\quad \\text{Corr}_{\\theta} = -\\frac{c_{\\theta}}{n}',
-        explanation: 'ค่าความคลาดเคลื่อนต้องไม่เกินเกณฑ์ เช่น ±1.5\'√n หรือ ±30"√n การปรับแก้ให้กระจายเฉลี่ยเท่าๆ กันทุกสถานี'
-      },
-      {
-        label: 'การคำนวณมุมภาคของทิศต่อเนื่อง (Continuous Azimuth Calculation)',
-        formula: '\\text{Az}_{i} = \\text{Az}_{i-1} + 180^\\circ + \\theta_{i} \\quad (\\text{mod } 360^\\circ)',
-        explanation: 'การหา Azimuth ของเส้นถัดไปจากมุมหักเหภายในที่ปรับแก้แล้ว'
-      },
-      {
-        label: 'การคำนวณผลต่างพิกัดราบ (Latitude and Departure Equations)',
-        formula: '\\text{Latitude } (\\Delta N) = L \\cos(\\text{Az}), \\quad \\text{Departure } (\\Delta E) = L \\sin(\\text{Az})',
-        explanation: 'ละติจูดคือความยาวฉายบนแกนเหนือ-ใต้ เดพาร์ทเจอร์คือความยาวฉายบนแกนตะวันออก-ตะวันตก'
-      },
-      {
-        label: 'ระยะคลาดเคลื่อนเชิงเส้นและอัตราส่วนความละเอียด (Linear Misclosure & Precision)',
-        formula: 'E_L = \\sqrt{(\\sum \\Delta N)^2 + (\\sum \\Delta E)^2}, \\quad \\text{Precision} = 1 : \\left( \\frac{\\text{Perimeter}}{E_L} \\right)',
-        explanation: 'ระยะคลาดเคลื่อนเชิงเส้นคือระยะห่างระหว่างจุดเริ่มต้นกับจุดสิ้นสุดที่คำนวณได้ ยิ่งอัตราส่วนสูง ความแม่นยำยิ่งมาก'
-      },
-      {
-        label: 'การปรับแก้พิกัดตามกฎเข็มทิศของโบว์ดิตช์ (Bowditch Compass Rule)',
-        formula: 'C_{\\Delta N, i} = -\\left( \\frac{\\sum \\Delta N}{P} \\right) \\times L_i, \\quad C_{\\Delta E, i} = -\\left( \\frac{\\sum \\Delta E}{P} \\right) \\times L_i',
-        explanation: 'กระจายค่าปรับแก้พิกัดละติจูดและเดพาร์ทเจอร์ของแต่ละด้านตามสัดส่วนความยาวด้านเทียบกับความยาวรอบรูปทั้งหมด'
-      }
-    ],
-    errorSourcesAndMitigation: [
-      'Short Traverse Legs (สถานีมีระยะสั้นเกินไป): ระยะสั้นทำให้การเล็งเป้าผิดพลาดเพียงไม่กี่มิลลิเมตรส่งผลให้มุมคลาดเคลื่อนหลายสิบพิลิปดา พยายามวางระยะแต่ละด้านไม่ต่ำกว่า 40-50 เมตร',
-      'Centering & Target Eccentricity (การตั้งกล้องหรือเป้าไม่ตรงหมุด): ส่งผลกระทบต่อทั้งระยะและมุมโดยตรง แก้ไขด้วยการใช้ระบบ Forced Centering สลับหัวกล้องและเป้าบน Tribrach เดิม',
-      'Prism Constant Mistake (ป้อนค่าคงที่ปริซึมผิด): ปริซึมแต่ละรุ่นมีค่าออฟเซ็ตต่างกัน (เช่น 0 mm หรือ -30 mm) หากตั้งค่าผิด ระยะทางทุกด้านจะคลาดเคลื่อนเป็นระบบ (Systematic Error)',
-      'Atmospheric Refraction & Scale Factor: ลำแสง EDM เดินทางผ่านอากาศหนาแน่นหรือร้อนจัด ต้องวัดอุณหภูมิและความดันป้อนค่า ppm ก่อนรังวัดเสมอ',
-      'Monument Disturbance: หมุดขยับตัวหรือถูกเหยียบระหว่างทำงาน ต้องทำหมุดผูกโยง (Witness Ties) ตรวจสอบความถูกต้องก่อนเริ่มรังวัดทุกครั้ง'
-    ],
-    downstreamWorkflow: {
-      outputDataFormat: 'ไฟล์พิกัดสถานี (.csv / .txt / .dxf / .landxml) พิกัด Northing, Easting, Elevation',
-      outputDescription: 'รายงานการปรับแก้วงรอบ พิกัดกริดสถานี และไฟล์เส้นโครงวงรอบสำหรับนำเข้า AutoCAD / Civil 3D / QGIS',
-      nextStepTitle: 'การนำเข้าพิกัดควบคุมสู่การรังวัดเก็บรายละเอียดและผังโครงการ (Detail Survey & Staking)',
-      nextStepProcedure: 'ส่งออกพิกัดสถานีที่ปรับแก้สมบูรณ์แล้วเข้าสู่โปรแกรมคำนวณพิกัดเพื่อใช้เป็นหมุดอ้างอิงหลักในการส่องเก็บรายละเอียดภูมิประเทศ (Topographic Survey) หรือวางผังแนวอาคาร (Construction Staking)',
-      recommendedToolTab: 'traverse',
-      toolActionLabel: 'เปิดโมดูลคำนวณปรับแก้วงรอบ'
-    }
-  },
-
-  // -------------------------------------------------------------------------
-  // TOPIC 5: CONNECTING / LINK TRAVERSE SURVEY (คู่มือทำงาน)
-  // -------------------------------------------------------------------------
-  {
-    id: 'link-open-traverse',
-    title: 'วิธีการทำวงรอบเปิด (Connecting / Link Traverse Survey)',
-    titleEn: 'Link / Connecting Traverse Between Known Geodetic Control Points & Coordinate Adjustment',
-    category: 'survey-instrument',
-    categoryName: 'วิธีการทำงานภาคสนาม',
-    summary: 'คู่มือมาตรฐานวิธีการทำงานรังวัดวงรอบเปิดแบบเชื่อมโยง (Connecting / Link Traverse): การเริ่มต้นจากหมุดหลักฐานคู่ต้นทางที่ทราบพิกัดและทิศทาง (A -> B) สู่หมุดหลักฐานคู่ปลายทาง (C -> D), การตรวจสอบความคลาดเคลื่อนมุมภาคทิศเริ่มต้นและสิ้นสุด (Azimuth Closure Check), การกระจายปรับแก้ค่ามุมหักเห, การตรวจสอบผลรวมระยะ Latitude และ Departure เทียบผลต่างพิกัดจริงระหว่างหมุดหลักฐาน, การปรับแก้ค่าพิกัดด้วยวิธี Compass Rule และข้อแตกต่างทางวิศวกรรมระหว่างวงรอบเปิดแบบลอย (Dead-end Traverse ที่ห้ามใช้ในงานชั้น 1-3) กับวงรอบเปิดแบบเชื่อมโยง',
-    badge: 'คู่มือทำงาน',
-    iconName: 'Compass',
-    verificationStatus: 'draft',
-    verificationProof: 'มาตรฐานงานสำรวจเส้นทาง กรมทางหลวง / การรถไฟแห่งประเทศไทย; Wolf, P.R. & Ghilani, C.D. (2006) Adjustment Computations: Spatial Data Analysis (4th/5th ed.); EIT Standard 1008-34 (วิศวกรรมสถานแห่งประเทศไทย วสท.)',
-    courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & วงรอบแบบเส้น',
-    equipmentRequired: [
-      'กล้องประมวลผลรวม (Total Station) ความละเอียดไม่เกิน 1-2 พิลิปดา',
-      'หมุดควบคุมพิกัดเดิม 4 หมุด: หมุดคู่เริ่มต้น (Station A, B) และหมุดคู่ปลายทาง (Station C, D) ที่มีค่าพิกัดชั้นสูง',
-      'ชุดเป้าปริซึมสะท้อนแสง 2-3 ชุด พร้อมเสาและขาทรงตัว (Bipod)',
-      'เทอร์โมบารอมิเตอร์สำหรับชดเชยค่าบรรยากาศ (ppm) ของ EDM',
-      'สมุดจดบันทึกและคอมพิวเตอร์ประมวลผลข้อมูลภาคสนาม'
-    ],
-    workingPrinciple: [
-      'ความแตกต่างระหว่าง Dead-end Open Traverse กับ Link Traverse: วงรอบเปิดปลายลอย (Dead-end Open Traverse) สิ้นสุดที่หมุดใหม่ที่ไม่มีค่าพิกัดตรวจสอบ ทำให้ไม่สามารถตรวจจับความคลาดเคลื่อนทางมุมหรือระยะได้ จึงห้ามใช้ในงานควบคุมพิกัด ในขณะที่วงรอบเปิดแบบเชื่อมโยง (Link / Connecting Traverse) สิ้นสุดลงที่หมุดหลักฐานคู่ปลายทางที่ทราบค่าพิกัดและทิศทาง ทำให้มีเงื่อนไขตรวจสอบทางเรขาคณิต (Geometric Redundancy) ครบถ้วนทั้งมุมและระยะทาง',
-      'การตรวจสอบความคลาดเคลื่อนทางมุม (Azimuth Closure Check): ทิศทาง Azimuth ที่คำนวณจากหมุดเริ่มต้น ผ่านมุมหักเหของทุกสถานีไปจนถึงเส้นหลักฐานปลายทาง ต้องเท่ากับ Azimuth จริงระหว่างหมุดหลักฐานคู่ปลายทาง: ΔAz = Az_{end, computed} - Az_{end, true}',
-      'การกระจายปรับแก้ค่ามุม: หากความคลาดเคลื่อนทางมุมไม่เกินเกณฑ์ที่กำหนด ให้กระจายค่าปรับแก้มุม Corr = -ΔAz / n ให้เท่ากันทุกมุมหักเห',
-      'การตรวจสอบความคลาดเคลื่อนเชิงเส้น (Coordinate Misclosure Check): ผลรวมของ Latitude (ΔN) และ Departure (ΔE) ที่คำนวณได้ ต้องเท่ากับผลต่างพิกัดจริงระหว่างหมุดเริ่มต้นและหมุดปลายทาง: ΣΔN_expected = N_terminal - N_initial และ ΣΔE_expected = E_terminal - E_initial',
-      'การปรับแก้พิกัดด้วย Compass Rule: คำนวณหา Misclosure_N = ΣΔN_actual - ΣΔN_expected และ Misclosure_E = ΣΔE_actual - ΣΔE_expected จากนั้นกระจายค่าปรับแก้ตามสัดส่วนความยาวของแต่ละช่วงสถานีเช่นเดียวกับวงรอบปิด'
-    ],
-    fieldProcedures: [
-      {
-        title: 'ขั้นตอนที่ 1: การตรวจสอบความสมบูรณ์ของหมุดหลักฐานคู่ต้นทาง (Initial Control Verification)',
-        details: 'ตั้งกล้องที่หมุดหลักฐาน B ส่องหมุดหลักฐาน A วัดมุมและระยะทางระหว่าง B ถึง A เพื่อคำนวณเปรียบเทียบกับพิกัดที่ระบุในประวัติหมุด (Monument Data Sheet) เพื่อยืนยันว่าหมุดหลักฐานทั้งสองไม่ได้ขยับตัวหรือถูกทำลาย'
-      },
-      {
-        title: 'ขั้นตอนที่ 2: การรังวัดมุมหักเหและระยะทางตามแนวเส้นทาง (Traverse Line Observation)',
-        details: 'ดำเนินการรังวัดมุมราบ 2 หน้ากล้องและวัดระยะทาง EDM ไปตามสถานีวงรอบใหม่ตามแนวเส้นทาง (ST-01, ST-02, ...) โดยใช้ระบบ Forced Centering จนกระทั่งถึงสถานีสุดท้ายก่อนเชื่อมเข้าหมุดปลายทาง'
-      },
-      {
-        title: 'ขั้นตอนที่ 3: การบรรจบและส่องรังวัดหมุดคู่ปลายทาง (Terminal Control Tie-in)',
-        details: 'ตั้งกล้องที่สถานีสุดท้าย ส่องไปยังหมุดหลักฐานคู่ปลายทาง C และ D วัดมุมราบ 2 หน้ากล้องและระยะทางเพื่อเชื่อมโยงเส้นโครงข่ายเข้าสู่ระบบพิกัดของหมุดปลายทางอย่างสมบูรณ์'
-      },
-      {
-        title: 'ขั้นตอนที่ 4: การคำนวณผลต่าง Azimuth ปลายทางและการปรับแก้มุม (Angular Balancing)',
-        details: 'คำนวณ Azimuth เริ่มต้นจากพิกัดหมุด A และ B คำนวณ Azimuth ต่อเนื่องผ่านทุกสถานีจนถึงเส้น C-D นำ Azimuth ที่คำนวณได้เปรียบเทียบกับ Azimuth จริงของเส้น C-D ตรวจสอบค่าคลาดเคลื่อน ΔAz เทียบกับเกณฑ์ชั้นงาน และกระจายปรับแก้ค่ามุม'
-      },
-      {
-        title: 'ขั้นตอนที่ 5: การคำนวณผลต่างพิกัดและการปรับแก้ด้วย Bowditch Method',
-        details: 'คำนวณผลรวม Latitude และ Departure ที่ปรับแก้มุมแล้ว หักลบด้วยผลต่างพิกัดจริงระหว่างหมุดเริ่มต้นและปลายทางเพื่อหา Misclosure_N และ Misclosure_E คำนวณระยะคลาดเคลื่อนเชิงเส้น E_L และอัตราส่วนชั้นงาน หากผ่านเกณฑ์ ให้ปรับแก้พิกัดของทุกสถานีด้วยวิธี Bowditch'
-      },
-      {
-        title: 'ขั้นตอนที่ 6: การออกเอกสารรายงานชั้นงานความละเอียด (Traverse Summary & Certification)',
-        details: 'จัดทำตารางสรุปผลการปรับแก้พิกัด ค่าคลาดเคลื่อนทางมุม ค่าคลาดเคลื่อนเชิงเส้น และระบุชั้นงานที่ได้รับตามมาตรฐานกรมที่ดินหรือกรมแผนที่ทหาร พร้อมแนบผังหมุดผูกโยง'
-      }
-    ],
-    deviceWorkflow: [
-      {
-        stepNumber: 1,
-        stageName: 'การเริ่มรังวัดจากหมุดคู่ต้นทาง (Initial Control Setup)',
-        targetHardware: 'Total Station Field Controller (Trimble Access / Leica Captivate)',
-        buttonKey: '[TRAVERSE APP] -> [START LINK TRAVERSE] -> [INPUT PTS A & B]',
-        actionLabel: 'กำหนดแนวทิศทางเริ่มต้นจากหมุดหลักฐานคู่แรก',
-        screenTitle: 'LINK TRAVERSE: INITIAL CONTROL ORIENTATION',
-        screenLines: [
-          '┌──────────────────────────────────────────────┐',
-          '│ LINK TRAVERSE INITIALIZATION                 │',
-          '│ OCCUPIED : BM-A  (N: 25410.250, E: 12850.110)│',
-          '│ BACKSIGHT: BM-B  (N: 25620.480, E: 12790.320)│',
-          '│ CALC AZIMUTH (A->B) : 344°05\'22"             │',
-          '│ CHECK DISTANCE (A->B): 218.614 m (CALC: .618)│',
-          '│                                              │',
-          '│ STATUS: INITIAL CONTROL VERIFIED [OK]        │',
-          '│ READY TO TURN ANGLE TO FIRST TRAVERSE ST-01  │',
-          '└──────────────────────────────────────────────┘'
-        ],
-        explanation: 'ป้อนพิกัดหมุดคู่ต้นทาง กล้องจะคำนวณ Azimuth และระยะทางระหว่างหมุดเพื่อตรวจสอบความถูกต้องของหมุดหลักฐานก่อนเริ่มงาน',
-        qaCheck: 'ระยะทางที่วัดได้ระหว่างหมุดคู่ต้นทางต้องตรงกับค่าพิกัดเดิมไม่เกิน ±5 มิลลิเมตร'
-      },
-      {
-        stepNumber: 2,
-        stageName: 'การเชื่อมต่อเข้าหมุดคู่ปลายทาง (Terminal Control Tie-in)',
-        targetHardware: 'Total Station Field Controller',
-        buttonKey: '[END TRAVERSE] ส่องรังวัดหมุดคู่ปลายทาง BM-C และ BM-D',
-        actionLabel: 'รังวัดปิดเข้าสู่หมุดควบคุมปลายทาง',
-        screenTitle: 'LINK TRAVERSE: CLOSING ON TERMINAL CONTROL',
-        screenLines: [
-          '┌──────────────────────────────────────────────┐',
-          '│ CLOSING OBSERVATION                          │',
-          '│ OCCUPIED : ST-05 (Last Traverse Station)     │',
-          '│ FORESIGHT 1: BM-C (First Terminal Benchmark) │',
-          '│ FORESIGHT 2: BM-D (Terminal Azimuth Station) │',
-          '│                                              │',
-          '│ COMPUTED AZIMUTH (C->D): 112°18\'45"          │',
-          '│ PUBLISHED AZIMUTH (C->D): 112°18\'30"         │',
-          '│ AZIMUTH MISCLOSURE : +0°00\'15" (TOL: ±35")   │',
-          '│                                              │',
-          '│ [COMPUTE COORDINATE MISCLOSURE & BALANCE]    │',
-          '└──────────────────────────────────────────────┘'
-        ],
-        explanation: 'ส่องรังวัดเชื่อมโยงเข้าสู่หมุดคู่ปลายทาง ซอฟต์แวร์จะเปรียบเทียบมุม Azimuth ที่คำนวณได้กับค่าที่ถูกต้องของหมุดหลักฐาน',
-        qaCheck: 'ค่าความคลาดเคลื่อน Azimuth ต้องไม่เกินเกณฑ์ชั้นงานก่อนกดยืนยันการปรับแก้'
-      },
-      {
-        stepNumber: 3,
-        stageName: 'การสรุปผลการปรับแก้พิกัดวงรอบเปิดเชื่อมโยง (Adjustment Report)',
-        targetHardware: 'Link Traverse Adjustment Summary',
-        buttonKey: '[VIEW REPORT] ตรวจสอบรายงานค่าคลาดเคลื่อนพิกัด N, E',
-        actionLabel: 'ออกรายงานการปรับแก้พิกัด',
-        screenTitle: 'LINK TRAVERSE ADJUSTMENT SUMMARY',
-        screenLines: [
-          '┌──────────────────────────────────────────────┐',
-          '│ TOTAL ROUTE LENGTH : 1,485.60 m (6 Stations) │',
-          '│ ANGULAR MISCLOSURE : +15" (CORR: -2.5"/STA)  │',
-          '│                                              │',
-          '│ EXPECTED DELTA N (BM_A -> BM_C) : +384.520 m │',
-          '│ COMPUTED DELTA N (UNADJUSTED)   : +384.552 m │',
-          '│ MISCLOSURE N (dN) : +0.032 m                 │',
-          '│                                              │',
-          '│ EXPECTED DELTA E (BM_A -> BM_C) : +920.140 m │',
-          '│ COMPUTED DELTA E (UNADJUSTED)   : +920.118 m │',
-          '│ MISCLOSURE E (dE) : -0.022 m                 │',
-          '│                                              │',
-          '│ LINEAR MISCLOSURE : 0.0388 m                 │',
-          '│ PRECISION RATIO   : 1 : 38,288 [FIRST ORDER] │',
-          '└──────────────────────────────────────────────┘'
-        ],
-        explanation: 'รายงานสรุปความคลาดเคลื่อนพิกัด Delta N และ Delta E เทียบกับระยะทางสะสมทั้งหมด พร้อมระบุอัตราส่วนความละเอียดชั้นงาน',
-        qaCheck: 'ยืนยันว่าการปรับแก้แบบ Bowditch ดึงค่าพิกัดสถานีปลายทางให้บรรจบพิกัดจริงของ BM-C พอดี 100%'
-      }
-    ],
-    formulas: [
-      {
-        label: 'การคำนวณ Azimuth เริ่มต้นและสิ้นสุดจากพิกัดจริง (True Control Azimuth)',
-        formula: '\\text{Az}_{\\text{true}} = \\arctan2(\\Delta E, \\Delta N) = \\arctan2(E_{\\text{target}} - E_{\\text{base}}, N_{\\text{target}} - N_{\\text{base}})',
-        explanation: 'คำนวณมุมภาคของทิศที่แท้จริงระหว่างหมุดหลักฐานคู่เริ่มต้น (A->B) และหมุดคู่ปลายทาง (C->D)'
-      },
-      {
-        label: 'ค่าคลาดเคลื่อนทางมุมของวงรอบเปิดเชื่อมโยง (Azimuth Misclosure)',
-        formula: '\\Delta \\text{Az} = \\text{Az}_{\\text{end, computed}} - \\text{Az}_{\\text{end, true}}',
-        explanation: 'ผลต่างระหว่างมุมภาคทิศที่คำนวณได้จากการเปิดมุมสนามกับมุมภาคทิศจริงของหมุดคู่ปลายทาง'
-      },
-      {
-        label: 'ผลรวมพิกัดที่คาดหวังระหว่างหมุดหลักฐาน (Expected Coordinate Deltas)',
-        formula: '\\sum \\Delta N_{\\text{expected}} = N_{\\text{terminal}} - N_{\\text{initial}}, \\quad \\sum \\Delta E_{\\text{expected}} = E_{\\text{terminal}} - E_{\\text{initial}}',
-        explanation: 'ผลรวมทางเรขาคณิตของผลต่างพิกัดต้องเท่ากับผลต่างพิกัดจริงระหว่างหมุดหัวและท้าย'
-      },
-      {
-        label: 'ค่าคลาดเคลื่อนพิกัดเหนือและตะวันออก (Coordinate Misclosures)',
-        formula: '\\text{Misclosure}_N = \\sum \\Delta N_{\\text{actual}} - \\sum \\Delta N_{\\text{expected}}, \\quad \\text{Misclosure}_E = \\sum \\Delta E_{\\text{actual}} - \\sum \\Delta E_{\\text{expected}}',
-        explanation: 'ความคลาดเคลื่อนที่ต้องนำไปกระจายปรับแก้ด้วย Compass Rule'
-      },
-      {
-        label: 'ระยะคลาดเคลื่อนเชิงเส้นและอัตราส่วนความแม่นยำ (Linear Misclosure & Ratio)',
-        formula: 'E_L = \\sqrt{\\text{Misclosure}_N^2 + \\text{Misclosure}_E^2}, \\quad \\text{Precision} = 1 : \\left( \\frac{P}{E_L} \\right)',
-        explanation: 'การประเมินชั้นงานความละเอียดของเส้นทางโครงข่ายสำรวจ'
-      }
-    ],
-    errorSourcesAndMitigation: [
-      'Movement of Known Control Points (หมุดหลักฐานเดิมเคลื่อนตัว): หมุดหลักฐานที่สร้างไว้นานอาจถูกชน ดินทรุดตัว หรือเคลื่อนตัว ต้องทำการรังวัดตรวจสอบหมุดคู่หัวและท้ายก่อนเริ่มงานเสมอ',
-      'Deflection Accumulation on Long Linear Routes (แนวเส้นทางยาวเป็นเส้นตรง): วงรอบเปิดตามแนวถนนยาวมีรูปทรงเรขาคณิตที่อ่อนไหวต่อความคลาดเคลื่อนทางมุมสะสม ต้องเพิ่มจุดควบคุม Azimuth ด้วยดาวเทียม GNSS ทุก 1-2 กิโลเมตร',
-      'Left/Right Angle Confusion (การสับสนมุมเลี้ยวซ้าย-เลี้ยวขวา): ทำให้สูตรคำนวณ Azimuth กลับทิศทาง ต้องกำหนดมาตรฐานให้เปิดมุมเวียนขวา (Clockwise Angle) ทิศเดียวตลอดเส้นทาง',
-      'Temperature & Pressure Gradient: เส้นทางยาวตัดผ่านสภาพแวดล้อมที่อุณหภูมิและความดันเปลี่ยนแปลง (เช่น ขึ้นเขา) ต้องตรวจวัดอุณหภูมิและปรับค่า ppm ใหม่ตามสภาพแวดล้อมจริงเป็นระยะ',
-      'Never Use Dead-end Traverse (ข้อห้ามใช้วงรอบปลายลอย): ห้ามใช้วงรอบเปิดที่ไม่มีหมุดหลักฐานบรรจบปลายทางในงานควบคุมพิกัดเด็ดขาด เพราะไม่สามารถพิสูจน์ความถูกต้องของข้อมูลได้'
-    ],
-    downstreamWorkflow: {
-      outputDataFormat: 'ไฟล์แนวเส้นโครงข่ายพิกัด Alignment Route File (.csv / .landxml / .dxf)',
-      outputDescription: 'รายงานพิกัดหมุดควบคุมแนวเส้นทาง (Route Control Points) ที่ปรับแก้บรรจบหมุดหลักฐานอย่างสมบูรณ์',
-      nextStepTitle: 'การออกแบบแนวศูนย์กลางทาง (Centerline Alignment) และงานก่อสร้างโครงสร้างพื้นฐาน',
-      nextStepProcedure: 'ส่งออกพิกัดสถานีแนวเส้นทางไปยังซอฟต์แวร์ Civil 3D หรือซอฟต์แวร์ออกแบบทางหลวง เพื่อใช้กำหนดแนวเส้นทาง (Horizontal Alignment), แนวก่อสร้าง และการวางหมุดแนวเขตทาง',
-      recommendedToolTab: 'traverse',
-      toolActionLabel: 'เปิดโมดูลคำนวณวงรอบเปิดเชื่อมโยง'
-    }
-  },
-
-  // -------------------------------------------------------------------------
-  // TOPIC 6: GNSS / GPS INSTRUMENT OPERATION MANUAL (คู่มือใช้งาน)
+// -------------------------------------------------------------------------
+  // TOPIC EQ-03: GNSS / GPS INSTRUMENT OPERATION MANUAL (คู่มือใช้งาน)
   // -------------------------------------------------------------------------
   {
     id: 'gnss-instrument-manual',
+    code: 'EQ-03',
     title: 'คู่มือการใช้เครื่องรับสัญญาณดาวเทียม GNSS/GPS (RTK Base/Rover & CORS Receiver Manual)',
     titleEn: 'Multi-Constellation GNSS Receiver Hardware Anatomy, RTK Base-Rover Radio & NTRIP CORS Operation',
     category: 'gnss-gps',
@@ -1296,180 +767,12 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     }
   },
 
-  // -------------------------------------------------------------------------
-  // TOPIC 7: GNSS STATIC & RTK CORS NETWORK PROCEDURE (คู่มือทำงาน)
-  // -------------------------------------------------------------------------
-  {
-    id: 'gnss-rtk-static-survey',
-    title: 'วิธีการรังวัดหมุดควบคุมด้วยดาวเทียม GNSS (Static Geodetic Network & Network RTK CORS)',
-    titleEn: 'GNSS Geodetic Control Survey: Multi-Frequency Static Baseline & Network RTK (VRS/CORS)',
-    category: 'gnss-gps',
-    categoryName: 'วิธีการทำงานภาคสนาม',
-    summary: 'คู่มือมาตรฐานวิธีการทำงานรังวัดโครงข่ายหมุดหลักฐานด้วยระบบดาวเทียมนำทางสากล (GNSS): การรังวัดโครงข่ายสถิตความละเอียดสูง (Static Geodetic Baseline Survey) สำหรับสร้างหมุดควบคุมปฐมภูมิและทุติยภูมิ (First/Second Order Geodetic Network), เกณฑ์เวลาการรังวัดขั้นต่ำตามความยาวเส้นฐาน (<10 km ≥ 45-60 นาที, >20 km ≥ 3-4 ชั่วโมง), การบันทึกข้อมูลดิบ Multi-Frequency RINEX 3.0x, การปรับแก้โครงข่ายเส้นฐานแบบ Least Squares Loop Closure, การรังวัดจลน์แบบทันทีกาลผ่านระบบโครงข่ายสถานีรับสัญญาณต่อเนื่อง (Network RTK / CORS VRS), การประเมินค่าเรขาคณิตกลุ่มดาวเทียม (PDOP < 2.5), การแปลงความสูง Ellipsoidal (h) เป็น Orthometric Height (H) ด้วยแบบจำลองจีออยด์ TGM2017 และการตรวจสอบสถานะ Fix/Float',
-    badge: 'คู่มือทำงาน',
-    iconName: 'Satellite',
-    verificationStatus: 'draft',
-    verificationProof: 'ระเบียบกรมที่ดินว่าด้วยการรังวัดด้วยดาวเทียม RTK GNSS Network พ.ศ. 2562; GISTDA National CORS Network Standard; คู่มือแบบจำลองยีออยด์ TGM2017 (กรมแผนที่ทหาร); Hofmann-Wellenhof, B. et al. (2008) GNSS - GPS, GLONASS, Galileo and more; FGCC Standards and Specifications for Geodetic Control Networks',
-    courseRelation: 'วิชา 01218312 Satellite Geodesy & GNSS Positioning (KU Geomatics) & ข้อกำหนด กรมที่ดิน/รฟม.',
-    equipmentRequired: [
-      'เครื่องรับสัญญาณดาวเทียม Multi-Frequency Multi-Constellation GNSS (Trimble R12i / Leica GS18 / CHCNAV / Stonex) รองรับ GPS, GLONASS, Galileo, BeiDou',
-      'ชุดเสาโพลคาร์บอนไฟเบอร์ (Carbon Fiber Rover Pole 2.000 m) พร้อมขาตั้งค้ำสองขา (Bipod)',
-      'ฐานกล้องเล็งดิ่งแบบแม่นยำสูง (Precision Tribrach with Optical/Laser Plummet) และ Carrier Adapter สำหรับงาน Static',
-      'ขาตั้งกล้องไม้ชนิด Heavy-Duty ทนทานต่อการขยายตัวจากความร้อนและแรงลม',
-      'เครื่องควบคุมภาคสนาม (GNSS Field Controller) พร้อมซิมการ์ด 4G/5G และเสาวิทยุ UHF Internal Radio (1W-35W)',
-      'แถบวัดความสูงเสาอากาศมาตรฐาน (Antenna Height Measuring Tape / Height Hook)',
-      'แบตเตอรี่สำรองภายนอก (External Li-ion Battery Pack) สำหรับการรังวัดสถิตระยะยาว'
-    ],
-    workingPrinciple: [
-      'ระบบ GNSS อาศัยสัญญาณคลื่นวิทยุจากกลุ่มดาวเทียมหลายระบบพร้อมกัน (Multi-GNSS): GPS (สหรัฐฯ), GLONASS (รัสเซีย), Galileo (ยุโรป) และ BeiDou (จีน) เพื่อคำนวณตำแหน่ง 3 มิติ (X, Y, Z หรือ Lat, Lon, Ellipsoidal Height)',
-      'Carrier Phase Differential Positioning: การรังวัดความยาวคลื่นพาหะเฟส (L1, L2, L5) เพื่อแก้ปัญหาความกำกวมของจำนวนรอบคลื่น (Integer Ambiguity Resolution) ให้ได้สถานะ "FIXED" ซึ่งให้ความแม่นยำระดับมิลลิเมตรถึงเซนติเมตร',
-      'หลักการรังวัดโครงข่ายแบบสถิต (Static Geodetic Baseline Network): การตั้งเครื่องรับสัญญาณรับสัญญาณพร้อมกัน (Simultaneous Observation) ณ หมุดควบคุมอย่างน้อย 2-3 สถานีขึ้นไปเพื่อสร้างเวกเตอร์เส้นฐาน (Baseline Vectors ΔX, ΔY, ΔZ) แบบ Double-Difference กำจัดความคลาดเคลื่อนของนาฬิกาดาวเทียมและนาฬิกาเครื่องรับ',
-      'เกณฑ์เวลาการรังวัดสถิต (Static Session Duration Criteria): ความยาวเส้นฐาน < 5 km สังเกตการณ์ ≥ 30-45 นาที, ระยะ 5-15 km สังเกตการณ์ 60-90 นาที, ระยะ > 20 km สังเกตการณ์ 3-4 ชั่วโมงขึ้นไป ที่ Sampling Interval 15 วินาที เพื่อให้มีข้อมูลรอบคลื่นดาวเทียมเพียงพอในการแก้ Ambiguity ได้ 100%',
-      'กฎค่าเรขาคณิตการกระจายตัวของดาวเทียม (DOP: Dilution of Precision): ค่า PDOP ต้องต่ำกว่า 2.5 เพื่อยืนยันว่าดาวเทียมกระจายตัวรอบขอบฟ้าและแนวดิ่งอย่างสมดุล ลดความคลาดเคลื่อนในการคำนวณตำแหน่ง',
-      'การแปลงระดับความสูงทางยีโอเดซี (Height System Transformation): ความสูงที่ได้จากดาวเทียมคือ Ellipsoidal Height (h) ต้องแปลงเป็น Orthometric Height (H) เหนือระดับน้ำทะเลปานกลาง (MSL) ด้วยสูตร H = h - N โดยใช้ค่า Geoid Undulation (N) จากแบบจำลอง TGM2017 ของประเทศไทย'
-    ],
-    fieldProcedures: [
-      {
-        title: 'ขั้นตอนที่ 1: การวางแผนและการตั้งสถานีรับสัญญาณสถิต (Mission Planning, Tribrach Setup & Height Hook)',
-        details: 'ตรวจสอบปฏิทินตำแหน่งดาวเทียม (Satellite Constellation Visibility & Ionospheric Activity) หลีกเลี่ยงช่วงเวลาที่มีค่า PDOP พุ่งสูง ตั้งขาตั้งกล้องไม้เหนือหมุดหลักฐาน ปรับลูกน้ำฟองยาวบน Tribrach ให้เข้ากลางสนิท ตรวจสอบดิ่ง Optical Plummet ให้ตรงจุดกึ่งกลางหมุด ติดตั้งเครื่องรับสัญญาณ GNSS และใช้ Height Hook วัดความสูงเสาอากาศ (Antenna Height) ทั้งแบบ Vertical Height หรือ Slant Height พร้อมบันทึกค่า Antenna Phase Center (APC) Offset'
-      },
-      {
-        title: 'ขั้นตอนที่ 2: การตั้งค่าเครื่องรับสัญญาณและการบันทึกข้อมูลดิบ RINEX (Receiver Configuration & Logging)',
-        details: 'เปิดเครื่องรับสัญญาณ ตั้งค่า Elevation Cut-off Mask ที่ 15 องศา เพื่อตัดสัญญาณจากดาวเทียมมุมต่ำที่ผ่านชั้นบรรยากาศหนาและมีคลื่นสะท้อนหลายทิศทาง (Multipath Error) ตั้งค่า Epoch Interval เป็น 15 วินาทีสำหรับ Static Geodesy หรือ 1 วินาทีสำหรับ RTK ตรวจสอบจำนวนดาวเทียมที่รับสัญญาณได้ (ควรมากกว่า 20-28 ดวงในระบบ Multi-GNSS) และตั้งชื่อไฟล์หมุดตามรหัส 4 หลักของกรมที่ดิน/รฟม.'
-      },
-      {
-        title: 'ขั้นตอนที่ 3: การรังวัดสถิตโครงข่ายต่อเนื่องตามเกณฑ์เวลา (Simultaneous Static Observation)',
-        details: 'ประสานงานกับทีมงานสถานีอื่นเพื่อเริ่มบันทึกข้อมูลพร้อมกัน (Common Observation Window) ตามเกณฑ์เวลา: เส้นฐานสั้น (<10 km) รังวัดต่อเนื่อง 45-60 นาที, เส้นฐานยาว (>20 km) รังวัด 3-4 ชั่วโมง ตรวจสอบสถานะการบันทึก, แบตเตอรี่, จำนวนดาวเทียม และค่า PDOP ทุก 15 นาที ห้ามขยับหรือแตะต้องขาตั้งกล้องตลอดคาบการรังวัด'
-      },
-      {
-        title: 'ขั้นตอนที่ 4: การเชื่อมต่อระบบโครงข่าย CORS ผ่าน NTRIP (Network RTK CORS VRS Connection)',
-        details: 'เชื่อมต่อเครื่องควบคุม Controller เข้ากับเครือข่ายอินเทอร์เน็ต ใส่ IP, Port, Username และ Password ของระบบสถานีรับสัญญาณต่อเนื่อง (เช่น RTK Network กรมที่ดิน หรือ กรมแผนที่ทหาร) เลือก Mountpoint ชนิด VRS (Virtual Reference Station) หรือ MAC ส่งพิกัด NMEA GGA ของ Rover ไปยัง Caster และรอรับค่าปรับแก้ RTCM 3.2'
-      },
-      {
-        title: 'ขั้นตอนที่ 5: การตรวจสอบคุณภาพพิกัดและการบันทึกข้อมูลเฉลี่ย (Coordinate QA/QC & Averaging)',
-        details: 'รอให้สถานะการรังวัดเปลี่ยนเป็น "RTK FIXED" ตรวจสอบค่าความไม่แน่นอนพิกัด (Coordinate Quality: CQ) แนวราบ (Hz) ต้อง < 15 mm และแนวดิ่ง (Vt) ต้อง < 25 mm ปรับเสาโพลคาร์บอนให้ลูกน้ำฟองกลมเข้ากึ่งกลางพอดี กดบันทึกพิกัดแบบรังวัดเฉลี่ย (Averaging Observation) ไม่น้อยกว่า 30-180 Epochs เพื่อลดผลกระทบจากสัญญาณรบกวนชั่วขณะ'
-      },
-      {
-        title: 'ขั้นตอนที่ 6: การตรวจสอบหมุดควบคุมและ Site Calibration (Known Control Check)',
-        details: 'นำ Rover ไปส่องรังวัดตรวจสอบหมุดหลักฐานเดิม (Known Benchmark) ในบริเวณใกล้เคียงอย่างน้อย 1-2 หมุด เปรียบเทียบค่าพิกัดที่รังวัดได้กับค่าในบัญชีหมุด หากผลต่างเกินเกณฑ์ (ΔN > 20 mm, ΔE > 20 mm, ΔH > 30 mm) ให้ตรวจสอบความสูงเสาอากาศและทำการตรวจสอบระนาบ Site Calibration ทันที'
-      }
-    ],
-    deviceWorkflow: [
-      {
-        stepNumber: 1,
-        stageName: 'การตรวจสอบสถานะเชื่อมต่อ NTRIP CORS (CORS Network Status)',
-        targetHardware: 'Trimble Access / Leica Captivate / Topcon Magnet Field Controller',
-        buttonKey: '[CONNECT] -> [GNSS SURVEY] -> [NTRIP RTK CORS]',
-        actionLabel: 'เชื่อมต่อ VRS Mountpoint',
-        screenTitle: 'GNSS RECEIVER RTK STATUS: NETWORK CORS',
-        screenLines: [
-          '┌──────────────────────────────────────────────┐',
-          '│ STATUS: RTK FIXED [MULTI-FREQ CARRIER PHASE] │',
-          '│ SATELLITES: 28 TRACKED (12 GPS, 7 GLO, 9 BDS)│',
-          '│ PDOP: 1.32   HDOP: 0.74   VDOP: 1.09        │',
-          '│                                              │',
-          '│ CORRECTION SOURCE: NTRIP CORS-VRS (RTCM 3.2) │',
-          '│ CORRECTION AGE: 0.8 sec  [EXCELLENT]         │',
-          '│                                              │',
-          '│ PRECISION EST: Hz: ±0.008 m   Vt: ±0.014 m   │',
-          '│ ANTENNA HEIGHT: 2.000 m (POLE VERTICAL)      │',
-          '└──────────────────────────────────────────────┘'
-        ],
-        explanation: 'หน้าจอแสดงผลยืนยันการรับสัญญาณดาวเทียม 28 ดวง ค่า PDOP 1.32 อยู่ในเกณฑ์ดีเยี่ยม สถานะ RTK FIXED ด้วยค่าความแม่นยำแนวราบ ±8 mm และแนวดิ่ง ±14 mm',
-        qaCheck: 'ห้ามบันทึกจุดหากสถานะขึ้นเป็น "FLOAT" หรือ "AUTONOMOUS" ต้องรอให้ขึ้น "FIXED" และอายุสัญญาณปรับแก้ < 2.0 วินาทีเท่านั้น'
-      },
-      {
-        stepNumber: 2,
-        stageName: 'การรังวัดบันทึกแบบเฉลี่ย 180 คาบเวลา (Observation Epoch Averaging)',
-        targetHardware: 'GNSS Field Controller',
-        buttonKey: '[ENTER] -> [MEASURE POINT: OCCUPY 180s]',
-        actionLabel: 'เริ่มบันทึกเฉลี่ย Epochs',
-        screenTitle: 'POINT MEASUREMENT IN PROGRESS (AVERAGING)',
-        screenLines: [
-          '┌──────────────────────────────────────────────┐',
-          '│ POINT ID: CP-01                              │',
-          '│ CODE: MONUMENT_BRASS_PIN                     │',
-          '│ PROGRESS: [████████████████████] 180/180 EP  │',
-          '│                                              │',
-          '│ Northing (N):   1531520.184 m  (σ: 0.004 m)  │',
-          '│ Easting  (E):    669735.242 m  (σ: 0.003 m)  │',
-          '│ Elev (MSL):          4.512 m  (σ: 0.008 m)  │',
-          '│ Geoid Undulation N (TGM2017): -28.641 m      │',
-          '│                                              │',
-          '│ RESULT: POINT STORED SUCCESSFULLY            │',
-          '└──────────────────────────────────────────────┘'
-        ],
-        explanation: 'เครื่องทำการบันทึกค่าพิกัดทุกๆ 1 วินาทีจำนวน 180 คาบเวลา และคำนวณค่าเฉลี่ยทางสถิติพร้อมค่าเบี่ยงเบนมาตรฐาน (Standard Deviation σ) ก่อนบันทึกพิกัดลงฐานข้อมูล',
-        qaCheck: 'ค่า σ ของ N และ E ต้องไม่เกิน 0.010 m และ σ ของความสูงต้องไม่เกิน 0.020 m'
-      },
-      {
-        stepNumber: 3,
-        stageName: 'การตั้งค่าและบันทึกข้อมูลรังวัดสถิต (Static Geodetic RINEX Logging)',
-        targetHardware: 'GNSS Geodetic Receiver WebUI / Controller (Static App)',
-        buttonKey: '[STATIC LOG] บันทึกไฟล์ดิบ RINEX 3.04 อัตรา 15 วินาที',
-        actionLabel: 'เริ่มบันทึกข้อมูลโครงข่ายสถิต',
-        screenTitle: 'GEODETIC STATIC RINEX OBSERVATION SESSION',
-        screenLines: [
-          '┌──────────────────────────────────────────────┐',
-          '│ STATIC SESSION : BM-KU01_20260930_0830       │',
-          '│ FILE FORMAT    : RINEX v3.04 (MULTI-GNSS)    │',
-          '│ SAMPLING RATE  : 15.0 SEC   ELEV MASK: 15.0° │',
-          '│ ANTENNA HEIGHT : 1.485 m (SLANT TO BUMPER)   │',
-          '│ SATELLITES     : 32 (12 GPS, 8 GLO, 8 GAL, 4)│',
-          '│ SESSION ELAPSED: 01:15:30 / 01:30:00 (84%)   │',
-          '│ PDOP: 1.21     : MEMORY FREE: 28.4 GB (SD)   │',
-          '│ BATTERY STATUS : BATT1: 88%  BATT2: 92%      │',
-          '│ STATUS: RECORDING HIGH-RATE PHASE OBSERVABLES│',
-          '└──────────────────────────────────────────────┘'
-        ],
-        explanation: 'หน้าจอแสดงการบันทึกข้อมูลดิบคลื่นพาหะเฟสสำหรับการประมวลผลเวกเตอร์โครงข่ายสถิตความละเอียดสูง แสดงเวลาที่บันทึกผ่านไปแล้ว 1 ชม. 15 นาที ค่า PDOP 1.21 และสถานะหน่วยความจำ',
-        qaCheck: 'ห้ามหยุดการบันทึกก่อนครบเกณฑ์เวลาขั้นต่ำ และต้องตรวจสอบความสูงเสาอากาศ Slant Height อีกครั้งหลังจบเซสชัน'
-      }
-    ],
-    formulas: [
-      {
-        label: 'ความสัมพันธ์ระดับความสูงรูปทรงรี จีออยด์ และระดับน้ำทะเลปานกลาง (Height Relationship)',
-        formula: 'H = h - N',
-        explanation: 'H คือ Orthometric Height (ระดับน้ำทะเลปานกลาง MSL), h คือ Ellipsoidal Height จาก GNSS, N คือ Geoid Undulation จากแบบจำลองยีออยด์ (TGM2017)'
-      },
-      {
-        label: 'เกณฑ์เวลาการรังวัดโครงข่ายสถิตขั้นต่ำ (Static Minimum Observation Session Duration)',
-        formula: 'T_{\\text{min}} = 30 + (2 \\times D) \\quad (\\text{นาที เมื่อ } D \\text{ คือระยะทางเส้นฐานกิโลเมตร})',
-        explanation: 'สูตรประเมินระยะเวลาการสังเกตการณ์ขั้นต่ำสำหรับเครื่องรับสัญญาณหลายความถี่ เพื่อให้ได้ความน่าจะเป็นในการ Fix Ambiguity สูงกว่า 99.9%'
-      },
-      {
-        label: 'การประเมินความแม่นยำเชิงระยะทางของ GNSS Baseline (Baseline Accuracy Specification)',
-        formula: '\\sigma = \\pm \\sqrt{a^2 + (b \\times 10^{-6} \\times D)^2}',
-        explanation: 'a คือค่าคงที่ความแม่นยำของอุปกรณ์ (mm), b คือค่าความคลาดเคลื่อนตามระยะทาง (ppm), D คือระยะทางฐาน (mm)'
-      },
-      {
-        label: 'ค่าเรขาคณิตการกระจายตัวของดาวเทียมตำแหน่ง (Position Dilution of Precision)',
-        formula: '\\text{PDOP} = \\sqrt{\\sigma_x^2 + \\sigma_y^2 + \\sigma_z^2} / \\sigma_0',
-        explanation: 'ดัชนีชี้วัดความแข็งแรงของรูปทรงเรขาคณิตดาวเทียม ค่าต่ำกว่า 2.5 หมายถึงโครงสร้างดาวเทียมแข็งแรงมาก'
-      }
-    ],
-    errorSourcesAndMitigation: [
-      'Multipath Signal Reflection (สัญญาณสะท้อนหลายทิศทาง): เกิดขึ้นเมื่อตั้งเสาอากาศใกล้กำแพงกระจก อาคารสูง ผิวน้ำ หรือโครงสร้างเหล็ก แก้ไขด้วยการใช้เสาอากาศแบบ Choke Ring หรือตั้งค่า Elevation Mask สูงกว่า 15 องศา',
-      'Ionospheric & Tropospheric Delays (การหน่วงเวลาในชั้นบรรยากาศ): สัญญาณดาวเทียมช้าลงเมื่อผ่านชั้นบรรยากาศ แก้ไขด้วยการใช้สัญญาณความถี่คู่/หลายความถี่ (L1/L2/L5) ร่วมกับการรับค่าปรับแก้จากสถานี CORS หรือการประมวลผล Double-Difference',
-      'Loss of RTK Radio/Cellular Link: จุดอับสัญญาณโทรศัพท์ 4G ทำให้หลุดจาก NTRIP แก้ไขด้วยการสลับใช้ระบบคลื่นวิทยุ UHF Internal Radio ระหว่าง Base-Rover หรือรังวัดแบบ Static / PPK (Post-Processed Kinematic)',
-      'Human Error on Antenna Height: การวัดความสูงเสาโพลผิด หรือสับสนระหว่าง Vertical Height กับ Slant Height เป็นสาเหตุหลักที่ทำให้ระดับความสูงผิดพลาด ต้องล็อกตัวปรับระดับเสาโพลให้แน่นหนาและใช้แถบ Height Hook ทวนสอบทุกครั้ง',
-      'Short Observation Session on Long Baselines: รังวัดสถิตเวลาสั้นเกินไปบนเส้นฐานยาวกว่า 10 กิโลเมตร ส่งผลให้แก้ Ambiguity ไม่ผ่าน ต้องเคร่งครัดตามเกณฑ์เวลา T_min = 30 + 2D นาที'
-    ],
-    downstreamWorkflow: {
-      outputDataFormat: 'CSV (PT,LAT,LON,ELLIP_H,N,E,ORTHO_H), GeoJSON, RINEX 3.0x (.obs / .nav)',
-      outputDescription: 'พิกัดภูมิศาสตร์ WGS84 และค่าพิกัดกริด UTM Zone 47N/48N พร้อมระดับความสูงเหนือหมุด Geoid TGM2017 และไฟล์ดิบ RINEX สำหรับปรับแก้โครงข่าย',
-      nextStepTitle: 'การแปลงพิกัดและตรวจสอบค่าปรับเทียบ (Coordinate Transformation & Validation)',
-      nextStepProcedure: 'นำค่าพิกัด WGS84 ที่ได้จากการรังวัด RTK/Static นำเข้าสู่เครื่องมือแปลงพิกัด (Coordinate Converter) เพื่อแปลงเป็น UTM และ Indian 1975 หรือส่งออกเป็น GeoJSON เข้าสู่ WebGIS Terminal',
-      recommendedToolTab: 'coord',
-      toolActionLabel: 'เปิดเครื่องมือแปลงพิกัดภูมิศาสตร์ (Coordinate Converter)'
-    }
-  },
-
-  // -------------------------------------------------------------------------
-  // TOPIC 8: UAV DRONE PHOTOGRAMMETRY & LIDAR INSTRUMENT MANUAL (คู่มือใช้งาน)
+// -------------------------------------------------------------------------
+  // TOPIC EQ-04: UAV DRONE PHOTOGRAMMETRY & LIDAR INSTRUMENT MANUAL (คู่มือใช้งาน)
   // -------------------------------------------------------------------------
   {
     id: 'uav-instrument-manual',
+    code: 'EQ-04',
     title: 'คู่มือการใช้งานโดรนสำรวจ (UAV Photogrammetry & LiDAR Instrument Manual)',
     titleEn: 'Enterprise RTK UAV, Mechanical Global Shutter Camera & Airborne LiDAR Payload Manual',
     category: 'drone-uav',
@@ -1679,121 +982,12 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     }
   },
 
-  // -------------------------------------------------------------------------
-  // TOPIC 9: DRONE / UAV PHOTOGRAMMETRY & GCP SURVEY PROCEDURE (คู่มือทำงาน)
-  // -------------------------------------------------------------------------
-  {
-    id: 'uav-drone-photogrammetry',
-    title: 'วิธีการสำรวจทำแผนที่ด้วยโดรนและวางหมุด GCP (UAV Aerial Photogrammetry & GCP Survey)',
-    titleEn: 'UAV Aerial Photogrammetry: Flight Mission Planning, GCP Control, GSD & Orthomosaic Processing',
-    category: 'drone-uav',
-    categoryName: 'วิธีการทำงานภาคสนาม',
-    summary: 'คู่มือมาตรฐานวิธีการทำงานสำรวจรังวัดทำแผนที่ด้วยอากาศยานไร้คนขับ (UAV / Drone Photogrammetry): การวางแผนเส้นทางบินถ่ายภาพ (Flight Mission Planning), การคำนวณความละเอียดภาพภาคพื้นดิน (Ground Sample Distance: GSD), ข้อกำหนดการซ้อนทับภาพส่วนหน้า (Forward Overlap 75-80%) และส่วนข้าง (Side Overlap 65-70%), การวางและรังวัดหมุดควบคุมภาคพื้นดิน (Ground Control Points: GCP) และหมุดตรวจสอบอิสระ (Check Points: CP), การบินด้วยระบบ RTK/PPK, กระบวนการปรับแก้กลุ่มภาพทางอากาศ (Bundle Block Adjustment: BBA), การสร้างผังภาพถ่ายดัดแก้ระนาบ (Digital Orthophoto Mosaic - DOM) และแบบจำลองระดับสูงเชิงเลข (Digital Surface Model - DSM)',
-    badge: 'คู่มือทำงาน',
-    iconName: 'Plane',
-    verificationStatus: 'draft',
-    verificationProof: 'ASPRS Positional Accuracy Standards for Digital Geospatial Data (2014); ประกาศสำนักงานการบินพลเรือนแห่งประเทศไทย (CAAT) เรื่องการใช้อากาศยานไร้คนขับเพื่อการสำรวจ; Luhmann, T. et al. (2019) Close-Range Photogrammetry and 3D Imaging',
-    courseRelation: 'วิชา 01218341 Photogrammetry for Surveying (KU Geomatics) & มาตรฐาน กรมแผนที่ทหาร (RTSD)',
-    equipmentRequired: [
-      'อากาศยานไร้คนขับชนิดปีกหมุนหลายใบพัด (Multirotor Drone e.g. DJI Matrice 350 RTK / Phantom 4 RTK) หรือ Fixed-Wing UAV',
-      'กล้องถ่ายภาพความละเอียดสูงเซ็นเซอร์แบบ Mechanical Global Shutter (เช่น Zenmuse P1 ความละเอียด 45 ล้านพิกเซล)',
-      'สถานีฐานดาวเทียม GNSS ความแม่นยำสูงภาคพื้นดิน (D-RTK 2 Mobile Base Station หรือ GNSS Rover สำรวจ GCP)',
-      'เป้าควบคุมภาพถ่ายทางอากาศ (Aerial GCP Targets) วัสดุไวนิลกันน้ำลายตารางหมากรุกขาว-ดำ 60x60 cm หรือ 1x1 m',
-      'สมาร์ทคอนโทรลเลอร์ (Smart Remote Controller) พร้อมซอฟต์แวร์วางแผนการบิน (DJI Pilot 2 / UgCS / DroneDeploy)',
-      'เครื่องวัดความเร็วลมภาคสนาม (Anemometer) และเครื่องวัดความกดอากาศ'
-    ],
-    workingPrinciple: [
-      'หลักการทางเรขาคณิตของการถ่ายภาพดัดแก้ (Collinearity Condition): จุดศูนย์กลางเลนส์ (Perspective Center), จุดพิกัดภาพ (Image Point), และจุดบนภูมิประเทศจริง (Ground Point) เรียงตัวอยู่บนเส้นตรงเดียวกัน',
-      'การซ้อนทับของภาพถ่าย (Overlap Requirements): ต้องรักษาการซ้อนทับส่วนหน้า (Forward Overlap) ไม่ต่ำกว่า 75-80% และส่วนข้าง (Side Overlap) ไม่ต่ำกว่า 65-70% เพื่อให้ขั้นตอน Structure from Motion (SfM) สามารถจับคู่จุดร่วม (Tie Points) ระหว่างภาพได้อย่างสมบูรณ์',
-      'Ground Sample Distance (GSD): ขนาดของพิกเซลบนพื้นดินจริง คำนวณจากความสูงการบิน (H), ความยาวโฟกัสเลนส์ (F), ขนาดเซ็นเซอร์ (Sensor Width) และขนาดภาพ (Image Width): GSD = (H × Sw) / (F × Iw)',
-      'บทบาทของหมุด GCP vs Check Points (CP): GCP ใช้ตรึงและปรับแก้ตำแหน่ง 3 มิติของบล็อกภาพเข้าสู่ระบบพิกัดจริง (UTM) ส่วน Check Points (CP) ไม่ถูกนำเข้าการคำนวณ Bundle Adjustment แต่ใช้ตรวจสอบความถูกต้องสัมบูรณ์ (RMSE)',
-      'ระบบ RTK/PPK Drone: บันทึกตำแหน่งจุดเปิดรับแสง (Camera Exposure Center) ของทุกภาพด้วยพิกัดดาวเทียมระดับมิลลิเมตร ช่วยลดจำนวน GCP ภาคสนามได้มากกว่า 70% แต่ยังคงจำเป็นต้องใช้ Check Points เสมอ'
-    ],
-    fieldProcedures: [
-      {
-        title: 'ขั้นตอนที่ 1: การวางแผนภารกิจการบินและการคำนวณ GSD (Mission Planning & GSD Calculation)',
-        details: 'กำหนดขอบเขตพื้นที่สำรวจ (Survey AOI) ในซอฟต์แวร์วางแผนการบิน กำหนดค่า GSD ที่ต้องการ (เช่น 2.0 cm/pixel สำหรับงานก่อสร้าง) คำนวณหาความสูงการบินที่เหมาะสม (Flight Altitude) เช่น เลนส์ 35mm บนเซ็นเซอร์ Full-frame บินที่ความสูง 100-120 เมตรเหนือพื้นดิน ตั้งค่าความเร็วบินและเลือกทิศทางแนวบินตัดขวางกับทิศทางลมเพื่อรักษาเสถียรภาพตัวลำ'
-      },
-      {
-        title: 'ขั้นตอนที่ 2: การวางและการรังวัดพิกัดหมุดควบคุม GCP (GCP Distribution & Precision Survey)',
-        details: 'วางแผ่นเป้า GCP ลายหมากรุกขาว-ดำกระจายตัวรอบขอบเขตพื้นที่และใจกลางพื้นที่อย่างสม่ำเสมอ ยึดมุมแผ่นเป้าด้วยสมอบกให้ตึงเรียบสนิทกับพื้น รังวัดพิกัด 3 มิติ (N, E, Elev) กึ่งกลางเป้าทุกหมุดด้วยกล้อง Total Station หรือ GNSS RTK 180-epoch averaging แบ่งหมุดประมาณ 70% เป็น GCP และ 30% ที่เหลือเป็น Check Points (CP)'
-      },
-      {
-        title: 'ขั้นตอนที่ 3: การตรวจสอบสภาพอากาศและการเตรียมพร้อมก่อนบิน (Pre-Flight Safety Checklist)',
-        details: 'ตรวจสอบความเร็วลมภาคสนามด้วย Anemometer (ต้องไม่เกิน 8-10 m/s), ตรวจสอบค่า Kp-Index พายุสุริยะ (< 4), ตรวจสอบพื้นที่ปลอดสัญญาณรบกวนคลื่นวิทยุและแนวสายไฟแรงสูง, ตรวจสอบสภาพใบพัด แบตเตอรี่, ตั้งค่าระดับความสูงบินกลับจุดปล่อยอัตโนมัติ (Return-to-Home: RTH Altitude) ให้สูงกว่าสิ่งกีดขวางที่สูงที่สุดในพื้นที่อย่างน้อย 20-30 เมตร'
-      },
-      {
-        title: 'ขั้นตอนที่ 4: การปฏิบัติการบินถ่ายภาพอัตโนมัติ (Autonomous Flight Execution & Monitoring)',
-        details: 'เริ่มภารกิจบินอัตโนมัติ โดรนจะไต่ระดับไปยังจุดเริ่มต้นแนวบิน (First Waypoint) ตรวจสอบว่าโดรนรักษาตำแหน่ง RTK Fixed ตลอดเวลา ติดตามสถานะภาพถ่ายสด จำนวนภาพที่บันทึก และความเร็วลมบนหน้าจอ Controller บินวนถ่ายภาพเฉียง (Oblique Pass) เพิ่มเติมหากพื้นที่สำรวจมีอาคารสูงหรือความลาดชันสูง'
-      },
-      {
-        title: 'ขั้นตอนที่ 5: การตรวจสอบคุณภาพข้อมูลดิบภาคสนาม (Field QA/QC & EXIF Audit)',
-        details: 'เมื่อโดรนลงจอด นำการ์ด SD เสียบคอมพิวเตอร์ ตรวจสอบความคมชัดของภาพ ไม่มีอาการเบลอ (Motion Blur) ตรวจสอบไฟล์ Timestamp Log (.MRK) เทียบกับพิกัด GNSS Exposure Center นำเข้าซอฟต์แวร์ประมวลผลเบื้องต้น (Rapid Processing) เพื่อยืนยันว่าภาพถ่ายครอบคลุมพื้นที่ 100% ไม่มีช่องว่าง (Coverage Gaps)'
-      }
-    ],
-    deviceWorkflow: [
-      {
-        stepNumber: 1,
-        stageName: 'การกำหนดพารามิเตอร์การบินบนคอนโทรลเลอร์ (Flight Parameters Setup)',
-        targetHardware: 'DJI Pilot 2 / UgCS Ground Control Station',
-        buttonKey: '[MAPPING MISSION] -> [POLYGON AREA] -> [CAMERA: P1 35MM]',
-        actionLabel: 'กำหนดค่าความสูงและ Overlap',
-        screenTitle: 'UAV PHOTOGRAMMETRY MISSION PARAMETERS',
-        screenLines: [
-          '┌──────────────────────────────────────────────┐',
-          '│ AREA: 0.45 km² (281.25 Rai)                  │',
-          '│ TARGET GSD: 1.85 cm/pixel                    │',
-          '│ FLIGHT HEIGHT: 110.0 m (AGL - TERRAIN FOLLOW)│',
-          '│ SPEED: 8.5 m/s    ESTIMATED TIME: 24 min     │',
-          '│                                              │',
-          '│ FORWARD OVERLAP: 80%    SIDE OVERLAP: 70%    │',
-          '│ SHUTTER TRIGGER: TIME (INTERVAL: 2.0s)       │',
-          '│ RTK POSITIONING STATUS: RTK FIXED (BASE D-RTK)│',
-          '│ SAFE RTH ALTITUDE: 140.0 m                   │',
-          '└──────────────────────────────────────────────┘'
-        ],
-        explanation: 'ระบบวางแผนการบินคำนวณแนวบิน (Flight Lines) แบบคู่ขนานอัตโนมัติ รักษาระยะซ้อนทับ 80/70 และควบคุมความละเอียดภาพ GSD ที่ 1.85 cm/pixel ด้วยฟังก์ชัน Terrain Follow',
-        qaCheck: 'ยืนยันว่าฟังก์ชัน Terrain Follow เปิดใช้งานอยู่เสมอเมื่อบินในพื้นที่ที่มีความลาดชัน เพื่อให้ค่า GSD สม่ำเสมอทั่วทั้งแปลง'
-      }
-    ],
-    formulas: [
-      {
-        label: 'การคำนวณ Ground Sample Distance (GSD Formula)',
-        formula: '\\text{GSD} = \\frac{H \\times S_w}{F \\times I_w}',
-        explanation: 'H คือความสูงการบินเหนือพื้น (m), Sw คือขนาดความกว้างเซ็นเซอร์กล้อง (mm), F คือทางยาวโฟกัสเลนส์ (mm), Iw คือความละเอียดพิกเซลแนวกว้างของภาพ'
-      },
-      {
-        label: 'ความสัมพันธ์ความสูงบินกับทางยาวโฟกัส (Flight Altitude from Target GSD)',
-        formula: 'H = \\frac{F \\times \\text{GSD}}{p_{\\text{size}}}',
-        explanation: 'psize คือขนาดจริงของพิกเซลบนเซ็นเซอร์ (Sensor Pixel Pitch เช่น 4.4 μm)'
-      },
-      {
-        label: 'การประเมินความคลาดเคลื่อนด้วยรากกำลังสองเฉลี่ย (RMSE of Check Points)',
-        formula: '\\text{RMSE}_{xy} = \\sqrt{\\frac{\\sum (\\Delta X^2 + \\Delta Y^2)}{n}} \\le 1.5 \\times \\text{GSD}',
-        explanation: 'เกณฑ์ความถูกต้องมาตรฐานสากล: ค่าคลาดเคลื่อนบนจุดตรวจสอบ CP ในแนวราบต้องไม่เกิน 1.5 เท่าของ GSD'
-      }
-    ],
-    errorSourcesAndMitigation: [
-      'Motion Blur (ภาพเบลอจากการเคลื่อนที่): เกิดจากความเร็วชัตเตอร์ต่ำเกินไปหรือโดรนบินเร็วเกินไป แก้ไขด้วยการใช้เลนส์ Mechanical Global Shutter และตั้งค่า Shutter Speed ไม่ต่ำกว่า 1/1000s',
-      'Insufficient Overlap in Wind (การซ้อนทับภาพไม่พอเมื่อเจอลมแรง): ลมกรรโชกทำให้โดรนบินเอียงและระยะห่างระหว่างจุดถ่ายภาพคลาดเคลื่อน แก้ไขด้วยการตั้งค่า Overlap เผื่อไว้ที่ 80% / 75%',
-      'Vegetation & Water Body Distortion: ป่าทึบหรือผิวน้ำที่มีการเคลื่อนไหวทำให้โปรแกรม SfM จับคู่ Tie Points ไม่ได้ แก้ไขด้วยการบินคร่อมขอบเขตให้นอกเหนือน้ำ และใช้เทคโนโลยี LiDAR ร่วมด้วยหากจำเป็น',
-      'Thermal Camera Expansion & Lens Distortion: กล้องถ่ายภาพขยายตัวเมื่อโดรนบินกลางแดดจัด แก้ไขด้วยการเปิดกล้องอุ่นเครื่อง 10-15 นาทีก่อนบินจริงเพื่อให้ค่า In-Flight Calibration เสถียร'
-    ],
-    downstreamWorkflow: {
-      outputDataFormat: 'GeoTIFF (Orthomosaic, DSM/DTM), GeoJSON (Flight Boundary & Ground Control Points)',
-      outputDescription: 'ภาพถ่ายออร์โธโมเสกความละเอียดสูงระดับ GSD < 2 cm และพิกัดหมุด GCP/Check Points ในระบบ UTM WGS84',
-      nextStepTitle: 'การนำเข้าชั้นข้อมูลและแสดงผลบนแผนที่สนาม (Spatial Layer Overlay & WebGIS Inspection)',
-      nextStepProcedure: 'นำไฟล์ GeoJSON ขอบเขตการบินและหมุดตรวจทาน (Check Points) อัปโหลดเข้าสู่ WebGIS Field Terminal เพื่อตรวจสอบความถูกต้องเชิงตำแหน่งเทียบกับแผนที่ภูมิประเทศและดาวเทียม',
-      recommendedToolTab: 'map',
-      toolActionLabel: 'เปิดแผนที่สำรวจภาคสนาม (WebGIS Terminal)'
-    }
-  },
-
-  // -------------------------------------------------------------------------
-  // TOPIC 10: 3D LASER SCANNER (TLS & SLAM) INSTRUMENT MANUAL (คู่มือใช้งาน)
+// -------------------------------------------------------------------------
+  // TOPIC EQ-05: 3D LASER SCANNER (TLS & SLAM) INSTRUMENT MANUAL (คู่มือใช้งาน)
   // -------------------------------------------------------------------------
   {
     id: 'lidar-slam-instrument-manual',
+    code: 'EQ-05',
     title: 'คู่มือการใช้งานเครื่องสแกน 3 มิติ (3D Laser Scanner TLS & SLAM Manual)',
     titleEn: 'Terrestrial Laser Scanner (TLS) & Handheld Mobile SLAM Hardware Anatomy & Operation',
     category: 'scanner-slam',
@@ -2004,11 +1198,827 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     }
   },
 
+// -------------------------------------------------------------------------
+  // TOPIC SOP-01: DIFFERENTIAL LEVELING FIELD PROCEDURE (คู่มือทำงาน)
   // -------------------------------------------------------------------------
-  // TOPIC 11: 3D TERRESTRIAL LASER SCANNING & SLAM PROCEDURE (คู่มือทำงาน)
+  {
+    id: 'differential-leveling-survey',
+    code: 'SOP-01',
+    title: 'วิธีการทำงานระดับ (Differential Leveling, Three-Wire & Two-Peg Test)',
+    titleEn: 'Geometric Differential Leveling, Three-Wire Stadia & Two-Peg Collimation Adjustment',
+    category: 'survey-instrument',
+    categoryName: 'วิธีการทำงานภาคสนาม',
+    summary: 'คู่มือวิธีการปฏิบัติงานทำระดับเรขาคณิตความละเอียดสูง (Differential Leveling): ขั้นตอนการเดินระดับสายใยเดี่ยวและสายใย 3 เส้น (Three-Wire Reading) พร้อมการตรวจสอบระยะ Stadia (D = 100s), กฎการรักษาระยะหน้า-หลังให้สมดุลเพื่อหักล้างผลความโค้งของโลกและการหักเหของแสง (Curvature & Refraction: h = 0.0675 K²), การตรวจสอบความคลาดเคลื่อนแกนเล็งด้วยวิธี Two-Pegs Test และเกณฑ์ความคลาดเคลื่อนชั้นงานตามมาตรฐาน FGCC และกรมแผนที่ทหาร (RTSD)',
+    badge: 'คู่มือทำงาน',
+    iconName: 'Ruler',
+    verificationStatus: 'draft',
+    verificationProof: 'FGCC Standards and Specifications for Geodetic Control Networks (1984); ระเบียบกรมแผนที่ทหารว่าด้วยการรังวัดระดับ พ.ศ. 2548; Ghilani, C.D. & Wolf, P.R. (2012) Elementary Surveying (13th ed.)',
+    courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & มาตรฐาน กรมแผนที่ทหาร (RTSD)',
+    equipmentRequired: [
+      'กล้องระดับอัตโนมัติ (Automatic Level) กำลังขยาย 28x-32x หรือ Digital Level พร้อมกล่องกันกระแทก',
+      'ขาตั้งกล้องอลูมิเนียมชนิดหัวเรียบ (Tripod) สกรูยึดมาตรฐาน 5/8 นิ้ว',
+      'ไม้วัดระดับอลูมิเนียมชักสไลด์ 4-5 เมตร หรือไม้ Invar Staff สำหรับงานระดับความละเอียดสูง',
+      'หลอดลูกน้ำฟองกลมติดหลังไม้ระดับ (Rod Level Bubble) เพื่อรักษาแนวดิ่งของไม้ระดับ',
+      'แผ่นรองไม้ระดับเหล็กหล่อ (Turtle Plate / Turning Plate) ป้องกันไม้ระดับจมตัวที่จุดเปลี่ยน (TP)',
+      'สมุดจดบันทึกระดับภาคสนาม (Leveling Field Book) หรือแผ่นตารางจด BS, IFS, FS'
+    ],
+    workingPrinciple: [
+      'Differential Leveling อาศัยแนวเล็งระดับราบ (Horizontal Collimation Line) เพื่อหาผลต่างความสูงระหว่างจุด: Δh = BS - FS และคำนวณระดับความสูงใหม่: Elev_new = Elev_BM + BS - FS',
+      'การอ่านสายใย 3 เส้น (Three-Wire Leveling): อ่านค่าสายใยบน (Upper), สายใยกลาง (Middle), และสายใยล่าง (Lower) โดยมีเงื่อนไขตรวจสอบในสนาม: (Upper + Lower) / 2 ต้องเท่ากับ Middle ภายใน ±1 ถึง ±2 มิลลิเมตร',
+      'การวัดระยะทาง Stadia: ระยะทางจากกล้องถึงไม้ระดับคำนวณได้ทันทีจากช่วงสายใย s = (Upper - Lower) เมตร โดย D = 100 × s เมตร ซึ่งช่วยให้ควบคุมระยะห่างในสนามได้อย่างแม่นยำ',
+      'กฎการรักษาระยะหน้า-หลังให้สมดุล (Equal Distance Rule): การตั้งกล้องให้ระยะสายใยหลัง (BS Distance) เท่ากับระยะสายใยหน้า (FS Distance) จะหักล้างผลกระทบจากความโค้งของโลกและการหักเหของแสง (Earth Curvature & Refraction: h_cr = 0.0675 K²) และความคลาดเคลื่อนของแกนเล็ง (Collimation Error) ออกไปได้อย่างสมบูรณ์',
+      'การตรวจสอบความคลาดเคลื่อนแกนเล็ง (Two-Pegs Collimation Test): ตรวจสอบว่าแกนเล็งของกล้องขนานกับระนาบระดับของลูกน้ำจริงหรือไม่ โดยตั้งกล้องกึ่งกลางระหว่าง 2 จุดเพื่อหาผลต่างความสูงจริง แล้วย้ายกล้องไปตั้งชิดจุดหนึ่ง หากได้ผลต่างไม่เท่ากัน แสดงว่าแกนเล็งเอียงทำมุม ต้องปรับแก้สกรูสายใย (Reticle Adjusting Screw)'
+    ],
+    fieldProcedures: [
+      {
+        title: 'ขั้นตอนที่ 1: การวางแผนแนวเดินระดับและการตั้งกล้องสถานีแรก (Loop Planning & First Station Setup)',
+        details: 'เลือกจุดตั้งกล้องสถานีแรกระหว่างหมุดหลักฐานเริ่มต้น (BM) และจุดเปลี่ยนที่ 1 (TP1) โดยกะระยะให้ห่างจาก BM และ TP1 เท่าๆ กัน (ประมาณ 25-40 เมตร) กางขาตั้งกล้องให้มั่นคงและปรับฟองกลมเข้ากึ่งกลาง'
+      },
+      {
+        title: 'ขั้นตอนที่ 2: การส่องหมุดหลักฐานสายใยหลัง (Backsight: BS on Known BM)',
+        details: 'คนถือไม้ระดับตั้งไม้บนหมุดหลักฐาน (BM) ทราบค่าระดับ โดยประกบหลอดลูกน้ำฟองกลมติดหลังไม้ระดับให้ฟองอยู่ตรงกลางตลอดเวลา ผู้ส่องกล้องหมุนตัวกล้องไปยังไม้ระดับ ปรับชัดสายใยและโฟกัสภาพ อ่านค่าสายใยบน สายใยกลาง และสายใยล่าง บันทึกลงในช่อง BS'
+      },
+      {
+        title: 'ขั้นตอนที่ 3: การตรวจสอบเลข 3 สายใยและระยะทางในสนาม (Three-Wire & Distance Check)',
+        details: 'คำนวณตรวจสอบทันทีในสนาม: ค่าเฉลี่ย (U + L) / 2 เทียบกับ M ต้องไม่เกิน ±0.002 m หากเกินให้ส่องอ่านใหม่ทันที จากนั้นคำนวณระยะทาง D_BS = 100 × (U - L) เพื่อจดจำระยะและวางแผนตั้งหมุดจุดเปลี่ยน (Turning Point: TP) ให้มีระยะเท่ากัน',
+        criticalCaution: 'ก่อนอ่านตัวเลข ให้ขยับศีรษะขึ้น-ลงเล็กน้อยเพื่อตรวจดู Parallax Error หากเส้นสายใยขยับเลื่อนออกจากตัวเลขบนไม้ระดับ ให้ปรับโฟกัสภาพซ้ำจนกระทั่งสายใยแนบสนิทกับภาพไม้ระดับ'
+      },
+      {
+        title: 'ขั้นตอนที่ 4: การตั้งจุดเปลี่ยน (Turning Point: TP) และการส่องสายใยหน้า (Foresight: FS)',
+        details: 'วางแผ่นรองเต่าเหล็กหล่อ (Turtle Plate) บนพื้นดินที่มั่นคงในระยะที่เท่ากับระยะ BS (D_FS ≈ D_BS) หมุนตัวกล้องไปส่องอ่านสายใย 3 เส้นที่จุดเปลี่ยน TP1 บันทึกเป็นค่า FS1 คำนวณความสูงของแนวเล็ง (HI = Elev_BM + BS) และระดับของจุดเปลี่ยน (Elev_TP1 = HI - FS1) จากนั้นย้ายกล้องไปตั้งสถานีถัดไป โดยที่คนถือไม้ระดับต้องยืนคงตำแหน่งเดิมบน Turtle Plate แล้วหมุนหน้าไม้ระดับกลับมาเป็น BS ของสถานีใหม่'
+      },
+      {
+        title: 'ขั้นตอนที่ 5: การบรรจบวงรอบและการตรวจสอบความคลาดเคลื่อน (Loop Closure & Tolerances)',
+        details: 'ทำการรังวัดระดับต่อไปจนกระทั่งบรรจบกลับมายังหมุด BM เริ่มต้น (Loop Leveling) หรือไปบรรจบหมุด BM อื่นที่ทราบค่า (Double Run Leveling) ตรวจสอบความถูกต้องทางคณิตศาสตร์: ΣBS - ΣFS = Elev_end - Elev_start = ΔH ค่าความคลาดเคลื่อนปิดวงรอบ (Misclosure: c) ต้องไม่เกินเกณฑ์ชั้นงาน เช่น ชั้น 1: ±3√K mm, ชั้น 2: ±6√K mm หรือ ±8√K mm (K คือระยะทางรวมเป็นกิโลเมตร)'
+      },
+      {
+        title: 'ขั้นตอนที่ 6: การตรวจสอบความคลาดเคลื่อนแกนเล็งก่อนเริ่มงาน (Two-Pegs Collimation Test Procedure)',
+        details: 'ตอกหมุด 2 จุด A และ B ห่างกันประมาณ 50-60 เมตร (1) ตั้งกล้องกึ่งกลางที่จุด C (ห่างจุด A 25-30m และจุด B 25-30m) ส่องอ่านไม้ระดับ BS_A1 และ FS_B1 ผลต่างความสูงจริง Δh_true = BS_A1 - FS_B1 (2) ย้ายกล้องไปตั้งที่จุด D ชิดกับหมุด A (ห่างประมาณ 2-3 เมตร) ส่องอ่านค่าไม้ระดับที่ A ได้ BS_A2 และส่องไปยัง B ได้ FS_B2 ผลต่างความสูงปรากฏ Δh_app = BS_A2 - FS_B2 หาก Δh_true ≠ Δh_app แสดงว่ามี Collimation Error (c) คำนวณค่าอ่านที่ถูกต้องของ B: FS_B_correct = BS_A2 - Δh_true ใช้หมุดไขปรับสกรูสายใยเลื่อนสายใยกลางให้ทับค่า FS_B_correct พอดี',
+        criticalCaution: 'การปรับแก้ Two-Peg Test ด้วยการไขสกรูสายใยต้องทำอย่างระมัดระวัง ใช้เข็มปรับที่ติดมากับกล่องกล้องและหมุนทีละนิดเพื่อป้องกันเกลียวสายใยชำรุด'
+      }
+    ],
+    deviceWorkflow: [
+      {
+        stepNumber: 1,
+        stageName: 'การอ่านสายใย 3 เส้นและวัดระยะสมดุล (Three-Wire Stadia Balance)',
+        targetHardware: 'Topcon AT-B4A / Leica NA700 Series Auto Level',
+        buttonKey: '[BS & FS READING] อ่านค่าสายใย U, M, L และควบคุม D_BS ≈ D_FS',
+        actionLabel: 'ส่องอ่านและเช็คระยะ Stadia',
+        screenTitle: 'OPTICAL RETICLE STADIA VIEW (THREE-WIRE CHECK)',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│            CIRCULAR BUBBLE: CENTERED         │',
+          '│         COMPENSATOR STATUS: ENGAGED [ACTIVE] │',
+          '│                                              │',
+          '│                 + (Upper)   1.482 m          │',
+          '│        ─────────┼─────────  1.350 m (Middle) │',
+          '│                 + (Lower)   1.218 m          │',
+          '│                                              │',
+          '│  Stadia Interval (s): 1.482 - 1.218 = 0.264m │',
+          '│  Distance to Staff (D): 100 x 0.264 = 26.4 m │',
+          '│  Arithmetic Check: (1.482 + 1.218)/2 = 1.350m│',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'อ่านค่าสายใยบน กลาง ล่าง จากนั้นคำนวณค่าเฉลี่ย (U+L)/2 เทียบกับสายใยกลาง M ทันทีหน้างาน และจดระยะทาง D = 100s เพื่อตั้งระยะ FS ให้เท่ากับ BS',
+        qaCheck: 'สายใยเฉลี่ย (U+L)/2 ต้องตรงกับค่าสายใยกลาง M ภายใน ±1 ถึง ±2 mm ก่อนย้ายไม้ระดับ'
+      },
+      {
+        stepNumber: 2,
+        stageName: 'การบันทึกตารางระดับและการย้ายจุดเปลี่ยน (Turning Point Loop Log)',
+        targetHardware: 'Standard Differential Leveling Field Book',
+        buttonKey: '[FIELD BOOK] คำนวณ HI = Elev + BS และ Elev_TP = HI - FS',
+        actionLabel: 'บันทึกตารางเดินระดับ',
+        screenTitle: 'FIELD BOOK STATION LOG (HI & TURNING POINT)',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ STA      BS(m)     HI(m)     FS(m)   ELEV(m) │',
+          '│ BM-1     1.350   101.350      -     100.000 │',
+          '│ TP-1     1.820   101.728    1.442    99.908 │',
+          '│ TP-2     1.105   101.220    1.613    99.607 │',
+          '│ BM-1       -        -       1.218   100.002 │',
+          '│                                              │',
+          '│ Sum BS = 4.275 m   |   Sum FS = 4.273 m      │',
+          '│ Loop Misclosure = +0.002 m (+2.0 mm) [PASS]  │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'ที่ทุกจุดเปลี่ยน (TP) คนถือไม้ต้องยืนบนแผ่นรองเต่า (Turtle Plate) ห้ามยกไม้ขึ้นพื้นเด็ดขาด เพียงแค่หมุนหน้าไม้ตามเข็มนาฬิกาหันเข้าหากล้องที่ย้ายไปตั้งสถานีถัดไป',
+        qaCheck: 'ตรวจสอบ Page Check ทุกหน้าสมุดสนาม: ΣBS - ΣFS ต้องเท่ากับ Elev_สุดท้าย - Elev_เริ่มต้น เสมอ'
+      },
+      {
+        stepNumber: 3,
+        stageName: 'การคำนวณและปรับแก้ Two-Pegs Collimation Test',
+        targetHardware: 'Field Collimation Verification Worksheet',
+        buttonKey: '[FIELD CALC] คำนวณค่าคลาดเคลื่อน c และค่าอ่านที่ถูกต้องของ FS_B',
+        actionLabel: 'ตรวจสอบและปรับสกรูสายใย',
+        screenTitle: 'TWO-PEGS COLLIMATION TEST REPORT',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ Setup 1 (Center at C, Dist A-B = 60.0 m):    │',
+          '│   BS_A1 = 1.624 m  |  FS_B1 = 1.488 m        │',
+          '│   True Delta H = 1.624 - 1.488 = +0.136 m    │',
+          '│                                              │',
+          '│ Setup 2 (Instrument near A, Dist to B = 58m):│',
+          '│   BS_A2 = 1.512 m  |  FS_B2 = 1.382 m        │',
+          '│   Apparent Delta H = 1.512 - 1.382 = +0.130 m│',
+          '│                                              │',
+          '│ Collimation Error (c) = +0.136 - +0.130      │',
+          '│                       = +0.006 m / 60 m      │',
+          '│ Correct Target Reading FS_B = 1.512 - 0.136  │',
+          '│                             = 1.376 m        │',
+          '│ Action: Adjust reticle screw from 1.382→1.376│',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'เมื่อค่าผลต่างความสูงที่ตั้งกล้องชิดหมุด A ต่างจากผลต่างความสูงจริง แสดงว่าแนวเล็งเอียง ให้ปรับสกรูสายใยกลางให้เล็งมาที่ 1.376 m',
+        qaCheck: 'เกณฑ์ที่ยอมรับได้สำหรับงานระดับทั่วไป: c ไม่เกิน ±3 mm ต่อ 60 เมตร'
+      }
+    ],
+    formulas: [
+      {
+        label: 'ผลต่างความสูงระหว่างสถานี (Differential Elevation)',
+        formula: '\\Delta h = \\text{BS} - \\text{FS}',
+        explanation: 'ผลต่างความสูงคำนวณจากค่าอ่านสายใยหลัง (Backsight) ลบด้วยค่าอ่านสายใยหน้า (Foresight) หากได้บวกแสดงว่าพื้นที่ยกสูงขึ้น (Rise) หากได้ลบแสดงว่าพื้นที่ลาดลง (Fall)'
+      },
+      {
+        label: 'ความสูงของแนวเล็งและค่าระดับสถานีถัดไป (HI Method)',
+        formula: '\\text{HI} = \\text{Elev}_{\\text{BM}} + \\text{BS}, \\quad \\text{Elev}_{\\text{new}} = \\text{HI} - \\text{FS}',
+        explanation: 'HI (Height of Instrument) คือระดับความสูงของแนวเล็งกล้องเหนือระดับน้ำทะเลปานกลาง (MSL)'
+      },
+      {
+        label: 'การหาระยะทางด้วยสายใยสเตเดีย (Stadia Distance Equation)',
+        formula: 'D = 100 \\times s = 100 \\times (\\text{Upper} - \\text{Lower})',
+        explanation: 'ระยะทางจากจุดตั้งกล้องถึงไม้ระดับ คำนวณจากผลต่างของค่าอ่านสายใยบนลบสายใยล่างคูณด้วยค่าคงที่กล้อง 100'
+      },
+      {
+        label: 'การแก้ความโค้งของโลกและการหักเหของแสง (Curvature & Refraction Correction)',
+        formula: 'h_{cr} = 0.0675 \\times K^2 \\quad (\\text{เมตร เมื่อ } K \\text{ เป็นกิโลเมตร})',
+        explanation: 'ผลรวมของส่วนโค้งโลก (ทำให้สายใยอ่านได้สูงขึ้น) และการหักเหของบรรยากาศ (ทำให้รังสีแสงโค้งลงสู่พื้นดิน) สามารถหักล้างได้หมดเมื่อระยะ BS = FS'
+      },
+      {
+        label: 'การคำนวณ Two-Peg Collimation Error (c)',
+        formula: 'c = \\frac{(\\text{BS}_{A1} - \\text{FS}_{B1}) - (\\text{BS}_{A2} - \\text{FS}_{B2})}{D_{AB}}',
+        explanation: 'อัตราความลาดเอียงของแกนเล็งกล้องระดับต่อหน่วยระยะทาง'
+      },
+      {
+        label: 'เกณฑ์ความคลาดเคลื่อนปิดวงรอบระดับ (FGCC & RTSD Leveling Standards)',
+        formula: 'C_{\\text{max}} = \\pm k \\sqrt{K} \\quad (\\text{มิลลิเมตร})',
+        explanation: 'ชั้น 1 (First Order): ±3√K ถึง ±4√K mm | ชั้น 2 (Second Order): ±6√K ถึง ±8√K mm | ชั้น 3 (Third Order): ±12√K mm (K คือระยะทางรวมกิโลเมตร)'
+      }
+    ],
+    errorSourcesAndMitigation: [
+      'Collimation Error (แกนเล็งไม่ระนาบ): เกิดจากสกรูยึดแผ่นสายใยขยับตัว หรือการกระแทก แก้ไขด้วยการเฉลี่ยระยะ BS และ FS ให้เท่ากัน และทำ Two-Peg Test ปรับแต่งก่อนออกภาคสนาม',
+      'Rod Bubble Out of Plumb (ไม้ระดับเอียง): ทำให้ค่าอ่านสายใยสูงกว่าความจริง ต้องใช้หลอดลูกน้ำฟองกลมแนบหลังไม้ระดับเสมอ และใช้เทคนิคแกว่งไม้ระดับ (Wave the Rod) เลือกจดค่าอ่านที่น้อยที่สุด',
+      'Turning Point Settlement (การทรุดตัวของจุดเปลี่ยน TP): ดินยุบตัวระหว่างหมุนไม้ระดับ ต้องใช้แผ่นรองเต่าเหล็กหล่อ (Turtle Plate) ตอกแน่นลงดินเสมอ ห้ามใช้ก้อนหินลอยหรือพื้นดินนิ่ม',
+      'Instrument Settlement (การทรุดตัวของขาตั้งกล้อง): เกิดจากการปักขาตั้งกล้องบนดินโคลนหรือผิวแอสฟัลต์ร้อนจัด ต้องเหยียบปลายขากล้องให้แน่นจมถึงชั้นดินแข็ง',
+      'Parallax Error (สายใยลอยไม่ทับระนาบภาพ): ทำให้ค่าอ่านแกว่งเมื่อขยับตา ต้องปรับวงแหวนเลนส์ใกล้ตาให้เห็นสายใยดำสนิท แล้วปรับโฟกัสภาพไม้ระดับให้คมชัดก่อนอ่านเสมอ',
+      'Heat Shimmer & Mirage (ไอร้อนพวยพุ่งจากผิวดิน): แสงเกิดการหักเหรุนแรงบริเวณใกล้พื้นผิว หลีกเลี่ยงการอ่านค่าสายใยต่ำกว่า 0.5 เมตรจากพื้นดิน และหลีกเลี่ยงการส่องระดับตอนเที่ยงวันแดดจัด'
+    ],
+    downstreamWorkflow: {
+      outputDataFormat: 'ไฟล์ตารางระดับ Leveling Loop Sheet (.xlsx / .csv) พร้อมค่าตรวจสอบ ΣBS - ΣFS',
+      outputDescription: 'ตารางบันทึกค่าระดับสถานี, จุดเปลี่ยน (TP), ความสูงแนวเล็ง (HI), และค่าระดับปรับแก้ (Adjusted Elevation)',
+      nextStepTitle: 'การตรวจสอบและกระจายปรับแก้ค่าระดับวงรอบ (Elevation Balancing)',
+      nextStepProcedure: 'นำค่าระดับเข้าสู่โมดูลคำนวณระดับเพื่อตรวจสอบเงื่อนไขทางคณิตศาสตร์ ΣBS - ΣFS = ΔH และตรวจสอบเกณฑ์ชั้นงาน FGCC หากผ่านเกณฑ์ ให้กระจายค่าปรับแก้ตามระยะทางสะสมของแต่ละช่วงสถานี',
+      recommendedToolTab: 'leveling',
+      toolActionLabel: 'เปิดโมดูลคำนวณการทำระดับ'
+    }
+  },
+
+// -------------------------------------------------------------------------
+  // TOPIC SOP-02: CLOSED LOOP TRAVERSE & BOWDITCH COMPASS RULE (คู่มือทำงาน)
+  // -------------------------------------------------------------------------
+  {
+    id: 'closed-loop-traverse',
+    code: 'SOP-02',
+    title: 'วิธีการทำวงรอบปิด (Closed Loop Traverse Survey & Bowditch Compass Rule)',
+    titleEn: 'Closed Polygon Loop Traverse, Angular Misclosure Check & Bowditch Compass Balancing',
+    category: 'survey-instrument',
+    categoryName: 'วิธีการทำงานภาคสนาม',
+    summary: 'คู่มือมาตรฐานวิธีการทำงานรังวัดโครงข่ายวงรอบปิดรูปหลายเหลี่ยม (Closed Loop Traverse): กฎผลรวมมุมภายใน (n - 2) × 180°, การตรวจสอบค่าคลาดเคลื่อนทางมุม (Angular Misclosure) เทียบเกณฑ์ชั้นงาน, การกระจายปรับแก้ค่ามุมเฉลี่ย (-c/n), การคำนวณมุมภาคของทิศต่อเนื่อง (Continuous Azimuth), การคำนวณผลต่างพิกัดราบ Latitude (ΔN) และ Departure (ΔE), การหาค่าคลาดเคลื่อนเชิงเส้น (Linear Misclosure), การหาอัตราส่วนความละเอียดชั้นงาน (Relative Precision 1:N) และการปรับแก้เส้นโครงวงรอบด้วยวิธี Compass Rule (Bowditch Method)',
+    badge: 'คู่มือทำงาน',
+    iconName: 'Compass',
+    verificationStatus: 'draft',
+    verificationProof: 'Bowditch, N. (1807) Compass Rule; มาตรฐานการรังวัดและคำนวณวงรอบ กรมแผนที่ทหาร (RTSD 1st-3rd Order Traverse Specifications); Schofield, W. & Breach, M. (2007) Engineering Surveying',
+    courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & ข้อกำหนดงานรังวัดวงรอบ',
+    equipmentRequired: [
+      'กล้องประมวลผลรวม (Total Station) หรือกล้องวัดมุมและเครื่องวัดระยะอิเล็กทรอนิกส์ (EDM) ความละเอียดสูง',
+      'ชุดเป้าปริซึมสะท้อนแสง (Prism Target Set) พร้อมเสาโพลและขาทรงตัว (Bipod) อย่างน้อย 2 ชุด (Backsight & Foresight)',
+      'ชุดฐานกล้องและหัวรับเป้า (Tribrach & Optical Carrier) 2-3 ชุด สำหรับระบบ Forced Centering',
+      'หมุดสำรวจเหล็กกล้า (P.K. Nails / Concrete Survey Monuments) พร้อมสีสเปรย์และหมึกสะท้อนแสง',
+      'เทอร์โมบารอมิเตอร์วัดอุณหภูมิและความดันบรรยากาศ สำหรับตั้งค่าชดเชยระยะ EDM (ppm)',
+      'ตารางบันทึกการรังวัดวงรอบและชีทคำนวณพิกัด (Traverse Field & Computation Sheet)'
+    ],
+    workingPrinciple: [
+      'ทฤษฎีเรขาคณิตรูปปิดหลายเหลี่ยม: ผลรวมมุมภายในของรูปหลายเหลี่ยม n ด้าน ต้องเท่ากับ Σθ = (n - 2) × 180° หากรังวัดเป็นมุมภายนอก ผลรวมต้องเท่ากับ (n + 2) × 180°',
+      'การตรวจสอบค่าคลาดเคลื่อนทางมุม (Angular Misclosure: c_θ): c_θ = Σθ_actual - (n - 2) × 180° ค่าที่ได้ต้องไม่เกินเกณฑ์ชั้นงาน เช่น C_max = ±1.5\'√n หรือ ±30"√n หากผ่านเกณฑ์ ให้กระจายแก้ค่ามุมเฉลี่ย Corr = -c_θ / n ให้แต่ละมุมเท่าๆ กัน',
+      'การคำนวณ Azimuth ต่อเนื่อง: Az_i = Az_{i-1} + 180° + θ_adjusted (หากค่าเกิน 360° ให้ลบออก 360° หรือถ้าติดลบให้บวก 360°)',
+      'การคำนวณผลต่างพิกัดราบ: ละติจูด (Latitude: ΔN) = L × cos(Az) และ เดพาร์ทเจอร์ (Departure: ΔE) = L × sin(Az) โดยในวงรอบรูปปิดวง ผลรวมทางทฤษฎีต้องเป็นศูนย์: ΣΔN = 0 และ ΣΔE = 0',
+      'ความคลาดเคลื่อนเชิงเส้นและอัตราส่วนชั้นงาน: ระยะคลาดเคลื่อนเชิงเส้น E_L = √( (ΣΔN)² + (ΣΔE)² ) อัตราส่วนความละเอียด Precision = 1 : (Perimeter / E_L) เช่น 1:10,000 หรือ 1:20,000',
+      'ทฤษฎีการปรับแก้แบบ Bowditch (Compass Rule): มีสมมติฐานว่าการวัดมุมและการวัดระยะทางมีความแม่นยำเทียบเท่ากัน ค่าปรับแก้พิกัดของแต่ละด้านจะเป็นสัดส่วนโดยตรงกับความยาวของด้านนั้น: Corr_Lat_i = -(ΣΔN / Perimeter) × L_i และ Corr_Dep_i = -(ΣΔE / Perimeter) × L_i'
+    ],
+    fieldProcedures: [
+      {
+        title: 'ขั้นตอนที่ 1: การสำรวจตรวจพื้นที่และการฝังหมุดสถานี (Reconnaissance & Monumentation)',
+        details: 'เดินสำรวจพื้นที่ วางตำแหน่งหมุดวงรอบให้มองเห็นหากันได้ชัดเจน ไม่มีสิ่งกีดขวาง ไม่มีไอร้อนรบกวน หลีกเลี่ยงด้านที่มีระยะสั้นเกินไป (< 30 เมตร) และหลีกเลี่ยงการเกิดมุมแหลมจัด ตอกหมุดคอนกรีตหรือตะปู P.K. ลงบนพื้นผิวที่มั่นคงถาวร และทำผังหมุดผูกโยง (Station Description) ไว้ทุกสถานี'
+      },
+      {
+        title: 'ขั้นตอนที่ 2: การรังวัดมุมและระยะแบบ Forced Centering (Traverse Observation)',
+        details: 'ใช้ระบบสับเปลี่ยนหัวกล้องและเป้าบน Tribrach เดียวกัน (Forced Centering) เพื่อขจัด Centering Error ตั้งกล้องที่สถานี รังวัดมุมราบ 2 หน้ากล้องไปยังสถานีหลัง (BS) และสถานีหน้า (FS) วัดระยะทางลาดเอียง (SD), มุมดิ่ง (Zenith Angle) เพื่อทอนเป็นระยะราบ (HD) ป้อนค่าอุณหภูมิและความดันบรรยากาศเข้ากล้องเพื่อแก้ค่า ppm'
+      },
+      {
+        title: 'ขั้นตอนที่ 3: การตรวจสอบผลรวมมุมภายในทันทีในสนาม (Field Angular Closure Check)',
+        details: 'รวมผลรวมมุมภายในทุกสถานี: Σθ เทียบกับ (n - 2) × 180° ตรวจสอบค่าคลาดเคลื่อน c_θ ว่าผ่านเกณฑ์ชั้นงานหรือไม่ หากเกินเกณฑ์แสดงว่ามีการเล็งเป้าผิดหรือจดตัวเลขพลาด ต้องตรวจสอบและรังวัดซ้ำทันทีก่อนย้ายหรือถอนสถานี'
+      },
+      {
+        title: 'ขั้นตอนที่ 4: การคำนวณผลต่างพิกัดและการปรับแก้แบบ Bowditch ในห้องประมวลผล',
+        details: 'คำนวณ Azimuth ของทุกด้าน คำนวณ Latitude (ΔN = L cos Az) และ Departure (ΔE = L sin Az) รวมผลรวม ΣΔN และ ΣΔE คำนวณระยะคลาดเคลื่อน E_L และอัตราส่วนชั้นงาน หากผ่านเกณฑ์ ให้ปรับแก้ค่า ΔN และ ΔE ของทุกด้านด้วยสูตร Bowditch และคำนวณพิกัดสะสม N, E ของทุกสถานี'
+      },
+      {
+        title: 'ขั้นตอนที่ 5: การตรึงพิกัดเข้าสู่ระบบกริดแห่งชาติ (Grid Coordinate Transformation)',
+        details: 'เชื่อมโยงพิกัดวงรอบเข้ากับหมุดหลักฐานแผนที่กรมที่ดินหรือกรมแผนที่ทหาร (RTSD) โดยแปลงพิกัดเข้าสู่ระบบ UTM Zone 47N / 48N บนพื้นผิวอ้างอิง WGS84 หรือ Indian 1975 พร้อมนำค่ามาตราส่วนกริด (Grid Scale Factor) และการแก้มุมกริดคอนเวอร์เจนซ์ (Grid Convergence) มาปรับแก้'
+      }
+    ],
+    deviceWorkflow: [
+      {
+        stepNumber: 1,
+        stageName: 'การเลือกโหมดวงรอบและตั้งสถานีแรก (Traverse Setup & Occupation)',
+        targetHardware: 'Topcon OS / Sokkia FX Series On-board Software',
+        buttonKey: '[MENU] -> [PROGRAMS] -> [TRAVERSE] -> [OCC.SETUP]',
+        actionLabel: 'ป้อนข้อมูลสถานีจุดเริ่มและหมุดหลัง',
+        screenTitle: 'TRAVERSE STATION OCCUPATION & BACKSIGHT',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ TRAVERSE SETUP: CLOSED POLYGON               │',
+          '│ OCC.POINT : ST-01  (N: 1000.000, E: 1000.000)│',
+          '│ BACKSIGHT : ST-04  (Known Azimuth: 315°00\'00")│',
+          '│ INST.HEIGHT: 1.520 m | PRISM HEIGHT: 1.600 m │',
+          '│                                              │',
+          '│ [AIM BACKSIGHT] -> PRESS [0-SET] OR [AZIMUTH]│',
+          '│ STATUS: ORIENTED TO ST-04                    │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'เข้าสู่โปรแกรมรังวัดวงรอบ ป้อนชื่อและพิกัดสมมุติหรือพิกัดจริงของสถานีแรก เล็งเป้าไปยังสถานีหลังเพื่อกำหนดแนวทิศทางอ้างอิง',
+        qaCheck: 'ตรวจสอบค่าความสูงกล้อง (Instrument Height) และความสูงเป้าปริซึม (Prism Height) ให้ถูกต้องก่อนกดรับค่า'
+      },
+      {
+        stepNumber: 2,
+        stageName: 'การวัดมุมและระยะสถานีหน้า (Foresight Measurement)',
+        targetHardware: 'Total Station Field Software',
+        buttonKey: '[MSR] หรือ [AUTO-RUN 2-FACE] เล็งเป้าสถานีหน้าแล้วกดวัด',
+        actionLabel: 'บันทึกมุมราบ ระยะราบ และมุมดิ่ง',
+        screenTitle: 'FORESIGHT OBSERVATION (ST-01 -> ST-02)',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ MEASURING TO FS: ST-02                       │',
+          '│ HA (Mean) :  85°20\'14"                       │',
+          '│ VA (Zenith):  89°54\'10"                      │',
+          '│ SD (Slope): 124.582 m | HD (Horiz): 124.581 m│',
+          '│                                              │',
+          '│ CALC AZIMUTH (ST01->ST02): 40°20\'14"         │',
+          '│ LAT (dN): +94.945 m  | DEP (dE): +80.612 m   │',
+          '│                                              │',
+          '│ [STORE POINT & MOVE TO NEXT STATION]         │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'เล็งเป้าสถานีหน้า กล้องจะทำการวัดมุม 2 หน้ากล้องและวัดระยะทาง EDM พร้อมคำนวณระยะราบ (HD) และผลต่างพิกัดทันที',
+        qaCheck: 'ตรวจสอบค่า ppm บรรยากาศและค่าคงที่ปริซึม (Prism Constant e.g. -30mm) บนหน้าจอ'
+      },
+      {
+        stepNumber: 3,
+        stageName: 'การตรวจสอบผลการปิดวงรอบ (Traverse Closure Summary Report)',
+        targetHardware: 'Total Station On-screen Closure Report',
+        buttonKey: '[CALC CLOSURE] เมื่อรังวัดครบทุกสถานีจนบรรจบจุดเริ่มต้น',
+        actionLabel: 'แสดงรายงานผลการปิดวงรอบ',
+        screenTitle: 'CLOSED LOOP TRAVERSE CLOSURE REPORT',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ TOTAL STATIONS (n) : 4 SIDES                 │',
+          '│ SUM OF INTERIOR ANGLES : 359°59\'42"          │',
+          '│ THEORETICAL SUM (n-2)*180: 360°00\'00"        │',
+          '│ ANGULAR MISCLOSURE : -0°00\'18" (TOL: ±1\'00") │',
+          '│ STATUS: ANGULAR CHECK PASSED [CORR: +4.5"/STA│',
+          '│                                              │',
+          '│ TOTAL PERIMETER (P): 486.240 m               │',
+          '│ MISCLOSURE dN: +0.018 m | dE: -0.012 m       │',
+          '│ LINEAR MISCLOSURE (EL) : 0.0216 m            │',
+          '│ RELATIVE PRECISION : 1 : 22,511 (PASS 2nd ORD│',
+          '│                                              │',
+          '│ [APPLY BOWDITCH ADJUSTMENT -> EXPORT CSV]    │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'หน้าจอแสดงผลการวิเคราะห์วงรอบ: ตรวจสอบมุมภายใน, ผลต่างพิกัดปิดวง, ระยะคลาดเคลื่อนเชิงเส้น และอัตราส่วนชั้นงานความละเอียด',
+        qaCheck: 'อัตราส่วนชั้นงานต้องดีกว่า 1:10,000 สำหรับงานควบคุมทั่วไป และ 1:20,000 สำหรับงานวิศวกรรมโครงสร้าง'
+      }
+    ],
+    formulas: [
+      {
+        label: 'ผลรวมมุมภายในทางทฤษฎีของรูปเหลี่ยม (Theoretical Sum of Interior Angles)',
+        formula: '\\sum \\theta_{\\text{ideal}} = (n - 2) \\times 180^\\circ',
+        explanation: 'ผลรวมมุมภายในของรูปปิดหลายเหลี่ยม n ด้าน (หากเป็นมุมภายนอกใช้ (n + 2) × 180°)'
+      },
+      {
+        label: 'ค่าคลาดเคลื่อนทางมุมและการปรับแก้มุม (Angular Misclosure & Correction)',
+        formula: 'c_{\\theta} = \\sum \\theta_{\\text{actual}} - (n - 2) \\times 180^\\circ, \\quad \\text{Corr}_{\\theta} = -\\frac{c_{\\theta}}{n}',
+        explanation: 'ค่าความคลาดเคลื่อนต้องไม่เกินเกณฑ์ เช่น ±1.5\'√n หรือ ±30"√n การปรับแก้ให้กระจายเฉลี่ยเท่าๆ กันทุกสถานี'
+      },
+      {
+        label: 'การคำนวณมุมภาคของทิศต่อเนื่อง (Continuous Azimuth Calculation)',
+        formula: '\\text{Az}_{i} = \\text{Az}_{i-1} + 180^\\circ + \\theta_{i} \\quad (\\text{mod } 360^\\circ)',
+        explanation: 'การหา Azimuth ของเส้นถัดไปจากมุมหักเหภายในที่ปรับแก้แล้ว'
+      },
+      {
+        label: 'การคำนวณผลต่างพิกัดราบ (Latitude and Departure Equations)',
+        formula: '\\text{Latitude } (\\Delta N) = L \\cos(\\text{Az}), \\quad \\text{Departure } (\\Delta E) = L \\sin(\\text{Az})',
+        explanation: 'ละติจูดคือความยาวฉายบนแกนเหนือ-ใต้ เดพาร์ทเจอร์คือความยาวฉายบนแกนตะวันออก-ตะวันตก'
+      },
+      {
+        label: 'ระยะคลาดเคลื่อนเชิงเส้นและอัตราส่วนความละเอียด (Linear Misclosure & Precision)',
+        formula: 'E_L = \\sqrt{(\\sum \\Delta N)^2 + (\\sum \\Delta E)^2}, \\quad \\text{Precision} = 1 : \\left( \\frac{\\text{Perimeter}}{E_L} \\right)',
+        explanation: 'ระยะคลาดเคลื่อนเชิงเส้นคือระยะห่างระหว่างจุดเริ่มต้นกับจุดสิ้นสุดที่คำนวณได้ ยิ่งอัตราส่วนสูง ความแม่นยำยิ่งมาก'
+      },
+      {
+        label: 'การปรับแก้พิกัดตามกฎเข็มทิศของโบว์ดิตช์ (Bowditch Compass Rule)',
+        formula: 'C_{\\Delta N, i} = -\\left( \\frac{\\sum \\Delta N}{P} \\right) \\times L_i, \\quad C_{\\Delta E, i} = -\\left( \\frac{\\sum \\Delta E}{P} \\right) \\times L_i',
+        explanation: 'กระจายค่าปรับแก้พิกัดละติจูดและเดพาร์ทเจอร์ของแต่ละด้านตามสัดส่วนความยาวด้านเทียบกับความยาวรอบรูปทั้งหมด'
+      }
+    ],
+    errorSourcesAndMitigation: [
+      'Short Traverse Legs (สถานีมีระยะสั้นเกินไป): ระยะสั้นทำให้การเล็งเป้าผิดพลาดเพียงไม่กี่มิลลิเมตรส่งผลให้มุมคลาดเคลื่อนหลายสิบพิลิปดา พยายามวางระยะแต่ละด้านไม่ต่ำกว่า 40-50 เมตร',
+      'Centering & Target Eccentricity (การตั้งกล้องหรือเป้าไม่ตรงหมุด): ส่งผลกระทบต่อทั้งระยะและมุมโดยตรง แก้ไขด้วยการใช้ระบบ Forced Centering สลับหัวกล้องและเป้าบน Tribrach เดิม',
+      'Prism Constant Mistake (ป้อนค่าคงที่ปริซึมผิด): ปริซึมแต่ละรุ่นมีค่าออฟเซ็ตต่างกัน (เช่น 0 mm หรือ -30 mm) หากตั้งค่าผิด ระยะทางทุกด้านจะคลาดเคลื่อนเป็นระบบ (Systematic Error)',
+      'Atmospheric Refraction & Scale Factor: ลำแสง EDM เดินทางผ่านอากาศหนาแน่นหรือร้อนจัด ต้องวัดอุณหภูมิและความดันป้อนค่า ppm ก่อนรังวัดเสมอ',
+      'Monument Disturbance: หมุดขยับตัวหรือถูกเหยียบระหว่างทำงาน ต้องทำหมุดผูกโยง (Witness Ties) ตรวจสอบความถูกต้องก่อนเริ่มรังวัดทุกครั้ง'
+    ],
+    downstreamWorkflow: {
+      outputDataFormat: 'ไฟล์พิกัดสถานี (.csv / .txt / .dxf / .landxml) พิกัด Northing, Easting, Elevation',
+      outputDescription: 'รายงานการปรับแก้วงรอบ พิกัดกริดสถานี และไฟล์เส้นโครงวงรอบสำหรับนำเข้า AutoCAD / Civil 3D / QGIS',
+      nextStepTitle: 'การนำเข้าพิกัดควบคุมสู่การรังวัดเก็บรายละเอียดและผังโครงการ (Detail Survey & Staking)',
+      nextStepProcedure: 'ส่งออกพิกัดสถานีที่ปรับแก้สมบูรณ์แล้วเข้าสู่โปรแกรมคำนวณพิกัดเพื่อใช้เป็นหมุดอ้างอิงหลักในการส่องเก็บรายละเอียดภูมิประเทศ (Topographic Survey) หรือวางผังแนวอาคาร (Construction Staking)',
+      recommendedToolTab: 'traverse',
+      toolActionLabel: 'เปิดโมดูลคำนวณปรับแก้วงรอบ'
+    }
+  },
+
+// -------------------------------------------------------------------------
+  // TOPIC SOP-03: CONNECTING / LINK TRAVERSE SURVEY (คู่มือทำงาน)
+  // -------------------------------------------------------------------------
+  {
+    id: 'link-open-traverse',
+    code: 'SOP-03',
+    title: 'วิธีการทำวงรอบเปิด (Connecting / Link Traverse Survey)',
+    titleEn: 'Link / Connecting Traverse Between Known Geodetic Control Points & Coordinate Adjustment',
+    category: 'survey-instrument',
+    categoryName: 'วิธีการทำงานภาคสนาม',
+    summary: 'คู่มือมาตรฐานวิธีการทำงานรังวัดวงรอบเปิดแบบเชื่อมโยง (Connecting / Link Traverse): การเริ่มต้นจากหมุดหลักฐานคู่ต้นทางที่ทราบพิกัดและทิศทาง (A -> B) สู่หมุดหลักฐานคู่ปลายทาง (C -> D), การตรวจสอบความคลาดเคลื่อนมุมภาคทิศเริ่มต้นและสิ้นสุด (Azimuth Closure Check), การกระจายปรับแก้ค่ามุมหักเห, การตรวจสอบผลรวมระยะ Latitude และ Departure เทียบผลต่างพิกัดจริงระหว่างหมุดหลักฐาน, การปรับแก้ค่าพิกัดด้วยวิธี Compass Rule และข้อแตกต่างทางวิศวกรรมระหว่างวงรอบเปิดแบบลอย (Dead-end Traverse ที่ห้ามใช้ในงานชั้น 1-3) กับวงรอบเปิดแบบเชื่อมโยง',
+    badge: 'คู่มือทำงาน',
+    iconName: 'Compass',
+    verificationStatus: 'draft',
+    verificationProof: 'มาตรฐานงานสำรวจเส้นทาง กรมทางหลวง / การรถไฟแห่งประเทศไทย; Wolf, P.R. & Ghilani, C.D. (2006) Adjustment Computations: Spatial Data Analysis (4th/5th ed.); EIT Standard 1008-34 (วิศวกรรมสถานแห่งประเทศไทย วสท.)',
+    courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & วงรอบแบบเส้น',
+    equipmentRequired: [
+      'กล้องประมวลผลรวม (Total Station) ความละเอียดไม่เกิน 1-2 พิลิปดา',
+      'หมุดควบคุมพิกัดเดิม 4 หมุด: หมุดคู่เริ่มต้น (Station A, B) และหมุดคู่ปลายทาง (Station C, D) ที่มีค่าพิกัดชั้นสูง',
+      'ชุดเป้าปริซึมสะท้อนแสง 2-3 ชุด พร้อมเสาและขาทรงตัว (Bipod)',
+      'เทอร์โมบารอมิเตอร์สำหรับชดเชยค่าบรรยากาศ (ppm) ของ EDM',
+      'สมุดจดบันทึกและคอมพิวเตอร์ประมวลผลข้อมูลภาคสนาม'
+    ],
+    workingPrinciple: [
+      'ความแตกต่างระหว่าง Dead-end Open Traverse กับ Link Traverse: วงรอบเปิดปลายลอย (Dead-end Open Traverse) สิ้นสุดที่หมุดใหม่ที่ไม่มีค่าพิกัดตรวจสอบ ทำให้ไม่สามารถตรวจจับความคลาดเคลื่อนทางมุมหรือระยะได้ จึงห้ามใช้ในงานควบคุมพิกัด ในขณะที่วงรอบเปิดแบบเชื่อมโยง (Link / Connecting Traverse) สิ้นสุดลงที่หมุดหลักฐานคู่ปลายทางที่ทราบค่าพิกัดและทิศทาง ทำให้มีเงื่อนไขตรวจสอบทางเรขาคณิต (Geometric Redundancy) ครบถ้วนทั้งมุมและระยะทาง',
+      'การตรวจสอบความคลาดเคลื่อนทางมุม (Azimuth Closure Check): ทิศทาง Azimuth ที่คำนวณจากหมุดเริ่มต้น ผ่านมุมหักเหของทุกสถานีไปจนถึงเส้นหลักฐานปลายทาง ต้องเท่ากับ Azimuth จริงระหว่างหมุดหลักฐานคู่ปลายทาง: ΔAz = Az_{end, computed} - Az_{end, true}',
+      'การกระจายปรับแก้ค่ามุม: หากความคลาดเคลื่อนทางมุมไม่เกินเกณฑ์ที่กำหนด ให้กระจายค่าปรับแก้มุม Corr = -ΔAz / n ให้เท่ากันทุกมุมหักเห',
+      'การตรวจสอบความคลาดเคลื่อนเชิงเส้น (Coordinate Misclosure Check): ผลรวมของ Latitude (ΔN) และ Departure (ΔE) ที่คำนวณได้ ต้องเท่ากับผลต่างพิกัดจริงระหว่างหมุดเริ่มต้นและหมุดปลายทาง: ΣΔN_expected = N_terminal - N_initial และ ΣΔE_expected = E_terminal - E_initial',
+      'การปรับแก้พิกัดด้วย Compass Rule: คำนวณหา Misclosure_N = ΣΔN_actual - ΣΔN_expected และ Misclosure_E = ΣΔE_actual - ΣΔE_expected จากนั้นกระจายค่าปรับแก้ตามสัดส่วนความยาวของแต่ละช่วงสถานีเช่นเดียวกับวงรอบปิด'
+    ],
+    fieldProcedures: [
+      {
+        title: 'ขั้นตอนที่ 1: การตรวจสอบความสมบูรณ์ของหมุดหลักฐานคู่ต้นทาง (Initial Control Verification)',
+        details: 'ตั้งกล้องที่หมุดหลักฐาน B ส่องหมุดหลักฐาน A วัดมุมและระยะทางระหว่าง B ถึง A เพื่อคำนวณเปรียบเทียบกับพิกัดที่ระบุในประวัติหมุด (Monument Data Sheet) เพื่อยืนยันว่าหมุดหลักฐานทั้งสองไม่ได้ขยับตัวหรือถูกทำลาย'
+      },
+      {
+        title: 'ขั้นตอนที่ 2: การรังวัดมุมหักเหและระยะทางตามแนวเส้นทาง (Traverse Line Observation)',
+        details: 'ดำเนินการรังวัดมุมราบ 2 หน้ากล้องและวัดระยะทาง EDM ไปตามสถานีวงรอบใหม่ตามแนวเส้นทาง (ST-01, ST-02, ...) โดยใช้ระบบ Forced Centering จนกระทั่งถึงสถานีสุดท้ายก่อนเชื่อมเข้าหมุดปลายทาง'
+      },
+      {
+        title: 'ขั้นตอนที่ 3: การบรรจบและส่องรังวัดหมุดคู่ปลายทาง (Terminal Control Tie-in)',
+        details: 'ตั้งกล้องที่สถานีสุดท้าย ส่องไปยังหมุดหลักฐานคู่ปลายทาง C และ D วัดมุมราบ 2 หน้ากล้องและระยะทางเพื่อเชื่อมโยงเส้นโครงข่ายเข้าสู่ระบบพิกัดของหมุดปลายทางอย่างสมบูรณ์'
+      },
+      {
+        title: 'ขั้นตอนที่ 4: การคำนวณผลต่าง Azimuth ปลายทางและการปรับแก้มุม (Angular Balancing)',
+        details: 'คำนวณ Azimuth เริ่มต้นจากพิกัดหมุด A และ B คำนวณ Azimuth ต่อเนื่องผ่านทุกสถานีจนถึงเส้น C-D นำ Azimuth ที่คำนวณได้เปรียบเทียบกับ Azimuth จริงของเส้น C-D ตรวจสอบค่าคลาดเคลื่อน ΔAz เทียบกับเกณฑ์ชั้นงาน และกระจายปรับแก้ค่ามุม'
+      },
+      {
+        title: 'ขั้นตอนที่ 5: การคำนวณผลต่างพิกัดและการปรับแก้ด้วย Bowditch Method',
+        details: 'คำนวณผลรวม Latitude และ Departure ที่ปรับแก้มุมแล้ว หักลบด้วยผลต่างพิกัดจริงระหว่างหมุดเริ่มต้นและปลายทางเพื่อหา Misclosure_N และ Misclosure_E คำนวณระยะคลาดเคลื่อนเชิงเส้น E_L และอัตราส่วนชั้นงาน หากผ่านเกณฑ์ ให้ปรับแก้พิกัดของทุกสถานีด้วยวิธี Bowditch'
+      },
+      {
+        title: 'ขั้นตอนที่ 6: การออกเอกสารรายงานชั้นงานความละเอียด (Traverse Summary & Certification)',
+        details: 'จัดทำตารางสรุปผลการปรับแก้พิกัด ค่าคลาดเคลื่อนทางมุม ค่าคลาดเคลื่อนเชิงเส้น และระบุชั้นงานที่ได้รับตามมาตรฐานกรมที่ดินหรือกรมแผนที่ทหาร พร้อมแนบผังหมุดผูกโยง'
+      }
+    ],
+    deviceWorkflow: [
+      {
+        stepNumber: 1,
+        stageName: 'การเริ่มรังวัดจากหมุดคู่ต้นทาง (Initial Control Setup)',
+        targetHardware: 'Total Station Field Controller (Trimble Access / Leica Captivate)',
+        buttonKey: '[TRAVERSE APP] -> [START LINK TRAVERSE] -> [INPUT PTS A & B]',
+        actionLabel: 'กำหนดแนวทิศทางเริ่มต้นจากหมุดหลักฐานคู่แรก',
+        screenTitle: 'LINK TRAVERSE: INITIAL CONTROL ORIENTATION',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ LINK TRAVERSE INITIALIZATION                 │',
+          '│ OCCUPIED : BM-A  (N: 25410.250, E: 12850.110)│',
+          '│ BACKSIGHT: BM-B  (N: 25620.480, E: 12790.320)│',
+          '│ CALC AZIMUTH (A->B) : 344°05\'22"             │',
+          '│ CHECK DISTANCE (A->B): 218.614 m (CALC: .618)│',
+          '│                                              │',
+          '│ STATUS: INITIAL CONTROL VERIFIED [OK]        │',
+          '│ READY TO TURN ANGLE TO FIRST TRAVERSE ST-01  │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'ป้อนพิกัดหมุดคู่ต้นทาง กล้องจะคำนวณ Azimuth และระยะทางระหว่างหมุดเพื่อตรวจสอบความถูกต้องของหมุดหลักฐานก่อนเริ่มงาน',
+        qaCheck: 'ระยะทางที่วัดได้ระหว่างหมุดคู่ต้นทางต้องตรงกับค่าพิกัดเดิมไม่เกิน ±5 มิลลิเมตร'
+      },
+      {
+        stepNumber: 2,
+        stageName: 'การเชื่อมต่อเข้าหมุดคู่ปลายทาง (Terminal Control Tie-in)',
+        targetHardware: 'Total Station Field Controller',
+        buttonKey: '[END TRAVERSE] ส่องรังวัดหมุดคู่ปลายทาง BM-C และ BM-D',
+        actionLabel: 'รังวัดปิดเข้าสู่หมุดควบคุมปลายทาง',
+        screenTitle: 'LINK TRAVERSE: CLOSING ON TERMINAL CONTROL',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ CLOSING OBSERVATION                          │',
+          '│ OCCUPIED : ST-05 (Last Traverse Station)     │',
+          '│ FORESIGHT 1: BM-C (First Terminal Benchmark) │',
+          '│ FORESIGHT 2: BM-D (Terminal Azimuth Station) │',
+          '│                                              │',
+          '│ COMPUTED AZIMUTH (C->D): 112°18\'45"          │',
+          '│ PUBLISHED AZIMUTH (C->D): 112°18\'30"         │',
+          '│ AZIMUTH MISCLOSURE : +0°00\'15" (TOL: ±35")   │',
+          '│                                              │',
+          '│ [COMPUTE COORDINATE MISCLOSURE & BALANCE]    │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'ส่องรังวัดเชื่อมโยงเข้าสู่หมุดคู่ปลายทาง ซอฟต์แวร์จะเปรียบเทียบมุม Azimuth ที่คำนวณได้กับค่าที่ถูกต้องของหมุดหลักฐาน',
+        qaCheck: 'ค่าความคลาดเคลื่อน Azimuth ต้องไม่เกินเกณฑ์ชั้นงานก่อนกดยืนยันการปรับแก้'
+      },
+      {
+        stepNumber: 3,
+        stageName: 'การสรุปผลการปรับแก้พิกัดวงรอบเปิดเชื่อมโยง (Adjustment Report)',
+        targetHardware: 'Link Traverse Adjustment Summary',
+        buttonKey: '[VIEW REPORT] ตรวจสอบรายงานค่าคลาดเคลื่อนพิกัด N, E',
+        actionLabel: 'ออกรายงานการปรับแก้พิกัด',
+        screenTitle: 'LINK TRAVERSE ADJUSTMENT SUMMARY',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ TOTAL ROUTE LENGTH : 1,485.60 m (6 Stations) │',
+          '│ ANGULAR MISCLOSURE : +15" (CORR: -2.5"/STA)  │',
+          '│                                              │',
+          '│ EXPECTED DELTA N (BM_A -> BM_C) : +384.520 m │',
+          '│ COMPUTED DELTA N (UNADJUSTED)   : +384.552 m │',
+          '│ MISCLOSURE N (dN) : +0.032 m                 │',
+          '│                                              │',
+          '│ EXPECTED DELTA E (BM_A -> BM_C) : +920.140 m │',
+          '│ COMPUTED DELTA E (UNADJUSTED)   : +920.118 m │',
+          '│ MISCLOSURE E (dE) : -0.022 m                 │',
+          '│                                              │',
+          '│ LINEAR MISCLOSURE : 0.0388 m                 │',
+          '│ PRECISION RATIO   : 1 : 38,288 [FIRST ORDER] │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'รายงานสรุปความคลาดเคลื่อนพิกัด Delta N และ Delta E เทียบกับระยะทางสะสมทั้งหมด พร้อมระบุอัตราส่วนความละเอียดชั้นงาน',
+        qaCheck: 'ยืนยันว่าการปรับแก้แบบ Bowditch ดึงค่าพิกัดสถานีปลายทางให้บรรจบพิกัดจริงของ BM-C พอดี 100%'
+      }
+    ],
+    formulas: [
+      {
+        label: 'การคำนวณ Azimuth เริ่มต้นและสิ้นสุดจากพิกัดจริง (True Control Azimuth)',
+        formula: '\\text{Az}_{\\text{true}} = \\arctan2(\\Delta E, \\Delta N) = \\arctan2(E_{\\text{target}} - E_{\\text{base}}, N_{\\text{target}} - N_{\\text{base}})',
+        explanation: 'คำนวณมุมภาคของทิศที่แท้จริงระหว่างหมุดหลักฐานคู่เริ่มต้น (A->B) และหมุดคู่ปลายทาง (C->D)'
+      },
+      {
+        label: 'ค่าคลาดเคลื่อนทางมุมของวงรอบเปิดเชื่อมโยง (Azimuth Misclosure)',
+        formula: '\\Delta \\text{Az} = \\text{Az}_{\\text{end, computed}} - \\text{Az}_{\\text{end, true}}',
+        explanation: 'ผลต่างระหว่างมุมภาคทิศที่คำนวณได้จากการเปิดมุมสนามกับมุมภาคทิศจริงของหมุดคู่ปลายทาง'
+      },
+      {
+        label: 'ผลรวมพิกัดที่คาดหวังระหว่างหมุดหลักฐาน (Expected Coordinate Deltas)',
+        formula: '\\sum \\Delta N_{\\text{expected}} = N_{\\text{terminal}} - N_{\\text{initial}}, \\quad \\sum \\Delta E_{\\text{expected}} = E_{\\text{terminal}} - E_{\\text{initial}}',
+        explanation: 'ผลรวมทางเรขาคณิตของผลต่างพิกัดต้องเท่ากับผลต่างพิกัดจริงระหว่างหมุดหัวและท้าย'
+      },
+      {
+        label: 'ค่าคลาดเคลื่อนพิกัดเหนือและตะวันออก (Coordinate Misclosures)',
+        formula: '\\text{Misclosure}_N = \\sum \\Delta N_{\\text{actual}} - \\sum \\Delta N_{\\text{expected}}, \\quad \\text{Misclosure}_E = \\sum \\Delta E_{\\text{actual}} - \\sum \\Delta E_{\\text{expected}}',
+        explanation: 'ความคลาดเคลื่อนที่ต้องนำไปกระจายปรับแก้ด้วย Compass Rule'
+      },
+      {
+        label: 'ระยะคลาดเคลื่อนเชิงเส้นและอัตราส่วนความแม่นยำ (Linear Misclosure & Ratio)',
+        formula: 'E_L = \\sqrt{\\text{Misclosure}_N^2 + \\text{Misclosure}_E^2}, \\quad \\text{Precision} = 1 : \\left( \\frac{P}{E_L} \\right)',
+        explanation: 'การประเมินชั้นงานความละเอียดของเส้นทางโครงข่ายสำรวจ'
+      }
+    ],
+    errorSourcesAndMitigation: [
+      'Movement of Known Control Points (หมุดหลักฐานเดิมเคลื่อนตัว): หมุดหลักฐานที่สร้างไว้นานอาจถูกชน ดินทรุดตัว หรือเคลื่อนตัว ต้องทำการรังวัดตรวจสอบหมุดคู่หัวและท้ายก่อนเริ่มงานเสมอ',
+      'Deflection Accumulation on Long Linear Routes (แนวเส้นทางยาวเป็นเส้นตรง): วงรอบเปิดตามแนวถนนยาวมีรูปทรงเรขาคณิตที่อ่อนไหวต่อความคลาดเคลื่อนทางมุมสะสม ต้องเพิ่มจุดควบคุม Azimuth ด้วยดาวเทียม GNSS ทุก 1-2 กิโลเมตร',
+      'Left/Right Angle Confusion (การสับสนมุมเลี้ยวซ้าย-เลี้ยวขวา): ทำให้สูตรคำนวณ Azimuth กลับทิศทาง ต้องกำหนดมาตรฐานให้เปิดมุมเวียนขวา (Clockwise Angle) ทิศเดียวตลอดเส้นทาง',
+      'Temperature & Pressure Gradient: เส้นทางยาวตัดผ่านสภาพแวดล้อมที่อุณหภูมิและความดันเปลี่ยนแปลง (เช่น ขึ้นเขา) ต้องตรวจวัดอุณหภูมิและปรับค่า ppm ใหม่ตามสภาพแวดล้อมจริงเป็นระยะ',
+      'Never Use Dead-end Traverse (ข้อห้ามใช้วงรอบปลายลอย): ห้ามใช้วงรอบเปิดที่ไม่มีหมุดหลักฐานบรรจบปลายทางในงานควบคุมพิกัดเด็ดขาด เพราะไม่สามารถพิสูจน์ความถูกต้องของข้อมูลได้'
+    ],
+    downstreamWorkflow: {
+      outputDataFormat: 'ไฟล์แนวเส้นโครงข่ายพิกัด Alignment Route File (.csv / .landxml / .dxf)',
+      outputDescription: 'รายงานพิกัดหมุดควบคุมแนวเส้นทาง (Route Control Points) ที่ปรับแก้บรรจบหมุดหลักฐานอย่างสมบูรณ์',
+      nextStepTitle: 'การออกแบบแนวศูนย์กลางทาง (Centerline Alignment) และงานก่อสร้างโครงสร้างพื้นฐาน',
+      nextStepProcedure: 'ส่งออกพิกัดสถานีแนวเส้นทางไปยังซอฟต์แวร์ Civil 3D หรือซอฟต์แวร์ออกแบบทางหลวง เพื่อใช้กำหนดแนวเส้นทาง (Horizontal Alignment), แนวก่อสร้าง และการวางหมุดแนวเขตทาง',
+      recommendedToolTab: 'traverse',
+      toolActionLabel: 'เปิดโมดูลคำนวณวงรอบเปิดเชื่อมโยง'
+    }
+  },
+
+// -------------------------------------------------------------------------
+  // TOPIC SOP-04: GNSS STATIC & RTK CORS NETWORK PROCEDURE (คู่มือทำงาน)
+  // -------------------------------------------------------------------------
+  {
+    id: 'gnss-rtk-static-survey',
+    code: 'SOP-04',
+    title: 'วิธีการรังวัดหมุดควบคุมด้วยดาวเทียม GNSS (Static Geodetic Network & Network RTK CORS)',
+    titleEn: 'GNSS Geodetic Control Survey: Multi-Frequency Static Baseline & Network RTK (VRS/CORS)',
+    category: 'gnss-gps',
+    categoryName: 'วิธีการทำงานภาคสนาม',
+    summary: 'คู่มือมาตรฐานวิธีการทำงานรังวัดโครงข่ายหมุดหลักฐานด้วยระบบดาวเทียมนำทางสากล (GNSS): การรังวัดโครงข่ายสถิตความละเอียดสูง (Static Geodetic Baseline Survey) สำหรับสร้างหมุดควบคุมปฐมภูมิและทุติยภูมิ (First/Second Order Geodetic Network), เกณฑ์เวลาการรังวัดขั้นต่ำตามความยาวเส้นฐาน (<10 km ≥ 45-60 นาที, >20 km ≥ 3-4 ชั่วโมง), การบันทึกข้อมูลดิบ Multi-Frequency RINEX 3.0x, การปรับแก้โครงข่ายเส้นฐานแบบ Least Squares Loop Closure, การรังวัดจลน์แบบทันทีกาลผ่านระบบโครงข่ายสถานีรับสัญญาณต่อเนื่อง (Network RTK / CORS VRS), การประเมินค่าเรขาคณิตกลุ่มดาวเทียม (PDOP < 2.5), การแปลงความสูง Ellipsoidal (h) เป็น Orthometric Height (H) ด้วยแบบจำลองจีออยด์ TGM2017 และการตรวจสอบสถานะ Fix/Float',
+    badge: 'คู่มือทำงาน',
+    iconName: 'Satellite',
+    verificationStatus: 'draft',
+    verificationProof: 'ระเบียบกรมที่ดินว่าด้วยการรังวัดด้วยดาวเทียม RTK GNSS Network พ.ศ. 2562; GISTDA National CORS Network Standard; คู่มือแบบจำลองยีออยด์ TGM2017 (กรมแผนที่ทหาร); Hofmann-Wellenhof, B. et al. (2008) GNSS - GPS, GLONASS, Galileo and more; FGCC Standards and Specifications for Geodetic Control Networks',
+    courseRelation: 'วิชา 01218312 Satellite Geodesy & GNSS Positioning (KU Geomatics) & ข้อกำหนด กรมที่ดิน/รฟม.',
+    equipmentRequired: [
+      'เครื่องรับสัญญาณดาวเทียม Multi-Frequency Multi-Constellation GNSS (Trimble R12i / Leica GS18 / CHCNAV / Stonex) รองรับ GPS, GLONASS, Galileo, BeiDou',
+      'ชุดเสาโพลคาร์บอนไฟเบอร์ (Carbon Fiber Rover Pole 2.000 m) พร้อมขาตั้งค้ำสองขา (Bipod)',
+      'ฐานกล้องเล็งดิ่งแบบแม่นยำสูง (Precision Tribrach with Optical/Laser Plummet) และ Carrier Adapter สำหรับงาน Static',
+      'ขาตั้งกล้องไม้ชนิด Heavy-Duty ทนทานต่อการขยายตัวจากความร้อนและแรงลม',
+      'เครื่องควบคุมภาคสนาม (GNSS Field Controller) พร้อมซิมการ์ด 4G/5G และเสาวิทยุ UHF Internal Radio (1W-35W)',
+      'แถบวัดความสูงเสาอากาศมาตรฐาน (Antenna Height Measuring Tape / Height Hook)',
+      'แบตเตอรี่สำรองภายนอก (External Li-ion Battery Pack) สำหรับการรังวัดสถิตระยะยาว'
+    ],
+    workingPrinciple: [
+      'ระบบ GNSS อาศัยสัญญาณคลื่นวิทยุจากกลุ่มดาวเทียมหลายระบบพร้อมกัน (Multi-GNSS): GPS (สหรัฐฯ), GLONASS (รัสเซีย), Galileo (ยุโรป) และ BeiDou (จีน) เพื่อคำนวณตำแหน่ง 3 มิติ (X, Y, Z หรือ Lat, Lon, Ellipsoidal Height)',
+      'Carrier Phase Differential Positioning: การรังวัดความยาวคลื่นพาหะเฟส (L1, L2, L5) เพื่อแก้ปัญหาความกำกวมของจำนวนรอบคลื่น (Integer Ambiguity Resolution) ให้ได้สถานะ "FIXED" ซึ่งให้ความแม่นยำระดับมิลลิเมตรถึงเซนติเมตร',
+      'หลักการรังวัดโครงข่ายแบบสถิต (Static Geodetic Baseline Network): การตั้งเครื่องรับสัญญาณรับสัญญาณพร้อมกัน (Simultaneous Observation) ณ หมุดควบคุมอย่างน้อย 2-3 สถานีขึ้นไปเพื่อสร้างเวกเตอร์เส้นฐาน (Baseline Vectors ΔX, ΔY, ΔZ) แบบ Double-Difference กำจัดความคลาดเคลื่อนของนาฬิกาดาวเทียมและนาฬิกาเครื่องรับ',
+      'เกณฑ์เวลาการรังวัดสถิต (Static Session Duration Criteria): ความยาวเส้นฐาน < 5 km สังเกตการณ์ ≥ 30-45 นาที, ระยะ 5-15 km สังเกตการณ์ 60-90 นาที, ระยะ > 20 km สังเกตการณ์ 3-4 ชั่วโมงขึ้นไป ที่ Sampling Interval 15 วินาที เพื่อให้มีข้อมูลรอบคลื่นดาวเทียมเพียงพอในการแก้ Ambiguity ได้ 100%',
+      'กฎค่าเรขาคณิตการกระจายตัวของดาวเทียม (DOP: Dilution of Precision): ค่า PDOP ต้องต่ำกว่า 2.5 เพื่อยืนยันว่าดาวเทียมกระจายตัวรอบขอบฟ้าและแนวดิ่งอย่างสมดุล ลดความคลาดเคลื่อนในการคำนวณตำแหน่ง',
+      'การแปลงระดับความสูงทางยีโอเดซี (Height System Transformation): ความสูงที่ได้จากดาวเทียมคือ Ellipsoidal Height (h) ต้องแปลงเป็น Orthometric Height (H) เหนือระดับน้ำทะเลปานกลาง (MSL) ด้วยสูตร H = h - N โดยใช้ค่า Geoid Undulation (N) จากแบบจำลอง TGM2017 ของประเทศไทย'
+    ],
+    fieldProcedures: [
+      {
+        title: 'ขั้นตอนที่ 1: การวางแผนและการตั้งสถานีรับสัญญาณสถิต (Mission Planning, Tribrach Setup & Height Hook)',
+        details: 'ตรวจสอบปฏิทินตำแหน่งดาวเทียม (Satellite Constellation Visibility & Ionospheric Activity) หลีกเลี่ยงช่วงเวลาที่มีค่า PDOP พุ่งสูง ตั้งขาตั้งกล้องไม้เหนือหมุดหลักฐาน ปรับลูกน้ำฟองยาวบน Tribrach ให้เข้ากลางสนิท ตรวจสอบดิ่ง Optical Plummet ให้ตรงจุดกึ่งกลางหมุด ติดตั้งเครื่องรับสัญญาณ GNSS และใช้ Height Hook วัดความสูงเสาอากาศ (Antenna Height) ทั้งแบบ Vertical Height หรือ Slant Height พร้อมบันทึกค่า Antenna Phase Center (APC) Offset'
+      },
+      {
+        title: 'ขั้นตอนที่ 2: การตั้งค่าเครื่องรับสัญญาณและการบันทึกข้อมูลดิบ RINEX (Receiver Configuration & Logging)',
+        details: 'เปิดเครื่องรับสัญญาณ ตั้งค่า Elevation Cut-off Mask ที่ 15 องศา เพื่อตัดสัญญาณจากดาวเทียมมุมต่ำที่ผ่านชั้นบรรยากาศหนาและมีคลื่นสะท้อนหลายทิศทาง (Multipath Error) ตั้งค่า Epoch Interval เป็น 15 วินาทีสำหรับ Static Geodesy หรือ 1 วินาทีสำหรับ RTK ตรวจสอบจำนวนดาวเทียมที่รับสัญญาณได้ (ควรมากกว่า 20-28 ดวงในระบบ Multi-GNSS) และตั้งชื่อไฟล์หมุดตามรหัส 4 หลักของกรมที่ดิน/รฟม.'
+      },
+      {
+        title: 'ขั้นตอนที่ 3: การรังวัดสถิตโครงข่ายต่อเนื่องตามเกณฑ์เวลา (Simultaneous Static Observation)',
+        details: 'ประสานงานกับทีมงานสถานีอื่นเพื่อเริ่มบันทึกข้อมูลพร้อมกัน (Common Observation Window) ตามเกณฑ์เวลา: เส้นฐานสั้น (<10 km) รังวัดต่อเนื่อง 45-60 นาที, เส้นฐานยาว (>20 km) รังวัด 3-4 ชั่วโมง ตรวจสอบสถานะการบันทึก, แบตเตอรี่, จำนวนดาวเทียม และค่า PDOP ทุก 15 นาที ห้ามขยับหรือแตะต้องขาตั้งกล้องตลอดคาบการรังวัด'
+      },
+      {
+        title: 'ขั้นตอนที่ 4: การเชื่อมต่อระบบโครงข่าย CORS ผ่าน NTRIP (Network RTK CORS VRS Connection)',
+        details: 'เชื่อมต่อเครื่องควบคุม Controller เข้ากับเครือข่ายอินเทอร์เน็ต ใส่ IP, Port, Username และ Password ของระบบสถานีรับสัญญาณต่อเนื่อง (เช่น RTK Network กรมที่ดิน หรือ กรมแผนที่ทหาร) เลือก Mountpoint ชนิด VRS (Virtual Reference Station) หรือ MAC ส่งพิกัด NMEA GGA ของ Rover ไปยัง Caster และรอรับค่าปรับแก้ RTCM 3.2'
+      },
+      {
+        title: 'ขั้นตอนที่ 5: การตรวจสอบคุณภาพพิกัดและการบันทึกข้อมูลเฉลี่ย (Coordinate QA/QC & Averaging)',
+        details: 'รอให้สถานะการรังวัดเปลี่ยนเป็น "RTK FIXED" ตรวจสอบค่าความไม่แน่นอนพิกัด (Coordinate Quality: CQ) แนวราบ (Hz) ต้อง < 15 mm และแนวดิ่ง (Vt) ต้อง < 25 mm ปรับเสาโพลคาร์บอนให้ลูกน้ำฟองกลมเข้ากึ่งกลางพอดี กดบันทึกพิกัดแบบรังวัดเฉลี่ย (Averaging Observation) ไม่น้อยกว่า 30-180 Epochs เพื่อลดผลกระทบจากสัญญาณรบกวนชั่วขณะ'
+      },
+      {
+        title: 'ขั้นตอนที่ 6: การตรวจสอบหมุดควบคุมและ Site Calibration (Known Control Check)',
+        details: 'นำ Rover ไปส่องรังวัดตรวจสอบหมุดหลักฐานเดิม (Known Benchmark) ในบริเวณใกล้เคียงอย่างน้อย 1-2 หมุด เปรียบเทียบค่าพิกัดที่รังวัดได้กับค่าในบัญชีหมุด หากผลต่างเกินเกณฑ์ (ΔN > 20 mm, ΔE > 20 mm, ΔH > 30 mm) ให้ตรวจสอบความสูงเสาอากาศและทำการตรวจสอบระนาบ Site Calibration ทันที'
+      }
+    ],
+    deviceWorkflow: [
+      {
+        stepNumber: 1,
+        stageName: 'การตรวจสอบสถานะเชื่อมต่อ NTRIP CORS (CORS Network Status)',
+        targetHardware: 'Trimble Access / Leica Captivate / Topcon Magnet Field Controller',
+        buttonKey: '[CONNECT] -> [GNSS SURVEY] -> [NTRIP RTK CORS]',
+        actionLabel: 'เชื่อมต่อ VRS Mountpoint',
+        screenTitle: 'GNSS RECEIVER RTK STATUS: NETWORK CORS',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ STATUS: RTK FIXED [MULTI-FREQ CARRIER PHASE] │',
+          '│ SATELLITES: 28 TRACKED (12 GPS, 7 GLO, 9 BDS)│',
+          '│ PDOP: 1.32   HDOP: 0.74   VDOP: 1.09        │',
+          '│                                              │',
+          '│ CORRECTION SOURCE: NTRIP CORS-VRS (RTCM 3.2) │',
+          '│ CORRECTION AGE: 0.8 sec  [EXCELLENT]         │',
+          '│                                              │',
+          '│ PRECISION EST: Hz: ±0.008 m   Vt: ±0.014 m   │',
+          '│ ANTENNA HEIGHT: 2.000 m (POLE VERTICAL)      │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'หน้าจอแสดงผลยืนยันการรับสัญญาณดาวเทียม 28 ดวง ค่า PDOP 1.32 อยู่ในเกณฑ์ดีเยี่ยม สถานะ RTK FIXED ด้วยค่าความแม่นยำแนวราบ ±8 mm และแนวดิ่ง ±14 mm',
+        qaCheck: 'ห้ามบันทึกจุดหากสถานะขึ้นเป็น "FLOAT" หรือ "AUTONOMOUS" ต้องรอให้ขึ้น "FIXED" และอายุสัญญาณปรับแก้ < 2.0 วินาทีเท่านั้น'
+      },
+      {
+        stepNumber: 2,
+        stageName: 'การรังวัดบันทึกแบบเฉลี่ย 180 คาบเวลา (Observation Epoch Averaging)',
+        targetHardware: 'GNSS Field Controller',
+        buttonKey: '[ENTER] -> [MEASURE POINT: OCCUPY 180s]',
+        actionLabel: 'เริ่มบันทึกเฉลี่ย Epochs',
+        screenTitle: 'POINT MEASUREMENT IN PROGRESS (AVERAGING)',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ POINT ID: CP-01                              │',
+          '│ CODE: MONUMENT_BRASS_PIN                     │',
+          '│ PROGRESS: [████████████████████] 180/180 EP  │',
+          '│                                              │',
+          '│ Northing (N):   1531520.184 m  (σ: 0.004 m)  │',
+          '│ Easting  (E):    669735.242 m  (σ: 0.003 m)  │',
+          '│ Elev (MSL):          4.512 m  (σ: 0.008 m)  │',
+          '│ Geoid Undulation N (TGM2017): -28.641 m      │',
+          '│                                              │',
+          '│ RESULT: POINT STORED SUCCESSFULLY            │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'เครื่องทำการบันทึกค่าพิกัดทุกๆ 1 วินาทีจำนวน 180 คาบเวลา และคำนวณค่าเฉลี่ยทางสถิติพร้อมค่าเบี่ยงเบนมาตรฐาน (Standard Deviation σ) ก่อนบันทึกพิกัดลงฐานข้อมูล',
+        qaCheck: 'ค่า σ ของ N และ E ต้องไม่เกิน 0.010 m และ σ ของความสูงต้องไม่เกิน 0.020 m'
+      },
+      {
+        stepNumber: 3,
+        stageName: 'การตั้งค่าและบันทึกข้อมูลรังวัดสถิต (Static Geodetic RINEX Logging)',
+        targetHardware: 'GNSS Geodetic Receiver WebUI / Controller (Static App)',
+        buttonKey: '[STATIC LOG] บันทึกไฟล์ดิบ RINEX 3.04 อัตรา 15 วินาที',
+        actionLabel: 'เริ่มบันทึกข้อมูลโครงข่ายสถิต',
+        screenTitle: 'GEODETIC STATIC RINEX OBSERVATION SESSION',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ STATIC SESSION : BM-KU01_20260930_0830       │',
+          '│ FILE FORMAT    : RINEX v3.04 (MULTI-GNSS)    │',
+          '│ SAMPLING RATE  : 15.0 SEC   ELEV MASK: 15.0° │',
+          '│ ANTENNA HEIGHT : 1.485 m (SLANT TO BUMPER)   │',
+          '│ SATELLITES     : 32 (12 GPS, 8 GLO, 8 GAL, 4)│',
+          '│ SESSION ELAPSED: 01:15:30 / 01:30:00 (84%)   │',
+          '│ PDOP: 1.21     : MEMORY FREE: 28.4 GB (SD)   │',
+          '│ BATTERY STATUS : BATT1: 88%  BATT2: 92%      │',
+          '│ STATUS: RECORDING HIGH-RATE PHASE OBSERVABLES│',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'หน้าจอแสดงการบันทึกข้อมูลดิบคลื่นพาหะเฟสสำหรับการประมวลผลเวกเตอร์โครงข่ายสถิตความละเอียดสูง แสดงเวลาที่บันทึกผ่านไปแล้ว 1 ชม. 15 นาที ค่า PDOP 1.21 และสถานะหน่วยความจำ',
+        qaCheck: 'ห้ามหยุดการบันทึกก่อนครบเกณฑ์เวลาขั้นต่ำ และต้องตรวจสอบความสูงเสาอากาศ Slant Height อีกครั้งหลังจบเซสชัน'
+      }
+    ],
+    formulas: [
+      {
+        label: 'ความสัมพันธ์ระดับความสูงรูปทรงรี จีออยด์ และระดับน้ำทะเลปานกลาง (Height Relationship)',
+        formula: 'H = h - N',
+        explanation: 'H คือ Orthometric Height (ระดับน้ำทะเลปานกลาง MSL), h คือ Ellipsoidal Height จาก GNSS, N คือ Geoid Undulation จากแบบจำลองยีออยด์ (TGM2017)'
+      },
+      {
+        label: 'เกณฑ์เวลาการรังวัดโครงข่ายสถิตขั้นต่ำ (Static Minimum Observation Session Duration)',
+        formula: 'T_{\\text{min}} = 30 + (2 \\times D) \\quad (\\text{นาที เมื่อ } D \\text{ คือระยะทางเส้นฐานกิโลเมตร})',
+        explanation: 'สูตรประเมินระยะเวลาการสังเกตการณ์ขั้นต่ำสำหรับเครื่องรับสัญญาณหลายความถี่ เพื่อให้ได้ความน่าจะเป็นในการ Fix Ambiguity สูงกว่า 99.9%'
+      },
+      {
+        label: 'การประเมินความแม่นยำเชิงระยะทางของ GNSS Baseline (Baseline Accuracy Specification)',
+        formula: '\\sigma = \\pm \\sqrt{a^2 + (b \\times 10^{-6} \\times D)^2}',
+        explanation: 'a คือค่าคงที่ความแม่นยำของอุปกรณ์ (mm), b คือค่าความคลาดเคลื่อนตามระยะทาง (ppm), D คือระยะทางฐาน (mm)'
+      },
+      {
+        label: 'ค่าเรขาคณิตการกระจายตัวของดาวเทียมตำแหน่ง (Position Dilution of Precision)',
+        formula: '\\text{PDOP} = \\sqrt{\\sigma_x^2 + \\sigma_y^2 + \\sigma_z^2} / \\sigma_0',
+        explanation: 'ดัชนีชี้วัดความแข็งแรงของรูปทรงเรขาคณิตดาวเทียม ค่าต่ำกว่า 2.5 หมายถึงโครงสร้างดาวเทียมแข็งแรงมาก'
+      }
+    ],
+    errorSourcesAndMitigation: [
+      'Multipath Signal Reflection (สัญญาณสะท้อนหลายทิศทาง): เกิดขึ้นเมื่อตั้งเสาอากาศใกล้กำแพงกระจก อาคารสูง ผิวน้ำ หรือโครงสร้างเหล็ก แก้ไขด้วยการใช้เสาอากาศแบบ Choke Ring หรือตั้งค่า Elevation Mask สูงกว่า 15 องศา',
+      'Ionospheric & Tropospheric Delays (การหน่วงเวลาในชั้นบรรยากาศ): สัญญาณดาวเทียมช้าลงเมื่อผ่านชั้นบรรยากาศ แก้ไขด้วยการใช้สัญญาณความถี่คู่/หลายความถี่ (L1/L2/L5) ร่วมกับการรับค่าปรับแก้จากสถานี CORS หรือการประมวลผล Double-Difference',
+      'Loss of RTK Radio/Cellular Link: จุดอับสัญญาณโทรศัพท์ 4G ทำให้หลุดจาก NTRIP แก้ไขด้วยการสลับใช้ระบบคลื่นวิทยุ UHF Internal Radio ระหว่าง Base-Rover หรือรังวัดแบบ Static / PPK (Post-Processed Kinematic)',
+      'Human Error on Antenna Height: การวัดความสูงเสาโพลผิด หรือสับสนระหว่าง Vertical Height กับ Slant Height เป็นสาเหตุหลักที่ทำให้ระดับความสูงผิดพลาด ต้องล็อกตัวปรับระดับเสาโพลให้แน่นหนาและใช้แถบ Height Hook ทวนสอบทุกครั้ง',
+      'Short Observation Session on Long Baselines: รังวัดสถิตเวลาสั้นเกินไปบนเส้นฐานยาวกว่า 10 กิโลเมตร ส่งผลให้แก้ Ambiguity ไม่ผ่าน ต้องเคร่งครัดตามเกณฑ์เวลา T_min = 30 + 2D นาที'
+    ],
+    downstreamWorkflow: {
+      outputDataFormat: 'CSV (PT,LAT,LON,ELLIP_H,N,E,ORTHO_H), GeoJSON, RINEX 3.0x (.obs / .nav)',
+      outputDescription: 'พิกัดภูมิศาสตร์ WGS84 และค่าพิกัดกริด UTM Zone 47N/48N พร้อมระดับความสูงเหนือหมุด Geoid TGM2017 และไฟล์ดิบ RINEX สำหรับปรับแก้โครงข่าย',
+      nextStepTitle: 'การแปลงพิกัดและตรวจสอบค่าปรับเทียบ (Coordinate Transformation & Validation)',
+      nextStepProcedure: 'นำค่าพิกัด WGS84 ที่ได้จากการรังวัด RTK/Static นำเข้าสู่เครื่องมือแปลงพิกัด (Coordinate Converter) เพื่อแปลงเป็น UTM และ Indian 1975 หรือส่งออกเป็น GeoJSON เข้าสู่ WebGIS Terminal',
+      recommendedToolTab: 'coord',
+      toolActionLabel: 'เปิดเครื่องมือแปลงพิกัดภูมิศาสตร์ (Coordinate Converter)'
+    }
+  },
+
+// -------------------------------------------------------------------------
+  // TOPIC SOP-05: DRONE / UAV PHOTOGRAMMETRY & GCP SURVEY PROCEDURE (คู่มือทำงาน)
+  // -------------------------------------------------------------------------
+  {
+    id: 'uav-drone-photogrammetry',
+    code: 'SOP-05',
+    title: 'วิธีการสำรวจทำแผนที่ด้วยโดรนและวางหมุด GCP (UAV Aerial Photogrammetry & GCP Survey)',
+    titleEn: 'UAV Aerial Photogrammetry: Flight Mission Planning, GCP Control, GSD & Orthomosaic Processing',
+    category: 'drone-uav',
+    categoryName: 'วิธีการทำงานภาคสนาม',
+    summary: 'คู่มือมาตรฐานวิธีการทำงานสำรวจรังวัดทำแผนที่ด้วยอากาศยานไร้คนขับ (UAV / Drone Photogrammetry): การวางแผนเส้นทางบินถ่ายภาพ (Flight Mission Planning), การคำนวณความละเอียดภาพภาคพื้นดิน (Ground Sample Distance: GSD), ข้อกำหนดการซ้อนทับภาพส่วนหน้า (Forward Overlap 75-80%) และส่วนข้าง (Side Overlap 65-70%), การวางและรังวัดหมุดควบคุมภาคพื้นดิน (Ground Control Points: GCP) และหมุดตรวจสอบอิสระ (Check Points: CP), การบินด้วยระบบ RTK/PPK, กระบวนการปรับแก้กลุ่มภาพทางอากาศ (Bundle Block Adjustment: BBA), การสร้างผังภาพถ่ายดัดแก้ระนาบ (Digital Orthophoto Mosaic - DOM) และแบบจำลองระดับสูงเชิงเลข (Digital Surface Model - DSM)',
+    badge: 'คู่มือทำงาน',
+    iconName: 'Plane',
+    verificationStatus: 'draft',
+    verificationProof: 'ASPRS Positional Accuracy Standards for Digital Geospatial Data (2014); ประกาศสำนักงานการบินพลเรือนแห่งประเทศไทย (CAAT) เรื่องการใช้อากาศยานไร้คนขับเพื่อการสำรวจ; Luhmann, T. et al. (2019) Close-Range Photogrammetry and 3D Imaging',
+    courseRelation: 'วิชา 01218341 Photogrammetry for Surveying (KU Geomatics) & มาตรฐาน กรมแผนที่ทหาร (RTSD)',
+    equipmentRequired: [
+      'อากาศยานไร้คนขับชนิดปีกหมุนหลายใบพัด (Multirotor Drone e.g. DJI Matrice 350 RTK / Phantom 4 RTK) หรือ Fixed-Wing UAV',
+      'กล้องถ่ายภาพความละเอียดสูงเซ็นเซอร์แบบ Mechanical Global Shutter (เช่น Zenmuse P1 ความละเอียด 45 ล้านพิกเซล)',
+      'สถานีฐานดาวเทียม GNSS ความแม่นยำสูงภาคพื้นดิน (D-RTK 2 Mobile Base Station หรือ GNSS Rover สำรวจ GCP)',
+      'เป้าควบคุมภาพถ่ายทางอากาศ (Aerial GCP Targets) วัสดุไวนิลกันน้ำลายตารางหมากรุกขาว-ดำ 60x60 cm หรือ 1x1 m',
+      'สมาร์ทคอนโทรลเลอร์ (Smart Remote Controller) พร้อมซอฟต์แวร์วางแผนการบิน (DJI Pilot 2 / UgCS / DroneDeploy)',
+      'เครื่องวัดความเร็วลมภาคสนาม (Anemometer) และเครื่องวัดความกดอากาศ'
+    ],
+    workingPrinciple: [
+      'หลักการทางเรขาคณิตของการถ่ายภาพดัดแก้ (Collinearity Condition): จุดศูนย์กลางเลนส์ (Perspective Center), จุดพิกัดภาพ (Image Point), และจุดบนภูมิประเทศจริง (Ground Point) เรียงตัวอยู่บนเส้นตรงเดียวกัน',
+      'การซ้อนทับของภาพถ่าย (Overlap Requirements): ต้องรักษาการซ้อนทับส่วนหน้า (Forward Overlap) ไม่ต่ำกว่า 75-80% และส่วนข้าง (Side Overlap) ไม่ต่ำกว่า 65-70% เพื่อให้ขั้นตอน Structure from Motion (SfM) สามารถจับคู่จุดร่วม (Tie Points) ระหว่างภาพได้อย่างสมบูรณ์',
+      'Ground Sample Distance (GSD): ขนาดของพิกเซลบนพื้นดินจริง คำนวณจากความสูงการบิน (H), ความยาวโฟกัสเลนส์ (F), ขนาดเซ็นเซอร์ (Sensor Width) และขนาดภาพ (Image Width): GSD = (H × Sw) / (F × Iw)',
+      'บทบาทของหมุด GCP vs Check Points (CP): GCP ใช้ตรึงและปรับแก้ตำแหน่ง 3 มิติของบล็อกภาพเข้าสู่ระบบพิกัดจริง (UTM) ส่วน Check Points (CP) ไม่ถูกนำเข้าการคำนวณ Bundle Adjustment แต่ใช้ตรวจสอบความถูกต้องสัมบูรณ์ (RMSE)',
+      'ระบบ RTK/PPK Drone: บันทึกตำแหน่งจุดเปิดรับแสง (Camera Exposure Center) ของทุกภาพด้วยพิกัดดาวเทียมระดับมิลลิเมตร ช่วยลดจำนวน GCP ภาคสนามได้มากกว่า 70% แต่ยังคงจำเป็นต้องใช้ Check Points เสมอ'
+    ],
+    fieldProcedures: [
+      {
+        title: 'ขั้นตอนที่ 1: การวางแผนภารกิจการบินและการคำนวณ GSD (Mission Planning & GSD Calculation)',
+        details: 'กำหนดขอบเขตพื้นที่สำรวจ (Survey AOI) ในซอฟต์แวร์วางแผนการบิน กำหนดค่า GSD ที่ต้องการ (เช่น 2.0 cm/pixel สำหรับงานก่อสร้าง) คำนวณหาความสูงการบินที่เหมาะสม (Flight Altitude) เช่น เลนส์ 35mm บนเซ็นเซอร์ Full-frame บินที่ความสูง 100-120 เมตรเหนือพื้นดิน ตั้งค่าความเร็วบินและเลือกทิศทางแนวบินตัดขวางกับทิศทางลมเพื่อรักษาเสถียรภาพตัวลำ'
+      },
+      {
+        title: 'ขั้นตอนที่ 2: การวางและการรังวัดพิกัดหมุดควบคุม GCP (GCP Distribution & Precision Survey)',
+        details: 'วางแผ่นเป้า GCP ลายหมากรุกขาว-ดำกระจายตัวรอบขอบเขตพื้นที่และใจกลางพื้นที่อย่างสม่ำเสมอ ยึดมุมแผ่นเป้าด้วยสมอบกให้ตึงเรียบสนิทกับพื้น รังวัดพิกัด 3 มิติ (N, E, Elev) กึ่งกลางเป้าทุกหมุดด้วยกล้อง Total Station หรือ GNSS RTK 180-epoch averaging แบ่งหมุดประมาณ 70% เป็น GCP และ 30% ที่เหลือเป็น Check Points (CP)'
+      },
+      {
+        title: 'ขั้นตอนที่ 3: การตรวจสอบสภาพอากาศและการเตรียมพร้อมก่อนบิน (Pre-Flight Safety Checklist)',
+        details: 'ตรวจสอบความเร็วลมภาคสนามด้วย Anemometer (ต้องไม่เกิน 8-10 m/s), ตรวจสอบค่า Kp-Index พายุสุริยะ (< 4), ตรวจสอบพื้นที่ปลอดสัญญาณรบกวนคลื่นวิทยุและแนวสายไฟแรงสูง, ตรวจสอบสภาพใบพัด แบตเตอรี่, ตั้งค่าระดับความสูงบินกลับจุดปล่อยอัตโนมัติ (Return-to-Home: RTH Altitude) ให้สูงกว่าสิ่งกีดขวางที่สูงที่สุดในพื้นที่อย่างน้อย 20-30 เมตร'
+      },
+      {
+        title: 'ขั้นตอนที่ 4: การปฏิบัติการบินถ่ายภาพอัตโนมัติ (Autonomous Flight Execution & Monitoring)',
+        details: 'เริ่มภารกิจบินอัตโนมัติ โดรนจะไต่ระดับไปยังจุดเริ่มต้นแนวบิน (First Waypoint) ตรวจสอบว่าโดรนรักษาตำแหน่ง RTK Fixed ตลอดเวลา ติดตามสถานะภาพถ่ายสด จำนวนภาพที่บันทึก และความเร็วลมบนหน้าจอ Controller บินวนถ่ายภาพเฉียง (Oblique Pass) เพิ่มเติมหากพื้นที่สำรวจมีอาคารสูงหรือความลาดชันสูง'
+      },
+      {
+        title: 'ขั้นตอนที่ 5: การตรวจสอบคุณภาพข้อมูลดิบภาคสนาม (Field QA/QC & EXIF Audit)',
+        details: 'เมื่อโดรนลงจอด นำการ์ด SD เสียบคอมพิวเตอร์ ตรวจสอบความคมชัดของภาพ ไม่มีอาการเบลอ (Motion Blur) ตรวจสอบไฟล์ Timestamp Log (.MRK) เทียบกับพิกัด GNSS Exposure Center นำเข้าซอฟต์แวร์ประมวลผลเบื้องต้น (Rapid Processing) เพื่อยืนยันว่าภาพถ่ายครอบคลุมพื้นที่ 100% ไม่มีช่องว่าง (Coverage Gaps)'
+      }
+    ],
+    deviceWorkflow: [
+      {
+        stepNumber: 1,
+        stageName: 'การกำหนดพารามิเตอร์การบินบนคอนโทรลเลอร์ (Flight Parameters Setup)',
+        targetHardware: 'DJI Pilot 2 / UgCS Ground Control Station',
+        buttonKey: '[MAPPING MISSION] -> [POLYGON AREA] -> [CAMERA: P1 35MM]',
+        actionLabel: 'กำหนดค่าความสูงและ Overlap',
+        screenTitle: 'UAV PHOTOGRAMMETRY MISSION PARAMETERS',
+        screenLines: [
+          '┌──────────────────────────────────────────────┐',
+          '│ AREA: 0.45 km² (281.25 Rai)                  │',
+          '│ TARGET GSD: 1.85 cm/pixel                    │',
+          '│ FLIGHT HEIGHT: 110.0 m (AGL - TERRAIN FOLLOW)│',
+          '│ SPEED: 8.5 m/s    ESTIMATED TIME: 24 min     │',
+          '│                                              │',
+          '│ FORWARD OVERLAP: 80%    SIDE OVERLAP: 70%    │',
+          '│ SHUTTER TRIGGER: TIME (INTERVAL: 2.0s)       │',
+          '│ RTK POSITIONING STATUS: RTK FIXED (BASE D-RTK)│',
+          '│ SAFE RTH ALTITUDE: 140.0 m                   │',
+          '└──────────────────────────────────────────────┘'
+        ],
+        explanation: 'ระบบวางแผนการบินคำนวณแนวบิน (Flight Lines) แบบคู่ขนานอัตโนมัติ รักษาระยะซ้อนทับ 80/70 และควบคุมความละเอียดภาพ GSD ที่ 1.85 cm/pixel ด้วยฟังก์ชัน Terrain Follow',
+        qaCheck: 'ยืนยันว่าฟังก์ชัน Terrain Follow เปิดใช้งานอยู่เสมอเมื่อบินในพื้นที่ที่มีความลาดชัน เพื่อให้ค่า GSD สม่ำเสมอทั่วทั้งแปลง'
+      }
+    ],
+    formulas: [
+      {
+        label: 'การคำนวณ Ground Sample Distance (GSD Formula)',
+        formula: '\\text{GSD} = \\frac{H \\times S_w}{F \\times I_w}',
+        explanation: 'H คือความสูงการบินเหนือพื้น (m), Sw คือขนาดความกว้างเซ็นเซอร์กล้อง (mm), F คือทางยาวโฟกัสเลนส์ (mm), Iw คือความละเอียดพิกเซลแนวกว้างของภาพ'
+      },
+      {
+        label: 'ความสัมพันธ์ความสูงบินกับทางยาวโฟกัส (Flight Altitude from Target GSD)',
+        formula: 'H = \\frac{F \\times \\text{GSD}}{p_{\\text{size}}}',
+        explanation: 'psize คือขนาดจริงของพิกเซลบนเซ็นเซอร์ (Sensor Pixel Pitch เช่น 4.4 μm)'
+      },
+      {
+        label: 'การประเมินความคลาดเคลื่อนด้วยรากกำลังสองเฉลี่ย (RMSE of Check Points)',
+        formula: '\\text{RMSE}_{xy} = \\sqrt{\\frac{\\sum (\\Delta X^2 + \\Delta Y^2)}{n}} \\le 1.5 \\times \\text{GSD}',
+        explanation: 'เกณฑ์ความถูกต้องมาตรฐานสากล: ค่าคลาดเคลื่อนบนจุดตรวจสอบ CP ในแนวราบต้องไม่เกิน 1.5 เท่าของ GSD'
+      }
+    ],
+    errorSourcesAndMitigation: [
+      'Motion Blur (ภาพเบลอจากการเคลื่อนที่): เกิดจากความเร็วชัตเตอร์ต่ำเกินไปหรือโดรนบินเร็วเกินไป แก้ไขด้วยการใช้เลนส์ Mechanical Global Shutter และตั้งค่า Shutter Speed ไม่ต่ำกว่า 1/1000s',
+      'Insufficient Overlap in Wind (การซ้อนทับภาพไม่พอเมื่อเจอลมแรง): ลมกรรโชกทำให้โดรนบินเอียงและระยะห่างระหว่างจุดถ่ายภาพคลาดเคลื่อน แก้ไขด้วยการตั้งค่า Overlap เผื่อไว้ที่ 80% / 75%',
+      'Vegetation & Water Body Distortion: ป่าทึบหรือผิวน้ำที่มีการเคลื่อนไหวทำให้โปรแกรม SfM จับคู่ Tie Points ไม่ได้ แก้ไขด้วยการบินคร่อมขอบเขตให้นอกเหนือน้ำ และใช้เทคโนโลยี LiDAR ร่วมด้วยหากจำเป็น',
+      'Thermal Camera Expansion & Lens Distortion: กล้องถ่ายภาพขยายตัวเมื่อโดรนบินกลางแดดจัด แก้ไขด้วยการเปิดกล้องอุ่นเครื่อง 10-15 นาทีก่อนบินจริงเพื่อให้ค่า In-Flight Calibration เสถียร'
+    ],
+    downstreamWorkflow: {
+      outputDataFormat: 'GeoTIFF (Orthomosaic, DSM/DTM), GeoJSON (Flight Boundary & Ground Control Points)',
+      outputDescription: 'ภาพถ่ายออร์โธโมเสกความละเอียดสูงระดับ GSD < 2 cm และพิกัดหมุด GCP/Check Points ในระบบ UTM WGS84',
+      nextStepTitle: 'การนำเข้าชั้นข้อมูลและแสดงผลบนแผนที่สนาม (Spatial Layer Overlay & WebGIS Inspection)',
+      nextStepProcedure: 'นำไฟล์ GeoJSON ขอบเขตการบินและหมุดตรวจทาน (Check Points) อัปโหลดเข้าสู่ WebGIS Field Terminal เพื่อตรวจสอบความถูกต้องเชิงตำแหน่งเทียบกับแผนที่ภูมิประเทศและดาวเทียม',
+      recommendedToolTab: 'map',
+      toolActionLabel: 'เปิดแผนที่สำรวจภาคสนาม (WebGIS Terminal)'
+    }
+  },
+
+// -------------------------------------------------------------------------
+  // TOPIC SOP-06: 3D TERRESTRIAL LASER SCANNING & SLAM PROCEDURE (คู่มือทำงาน)
   // -------------------------------------------------------------------------
   {
     id: 'terrestrial-lidar-slam',
+    code: 'SOP-06',
     title: 'วิธีการสำรวจเก็บข้อมูล 3 มิติและต่อกลุ่มจุดภาพ (TLS Registration & Scan-to-BIM)',
     titleEn: 'Terrestrial Laser Scanning (TLS) & Mobile Handheld SLAM: Point Cloud Registration & BIM Georeferencing',
     category: 'scanner-slam',
@@ -2115,11 +2125,12 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     }
   },
 
-  // -------------------------------------------------------------------------
-  // TOPIC 12: HYDROGRAPHIC & BATHYMETRIC VESSEL SURVEY (คู่มือทำงาน)
+// -------------------------------------------------------------------------
+  // TOPIC SOP-07: HYDROGRAPHIC & BATHYMETRIC VESSEL SURVEY (คู่มือทำงาน)
   // -------------------------------------------------------------------------
   {
     id: 'hydrographic-bathymetric-survey',
+    code: 'SOP-07',
     title: 'วิธีการสำรวจอุทกศาสตร์และหยั่งความลึกท้องน้ำ (Hydrographic & Bathymetric Survey)',
     titleEn: 'Hydrographic Bathymetric Survey: Single/Multibeam Echo Sounder, Tide & Motion Compensation',
     category: 'hydrographic',
@@ -2227,11 +2238,12 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     }
   },
 
-  // -------------------------------------------------------------------------
-  // TOPIC 13: TBM TUNNEL GUIDANCE & UNDERGROUND SURVEY (คู่มือทำงาน)
+// -------------------------------------------------------------------------
+  // TOPIC SOP-08: TBM TUNNEL GUIDANCE & UNDERGROUND SURVEY (คู่มือทำงาน)
   // -------------------------------------------------------------------------
   {
     id: 'tbm-tunnel-guidance-survey',
+    code: 'SOP-08',
     title: 'วิธีการสำรวจควบคุมหัวเจาะอุโมงค์และงานใต้ดิน (TBM Guidance System & Underground Alignment)',
     titleEn: 'TBM Tunnel Guidance System: Motorized Laser Total Station, Articulation & Ring Convergence Survey',
     category: 'tbm-tunnel',
@@ -2344,5 +2356,4 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
       toolActionLabel: 'เปิดเครื่องมือคำนวณวงรอบ (Traverse Calculator)'
     }
   }
-
 ];

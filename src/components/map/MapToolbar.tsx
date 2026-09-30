@@ -143,6 +143,21 @@ export const MapToolbar: React.FC<MapToolbarProps> = ({
           </button>
 
           <button
+            onClick={() => {
+              window.location.hash = '#/map-redesign';
+            }}
+            aria-label="สำรวจ 10+ รูปแบบ Map Redesign"
+            title="สำรวจ 10+ รูปแบบสไตล์ดีไซน์ใหม่หน้า Map (พร้อมปุ่มสุ่มสไตล์)"
+            className="min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 shrink-0 text-xs font-bold hover:opacity-90 shadow-sm"
+            style={{
+              backgroundColor: 'var(--accent)',
+              color: '#ffffff'
+            }}
+          >
+            <span>🎨 Redesign (10 แบบ)</span>
+          </button>
+
+          <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             aria-label={isCollapsed ? 'ขยายแผงเครื่องมือ' : 'ย่อแผงเครื่องมือ'}
             title={isCollapsed ? 'ขยายแผงเครื่องมือ' : 'ย่อแผงเครื่องมือ'}

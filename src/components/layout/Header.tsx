@@ -1,6 +1,24 @@
-import React from 'react';
-import { BookOpen, Calculator, Map, ChevronRight, Sun, Moon, Info } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { BookOpen, Calculator, Map, ChevronRight, Sun, Moon, Info, Palette, Check, ChevronDown } from 'lucide-react';
 import type { MesurvTheme } from '../../App';
+
+export interface ThemeOption {
+  id: MesurvTheme;
+  name: string;
+  nameEn: string;
+  accent: string;
+  bg: string;
+  isDark: boolean;
+}
+
+export const THEME_OPTIONS: ThemeOption[] = [
+  // Light Themes
+  { id: 'nordic', name: 'Nordic Fjord', nameEn: 'Alpine Teal', accent: '#0f766e', bg: '#f1f5f9', isDark: false },
+  { id: 'warmsand', name: 'Warm Sand', nameEn: 'Terracotta & Sand', accent: '#cc785c', bg: '#f7f5f2', isDark: false },
+  // Dark Themes
+  { id: 'terminal', name: 'Terminal', nameEn: 'Carbon Matrix', accent: '#34d399', bg: '#050505', isDark: true },
+  { id: 'bento', name: 'Bento Quartz', nameEn: 'Deep Sky Bento', accent: '#0ea5e9', bg: '#0f172a', isDark: true },
+];
 
 interface HeaderProps {
   activeTab: 'knowledge' | 'calculator' | 'map';
@@ -12,6 +30,7 @@ interface HeaderProps {
   };
   theme?: MesurvTheme;
   onToggleTheme?: () => void;
+  onSelectTheme?: (theme: MesurvTheme) => void;
   onOpenAbout?: () => void;
 }
 
@@ -19,10 +38,26 @@ export const Header: React.FC<HeaderProps> = ({
   activeTab,
   setActiveTab,
   route,
-  theme = 'fieldbook',
+  theme = 'nordic',
   onToggleTheme,
+  onSelectTheme,
   onOpenAbout,
 }) => {
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+  const themeMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(e.target as Node)) {
+        setIsThemeMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const currentThemeObj = THEME_OPTIONS.find((t) => t.id === theme) || THEME_OPTIONS[0];
+
   const subTabNames: Record<string, string> = {
     coord: 'แปลงพิกัด',
     traverse: 'ปรับแก้วงรอบ',
@@ -163,29 +198,104 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </nav>
 
-        {/* Right: Dual-Theme Toggle (Fieldbook ↔ Terminal) */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-
+        {/* Right: Multi-Theme Selector (Curated Palettes) */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 relative" ref={themeMenuRef}>
+          {/* Quick Toggle Button (Light/Dark Toggle) */}
           {onToggleTheme && (
             <button
               type="button"
               onClick={onToggleTheme}
-              aria-label={theme === 'fieldbook' ? 'สลับเป็นโหมดมืด Terminal' : 'สลับเป็นโหมดสว่าง Fieldbook'}
-              title={theme === 'fieldbook' ? 'Theme: Fieldbook (คลิกเพื่อสลับเป็น Terminal Dark)' : 'Theme: Terminal (คลิกเพื่อสลับเป็น Fieldbook Light)'}
-              className="min-h-[44px] min-w-[44px] px-2 sm:px-3 py-2 rounded-[var(--btn-radius)] bg-[var(--surface)] hover:bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-strong)] text-[var(--text-1)] flex items-center justify-center gap-2 transition-colors micro-press focus-ring"
+              aria-label={currentThemeObj.isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด'}
+              title={currentThemeObj.isDark ? 'สลับเป็นโหมดสว่าง (Light Mode)' : 'สลับเป็นโหมดมืด (Dark Mode)'}
+              className="min-h-[44px] min-w-[44px] p-2.5 rounded-[var(--btn-radius)] bg-[var(--surface)] hover:bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-strong)] text-[var(--text-1)] flex items-center justify-center transition-colors micro-press focus-ring"
             >
-              {theme === 'fieldbook' ? (
-                <>
-                  <Moon className="w-4 h-4 text-[var(--text-1)] shrink-0" />
-                  <span className="hidden lg:inline font-mono text-[11px] font-semibold">TERMINAL</span>
-                </>
+              {currentThemeObj.isDark ? (
+                <Sun className="w-4 h-4 text-amber-400 shrink-0" />
               ) : (
-                <>
-                  <Sun className="w-4 h-4 text-[var(--accent-2)] shrink-0" />
-                  <span className="hidden lg:inline font-mono text-[11px] font-semibold">FIELDBOOK</span>
-                </>
+                <Moon className="w-4 h-4 text-[var(--accent)] shrink-0" />
               )}
             </button>
+          )}
+
+          {/* Theme Dropdown Trigger Button */}
+          <button
+            type="button"
+            onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
+            aria-expanded={isThemeMenuOpen}
+            aria-label="เลือกธีมสีของระบบ"
+            title={`ธีมปัจจุบัน: ${currentThemeObj.name} (คลิกเพื่อเลือกจาก 4 โทนสี)`}
+            className="min-h-[44px] px-2.5 sm:px-3 py-1.5 rounded-[var(--btn-radius)] bg-[var(--surface)] hover:bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-strong)] text-[var(--text-1)] flex items-center gap-2 transition-all micro-press focus-ring"
+          >
+            <span
+              className="w-3 h-3 rounded-full shrink-0 shadow-sm border border-black/10 dark:border-white/20"
+              style={{ backgroundColor: currentThemeObj.accent }}
+            />
+            <span className="hidden sm:inline font-mono text-[11px] font-bold tracking-wide">
+              {currentThemeObj.name.toUpperCase()}
+            </span>
+            <ChevronDown className={`w-3.5 h-3.5 text-[var(--text-3)] transition-transform duration-150 ${isThemeMenuOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {/* Dropdown Menu Popover */}
+          {isThemeMenuOpen && (
+            <div
+              className="absolute right-0 top-full mt-2 w-64 p-1.5 rounded-2xl bg-[var(--surface)] border border-[var(--border-strong)] shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1"
+              style={{ backdropFilter: 'blur(20px)' }}
+            >
+              <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-[var(--text-3)] border-b border-[var(--border)] flex items-center justify-between">
+                <span>เลือกชุดสีธีมระบบ (4 สไตล์)</span>
+                <span className="font-bold text-[var(--accent)]">DNA Curated</span>
+              </div>
+
+              <div className="max-h-72 overflow-y-auto py-1 space-y-0.5">
+                {THEME_OPTIONS.map((opt) => {
+                  const isActive = opt.id === theme;
+                  return (
+                    <button
+                      key={opt.id}
+                      onClick={() => {
+                        if (onSelectTheme) onSelectTheme(opt.id);
+                        setIsThemeMenuOpen(false);
+                      }}
+                      className={`w-full min-h-[44px] px-3 py-2 rounded-xl text-left flex items-center justify-between gap-2.5 transition-all ${
+                        isActive
+                          ? 'bg-[var(--surface-2)] border border-[var(--border-strong)] shadow-sm'
+                          : 'hover:bg-[var(--surface-2)] border border-transparent'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span
+                          className="w-3.5 h-3.5 rounded-full shrink-0 border border-black/20"
+                          style={{ backgroundColor: opt.accent }}
+                        />
+                        <div className="flex flex-col truncate">
+                          <span className={`text-xs font-semibold truncate ${isActive ? 'text-[var(--accent)] font-bold' : 'text-[var(--text-1)]'}`}>
+                            {opt.name}
+                          </span>
+                          <span className="text-[10px] text-[var(--text-3)] font-mono truncate">
+                            {opt.nameEn}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span
+                          className="text-[9px] font-mono px-1.5 py-0.5 rounded border"
+                          style={{
+                            backgroundColor: opt.bg,
+                            color: opt.isDark ? '#e2e8f0' : '#1e293b',
+                            borderColor: 'var(--border)'
+                          }}
+                        >
+                          {opt.isDark ? 'DARK' : 'LIGHT'}
+                        </span>
+                        {isActive && <Check className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           )}
         </div>
 

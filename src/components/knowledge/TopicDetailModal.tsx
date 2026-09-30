@@ -48,6 +48,11 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
         <div className="px-6 py-5 bg-surface-2 dark:bg-[#161618] text-slate-900 dark:text-white border-b border-hairline flex items-start justify-between">
           <div>
             <div className="flex items-center space-x-2 mb-1.5">
+              {topic.code && (
+                <span className="px-2.5 py-0.5 text-[10px] font-mono font-bold tracking-widest uppercase rounded-full bg-surface-3 dark:bg-[#1c1c1f] text-slate-700 dark:text-slate-300 border border-hairline">
+                  {topic.code}
+                </span>
+              )}
               <span className="px-2.5 py-0.5 text-[10px] font-mono font-semibold tracking-widest uppercase rounded-full bg-surface-3 dark:bg-[#1c1c1f] text-slate-700 dark:text-slate-300 border border-hairline">
                 {topic.badge}
               </span>

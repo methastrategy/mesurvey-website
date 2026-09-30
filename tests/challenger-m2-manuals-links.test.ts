@@ -5,6 +5,7 @@ import { KNOWLEDGE_TOPICS } from '../src/data/knowledge-topics';
 import { KnowledgeTopic, DownstreamWorkflow } from '../src/types/survey';
 import { EquipmentCard } from '../src/components/knowledge/EquipmentCard';
 import { TopicDetailModal } from '../src/components/knowledge/TopicDetailModal';
+import { THEME_OPTIONS } from '../src/components/layout/Header';
 
 /**
  * Route parser matching App.tsx specification
@@ -463,6 +464,118 @@ describe('Challenger 1 Adversarial Suite: Manuals, Badges & Deep-Linking', () =>
         const route = parseAppRoute(mapBridgeHash);
         expect(route.tab).toBe('calculator');
         expect(route.subTab).toBe('coord');
+      });
+    });
+  });
+
+  // =========================================================================
+  // SECTION 4: Dual-Taxonomy Categorization, Meaningful Codes & Multi-Theme Switcher
+  // =========================================================================
+  describe('4. Dual-Taxonomy Order, Engineering Codes & Multi-Theme System', () => {
+    describe('Ordering & Engineering Codes (EQ-01..EQ-05, SOP-01..SOP-08)', () => {
+      it('orders all 5 Equipment Manuals (คู่มือใช้งาน) first with EQ-01..EQ-05 codes', () => {
+        const eqTopics = KNOWLEDGE_TOPICS.slice(0, 5);
+        expect(eqTopics).toHaveLength(5);
+
+        const expectedEqIds = [
+          'level-instrument-manual',
+          'theodolite-station-setup',
+          'gnss-instrument-manual',
+          'uav-instrument-manual',
+          'lidar-slam-instrument-manual'
+        ];
+
+        eqTopics.forEach((topic, idx) => {
+          expect(topic.id).toBe(expectedEqIds[idx]);
+          expect(topic.badge).toBe('คู่มือใช้งาน');
+          expect(topic.categoryName).toBe('คู่มือการใช้งานอุปกรณ์');
+          expect(topic.code).toBe(`EQ-0${idx + 1}`);
+        });
+      });
+
+      it('orders all 8 Field Survey Procedures (คู่มือทำงาน) second with SOP-01..SOP-08 codes', () => {
+        const sopTopics = KNOWLEDGE_TOPICS.slice(5, 13);
+        expect(sopTopics).toHaveLength(8);
+
+        const expectedSopIds = [
+          'differential-leveling-survey',
+          'closed-loop-traverse',
+          'link-open-traverse',
+          'gnss-rtk-static-survey',
+          'uav-drone-photogrammetry',
+          'terrestrial-lidar-slam',
+          'hydrographic-bathymetric-survey',
+          'tbm-tunnel-guidance-survey'
+        ];
+
+        sopTopics.forEach((topic, idx) => {
+          expect(topic.id).toBe(expectedSopIds[idx]);
+          expect(topic.badge).toBe('คู่มือทำงาน');
+          expect(topic.categoryName).toBe('วิธีการทำงานภาคสนาม');
+          expect(topic.code).toBe(`SOP-0${idx + 1}`);
+        });
+      });
+
+      it('renders EquipmentCard with the assigned engineering code (e.g. EQ-01)', () => {
+        const eqTopic = KNOWLEDGE_TOPICS[0];
+        const html = renderToString(
+          React.createElement(EquipmentCard, {
+            topic: eqTopic,
+            onSelect: () => {}
+          })
+        );
+
+        expect(html).toContain('EQ-01');
+        expect(html).toContain('คู่มือใช้งาน');
+        expect(html.replace(/&amp;/g, '&')).toContain(eqTopic.title);
+      });
+
+      it('renders TopicDetailModal with the assigned engineering code in the header', () => {
+        const sopTopic = KNOWLEDGE_TOPICS[5]; // differential-leveling-survey
+        const html = renderToString(
+          React.createElement(TopicDetailModal, {
+            topic: sopTopic,
+            onClose: () => {}
+          })
+        );
+
+        expect(html).toContain('SOP-01');
+        expect(html).toContain('คู่มือทำงาน');
+        expect(html.replace(/&amp;/g, '&')).toContain(sopTopic.title);
+      });
+    });
+
+    describe('Multi-Theme System (Curated Palettes)', () => {
+      it('contains all required Light and Dark theme configurations (4 curated themes)', () => {
+        const themeIds = THEME_OPTIONS.map(t => t.id);
+        
+        // Exact 4 curated themes
+        expect(themeIds).toEqual(['nordic', 'warmsand', 'terminal', 'bento']);
+
+        // Required Light themes
+        expect(themeIds).toContain('nordic');
+        expect(themeIds).toContain('warmsand');
+
+        // Required Dark themes
+        expect(themeIds).toContain('terminal');
+        expect(themeIds).toContain('bento');
+      });
+
+      it('correctly sets isDark boolean matching theme light/dark classification', () => {
+        const lightThemes = THEME_OPTIONS.filter(t => !t.isDark).map(t => t.id);
+        const darkThemes = THEME_OPTIONS.filter(t => t.isDark).map(t => t.id);
+
+        expect(lightThemes).toEqual(['nordic', 'warmsand']);
+        expect(darkThemes).toEqual(['terminal', 'bento']);
+      });
+
+      it('provides valid visual tokens (accent color, bg color, names) for every theme option', () => {
+        THEME_OPTIONS.forEach(opt => {
+          expect(opt.name.trim().length).toBeGreaterThan(2);
+          expect(opt.nameEn.trim().length).toBeGreaterThan(2);
+          expect(opt.accent).toMatch(/^#[0-9a-fA-F]{6}$/);
+          expect(opt.bg).toMatch(/^#[0-9a-fA-F]{6}$/);
+        });
       });
     });
   });

@@ -9,16 +9,16 @@ describe('Knowledge Topic Provenance & Verification Badge System', () => {
     expect(KNOWLEDGE_TOPICS.length).toBe(13);
 
     const expectedTopicIds = [
-      'differential-leveling-survey',
       'level-instrument-manual',
       'theodolite-station-setup',
+      'gnss-instrument-manual',
+      'uav-instrument-manual',
+      'lidar-slam-instrument-manual',
+      'differential-leveling-survey',
       'closed-loop-traverse',
       'link-open-traverse',
-      'gnss-instrument-manual',
       'gnss-rtk-static-survey',
-      'uav-instrument-manual',
       'uav-drone-photogrammetry',
-      'lidar-slam-instrument-manual',
       'terrestrial-lidar-slam',
       'hydrographic-bathymetric-survey',
       'tbm-tunnel-guidance-survey'
@@ -31,6 +31,18 @@ describe('Knowledge Topic Provenance & Verification Badge System', () => {
     const surveyMethods = KNOWLEDGE_TOPICS.filter(t => t.badge === 'คู่มือทำงาน');
     expect(equipmentManuals.length).toBe(5);
     expect(surveyMethods.length).toBe(8);
+
+    // Verify Equipment Manuals come first (indices 0..4) with EQ-01..EQ-05
+    equipmentManuals.forEach((m, idx) => {
+      expect(KNOWLEDGE_TOPICS[idx].id).toBe(m.id);
+      expect(m.code).toBe(`EQ-0${idx + 1}`);
+    });
+
+    // Verify Field Survey Methods come second (indices 5..12) with SOP-01..SOP-08
+    surveyMethods.forEach((m, idx) => {
+      expect(KNOWLEDGE_TOPICS[idx + 5].id).toBe(m.id);
+      expect(m.code).toBe(`SOP-0${idx + 1}`);
+    });
   });
 
   it('should ensure all 9 topics are marked with verificationStatus === "draft" pending academic/field peer review', () => {

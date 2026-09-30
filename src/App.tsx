@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Info } from 'lucide-react';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { AboutModal } from './components/layout/AboutModal';
@@ -7,49 +6,59 @@ import { KnowledgeHub } from './components/knowledge/KnowledgeHub';
 import { CalculatorHub } from './components/calculator/CalculatorHub';
 import { WebMap } from './components/map/WebMap';
 
-export type MesurvTheme = 'fieldbook' | 'terminal';
+import { parseRouteHash, type MesurvRoute } from './utils/routing';
 
-function parseRouteHash(rawHash: string) {
-  const hash = rawHash.replace(/^#\/?/, '').trim();
-  const parts = hash.split('/').filter(Boolean);
-  const first = parts[0];
+export type MesurvTheme = 'nordic' | 'warmsand' | 'terminal' | 'bento';
 
-  if (first === 'calculator') {
-    const validSubs = ['coord', 'traverse', 'leveling', 'area'] as const;
-    const sub = validSubs.includes(parts[1] as any) ? (parts[1] as 'coord' | 'traverse' | 'leveling' | 'area') : undefined;
-    return {
-      tab: 'calculator' as const,
-      subTab: sub,
-      topicId: undefined
-    };
-  }
-  if (first === 'map') {
-    return {
-      tab: 'map' as const,
-      subTab: undefined,
-      topicId: undefined
-    };
-  }
-  return {
-    tab: 'knowledge' as const,
-    subTab: undefined,
-    topicId: first === 'knowledge' ? parts[1] : undefined
-  };
-}
+const THEME_META_COLORS: Record<MesurvTheme, string> = {
+  nordic: '#f1f5f9',
+  warmsand: '#f7f5f2',
+  terminal: '#050505',
+  bento: '#0f172a',
+};
+
+const DARK_THEMES = new Set<MesurvTheme>(['terminal', 'bento']);
+const VALID_THEMES: MesurvTheme[] = ['nordic', 'warmsand', 'terminal', 'bento'];
 
 export function App() {
   const [route, setRoute] = useState(() => parseRouteHash(window.location.hash));
   const activeTab = route.tab;
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
-  // Dual-Theme State: 'fieldbook' (Light Daytime) | 'terminal' (Dark Matrix)
+  // Multi-Theme State (Nordic Fjord, Warm Sand, Terminal, Bento Quartz)
   const [theme, setTheme] = useState<MesurvTheme>(() => {
     try {
-      const saved = localStorage.getItem('mesurv-theme');
-      if (saved === 'terminal' || saved === 'fieldbook') return saved;
+      const saved = localStorage.getItem('mesurv-theme') as MesurvTheme | null;
+      if (saved && VALID_THEMES.includes(saved)) return saved;
     } catch {}
-    return 'fieldbook';
+    return 'nordic';
   });
+
+  const [lastLightTheme, setLastLightTheme] = useState<MesurvTheme>(() => {
+    return theme === 'warmsand' ? 'warmsand' : 'nordic';
+  });
+  const [lastDarkTheme, setLastDarkTheme] = useState<MesurvTheme>(() => {
+    return theme === 'bento' ? 'bento' : 'terminal';
+  });
+
+  const handleSelectTheme = (newTheme: MesurvTheme) => {
+    setTheme(newTheme);
+    if (DARK_THEMES.has(newTheme)) {
+      setLastDarkTheme(newTheme);
+    } else {
+      setLastLightTheme(newTheme);
+    }
+  };
+
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      if (DARK_THEMES.has(prev)) {
+        return lastLightTheme;
+      } else {
+        return lastDarkTheme;
+      }
+    });
+  };
 
   const [externalMapPoint, setExternalMapPoint] = useState<{
     lat: number;
@@ -65,23 +74,22 @@ export function App() {
     root.setAttribute('data-theme', theme);
     body.setAttribute('data-theme', theme);
 
-    const metaTheme = document.querySelector('meta[name="theme-color"]');
-    if (theme === 'terminal') {
+    const isDark = DARK_THEMES.has(theme);
+    if (isDark) {
       root.classList.add('dark');
-      if (metaTheme) metaTheme.setAttribute('content', '#050505');
     } else {
       root.classList.remove('dark');
-      if (metaTheme) metaTheme.setAttribute('content', '#f3f1eb');
+    }
+
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+      metaTheme.setAttribute('content', THEME_META_COLORS[theme] || '#f3f1eb');
     }
 
     try {
       localStorage.setItem('mesurv-theme', theme);
     } catch {}
   }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'fieldbook' ? 'terminal' : 'fieldbook'));
-  };
 
   // Lock outer page scrolling when in WebGIS map mode
   useEffect(() => {
@@ -129,30 +137,33 @@ export function App() {
     window.location.hash = '#/map';
   };
 
+  const isFullscreenView = activeTab === 'map';
+
   return (
     <div className="relative flex flex-col min-h-screen w-full max-w-full overflow-x-hidden bg-[var(--bg)] text-[var(--text-1)] font-sans antialiased">
       {/* Main Content Viewport (Full Width, No Left Sidebar) */}
       <div
         className={`relative z-10 flex flex-col flex-1 min-w-0 w-full max-w-full ${
-          activeTab === 'map' ? 'h-screen h-[100dvh] overflow-hidden' : 'min-h-screen overflow-x-hidden'
+          isFullscreenView ? 'h-screen h-[100dvh] overflow-hidden' : 'min-h-screen overflow-x-hidden'
         }`}
       >
-        {/* Top Navigation Bar (Fusion DNA: 64px height, 2px underline tabs, RTSD READY badge, Theme toggle) */}
-        {activeTab !== 'map' && (
+        {/* Top Navigation Bar (Hidden in Map and Map Redesign modes) */}
+        {!isFullscreenView && (
           <Header
-            activeTab={activeTab}
+            activeTab={activeTab as any}
             setActiveTab={handleTabChange}
-            route={route}
+            route={route as any}
             theme={theme}
             onToggleTheme={toggleTheme}
+            onSelectTheme={handleSelectTheme}
             onOpenAbout={() => setIsAboutOpen(true)}
           />
         )}
 
-        {/* Dynamic Main Workspace Container (max-w-6xl centered per Fusion DNA) */}
+        {/* Dynamic Main Workspace Container */}
         <main
           className={`flex-1 w-full max-w-full ${
-            activeTab === 'map'
+            isFullscreenView
               ? 'h-screen h-[100dvh] p-0 m-0 overflow-hidden relative'
               : 'max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-8 pb-16'
           }`}
@@ -175,20 +186,8 @@ export function App() {
         </main>
 
         {/* Footer: Hidden on map mode to prevent map scrolling */}
-        {activeTab !== 'map' && <Footer onOpenAbout={() => setIsAboutOpen(true)} />}
+        {!isFullscreenView && <Footer onOpenAbout={() => setIsAboutOpen(true)} />}
       </div>
-
-      {/* Global Floating About Corner Icon (Hidden in fullscreen map mode) */}
-      {activeTab !== 'map' && (
-        <button
-          onClick={() => setIsAboutOpen(true)}
-          aria-label="เกี่ยวกับระบบ"
-          title="เกี่ยวกับระบบ MESURV"
-          className="fixed bottom-4 right-4 z-50 w-11 h-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-[var(--surface)] hover:bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-strong)] text-[var(--text-2)] hover:text-[var(--accent)] shadow-[var(--shadow)] transition-colors micro-press focus-ring"
-        >
-          <Info className="w-4 h-4 stroke-[2]" />
-        </button>
-      )}
 
       {/* About Modal */}
       <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />

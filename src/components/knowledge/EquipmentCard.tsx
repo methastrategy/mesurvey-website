@@ -64,9 +64,18 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({ topic, onSelect })
             <div className="p-2.5 rounded-xl bg-surface-2 dark:bg-[#161618] border border-hairline text-indigo-600 dark:text-indigo-400 group-hover:scale-105 transition-transform duration-200">
               {getIcon()}
             </div>
-            <span className="px-2.5 py-1 text-[10px] font-mono font-semibold tracking-widest uppercase rounded-full bg-surface-2 dark:bg-[#161618] text-slate-700 dark:text-slate-300 border border-hairline">
+            <span className={`px-2.5 py-1 text-[10px] font-mono font-semibold tracking-widest uppercase rounded-full border ${
+              topic.badge === 'คู่มือใช้งาน'
+                ? 'badge-manual-usage'
+                : 'badge-manual-work'
+            }`}>
               {topic.badge}
             </span>
+            {topic.code && (
+              <span className="px-2 py-0.5 text-[10px] font-mono font-bold rounded-md bg-surface-2 dark:bg-[#161618] text-slate-700 dark:text-slate-300 border border-hairline">
+                {topic.code}
+              </span>
+            )}
           </div>
 
           {/* Precision Instrument Corner Stamp Badge */}

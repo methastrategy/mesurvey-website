@@ -182,6 +182,7 @@ export interface InstrumentVariantUseCase {
 
 export interface KnowledgeTopic {
   id: string;
+  code?: string;
   title: string;
   titleEn: string;
   category: KnowledgeCategory;
