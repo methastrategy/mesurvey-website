@@ -68,6 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
   });
 
   const subTabNames: Record<string, string> = {
+    scientific: 'เครื่องคิดเลข',
     coord: 'แปลงพิกัด',
     traverse: 'ปรับแก้วงรอบ',
     leveling: 'คำนวณระดับ',

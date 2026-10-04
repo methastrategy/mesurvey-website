@@ -139,17 +139,18 @@ export function App() {
   };
 
   const isFullscreenView = activeTab === 'map';
+  const isScientificFullscreen = activeTab === 'calculator' && route.subTab === 'scientific';
 
   return (
     <div className="relative flex flex-col min-h-screen w-full max-w-full overflow-x-hidden bg-[var(--bg)] text-[var(--text-1)] font-sans antialiased">
       {/* Main Content Viewport (Full Width, No Left Sidebar) */}
       <div
         className={`relative z-10 flex flex-col flex-1 min-w-0 w-full max-w-full ${
-          isFullscreenView ? 'h-screen h-[100dvh] overflow-hidden' : 'min-h-screen overflow-x-hidden'
+          isFullscreenView || isScientificFullscreen ? 'h-screen h-[100dvh] overflow-hidden' : 'min-h-screen overflow-x-hidden'
         }`}
       >
-        {/* Top Navigation Bar (Hidden in Map and Map Redesign modes) */}
-        {!isFullscreenView && (
+        {/* Top Navigation Bar (Hidden in Map and Scientific modes) */}
+        {!isFullscreenView && !isScientificFullscreen && (
           <Header
             activeTab={activeTab as any}
             setActiveTab={handleTabChange}
@@ -164,7 +165,7 @@ export function App() {
         {/* Dynamic Main Workspace Container */}
         <main
           className={`flex-1 w-full max-w-full ${
-            isFullscreenView
+            isFullscreenView || isScientificFullscreen
               ? 'h-screen h-[100dvh] p-0 m-0 overflow-hidden relative'
               : activeTab === 'calculator'
               ? 'max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-20 md:pb-6'
@@ -188,8 +189,8 @@ export function App() {
           )}
         </main>
 
-        {/* Mobile Bottom Navigation Bar (Hidden on map full screen and desktop >= md) */}
-        {!isFullscreenView && (
+        {/* Mobile Bottom Navigation Bar (Hidden on map full screen, scientific mode, and desktop >= md) */}
+        {!isFullscreenView && !isScientificFullscreen && (
           <BottomNav
             activeTab={activeTab as any}
             setActiveTab={handleTabChange}

@@ -1,10 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
+  Search, 
   ArrowRightLeft, 
   Compass, 
   Ruler, 
   Layers, 
-  Calculator
+  Calculator,
+  ArrowRight,
+  ChevronRight,
+  ExternalLink,
+  SlidersHorizontal,
+  Sparkles,
+  ArrowLeft
 } from 'lucide-react';
 import { CoordinateConverter } from './CoordinateConverter';
 import { TraverseCalculator } from './TraverseCalculator';
@@ -17,20 +24,39 @@ interface CalculatorHubProps {
   initialSubTab?: 'scientific' | 'coord' | 'traverse' | 'leveling' | 'area';
 }
 
-export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initialSubTab }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'scientific' | 'coord' | 'traverse' | 'leveling' | 'area'>((initialSubTab as any) || 'scientific');
+export type ToolId = 'scientific' | 'traverse' | 'leveling' | 'coord' | 'area';
 
+interface ToolItem {
+  id: ToolId;
+  name: string;
+  nameEn: string;
+  shortDesc: string;
+  category: 'calc' | 'geodesy' | 'cadastral';
+  categoryLabel: string;
+  icon: React.ComponentType<{ className?: string }>;
+  tags: string[];
+  features: string[];
+}
+
+export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initialSubTab }) => {
+  // If null, show the GitHub-repo style tool directory list
+  const [activeSubTab, setActiveSubTab] = useState<ToolId | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'calc' | 'geodesy' | 'cadastral'>('all');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync with Hash URL
   useEffect(() => {
     const handleHashSync = () => {
       const hash = window.location.hash.replace(/^#\/?/, '').trim();
       const parts = hash.split('/').filter(Boolean);
       if (parts[0] === 'calculator') {
-        const sub = parts[1] as any;
-        const validSubs = ['scientific', 'coord', 'traverse', 'leveling', 'area'];
+        const sub = parts[1] as ToolId;
+        const validSubs: ToolId[] = ['scientific', 'coord', 'traverse', 'leveling', 'area'];
         if (validSubs.includes(sub)) {
           setActiveSubTab(sub);
         } else {
-          setActiveSubTab('scientific');
+          setActiveSubTab(null);
         }
       }
     };
@@ -46,209 +72,313 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
     }
   }, [initialSubTab]);
 
-  const handleSubTabChange = (sub: 'scientific' | 'coord' | 'traverse' | 'leveling' | 'area') => {
-    setActiveSubTab(sub);
-    window.location.hash = `#/calculator/${sub}`;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Keyboard shortcut '/' focuses the search box on directory view
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (activeSubTab) return;
+      const target = document.activeElement;
+      const isInput = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || (target as HTMLElement)?.isContentEditable;
+      if (e.key === '/' && !isInput) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      if (e.key === 'Escape' && isInput && target === searchInputRef.current) {
+        searchInputRef.current?.blur();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeSubTab]);
+
+  const selectTool = (toolId: ToolId | null) => {
+    setActiveSubTab(toolId);
+    if (toolId) {
+      window.location.hash = `#/calculator/${toolId}`;
+    } else {
+      window.location.hash = '#/calculator';
+    }
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
-  const tools = [
+  const tools: ToolItem[] = [
     {
-      id: 'scientific' as const,
-      code: 'CALC-00',
-      shortName: 'เครื่องคิดเลขวิทย์ (CASIO)',
-      label: 'เครื่องคิดเลขวิทยาศาสตร์ & สำรวจ (CASIO fx-991EX Style)',
-      labelEn: 'Scientific & Geodetic Calculator (CASIO fx-991EX Style)',
+      id: 'scientific',
+      name: 'เครื่องคิดเลข',
+      nameEn: 'Scientific Calculator',
+      shortDesc: 'เครื่องคิดเลขวิทยาศาสตร์และมุมสำรวจ แปลงองศา-ลิปดา-ฟิลิปดา (DMS), ฟังก์ชันตรีโกณมิติ, ลอการิทึม และยกกำลัง',
+      category: 'calc',
+      categoryLabel: 'คณิตศาสตร์ & สำรวจ',
       icon: Calculator,
-      badge: 'Natural Display • DMS ↔ DD • Pol/Rec • Survey Correction',
-      summary: 'เครื่องคิดเลขวิทยาศาสตร์ครบวงจรสไตล์ CASIO fx-991EX / fx-5800P รองรับ Natural Display, ตรีโกณมิติ, แปลงมุมองศา-ลิปดา-ฟิลิปดา (DMS), Pol/Rec พิกัดฉาก-เชิงขั้ว และสูตรแก้ไขงานสำรวจภาคสนาม',
-      telemetryPreview: [
-        'Pol(ΔE, ΔN) : S = 141.421 m | Az = 45° 00\' 00"',
-        'DMS Mode   : 14° 25\' 36" ↔ 14.426667° (DD)',
-        'C&R Corr   : c = 0.0675 × D² = 0.0675 m @ 1.0 km'
-      ],
-      features: [
-        'Natural Textbook 2-Line Display คำนวณนิพจน์คณิตศาสตร์และตรีโกณมิติครบครัน',
-        'แป้นเฉพาะทางงานสำรวจ: แปลงมุม ° \' " (DMS ↔ DD) และฟังก์ชัน Pol / Rec',
-        'สูตรลัดวิศวกรรมสำรวจ: C&R Correction, Slope to Horizontal, Grid Scale Factor'
-      ]
+      tags: ['casio', 'fx-991', 'trig', 'dms', 'degrees', 'sin', 'cos', 'tan', 'sqrt', 'scientific'],
+      features: ['Natural 2-line display', 'แปลงมุม DMS ↔ ทศนิยม', 'ฟังก์ชันตรีโกณมิติครบครัน']
     },
     {
-      id: 'traverse' as const,
-      code: 'CALC-01',
-      shortName: 'ตารางทำงานวงรอบ',
-      label: 'ตารางทำงานวงรอบภาคสนาม (Bowditch Rule)',
-      labelEn: 'Bowditch Traverse Adjustment & Precision Console',
-      icon: Compass,
-      badge: 'Closed-Loop / Link Traverse • 1:N Ratio',
-      summary: 'คำนวณความคลาดเคลื่อนทางมุมและระยะเชิงเส้น ปรับแก้พิกัดตามกฎเข็มทิศ Bowditch พร้อมประเมินชั้นงานสำรวจมาตรฐานกรมแผนที่ทหาร (RTSD)',
-      telemetryPreview: [
-        '∑ΔN = -0.014 m  | ∑ΔE = +0.019 m  | L = 500.00 m',
-        'Linear Misclosure = 0.0236 m      | Ratio = 1 : 21,186',
-        'RTSD Standard     = FIRST-ORDER PASS (≥ 1:20,000)'
-      ],
-      features: [
-        'คำนวณ Latitude (ΔN) และ Departure (ΔE) รายสถานีอัตโนมัติ',
-        'ตรวจสอบอัตราส่วนความละเอียดเชิงเส้น (Linear Precision 1:N)',
-        'ส่งออกตารางสมุดสนามเป็นไฟล์ CSV และแสดงโครงข่ายบนแผนที่'
-      ]
-    },
-    {
-      id: 'leveling' as const,
-      code: 'CALC-02',
-      shortName: 'ตารางทำงานระดับ',
-      label: 'ตารางทำงานระดับทางวิศวกรรม (Differential Leveling)',
-      labelEn: 'HI & Rise-and-Fall Leveling Fieldbook Console',
+      id: 'leveling',
+      name: 'ตารางงานระดับ',
+      nameEn: 'Differential Leveling Fieldbook',
+      shortDesc: 'บันทึกสมุดระดับภาคสนาม คำนวณแบบแกนกล้อง (HI) และขึ้น-ลง (Rise & Fall) พร้อมตรวจสอบเลขคณิตและเกณฑ์คลาดเคลื่อน RTSD',
+      category: 'geodesy',
+      categoryLabel: 'งานระดับสนาม',
       icon: Ruler,
-      badge: 'HI Method • Rise & Fall • RTSD ±k√K mm',
-      summary: 'ประมวลผลค่าระดับด้วยวิธีแกนกล้อง (HI) และวิธีขึ้น-ลง (Rise & Fall) พร้อมตรวจสอบ Page Check Arithmetic และเกณฑ์ความคลาดเคลื่อน ±4√K ถึง ±24√K',
-      telemetryPreview: [
-        '∑BS (6.425 m) - ∑FS (4.110 m) = +2.315 m',
-        'Last RL - First RL            = +2.315 m [PAGE CHECK OK]',
-        'Misclosure = +2.1 mm ≤ ±4√K (RTSD First-Order)'
-      ],
-      features: [
-        'ทวนสอบสมการหน้าสมุดสนามอัตโนมัติ (Arithmetic Page Check)',
-        'กระจายค่าปรับแก้ระดับตามระยะทางสะสม (Cumulative Distance)',
-        'จำแนกเกณฑ์ชั้นงานระดับชั้น 1, ชั้น 2, ชั้น 3 และงานก่อสร้าง'
-      ]
+      tags: ['leveling', 'hi', 'rise-fall', 'bm', 'foresight', 'backsight', 'rtsd', 'elevation'],
+      features: ['HI & Rise/Fall Method', 'ตรวจสอบ Arithmetic Check อัตโนมัติ', 'เกณฑ์ ±4√K ถึง ±24√K mm']
     },
     {
-      id: 'coord' as const,
-      code: 'CALC-03',
-      shortName: 'ตารางแปลงพิกัด',
-      label: 'แปลงค่าพิกัดสากล & ประเทศไทย (Coordinate Transformation)',
-      labelEn: 'Geodetic Coordinate Transformation Console',
+      id: 'traverse',
+      name: 'ตารางงานวงรอบ',
+      nameEn: 'Bowditch Traverse Adjustment',
+      shortDesc: 'ปรับแก้วงรอบภาคสนามวิธีเข็มทิศ (Bowditch) คำนวณความคลาดเคลื่อนทางมุมและระยะ พร้อมเกณฑ์ชั้นงานสำรวจ 1:N',
+      category: 'geodesy',
+      categoryLabel: 'โครงข่ายวงรอบ',
+      icon: Compass,
+      tags: ['traverse', 'bowditch', 'closed-loop', 'link', 'azimuth', 'bearing', 'rtsd', 'precision'],
+      features: ['ปรับแก้พิกัด Latitude & Departure', 'ตรวจสอบอัตราส่วน 1:N', 'รองรับวงรอบเปิดและปิด']
+    },
+    {
+      id: 'coord',
+      name: 'ตารางแปลงพิกัด',
+      nameEn: 'Coordinate Transformation',
+      shortDesc: 'แปลงค่าพิกัดแผนที่ระหว่าง WGS84 (ละติจูด-ลองจิจูด), UTM Zone 47N/48N และ Indian 1975 ใช้งานร่วมกับแผนที่ WebGIS',
+      category: 'geodesy',
+      categoryLabel: 'ยี่สิบสี่โซนพิกัด',
       icon: ArrowRightLeft,
-      badge: 'EPSG:4326 • UTM 47N/48N • Indian 1975',
-      summary: 'แปลงค่าพิกัดแบบสองทิศทางระหว่าง WGS84 (DD/DMS), UTM Zone 47N/48N และ Indian 1975 พร้อมคำนวณ Grid Convergence และ Point Scale Factor',
-      telemetryPreview: [
-        'WGS84   : 13° 50\' 51.36" N , 100° 34\' 10.56" E',
-        'UTM 47N : E 669,571.428 m  | N 1,531,512.894 m',
-        'IND1975 : E 669,274.112 m  | N 1,531,208.531 m'
-      ],
-      features: [
-        'Helmert 7-Parameter Datum Shift (RTSD Thailand)',
-        'คำนวณมุมเยื้องกริด (γ) และตัวคูณมาตราส่วนจุด (k)',
-        'ส่งพิกัดออกไปยังแผนที่ภาคสนาม WebGIS ได้ทันที'
-      ]
+      tags: ['wgs84', 'utm', 'indian 1975', 'datum', 'gps', 'epsg:4326', 'zone 47n', 'zone 48n'],
+      features: ['Helmert 7-Parameter Datum Shift', 'คำนวณ Grid Convergence & Scale Factor', 'ส่งออกหมุดไปยังแผนที่ WebGIS']
     },
     {
-      id: 'area' as const,
-      code: 'CALC-04',
-      shortName: 'แปลงหน่วยที่ดิน',
-      label: 'แปลงหน่วยพื้นที่ดินไทย (ไร่ - งาน - ตารางวา)',
-      labelEn: 'Thai Cadastral Land Area Conversion Console',
+      id: 'area',
+      name: 'แปลงหน่วยที่ดิน',
+      nameEn: 'Thai Cadastral Land Converter',
+      shortDesc: 'คำนวณและแปลงหน่วยพื้นที่ดินไทย (ไร่ - งาน - ตารางวา) เทียบกับตารางเมตร (m²), เฮกตาร์ และเอเคอร์',
+      category: 'cadastral',
+      categoryLabel: 'รังวัดที่ดิน',
       icon: Layers,
-      badge: 'ไร่ - งาน - ตารางวา ↔ m² / Hectare / Acre',
-      summary: 'แปลงหน่วยวัดพื้นที่ตามมาตรฐานกรมที่ดินไทย เชื่อมโยงระหว่าง ไร่-งาน-ตารางวา กับตารางเมตร (m²), เฮกตาร์ (ha) และเอเคอร์ พร้อมแยกสัดส่วนอัตโนมัติ',
-      telemetryPreview: [
-        'Metric Input   : 12,480.00 m²  (1.2480 Hectares)',
-        'Thai Cadastral : 7 ไร่ - 3 งาน - 20.00 ตารางวา',
-        'Total Sq.Wa    : 3,120.00 ตร.ว. (1 ไร่ = 1,600 m²)'
-      ],
-      features: [
-        'แปลงค่าแบบสองทิศทางทันที (Real-time Bidirectional Sync)',
-        'แยกเศษทศนิยมเป็น ไร่ - งาน - ตารางวา ความละเอียดสูง',
-        'เหมาะสำหรับงานรังวัดสอบเขตโฉนดที่ดินและประเมินราคา'
-      ]
+      tags: ['rai', 'ngan', 'tarang wa', 'land', 'cadastral', 'hectare', 'acre', 'sqm'],
+      features: ['แยกสัดส่วน ไร่ - งาน - ตร.ว. อัตโนมัติ', 'แปลงสองทิศทางแบบเรียลไทม์', 'มาตรฐานกรมที่ดิน']
     }
   ];
 
-  const activeTool = tools.find(t => t.id === activeSubTab);
+  const filteredTools = useMemo(() => {
+    return tools.filter(t => {
+      const matchCat = selectedCategory === 'all' || t.category === selectedCategory;
+      if (!matchCat) return false;
+      const q = searchQuery.toLowerCase().trim();
+      if (!q) return true;
+      return (
+        t.name.toLowerCase().includes(q) ||
+        t.nameEn.toLowerCase().includes(q) ||
+        t.shortDesc.toLowerCase().includes(q) ||
+        t.tags.some(tag => tag.toLowerCase().includes(q))
+      );
+    });
+  }, [tools, searchQuery, selectedCategory]);
 
+  const activeToolObj = tools.find(t => t.id === activeSubTab);
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 1. ACTIVE TOOL VIEW (เมื่อเลือกเปิดเครื่องมือใดเครื่องมือหนึ่ง)
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (activeSubTab) {
+    if (activeSubTab === 'scientific') {
+      return <ScientificCalculator onBackToDirectory={() => selectTool(null)} />;
+    }
+
+    return (
+      <div className="space-y-4">
+        {/* Simple Breadcrumb Header */}
+        <div className="flex items-center justify-between pb-3 border-b border-[var(--border)]">
+          <div className="flex items-center gap-2 text-xs sm:text-sm">
+            <button
+              type="button"
+              onClick={() => selectTool(null)}
+              className="inline-flex items-center gap-1.5 font-semibold text-[var(--accent)] hover:underline cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4 shrink-0" />
+              <span>เครื่องมือทั้งหมด</span>
+            </button>
+            <span className="text-[var(--text-3)]">/</span>
+            <span className="font-bold text-[var(--text-1)]">
+              {activeToolObj?.name}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => selectTool(null)}
+              className="text-xs px-2.5 py-1 rounded-[var(--btn-radius)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] font-semibold transition-colors micro-press"
+            >
+              เปลี่ยนเครื่องมือ
+            </button>
+          </div>
+        </div>
+
+        {/* Selected Tool Component */}
+        <div>
+          {activeSubTab === 'traverse' && <TraverseCalculator />}
+          {activeSubTab === 'leveling' && <LevelingCalculator />}
+          {activeSubTab === 'coord' && <CoordinateConverter onPlotOnMap={onPlotOnMap} />}
+          {activeSubTab === 'area' && <LandAreaCalculator />}
+        </div>
+      </div>
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 2. REPO-DIRECTORY VIEW (หน้าแรก: รายการเครื่องมือเรียบง่าย สไตล์ GitHub Repositories)
+  // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-4 sm:space-y-6 pb-12">
-      {/* ── 1. Minimal Hero Header (Aligned with Knowledge Hub Style) ── */}
-      <div className="space-y-2">
-        <div className="inline-flex items-center gap-2 font-mono text-xs text-[var(--accent)] uppercase tracking-wider">
-          <span>KU GEOMATICS • FIELD COMPUTATION ENGINE</span>
+    <div className="space-y-5 sm:space-y-6 max-w-4xl mx-auto py-2">
+      
+      {/* Header Banner */}
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-2 text-xs font-mono text-[var(--accent)] uppercase tracking-wider font-semibold">
+          <span>MESURV TOOLS</span>
         </div>
-        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-1)] tracking-tight">
-            เครื่องมือคำนวณ / Calculator Hub
-          </h1>
-          <span className="font-mono text-xs text-[var(--text-3)]">
-            5 ENGINES AVAILABLE • RTSD STANDARDS
-          </span>
-        </div>
-        <p className="text-[var(--text-2)] text-xs sm:text-sm max-w-3xl leading-relaxed">
-          รวมระบบประมวลผลทางวิศวกรรมสำรวจ: เครื่องคิดเลขวิทยาศาสตร์ภาคสนาม, การปรับแก้วงรอบวิธีเข็มทิศ, สมุดบันทึกระดับ 3 สายใย, แปลงค่าพิกัดแผนที่ และคำนวณเนื้อที่ดินไทย
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-1)]">
+          เครื่องมือคำนวณ
+        </h1>
+        <p className="text-xs sm:text-sm text-[var(--text-2)] max-w-2xl leading-relaxed">
+          เลือกเครื่องมือที่ต้องการใช้งานเพื่อเปิดหน้าต่างทำงานเต็มรูปแบบ รองรับทั้งงานคำนวณคณิตศาสตร์ งานระดับ วงรอบ แปลงพิกัด และที่ดิน
         </p>
       </div>
 
-      {/* ── 2. Unified Minimal Tab Rail Bar (Single Sticky Switcher) ── */}
-      <div
-        className="sticky top-16 z-30 p-1.5 sm:p-2 rounded-[var(--card-radius)] border shadow-sm transition-all"
+      {/* GitHub-Repo Style Filter & Search Controls */}
+      <div 
+        className="p-3 sm:p-4 rounded-xl border space-y-3 shadow-2xs"
         style={{
           backgroundColor: 'var(--surface)',
           borderColor: 'var(--border)'
         }}
       >
-        <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-          {tools.map((tool) => {
-            const Icon = tool.icon;
-            const isActive = activeSubTab === tool.id;
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-3)] pointer-events-none" />
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="ค้นหาเครื่องมือ"
+            placeholder="ค้นหาเครื่องมือ (เช่น เครื่องคิดเลข, ระดับ, วงรอบ, พิกัด, ไร่)... [กด /]"
+            className="w-full min-h-[42px] pl-10 pr-20 py-2 rounded-[var(--btn-radius)] border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-1)] placeholder-[var(--text-3)] text-xs sm:text-sm focus:outline-none focus:border-[var(--accent)] transition-colors"
+          />
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="px-2 py-0.5 rounded text-xs text-[var(--text-2)] hover:text-[var(--text-1)] bg-[var(--surface)] border border-[var(--border)] transition-colors"
+              >
+                ล้าง
+              </button>
+            )}
+            <span className="font-mono text-[11px] text-[var(--text-3)]">
+              {filteredTools.length} รายการ
+            </span>
+          </div>
+        </div>
+
+        {/* Category Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 border-t border-[var(--border)]">
+          {[
+            { id: 'all' as const, label: 'ทั้งหมด' },
+            { id: 'calc' as const, label: 'เครื่องคิดเลข' },
+            { id: 'geodesy' as const, label: 'งานสำรวจ/พิกัด' },
+            { id: 'cadastral' as const, label: 'ที่ดิน' },
+          ].map(cat => {
+            const isSelected = selectedCategory === cat.id;
             return (
               <button
-                key={tool.id}
+                key={cat.id}
                 type="button"
-                onClick={() => handleSubTabChange(tool.id)}
-                className={`group min-h-[42px] px-3 sm:px-4 py-2 rounded-[var(--btn-radius)] text-xs font-semibold flex items-center gap-2 shrink-0 transition-all cursor-pointer ${
-                  isActive
-                    ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-xs'
-                    : 'text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface-2)] border border-transparent'
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`min-h-[34px] px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition-colors cursor-pointer border ${
+                  isSelected
+                    ? 'bg-[var(--accent)] text-[var(--accent-text)] border-[var(--accent)]'
+                    : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface-3)] border-[var(--border)]'
                 }`}
-                title={tool.label}
               >
-                <Icon className={`w-3.5 h-3.5 shrink-0 transition-transform ${isActive ? 'scale-110' : 'group-hover:scale-105'}`} />
-                <span className="whitespace-nowrap">{tool.shortName}</span>
-                <span
-                  className={`font-mono text-[10px] px-1.5 py-0.2 rounded transition-colors ${
-                    isActive
-                      ? 'bg-black/20 text-white'
-                      : 'bg-[var(--surface-2)] text-[var(--text-3)] group-hover:text-[var(--text-2)]'
-                  }`}
-                >
-                  {tool.code}
-                </span>
+                {cat.label}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* ── 3. Active Tool Meta Strip (Quick Specs & Feature Summary) ── */}
-      {activeTool && (
-        <div
-          className="p-3 sm:p-4 rounded-[var(--card-radius)] border text-xs flex flex-col md:flex-row md:items-center justify-between gap-2.5 transition-colors"
-          style={{
-            backgroundColor: 'var(--surface-2)',
-            borderColor: 'var(--border)'
-          }}
-        >
-          <div className="flex items-center gap-2.5">
-            <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--accent)] border border-[var(--border)]">
-              {activeTool.code}
-            </span>
-            <span className="font-bold text-[var(--text-1)] text-xs sm:text-sm">
-              {activeTool.label}
-            </span>
+      {/* GitHub Repository Style Tool List Container */}
+      <div 
+        className="rounded-xl border divide-y overflow-hidden shadow-xs"
+        style={{
+          backgroundColor: 'var(--surface)',
+          borderColor: 'var(--border)'
+        }}
+      >
+        {filteredTools.length === 0 ? (
+          <div className="p-10 text-center text-xs text-[var(--text-3)]">
+            ไม่พบเครื่องมือที่ตรงกับคำค้นหา "{searchQuery}"
           </div>
-          <div className="font-mono text-[11px] text-[var(--text-3)] flex items-center gap-1.5">
-            <span>{activeTool.badge}</span>
-          </div>
-        </div>
-      )}
+        ) : (
+          filteredTools.map(tool => {
+            const Icon = tool.icon;
+            return (
+              <div
+                key={tool.id}
+                onClick={() => selectTool(tool.id)}
+                className="group p-4 sm:p-5 hover:bg-[var(--surface-2)] transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 select-none"
+              >
+                <div className="flex items-start gap-3.5 min-w-0">
+                  <div 
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border mt-0.5 transition-colors group-hover:border-[var(--accent)]"
+                    style={{
+                      backgroundColor: 'var(--surface-2)',
+                      borderColor: 'var(--border)'
+                    }}
+                  >
+                    <Icon className="w-5 h-5 text-[var(--accent)]" />
+                  </div>
 
-      {/* ── 4. Main Active Instrument Viewport ── */}
-      <div className="min-h-[500px] transition-all">
-        {activeSubTab === 'scientific' && <ScientificCalculator />}
-        {activeSubTab === 'traverse' && <TraverseCalculator />}
-        {activeSubTab === 'leveling' && <LevelingCalculator />}
-        {activeSubTab === 'coord' && <CoordinateConverter onPlotOnMap={onPlotOnMap} />}
-        {activeSubTab === 'area' && <LandAreaCalculator />}
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-sm sm:text-base text-[var(--accent)] group-hover:underline">
+                        {tool.name}
+                      </span>
+                      <span className="text-xs font-mono text-[var(--text-3)]">
+                        ({tool.nameEn})
+                      </span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)]">
+                        {tool.categoryLabel}
+                      </span>
+                    </div>
+
+                    <p className="text-xs sm:text-sm text-[var(--text-2)] leading-relaxed">
+                      {tool.shortDesc}
+                    </p>
+
+                    <div className="flex items-center gap-2 pt-1 flex-wrap text-[11px] text-[var(--text-3)] font-mono">
+                      {tool.features.map((feat, idx) => (
+                        <span key={idx} className="flex items-center gap-1">
+                          <span>•</span>
+                          <span>{feat}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end sm:justify-center shrink-0 pt-1 sm:pt-0">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[var(--surface-2)] group-hover:bg-[var(--accent)] group-hover:text-[var(--accent-text)] text-[var(--text-1)] border border-[var(--border)] transition-colors">
+                    <span>เปิดเครื่องมือ</span>
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
+
     </div>
   );
 };
+
+export default CalculatorHub;
