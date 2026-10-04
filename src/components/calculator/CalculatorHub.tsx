@@ -6,8 +6,7 @@ import {
   Layers, 
   ArrowLeft, 
   ArrowRight, 
-  Calculator,
-  Radio
+  Calculator
 } from 'lucide-react';
 import { CoordinateConverter } from './CoordinateConverter';
 import { TraverseCalculator } from './TraverseCalculator';
@@ -297,35 +296,6 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
             {activeSubTab === 'leveling' && <LevelingCalculator />}
             {activeSubTab === 'coord' && <CoordinateConverter onPlotOnMap={onPlotOnMap} />}
             {activeSubTab === 'area' && <LandAreaCalculator />}
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 3. BOTTOM CORS TELEMETRY STRIP (MESURV Fusion DNA Signature)              */}
-      {/* ========================================================================= */}
-      {activeSubTab !== 'scientific' && (
-        <div
-          className="p-3.5 sm:p-4 flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-3 sm:gap-4 font-mono text-xs tabular-nums w-full min-w-0"
-          style={{
-            backgroundColor: 'var(--surface)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--card-radius)'
-          }}
-        >
-          <div className="flex items-center gap-2.5 font-semibold shrink-0" style={{ color: 'var(--accent-2)' }}>
-            <span className="status-dot" />
-            <Radio className="w-3.5 h-3.5 shrink-0" />
-            <span>CORS TELEMETRY: KU-BANGKHEN BASE</span>
-          </div>
-          <div className="break-words" style={{ color: 'var(--text-2)' }}>
-            E: <strong style={{ color: 'var(--text-1)' }}>669,842.118 m</strong> &nbsp;|&nbsp; N: <strong style={{ color: 'var(--text-1)' }}>1,531,204.592 m</strong> (UTM 47N)
-          </div>
-          <div className="break-words" style={{ color: 'var(--text-2)' }}>
-            GEOID: <strong style={{ color: 'var(--text-1)' }}>TGM2017 (-28.412 m)</strong>
-          </div>
-          <div className="break-words" style={{ color: 'var(--text-3)' }}>
-            MISCLOSURE LIMIT: <strong style={{ color: 'var(--accent)' }}>1 : 10,000 (RTSD)</strong>
           </div>
         </div>
       )}

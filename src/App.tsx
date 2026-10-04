@@ -165,6 +165,8 @@ export function App() {
           className={`flex-1 w-full max-w-full ${
             isFullscreenView
               ? 'h-screen h-[100dvh] p-0 m-0 overflow-hidden relative'
+              : activeTab === 'calculator'
+              ? 'max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-6'
               : 'max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-8 pb-16'
           }`}
         >
@@ -185,8 +187,10 @@ export function App() {
           )}
         </main>
 
-        {/* Footer: Hidden on map mode to prevent map scrolling */}
-        {!isFullscreenView && <Footer onOpenAbout={() => setIsAboutOpen(true)} />}
+        {/* Footer: Hidden on map and calculator modes */}
+        {!isFullscreenView && activeTab !== 'calculator' && (
+          <Footer onOpenAbout={() => setIsAboutOpen(true)} />
+        )}
       </div>
 
       {/* About Modal */}
