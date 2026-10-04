@@ -1,0 +1,132 @@
+{
+  "type": "FeatureCollection",
+  "name": "ThaiPresetPlaces",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ku-survey",
+        "name": "ภาควิชาวิศวกรรมสำรวจ ม.เกษตรศาสตร์ (บางเขน)",
+        "nameEn": "Dept of Survey Engineering, Kasetsart University",
+        "description": "คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเกษตรศาสตร์ บางเขน กรุงเทพฯ",
+        "category": "university",
+        "address": "50 ถนนงามวงศ์วาน แขวงลาดยาว เขตจตุจักร กรุงเทพฯ 10900"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [100.5696, 13.8476]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rtsd-hq",
+        "name": "กรมแผนที่ทหาร (Royal Thai Survey Dept)",
+        "nameEn": "Royal Thai Survey Department",
+        "description": "กองบัญชาการกองทัพไทย หลักหมุดปฐมภูมิรังวัดประเทศไทย",
+        "category": "survey",
+        "address": "ถนนกัลยาณไมตรี แขวงพระบรมมหาราชวัง เขตพระนคร กรุงเทพฯ"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [100.4941, 13.7525]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "grand-palace",
+        "name": "พระบรมมหาราชวัง & วัดพระแก้ว",
+        "nameEn": "Grand Palace & Wat Phra Kaew",
+        "description": "ศูนย์กลางประวัติศาสตร์และหลักเมืองกรุงเทพมหานคร",
+        "category": "landmark",
+        "address": "ถนนหน้าพระลาน แขวงพระบรมมหาราชวัง เขตพระนคร กรุงเทพฯ"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [100.4914, 13.7500]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "bkk-central-station",
+        "name": "สถานีกลางกรุงเทพอภิวัฒน์ (บางซื่อ)",
+        "nameEn": "Krung Thep Aphiwat Central Terminal",
+        "description": "ศูนย์กลางระบบรางและโครงข่ายขนส่งมวลชนแห่งชาติ",
+        "category": "station",
+        "address": "ถนนกำแพงเพชร แขวงจตุจักร เขตจตุจักร กรุงเทพฯ"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [100.5404, 13.8038]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "suvarnabhumi-airport",
+        "name": "ท่าอากาศยานสุวรรณภูมิ (BKK)",
+        "nameEn": "Suvarnabhumi International Airport",
+        "description": "สนามบินหลักนานาชาติและหมุดควบคุมการบิน",
+        "category": "station",
+        "address": "ตำบลหนองปรือ อำเภอบางพลี จังหวัดสมุทรปราการ"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [100.7501, 13.6900]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "victory-monument",
+        "name": "อนุสาวรีย์ชัยสมรภูมิ",
+        "nameEn": "Victory Monument",
+        "description": "วงเวียนหลักคมนาคมและจุดตัดระบบรางใจกลางกรุงเทพฯ",
+        "category": "landmark",
+        "address": "ถนนพญาไท แขวงทุ่งพญาไท เขตราชเทวี กรุงเทพฯ"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [100.5383, 13.7649]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "iconsiam",
+        "name": "ไอคอนสยาม (ICONSIAM)",
+        "nameEn": "ICONSIAM",
+        "description": "แลนด์มาร์กริมแม่น้ำเจ้าพระยา เขตคลองสาน",
+        "category": "landmark",
+        "address": "299 ถนนเจริญนคร แขวงคลองต้นไทร เขตคลองสาน กรุงเทพฯ"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [100.5108, 13.7267]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "rtsd-khao-krasang",
+        "name": "หมุดหลักฐานปฐมภูมิ เขากระโจม / เขากระสัง",
+        "nameEn": "RTSD Primary Geodetic Network Station",
+        "description": "สถานีโครงข่ายยีโอเดซีปฐมภูมิสำหรับการรังวัดพิกัดระวางแผนที่",
+        "category": "survey",
+        "address": "สถานีหมุดหลักฐานดาวเทียมถาวร GNSS CORS กรมแผนที่ทหาร"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [100.9150, 14.5320]
+      }
+    }
+  ]
+}

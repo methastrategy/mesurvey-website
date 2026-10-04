@@ -136,9 +136,6 @@ export const DynamicIslandMapLayout: React.FC<CommonMapLayoutProps> = ({
               <div className="flex items-center gap-2 text-xs">
                 <span className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1 font-mono tracking-tight">
                   <span className="text-blue-600 dark:text-blue-400 font-extrabold">MEMAPS</span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-600 border border-blue-500/20">
-                    ISLAND
-                  </span>
                 </span>
                 <span className="text-slate-300 dark:text-slate-700">|</span>
                 <span className="text-slate-500 dark:text-slate-400 truncate max-w-[140px] sm:max-w-[240px]">

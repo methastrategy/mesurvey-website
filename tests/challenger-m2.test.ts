@@ -190,6 +190,21 @@ describe('Milestone 2 Challenger Empirical Adversarial Test Suite', () => {
       expect(useSurveyStore.getState().inspectedCoordinate).toBeNull();
     });
 
+    it('consumeInspectedCoordinate retrieves coordinate and clears state atomically', () => {
+      const store = useSurveyStore.getState();
+      store.setInspectedCoordinate({ lat: 13.8476, lng: 100.5696, label: 'KU Bangkhen' });
+      
+      const consumed = store.consumeInspectedCoordinate();
+      expect(consumed).not.toBeNull();
+      expect(consumed?.lat).toBe(13.8476);
+      expect(consumed?.lng).toBe(100.5696);
+      expect(consumed?.label).toBe('KU Bangkhen');
+
+      // Subsequent read should be null
+      expect(useSurveyStore.getState().inspectedCoordinate).toBeNull();
+      expect(store.consumeInspectedCoordinate()).toBeNull();
+    });
+
     it('plottedTraverseOverlay handles null, empty stations, and population', () => {
       const store = useSurveyStore.getState();
       store.setPlottedTraverseOverlay(null);
@@ -341,6 +356,46 @@ describe('Milestone 2 Challenger Empirical Adversarial Test Suite', () => {
       // Longitude error is approximately 6 degrees (~660 km shift!)
       const lngDiff = Math.abs(correctWgs.lng - distortedWgs.lng);
       expect(lngDiff).toBeGreaterThan(5.5);
+    });
+  });
+
+  // =========================================================================
+  // 5. ADAPTIVE WORKSPACE & LAZY LOADING INVARIANCE
+  // =========================================================================
+  describe('Adaptive Workspace, Ergonomics & Lazy Loading Architecture', () => {
+    it('verifies AdaptiveWorkspace mobile sheet specifies 100dvh for full snap', () => {
+      const workspacePath = path.resolve(__dirname, '../src/components/map/AdaptiveWorkspace.tsx');
+      const content = fs.readFileSync(workspacePath, 'utf8');
+
+      expect(content).toContain('100dvh');
+      expect(content).toContain('78px');
+      expect(content).toContain('48dvh');
+    });
+
+    it('verifies AdaptiveWorkspace renders CAD coordinate table and measurement result card in survey mode', () => {
+      const workspacePath = path.resolve(__dirname, '../src/components/map/AdaptiveWorkspace.tsx');
+      const content = fs.readFileSync(workspacePath, 'utf8');
+
+      expect(content).toContain('ตารางสถานีรังวัด');
+      expect(content).toContain('ผลการคำนวณการวัด');
+      expect(content).toContain('onUndoPoint');
+    });
+
+    it('verifies WebMap.tsx protects mobile viewport by applying hidden md:block on SplitCad pane', () => {
+      const webmapPath = path.resolve(__dirname, '../src/components/map/WebMap.tsx');
+      const content = fs.readFileSync(webmapPath, 'utf8');
+
+      expect(content).toContain('hidden md:block md:w-[420px]');
+    });
+
+    it('verifies specialized monitor components are lazy-loaded via React.lazy', () => {
+      const webmapPath = path.resolve(__dirname, '../src/components/map/WebMap.tsx');
+      const webmapContent = fs.readFileSync(webmapPath, 'utf8');
+      expect(webmapContent).toMatch(/const\s+WindParticleCanvas\s*=\s*React\.lazy/);
+
+      const workspacePath = path.resolve(__dirname, '../src/components/map/AdaptiveWorkspace.tsx');
+      const workspaceContent = fs.readFileSync(workspacePath, 'utf8');
+      expect(workspaceContent).toMatch(/const\s+BangkokFloodDrawer\s*=\s*React\.lazy/);
     });
   });
 });

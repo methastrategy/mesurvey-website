@@ -38,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({
   activeTab,
   setActiveTab,
   route,
-  theme = 'nordic',
+  theme = 'warmsand',
   onToggleTheme,
   onSelectTheme,
   onOpenAbout,
@@ -56,7 +56,16 @@ export const Header: React.FC<HeaderProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const currentThemeObj = THEME_OPTIONS.find((t) => t.id === theme) || THEME_OPTIONS[0];
+  const currentThemeObj = THEME_OPTIONS.find((t) => t.id === theme) || THEME_OPTIONS.find(t => t.id === 'warmsand') || THEME_OPTIONS[0];
+  const isDark = currentThemeObj.isDark;
+
+  // Filter themes dynamically: Light mode shows 2 Light themes; Dark mode shows 2 Dark themes
+  const visibleThemes = THEME_OPTIONS.filter((opt) => opt.isDark === isDark).sort((a, b) => {
+    if (!isDark) {
+      return a.id === 'warmsand' ? -1 : b.id === 'warmsand' ? 1 : 0;
+    }
+    return a.id === 'terminal' ? -1 : b.id === 'terminal' ? 1 : 0;
+  });
 
   const subTabNames: Record<string, string> = {
     coord: 'แปลงพิกัด',
@@ -223,17 +232,17 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
             aria-expanded={isThemeMenuOpen}
             aria-label="เลือกธีมสีของระบบ"
-            title={`ธีมปัจจุบัน: ${currentThemeObj.name} (คลิกเพื่อเลือกจาก 4 โทนสี)`}
+            title={`ธีมปัจจุบัน: ${currentThemeObj.name} (คลิกเพื่อเลือกจาก ${isDark ? 'โหมดมืด 2 แบบ' : 'โหมดสว่าง 2 แบบ'})`}
             className="min-h-[44px] px-2.5 sm:px-3 py-1.5 rounded-[var(--btn-radius)] bg-[var(--surface)] hover:bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-strong)] text-[var(--text-1)] flex items-center gap-2 transition-all micro-press focus-ring"
           >
             <span
               className="w-3 h-3 rounded-full shrink-0 shadow-sm border border-black/10 dark:border-white/20"
               style={{ backgroundColor: currentThemeObj.accent }}
             />
-            <span className="hidden sm:inline font-mono text-[11px] font-bold tracking-wide">
+            <span className="hidden sm:inline font-mono text-[11px] font-bold tracking-wide w-[92px] truncate text-left">
               {currentThemeObj.name.toUpperCase()}
             </span>
-            <ChevronDown className={`w-3.5 h-3.5 text-[var(--text-3)] transition-transform duration-150 ${isThemeMenuOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-3.5 h-3.5 text-[var(--text-3)] transition-transform duration-150 shrink-0 ${isThemeMenuOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {/* Dropdown Menu Popover */}
@@ -243,12 +252,12 @@ export const Header: React.FC<HeaderProps> = ({
               style={{ backdropFilter: 'blur(20px)' }}
             >
               <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-[var(--text-3)] border-b border-[var(--border)] flex items-center justify-between">
-                <span>เลือกชุดสีธีมระบบ (4 สไตล์)</span>
+                <span>เลือกชุดสี ({isDark ? 'โหมดมืด 2 แบบ' : 'โหมดสว่าง 2 แบบ'})</span>
                 <span className="font-bold text-[var(--accent)]">DNA Curated</span>
               </div>
 
               <div className="max-h-72 overflow-y-auto py-1 space-y-0.5">
-                {THEME_OPTIONS.map((opt) => {
+                {visibleThemes.map((opt) => {
                   const isActive = opt.id === theme;
                   return (
                     <button

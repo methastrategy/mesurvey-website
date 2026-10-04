@@ -138,7 +138,7 @@ export const MeMapsPlaceCard: React.FC<MeMapsPlaceCardProps> = ({
         </div>
         <button
           onClick={onClose}
-          className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg transition"
+          className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg transition-all duration-150 ease-spring hover:scale-110 active:scale-90"
           title="ปิด"
         >
           <X className="w-4 h-4" />
@@ -160,7 +160,7 @@ export const MeMapsPlaceCard: React.FC<MeMapsPlaceCardProps> = ({
             <span>WGS84 Lat/Lng</span>
             <button
               onClick={copyWgs}
-              className="text-slate-400 hover:text-blue-500 transition"
+              className="text-slate-400 hover:text-blue-500 transition-all duration-150 ease-spring hover:scale-110 active:scale-90"
               title="คัดลอกพิกัด WGS84"
             >
               {copiedType === 'wgs' ? (
@@ -182,7 +182,7 @@ export const MeMapsPlaceCard: React.FC<MeMapsPlaceCardProps> = ({
             <span>UTM ({zone}N)</span>
             <button
               onClick={copyUtm}
-              className="text-slate-400 hover:text-blue-500 transition"
+              className="text-slate-400 hover:text-blue-500 transition-all duration-150 ease-spring hover:scale-110 active:scale-90"
               title="คัดลอกพิกัด UTM"
             >
               {copiedType === 'utm' ? (
@@ -230,7 +230,7 @@ export const MeMapsPlaceCard: React.FC<MeMapsPlaceCardProps> = ({
       <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-1.5 flex-wrap">
         <button
           onClick={() => onSetAsDestination(place)}
-          className="flex-1 min-w-[110px] py-1.5 px-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 shadow-xs transition"
+          className="flex-1 min-w-[110px] py-1.5 px-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 shadow-xs transition-all duration-150 ease-spring hover:scale-[1.02] active:scale-95"
         >
           <Navigation className="w-3.5 h-3.5" />
           <span>ขอเส้นทาง</span>
@@ -238,7 +238,7 @@ export const MeMapsPlaceCard: React.FC<MeMapsPlaceCardProps> = ({
 
         <button
           onClick={() => onSetAsOrigin(place)}
-          className="py-1.5 px-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-medium transition"
+          className="py-1.5 px-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-medium transition-all duration-150 ease-spring hover:scale-[1.02] active:scale-95"
         >
           จุดเริ่มต้น
         </button>
@@ -248,7 +248,7 @@ export const MeMapsPlaceCard: React.FC<MeMapsPlaceCardProps> = ({
             if (isSaved) return;
             setShowNoteInput(!showNoteInput);
           }}
-          className={`py-1.5 px-2.5 rounded-xl text-xs font-medium flex items-center gap-1 transition ${
+          className={`py-1.5 px-2.5 rounded-xl text-xs font-medium flex items-center gap-1 transition-all duration-150 ease-spring hover:scale-[1.02] active:scale-95 ${
             isSaved
               ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'
               : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200'
@@ -278,7 +278,7 @@ export const MeMapsPlaceCard: React.FC<MeMapsPlaceCardProps> = ({
                 utmN
               })
             }
-            className="py-1.5 px-2.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-medium flex items-center gap-1 transition"
+            className="py-1.5 px-2.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-medium flex items-center gap-1 transition-all duration-150 ease-spring hover:scale-[1.02] active:scale-95"
             title="ส่งพิกัดเข้าโต๊ะรังวัด"
           >
             <Send className="w-3.5 h-3.5" />

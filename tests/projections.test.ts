@@ -27,8 +27,24 @@ describe('Geodetic Projections & Transformations Engine (projections.ts)', () =>
 
       // East of 102°E -> Zone 48
       expect(calculateUtmZone(102.0000)).toBe(48);  // Exactly on boundary
+      expect(calculateUtmZone(102.0001)).toBe(48);  // Boundary East
       expect(calculateUtmZone(102.8276)).toBe(48);  // Khon Kaen
       expect(calculateUtmZone(104.8560)).toBe(48);  // Ubon Ratchathani
+    });
+
+    it('supports forcedZone override across zone boundaries', () => {
+      // Point at 101.9999 is naturally Zone 47, but can be forced into Zone 48
+      const naturalZone = forwardWgs84ToUtm(15.0, 101.9999);
+      expect(naturalZone.zone).toBe(47);
+
+      const forced48 = forwardWgs84ToUtm(15.0, 101.9999, 48);
+      expect(forced48.zone).toBe(48);
+      expect(forced48.easting).toBeLessThan(300000);
+
+      // Point at 102.0001 is naturally Zone 48, but can be forced into Zone 47
+      const forced47 = forwardWgs84ToUtm(15.0, 102.0001, 47);
+      expect(forced47.zone).toBe(47);
+      expect(forced47.easting).toBeGreaterThan(800000);
     });
   });
 

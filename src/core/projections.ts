@@ -6,6 +6,7 @@ import {
   Indian1975Coord, 
   CompleteCoordinateSet 
 } from '../types/survey';
+import { validateWgs84, validateUtm, validateIndian1975 } from './validation';
 
 // Define Projections in Proj4
 // WGS84 Geographic
@@ -15,8 +16,11 @@ const EPSG_4326 = 'EPSG:4326';
 const EPSG_32647 = '+proj=utm +zone=47 +datum=WGS84 +units=m +no_defs';
 const EPSG_32648 = '+proj=utm +zone=48 +datum=WGS84 +units=m +no_defs';
 
-// Indian 1975 (Everest 1830 ellipsoid with Thailand RTSD 7-param Helmert shifts: dx=204, dy=837, dz=294)
-// Published & verified by Royal Thai Survey Department
+// Indian 1975 (Everest 1830 ellipsoid with Thailand RTSD 3-parameter geocentric translation: dx=204, dy=837, dz=294)
+// Source: Royal Thai Survey Department (RTSD) military mapping grid standards.
+// Note: This is a 3-parameter geocentric shift (translation only; rotation & scale = 0).
+// Compared to EPSG:1157 (209, 818, 290) and EPSG:1313 (210, 814, 289), empirical deviation across Thailand is ~1.3 to 3.7 m.
+// Suitable for general mapping and visualization (~±5m accuracy); rigorous cadastral work requires localized ground control.
 const EPSG_24047 = '+proj=utm +zone=47 +a=6377276.345 +rf=300.8017 +towgs84=204,837,294,0,0,0,0 +units=m +no_defs';
 const EPSG_24048 = '+proj=utm +zone=48 +a=6377276.345 +rf=300.8017 +towgs84=204,837,294,0,0,0,0 +units=m +no_defs';
 
@@ -51,42 +55,34 @@ export function isInThailandBounds(lat: number, lng: number): boolean {
 }
 
 /**
- * Validates geographic latitude and longitude bounds.
+ * Validates geographic latitude and longitude bounds using Zod geodetic engine.
  */
 export function validateGeographicCoordinates(lat: number, lng: number): { isValid: boolean; error?: string } {
-  if (isNaN(lat) || !isFinite(lat) || isNaN(lng) || !isFinite(lng)) {
-    return { isValid: false, error: 'กรุณาระบุตัวเลขพิกัดละติจูดและลองจิจูดให้ครบถ้วน' };
-  }
-  if (lat < -90 || lat > 90) {
-    return { isValid: false, error: `ค่าละติจูดต้องอยู่ระหว่าง -90° ถึง +90° (ตรวจพบ: ${lat}°)` };
-  }
-  if (lng < -180 || lng > 180) {
-    return { isValid: false, error: `ค่าลองจิจูดต้องอยู่ระหว่าง -180° ถึง +180° (ตรวจพบ: ${lng}°)` };
+  const res = validateWgs84({ lat, lng });
+  if (!res.isValid) {
+    return { isValid: false, error: res.error };
   }
   return { isValid: true };
 }
 
 /**
- * Validates UTM easting and northing bounds for Thailand zones (47N/48N).
+ * Validates UTM easting and northing bounds for Thailand zones (47N/48N) using Zod.
  */
 export function validateUtmCoordinates(easting: number, northing: number, zone: 47 | 48): { isValid: boolean; error?: string } {
-  if (isNaN(easting) || !isFinite(easting) || isNaN(northing) || !isFinite(northing)) {
-    return { isValid: false, error: 'กรุณาระบุตัวเลขค่าพิกัด UTM Easting และ Northing ให้ครบถ้วน' };
+  const res = validateUtm({ easting, northing, zone });
+  if (!res.isValid) {
+    return { isValid: false, error: res.error };
   }
-  if (easting < 100000 || easting > 900000) {
-    return { 
-      isValid: false, 
-      error: `ค่าพิกัด UTM Easting (E) ควรอยู่ระหว่าง 100,000 ถึง 900,000 ม. (ตรวจพบ: ${easting.toLocaleString()} ม.) กรุณาตรวจสอบว่าสลับแกนระหว่างค่า N (Northing) และ E (Easting) จากกล้องประมวลผลรวม (Total Station) หรือเครื่องรับสัญญาณ GNSS หรือไม่` 
-    };
-  }
-  if (northing < 0 || northing > 10000000) {
-    return { 
-      isValid: false, 
-      error: `ค่าพิกัด UTM Northing (N) ในซีกโลกเหนือต้องอยู่ระหว่าง 0 ถึง 10,000,000 ม. (ตรวจพบ: ${northing.toLocaleString()} ม.) กรุณาตรวจสอบข้อมูลรังวัด` 
-    };
-  }
-  if (zone !== 47 && zone !== 48) {
-    return { isValid: false, error: `UTM Zone ในประเทศไทยต้องเป็น Zone 47 หรือ 48 (ตรวจพบ: ${zone})` };
+  return { isValid: true };
+}
+
+/**
+ * Validates Indian 1975 UTM easting and northing bounds for Thailand zones (47N/48N) using Zod.
+ */
+export function validateIndian1975Coordinates(easting: number, northing: number, zone: 47 | 48): { isValid: boolean; error?: string } {
+  const res = validateIndian1975({ easting, northing, zone });
+  if (!res.isValid) {
+    return { isValid: false, error: res.error };
   }
   return { isValid: true };
 }
@@ -222,9 +218,9 @@ export function forwardWgs84ToIndian1975(lat: number, lng: number, forcedZone?: 
  * Convert Indian 1975 UTM to WGS84 Geographic
  */
 export function inverseIndian1975ToWgs84(easting: number, northing: number, zone: 47 | 48): LatLonDD {
-  const utmVal = validateUtmCoordinates(easting, northing, zone);
-  if (!utmVal.isValid) {
-    throw new Error(utmVal.error);
+  const val = validateIndian1975Coordinates(easting, northing, zone);
+  if (!val.isValid) {
+    throw new Error(val.error);
   }
   const epsgCode = `EPSG:240${zone}`;
   const [lng, lat] = proj4(epsgCode, EPSG_4326, [easting, northing]);

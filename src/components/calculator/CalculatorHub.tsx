@@ -13,14 +13,15 @@ import { CoordinateConverter } from './CoordinateConverter';
 import { TraverseCalculator } from './TraverseCalculator';
 import { LevelingCalculator } from './LevelingCalculator';
 import { LandAreaCalculator } from './LandAreaCalculator';
+import { ScientificCalculator } from './ScientificCalculator';
 
 interface CalculatorHubProps {
   onPlotOnMap?: (lat: number, lng: number, label: string) => void;
-  initialSubTab?: 'coord' | 'traverse' | 'leveling' | 'area';
+  initialSubTab?: 'scientific' | 'coord' | 'traverse' | 'leveling' | 'area';
 }
 
 export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initialSubTab }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'coord' | 'traverse' | 'leveling' | 'area' | null>(initialSubTab || null);
+  const [activeSubTab, setActiveSubTab] = useState<'scientific' | 'coord' | 'traverse' | 'leveling' | 'area' | null>(initialSubTab || null);
 
   useEffect(() => {
     const handleHashSync = () => {
@@ -28,7 +29,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       const parts = hash.split('/').filter(Boolean);
       if (parts[0] === 'calculator') {
         const sub = parts[1] as any;
-        const validSubs = ['coord', 'traverse', 'leveling', 'area'];
+        const validSubs = ['scientific', 'coord', 'traverse', 'leveling', 'area'];
         if (validSubs.includes(sub)) {
           setActiveSubTab(sub);
         } else {
@@ -48,7 +49,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
     }
   }, [initialSubTab]);
 
-  const handleSubTabChange = (sub: 'coord' | 'traverse' | 'leveling' | 'area') => {
+  const handleSubTabChange = (sub: 'scientific' | 'coord' | 'traverse' | 'leveling' | 'area') => {
     setActiveSubTab(sub);
     window.location.hash = `#/calculator/${sub}`;
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -62,30 +63,30 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
 
   const tools = [
     {
-      id: 'coord' as const,
-      code: 'CALC-01',
-      shortName: 'แปลงพิกัด',
-      label: 'แปลงค่าพิกัดสากล & ประเทศไทย',
-      labelEn: 'Geodetic Coordinate Transformation Console',
-      icon: ArrowRightLeft,
-      badge: 'EPSG:4326 • UTM 47N/48N • Indian 1975',
-      summary: 'แปลงค่าพิกัดแบบสองทิศทางระหว่าง WGS84 (DD/DMS), UTM Zone 47N/48N และ Indian 1975 พร้อมคำนวณ Grid Convergence และ Point Scale Factor',
+      id: 'scientific' as const,
+      code: 'CALC-00',
+      shortName: 'เครื่องคิดเลขวิทย์ (CASIO)',
+      label: 'เครื่องคิดเลขวิทยาศาสตร์ & สำรวจ (CASIO fx-991EX Style)',
+      labelEn: 'Scientific & Geodetic Calculator (CASIO fx-991EX Style)',
+      icon: Calculator,
+      badge: 'Natural Display • DMS ↔ DD • Pol/Rec • Survey Correction',
+      summary: 'เครื่องคิดเลขวิทยาศาสตร์ครบวงจรสไตล์ CASIO fx-991EX / fx-5800P รองรับ Natural Display, ตรีโกณมิติ, แปลงมุมองศา-ลิปดา-ฟิลิปดา (DMS), Pol/Rec พิกัดฉาก-เชิงขั้ว และสูตรแก้ไขงานสำรวจภาคสนาม',
       telemetryPreview: [
-        'WGS84   : 13° 50\' 51.36" N , 100° 34\' 10.56" E',
-        'UTM 47N : E 669,571.428 m  | N 1,531,512.894 m',
-        'IND1975 : E 669,274.112 m  | N 1,531,208.531 m'
+        'Pol(ΔE, ΔN) : S = 141.421 m | Az = 45° 00\' 00"',
+        'DMS Mode   : 14° 25\' 36" ↔ 14.426667° (DD)',
+        'C&R Corr   : c = 0.0675 × D² = 0.0675 m @ 1.0 km'
       ],
       features: [
-        'Helmert 7-Parameter Datum Shift (RTSD Thailand)',
-        'คำนวณมุมเยื้องกริด (γ) และตัวคูณมาตราส่วนจุด (k)',
-        'ส่งพิกัดออกไปยังแผนที่ภาคสนาม WebGIS ได้ทันที'
+        'Natural Textbook 2-Line Display คำนวณนิพจน์คณิตศาสตร์และตรีโกณมิติครบครัน',
+        'แป้นเฉพาะทางงานสำรวจ: แปลงมุม ° \' " (DMS ↔ DD) และฟังก์ชัน Pol / Rec',
+        'สูตรลัดวิศวกรรมสำรวจ: C&R Correction, Slope to Horizontal, Grid Scale Factor'
       ]
     },
     {
       id: 'traverse' as const,
-      code: 'CALC-02',
-      shortName: 'ปรับแก้วงรอบ',
-      label: 'ปรับแก้วงรอบภาคสนาม (Bowditch Rule)',
+      code: 'CALC-01',
+      shortName: 'ตารางทำงานวงรอบ',
+      label: 'ตารางทำงานวงรอบภาคสนาม (Bowditch Rule)',
       labelEn: 'Bowditch Traverse Adjustment & Precision Console',
       icon: Compass,
       badge: 'Closed-Loop / Link Traverse • 1:N Ratio',
@@ -103,9 +104,9 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
     },
     {
       id: 'leveling' as const,
-      code: 'CALC-03',
-      shortName: 'คำนวณระดับ',
-      label: 'สมุดคำนวณระดับทางวิศวกรรม (Differential Leveling)',
+      code: 'CALC-02',
+      shortName: 'ตารางทำงานระดับ',
+      label: 'ตารางทำงานระดับทางวิศวกรรม (Differential Leveling)',
       labelEn: 'HI & Rise-and-Fall Leveling Fieldbook Console',
       icon: Ruler,
       badge: 'HI Method • Rise & Fall • RTSD ±k√K mm',
@@ -119,6 +120,26 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
         'ทวนสอบสมการหน้าสมุดสนามอัตโนมัติ (Arithmetic Page Check)',
         'กระจายค่าปรับแก้ระดับตามระยะทางสะสม (Cumulative Distance)',
         'จำแนกเกณฑ์ชั้นงานระดับชั้น 1, ชั้น 2, ชั้น 3 และงานก่อสร้าง'
+      ]
+    },
+    {
+      id: 'coord' as const,
+      code: 'CALC-03',
+      shortName: 'ตารางแปลงพิกัด',
+      label: 'แปลงค่าพิกัดสากล & ประเทศไทย (Coordinate Transformation)',
+      labelEn: 'Geodetic Coordinate Transformation Console',
+      icon: ArrowRightLeft,
+      badge: 'EPSG:4326 • UTM 47N/48N • Indian 1975',
+      summary: 'แปลงค่าพิกัดแบบสองทิศทางระหว่าง WGS84 (DD/DMS), UTM Zone 47N/48N และ Indian 1975 พร้อมคำนวณ Grid Convergence และ Point Scale Factor',
+      telemetryPreview: [
+        'WGS84   : 13° 50\' 51.36" N , 100° 34\' 10.56" E',
+        'UTM 47N : E 669,571.428 m  | N 1,531,512.894 m',
+        'IND1975 : E 669,274.112 m  | N 1,531,208.531 m'
+      ],
+      features: [
+        'Helmert 7-Parameter Datum Shift (RTSD Thailand)',
+        'คำนวณมุมเยื้องกริด (γ) และตัวคูณมาตราส่วนจุด (k)',
+        'ส่งพิกัดออกไปยังแผนที่ภาคสนาม WebGIS ได้ทันที'
       ]
     },
     {
@@ -168,7 +189,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                   เครื่องมือคำนวณวิศวกรรมสำรวจ
                 </h1>
                 <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-3)] border border-[var(--border)]">
-                  4 ENGINES
+                  5 ENGINES
                 </span>
               </div>
               <p className="text-xs text-[var(--text-2)]">
@@ -177,8 +198,8 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
             </div>
           </div>
 
-          {/* Compact Tool Cards Grid (4 columns on desktop, 2 on tablet, 1 on mobile) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* Compact Tool Cards Grid (5 tools: 1 col mobile, 2 col tablet, 3 col desktop, 5 col widescreen) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
             {tools.map((tool) => {
               const Icon = tool.icon;
               return (
@@ -271,9 +292,10 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
 
           {/* Active Instrument Console */}
           <div>
-            {activeSubTab === 'coord' && <CoordinateConverter onPlotOnMap={onPlotOnMap} />}
+            {activeSubTab === 'scientific' && <ScientificCalculator />}
             {activeSubTab === 'traverse' && <TraverseCalculator />}
             {activeSubTab === 'leveling' && <LevelingCalculator />}
+            {activeSubTab === 'coord' && <CoordinateConverter onPlotOnMap={onPlotOnMap} />}
             {activeSubTab === 'area' && <LandAreaCalculator />}
           </div>
         </div>
@@ -282,29 +304,31 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       {/* ========================================================================= */}
       {/* 3. BOTTOM CORS TELEMETRY STRIP (MESURV Fusion DNA Signature)              */}
       {/* ========================================================================= */}
-      <div
-        className="p-3.5 sm:p-4 flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-3 sm:gap-4 font-mono text-xs tabular-nums w-full min-w-0"
-        style={{
-          backgroundColor: 'var(--surface)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--card-radius)'
-        }}
-      >
-        <div className="flex items-center gap-2.5 font-semibold shrink-0" style={{ color: 'var(--accent-2)' }}>
-          <span className="status-dot" />
-          <Radio className="w-3.5 h-3.5 shrink-0" />
-          <span>CORS TELEMETRY: KU-BANGKHEN BASE</span>
+      {activeSubTab !== 'scientific' && (
+        <div
+          className="p-3.5 sm:p-4 flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-3 sm:gap-4 font-mono text-xs tabular-nums w-full min-w-0"
+          style={{
+            backgroundColor: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--card-radius)'
+          }}
+        >
+          <div className="flex items-center gap-2.5 font-semibold shrink-0" style={{ color: 'var(--accent-2)' }}>
+            <span className="status-dot" />
+            <Radio className="w-3.5 h-3.5 shrink-0" />
+            <span>CORS TELEMETRY: KU-BANGKHEN BASE</span>
+          </div>
+          <div className="break-words" style={{ color: 'var(--text-2)' }}>
+            E: <strong style={{ color: 'var(--text-1)' }}>669,842.118 m</strong> &nbsp;|&nbsp; N: <strong style={{ color: 'var(--text-1)' }}>1,531,204.592 m</strong> (UTM 47N)
+          </div>
+          <div className="break-words" style={{ color: 'var(--text-2)' }}>
+            GEOID: <strong style={{ color: 'var(--text-1)' }}>TGM2017 (-28.412 m)</strong>
+          </div>
+          <div className="break-words" style={{ color: 'var(--text-3)' }}>
+            MISCLOSURE LIMIT: <strong style={{ color: 'var(--accent)' }}>1 : 10,000 (RTSD)</strong>
+          </div>
         </div>
-        <div className="break-words" style={{ color: 'var(--text-2)' }}>
-          E: <strong style={{ color: 'var(--text-1)' }}>669,842.118 m</strong> &nbsp;|&nbsp; N: <strong style={{ color: 'var(--text-1)' }}>1,531,204.592 m</strong> (UTM 47N)
-        </div>
-        <div className="break-words" style={{ color: 'var(--text-2)' }}>
-          GEOID: <strong style={{ color: 'var(--text-1)' }}>TGM2017 (-28.412 m)</strong>
-        </div>
-        <div className="break-words" style={{ color: 'var(--text-3)' }}>
-          MISCLOSURE LIMIT: <strong style={{ color: 'var(--accent)' }}>1 : 10,000 (RTSD)</strong>
-        </div>
-      </div>
+      )}
 
     </div>
   );

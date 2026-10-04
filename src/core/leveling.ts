@@ -1,4 +1,5 @@
 import { LevelingRowInput, LevelingRowOutput, LevelingLoopResult } from '../types/survey';
+import { validateLevelingSetup } from './validation';
 
 /**
  * Calculates Differential Leveling using both Height of Instrument (HI) and Rise & Fall methods.
@@ -9,16 +10,15 @@ export function calculateLevelingLoop(
   knownEndElevation?: number,
   totalDistanceKm: number = 1.0
 ): LevelingLoopResult {
-  if (isNaN(startElevation)) {
-    throw new Error('ค่าระดับหมุดเริ่มต้น (Start Benchmark RL) ไม่ถูกต้อง: กรุณาระบุค่าตัวเลข เช่น 100.000 ม.รทก.');
-  }
+  const validation = validateLevelingSetup({
+    startElevation,
+    knownEndElevation,
+    totalDistanceKm,
+    rows
+  });
 
-  if (!rows || rows.length === 0) {
-    throw new Error('สมุดจดงานระดับว่างเปล่า: กรุณาเพิ่มแถวรังวัดอย่างน้อย 1 สถานี');
-  }
-
-  if (rows[0].bs === null || rows[0].bs === undefined || isNaN(rows[0].bs)) {
-    throw new Error(`สถานีเริ่มต้น (${rows[0].station || 'BM'}) ขาดค่าอ่านไม้ระดับส่องหลัง (Backsight - BS): จำเป็นต้องมี BS เพื่อเปิดแนวความสูงกล้อง (HI) เริ่มต้น`);
+  if (!validation.isValid) {
+    throw new Error(validation.issues?.[0]?.message || validation.error);
   }
 
   let currentHI: number | null = null;

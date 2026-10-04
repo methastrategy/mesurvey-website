@@ -30,6 +30,28 @@ body[data-theme="fieldbook"] {
   --shadow: 0 2px 8px rgba(20, 36, 27, 0.07);
   --nav-bg: #f3f1eb;
   color-scheme: light;
+
+  /* Glassmorphism Tokens (Fieldbook Sunlight Light) */
+  --memaps-glass-bg: rgba(255, 255, 255, 0.86);
+  --memaps-glass-bg-subtle: rgba(243, 241, 235, 0.78);
+  --memaps-glass-blur: blur(16px) saturate(180%);
+  --memaps-glass-border: rgba(20, 36, 27, 0.12);
+  --memaps-glass-border-specular: rgba(255, 255, 255, 0.80);
+  --memaps-glass-shadow: 0 10px 30px -5px rgba(20, 36, 27, 0.10), 0 4px 10px -2px rgba(20, 36, 27, 0.05);
+  --memaps-glass-shadow-floating: 0 16px 40px -8px rgba(20, 36, 27, 0.16), 0 6px 16px -4px rgba(20, 36, 27, 0.08);
+
+  /* Motion & Spring Physics Curves */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring-snappy: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-spring-press: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --duration-press: 100ms;
+  --duration-micro: 150ms;
+  --duration-flyout: 180ms;
+  --duration-drawer: 200ms;
+
+  --scale-press: 0.97;
+  --scale-press-subtle: 0.985;
 }
 
 :root[data-theme="terminal"],
@@ -50,11 +72,33 @@ body[data-theme="terminal"],
   --accent-2: #fcd535;
   --accent-text: #000000;
   --tab-active-color: #34d399;
-  --card-radius: 2px;
-  --btn-radius: 2px;
+  --card-radius: 12px;
+  --btn-radius: 8px;
   --shadow: none;
   --nav-bg: #050505;
   color-scheme: dark;
+
+  /* Glassmorphism Tokens (Terminal Obsidian Dark) */
+  --memaps-glass-bg: rgba(17, 17, 17, 0.86);
+  --memaps-glass-bg-subtle: rgba(10, 10, 10, 0.78);
+  --memaps-glass-blur: blur(16px) saturate(180%);
+  --memaps-glass-border: rgba(255, 255, 255, 0.10);
+  --memaps-glass-border-specular: rgba(255, 255, 255, 0.08);
+  --memaps-glass-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.75), 0 4px 12px -2px rgba(0, 0, 0, 0.50);
+  --memaps-glass-shadow-floating: 0 20px 48px -10px rgba(0, 0, 0, 0.85), 0 8px 20px -4px rgba(0, 0, 0, 0.60);
+
+  /* Motion & Spring Physics Curves (Identical physics across themes) */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring-snappy: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-spring-press: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --duration-press: 100ms;
+  --duration-micro: 150ms;
+  --duration-flyout: 180ms;
+  --duration-drawer: 200ms;
+
+  --scale-press: 0.97;
+  --scale-press-subtle: 0.985;
 }
 
 :root[data-theme="warmsand"],
@@ -74,7 +118,7 @@ body[data-theme="warmsand"] {
   --accent-2: #d97706;
   --accent-text: #ffffff;
   --tab-active-color: #cc785c;
-  --card-radius: 14px;
+  --card-radius: 12px;
   --btn-radius: 8px;
   --shadow: 0 4px 16px rgba(204, 120, 92, 0.08);
   --nav-bg: #f7f5f2;
@@ -98,8 +142,8 @@ body[data-theme="bento"] {
   --accent-2: #38bdf8;
   --accent-text: #ffffff;
   --tab-active-color: #0ea5e9;
-  --card-radius: 16px;
-  --btn-radius: 10px;
+  --card-radius: 12px;
+  --btn-radius: 8px;
   --shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
   --nav-bg: #0f172a;
   color-scheme: dark;
@@ -122,8 +166,8 @@ body[data-theme="nordic"] {
   --accent-2: #0284c7;
   --accent-text: #ffffff;
   --tab-active-color: #0f766e;
-  --card-radius: 10px;
-  --btn-radius: 6px;
+  --card-radius: 12px;
+  --btn-radius: 8px;
   --shadow: 0 2px 10px rgba(15, 118, 110, 0.08);
   --nav-bg: #f1f5f9;
   color-scheme: light;
@@ -146,8 +190,8 @@ body[data-theme="sunset"] {
   --accent-2: #fb923c;
   --accent-text: #000000;
   --tab-active-color: #f97316;
-  --card-radius: 8px;
-  --btn-radius: 6px;
+  --card-radius: 12px;
+  --btn-radius: 8px;
   --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   --nav-bg: #140f0c;
   color-scheme: dark;
@@ -170,8 +214,8 @@ body[data-theme="cyberlime"] {
   --accent-2: #06b6d4;
   --accent-text: #000000;
   --tab-active-color: #22c55e;
-  --card-radius: 4px;
-  --btn-radius: 4px;
+  --card-radius: 12px;
+  --btn-radius: 8px;
   --shadow: 0 0 16px rgba(34, 197, 94, 0.15);
   --nav-bg: #040711;
   color-scheme: dark;
@@ -551,12 +595,102 @@ body[data-theme="cyberlime"] {
   box-shadow: 0 0 0 2px var(--accent);
 }
 
+/* ==========================================================================
+   MEMAPS MODERN FLUID MOTION & GLASSMORPHISM PRIMITIVES
+   60fps Spring Physics | Dual-Theme Glass | Hardware Accelerated Transforms
+   ========================================================================== */
+
+/* Glassmorphism Primitives */
+.memaps-glass {
+  background-color: var(--memaps-glass-bg);
+  backdrop-filter: var(--memaps-glass-blur);
+  -webkit-backdrop-filter: var(--memaps-glass-blur);
+  border: 1px solid var(--memaps-glass-border);
+  box-shadow: var(--memaps-glass-shadow);
+}
+
+.memaps-glass-floating {
+  background-color: var(--memaps-glass-bg);
+  backdrop-filter: var(--memaps-glass-blur);
+  -webkit-backdrop-filter: var(--memaps-glass-blur);
+  border: 1px solid var(--memaps-glass-border);
+  box-shadow: var(--memaps-glass-shadow-floating);
+}
+
+/* Tactile Active Press */
+.memaps-press {
+  transition: transform var(--duration-press) var(--ease-spring-press);
+}
+.memaps-press:active {
+  transform: scale(var(--scale-press));
+}
+
+.memaps-press-subtle {
+  transition: transform var(--duration-press) var(--ease-spring-press);
+}
+.memaps-press-subtle:active {
+  transform: scale(var(--scale-press-subtle));
+}
+
+/* Keyframe Spring Entrance (Self-contained, 60fps compositor accelerated) */
+@keyframes memaps-spring-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes memaps-spring-up {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.anim-spring-down {
+  animation: memaps-spring-down var(--duration-flyout) var(--ease-spring) forwards;
+  will-change: transform, opacity;
+}
+
+.anim-spring-up {
+  animation: memaps-spring-up var(--duration-flyout) var(--ease-spring) forwards;
+  will-change: transform, opacity;
+}
+
+/* Accessibility: Reduced Transparency Fallback */
+@media (prefers-reduced-transparency: reduce) {
+  .memaps-glass,
+  .memaps-glass-floating {
+    background-color: var(--surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* Accessibility: Reduced Motion Fallback */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .memaps-press,
+  .memaps-press-subtle,
+  .anim-spring-down,
+  .anim-spring-up {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
   }
 }
 
@@ -660,5 +794,25 @@ body[data-theme="cyberlime"] {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+}
+
+/* Real-time GPS location pulsing dot & radar halo */
+@keyframes memapsPulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.85;
+  }
+  70% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.memaps-pulse-halo {
+  animation: memapsPulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 

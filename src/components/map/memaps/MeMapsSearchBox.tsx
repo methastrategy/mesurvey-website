@@ -1,20 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, X, Loader2, MapPin, Landmark, Compass, GraduationCap, Train, Navigation } from 'lucide-react';
+import { Search, X, Loader2, MapPin, Landmark, Compass, GraduationCap, Train, Navigation, Menu } from 'lucide-react';
 import { PlaceSearchResult } from '../../../types/memaps';
 import { searchPlaces } from '../../../core/memaps-services';
 
 interface MeMapsSearchBoxProps {
   onSelectPlace: (place: PlaceSearchResult) => void;
   onClear?: () => void;
+  onToggleMenu?: () => void;
+  isMenuOpen?: boolean;
   placeholder?: string;
   className?: string;
+  isUnifiedWithFlyout?: boolean;
+  onFocusInput?: () => void;
+  onSearchStateChange?: (state: {
+    query: string;
+    results: PlaceSearchResult[];
+    isLoading: boolean;
+    setQuery: (q: string) => void;
+    triggerFullSearch: (q?: string) => Promise<void>;
+  }) => void;
 }
 
 export const MeMapsSearchBox: React.FC<MeMapsSearchBoxProps> = ({
   onSelectPlace,
   onClear,
-  placeholder = 'ค้นหาหมุดรังวัด, แลนด์มาร์ก, มหาวิทยาลัย หรือสถานที่...',
-  className = ''
+  onToggleMenu,
+  isMenuOpen = false,
+  placeholder = 'ค้นหาสถานที่ต่างๆ...',
+  className = '',
+  isUnifiedWithFlyout = false,
+  onFocusInput,
+  onSearchStateChange
 }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<PlaceSearchResult[]>([]);
@@ -34,7 +50,32 @@ export const MeMapsSearchBox: React.FC<MeMapsSearchBoxProps> = ({
     { id: 'station', label: '🚆 สถานี/ขนส่ง' }
   ];
 
-  // Perform debounced search
+  const triggerFullSearch = async (targetQuery = query) => {
+    const trimmed = targetQuery.trim();
+    if (!trimmed) return;
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    setIsLoading(true);
+    try {
+      const res = await searchPlaces(trimmed, controller.signal, { allowRemote: true });
+      setResults(res);
+      setIsOpen(true);
+      if (res.length > 0) {
+        setSelectedIndex(0);
+      }
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        console.warn('Submit search error', err);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Perform debounced LOCAL search on typing (no network spam)
   useEffect(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -46,9 +87,16 @@ export const MeMapsSearchBox: React.FC<MeMapsSearchBoxProps> = ({
     setIsLoading(true);
     const timer = setTimeout(async () => {
       try {
-        const res = await searchPlaces(query, controller.signal);
+        const res = await searchPlaces(query, controller.signal, { allowRemote: false });
         setResults(res);
         setSelectedIndex(-1);
+        onSearchStateChange?.({
+          query,
+          results: res,
+          isLoading: false,
+          setQuery,
+          triggerFullSearch
+        });
       } catch (err: any) {
         if (err.name !== 'AbortError') {
           console.warn('Search query error', err);
@@ -56,13 +104,24 @@ export const MeMapsSearchBox: React.FC<MeMapsSearchBoxProps> = ({
       } finally {
         setIsLoading(false);
       }
-    }, 220);
+    }, 180);
 
     return () => {
       clearTimeout(timer);
       controller.abort();
     };
   }, [query]);
+
+  // Sync state on query/results/loading changes
+  useEffect(() => {
+    onSearchStateChange?.({
+      query,
+      results,
+      isLoading,
+      setQuery,
+      triggerFullSearch
+    });
+  }, [query, results, isLoading]);
 
   // Click outside listener
   useEffect(() => {
@@ -88,6 +147,10 @@ export const MeMapsSearchBox: React.FC<MeMapsSearchBoxProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) {
       if (e.key === 'ArrowDown') setIsOpen(true);
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        triggerFullSearch(query);
+      }
       return;
     }
 
@@ -101,6 +164,8 @@ export const MeMapsSearchBox: React.FC<MeMapsSearchBoxProps> = ({
       e.preventDefault();
       if (selectedIndex >= 0 && selectedIndex < filteredResults.length) {
         handleSelect(filteredResults[selectedIndex]);
+      } else {
+        triggerFullSearch(query);
       }
     } else if (e.key === 'Escape') {
       setIsOpen(false);
@@ -125,14 +190,35 @@ export const MeMapsSearchBox: React.FC<MeMapsSearchBoxProps> = ({
   return (
     <div ref={containerRef} className={`relative w-full ${className}`}>
       {/* Search Input Bar */}
-      <div className="relative flex items-center bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
-        <div className="pl-3.5 pr-2 text-slate-400 flex items-center justify-center">
+      <div className="relative flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl transition-all">
+        {onToggleMenu && (
+          <button
+            type="button"
+            onClick={onToggleMenu}
+            aria-label="เปิดเมนูเครื่องมือแผนที่"
+            title="เปิดเมนูเครื่องมือแผนที่ & เลเยอร์"
+            className={`pl-3 pr-1 py-2 transition-all duration-150 ease-spring hover:scale-110 active:scale-90 flex items-center justify-center cursor-pointer ${
+              isMenuOpen
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
+            }`}
+          >
+            <Menu className="w-4 h-4" />
+          </button>
+        )}
+
+        <button
+          type="button"
+          onClick={() => triggerFullSearch(query)}
+          aria-label="ค้นหาพิกัดหรือสถานที่"
+          className={`${onToggleMenu ? 'pl-1.5' : 'pl-3.5'} pr-2 text-slate-400 hover:text-blue-500 transition-all duration-150 ease-spring hover:scale-110 active:scale-90 flex items-center justify-center cursor-pointer`}
+        >
           {isLoading ? (
             <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
           ) : (
             <Search className="w-4 h-4" />
           )}
-        </div>
+        </button>
 
         <input
           type="text"
@@ -140,8 +226,12 @@ export const MeMapsSearchBox: React.FC<MeMapsSearchBoxProps> = ({
           onChange={e => {
             setQuery(e.target.value);
             setIsOpen(true);
+            onFocusInput?.();
           }}
-          onFocus={() => setIsOpen(true)}
+          onFocus={() => {
+            setIsOpen(true);
+            onFocusInput?.();
+          }}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           className="w-full py-2.5 pr-8 text-xs sm:text-sm bg-transparent border-0 outline-none text-slate-800 dark:text-slate-100 placeholder-slate-400"
@@ -154,7 +244,7 @@ export const MeMapsSearchBox: React.FC<MeMapsSearchBoxProps> = ({
               onClear?.();
               setIsOpen(false);
             }}
-            className="p-1.5 mr-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-md transition"
+            className="p-1.5 mr-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-md transition-all duration-150 ease-spring hover:scale-110 active:scale-90"
             title="ล้างข้อความ"
           >
             <X className="w-3.5 h-3.5" />
@@ -162,25 +252,8 @@ export const MeMapsSearchBox: React.FC<MeMapsSearchBoxProps> = ({
         )}
       </div>
 
-      {/* Quick Category Chips */}
-      <div className="flex items-center gap-1.5 mt-2 overflow-x-auto pb-1 scrollbar-none text-[11px]">
-        {categories.map(cat => (
-          <button
-            key={cat.id}
-            onClick={() => setActiveCategory(cat.id)}
-            className={`whitespace-nowrap px-2.5 py-1 rounded-lg font-medium transition-all ${
-              activeCategory === cat.id
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Autocomplete Results Dropdown */}
-      {isOpen && (
+      {/* Autocomplete Results Dropdown (Shown only when not unified with external flyout panel) */}
+      {!isUnifiedWithFlyout && isOpen && (
         <div className="absolute top-full left-0 right-0 mt-1.5 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden max-h-72 overflow-y-auto">
           {filteredResults.length === 0 ? (
             <div className="p-4 text-center text-xs text-slate-400">

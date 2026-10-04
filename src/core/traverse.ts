@@ -1,4 +1,5 @@
 import { TraverseLegInput, AdjustedLegOutput, TraverseAdjustmentResult } from '../types/survey';
+import { validateTraverseSetup } from './validation';
 
 /**
  * Calculates Departure (dE) and Latitude (dN) from distance and azimuth (in decimal degrees).
@@ -38,39 +39,21 @@ export function adjustTraverseBowditch(
   startCoord: { easting: number; northing: number },
   endCoord: { easting: number; northing: number }
 ): TraverseAdjustmentResult {
-  if (!legs || legs.length === 0) {
-    throw new Error('ตารางวงรอบว่างเปล่า: กรุณาระบุข้อมูลเส้นวงรอบอย่างน้อย 1 เส้นทาง');
-  }
+  const isClosed = startCoord.easting === endCoord.easting && startCoord.northing === endCoord.northing;
+  const validation = validateTraverseSetup({
+    startCoord,
+    endCoord,
+    isClosedLoop: isClosed,
+    legs
+  });
 
-  // Validate start and end coordinates
-  if (isNaN(startCoord.easting) || isNaN(startCoord.northing)) {
-    throw new Error('พิกัดสถานีเริ่มต้นไม่ถูกต้อง: กรุณาระบุค่า Easting และ Northing ของสถานีเริ่มต้น');
-  }
-  if (isNaN(endCoord.easting) || isNaN(endCoord.northing)) {
-    throw new Error('พิกัดหมุดปิดวงรอบปลายทางไม่ถูกต้อง: กรุณาระบุค่า Easting และ Northing ของหมุดปลายทาง');
-  }
-
-  // Validate each individual leg for field reality
-  for (let i = 0; i < legs.length; i++) {
-    const leg = legs[i];
-    const legLabel = leg.station && leg.targetStation 
-      ? `สถานี ${leg.station} → ${leg.targetStation}` 
-      : `แถวที่ ${i + 1}`;
-
-    if (isNaN(leg.distance) || leg.distance <= 0) {
-      throw new Error(`ระยะทางไม่ถูกต้องที่ ${legLabel}: ระยะราบต้องมากกว่า 0.000 ม. (ตรวจพบ: ${leg.distance}) กรุณาตรวจสอบข้อมูลเทปวัดระยะหรือค่า EDM จากหน้างาน`);
-    }
-
-    if (isNaN(leg.azimuthDeg) || leg.azimuthDeg < 0 || leg.azimuthDeg > 360) {
-      throw new Error(`มุมภาคทิศ (Azimuth) ไม่ถูกต้องที่ ${legLabel}: ต้องอยู่ในช่วง 0° ถึง 360° (ตรวจพบ: ${leg.azimuthDeg}°) กรุณาตรวจสอบมุมราบที่รังวัดได้`);
-    }
+  if (!validation.isValid) {
+    // Surface the primary field validation failure
+    throw new Error(validation.issues?.[0]?.message || validation.error);
   }
 
   const n = legs.length;
   const totalPerimeter = legs.reduce((sum, leg) => sum + leg.distance, 0);
-  if (totalPerimeter <= 0) {
-    throw new Error('ความยาวรอบรูปรวมเท่ากับ 0.000 ม. ไม่สามารถคำนวณสัดส่วนการปรับแก้ได้');
-  }
 
   const rawDeltas = legs.map(leg => polarToRect(leg.distance, leg.azimuthDeg));
   const sumRawDe = rawDeltas.reduce((sum, d) => sum + d.de, 0);

@@ -71,6 +71,7 @@ interface SurveyStoreState {
   inspectedCoordinate: InspectedCoordinate | null;
   setInspectedCoordinate: (coord: { lat: number; lng: number; label?: string; timestamp?: number } | null) => void;
   clearInspectedCoordinate: () => void;
+  consumeInspectedCoordinate: () => InspectedCoordinate | null;
 
   plottedTraverseOverlay: PlottedTraverseOverlay | null;
   setPlottedTraverseOverlay: (overlay: PlottedTraverseOverlay | null) => void;
@@ -253,6 +254,13 @@ export const useSurveyStore = create<SurveyStoreState>()(
       },
       clearInspectedCoordinate: () => {
         set({ inspectedCoordinate: null });
+      },
+      consumeInspectedCoordinate: () => {
+        const current = get().inspectedCoordinate;
+        if (current) {
+          set({ inspectedCoordinate: null });
+        }
+        return current;
       },
 
       plottedTraverseOverlay: null,

@@ -3,6 +3,20 @@ export interface LatLonDD {
   lng: number;
 }
 
+export type LatLng = LatLonDD;
+
+export function fromGeoJsonCoord(coord: [number, number]): LatLng {
+  return { lat: coord[1], lng: coord[0] };
+}
+
+export function toGeoJsonCoord(ll: LatLng): [number, number] {
+  return [ll.lng, ll.lat];
+}
+
+export function toLeafletCoord(ll: LatLng): [number, number] {
+  return [ll.lat, ll.lng];
+}
+
 export interface DMSVal {
   deg: number;
   min: number;
@@ -115,6 +129,7 @@ export interface ThaiLandArea {
   sqMeters: number;
   hectares: number;
   acres: number;
+  isValid?: boolean;
 }
 
 // Knowledge Hub Types

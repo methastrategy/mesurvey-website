@@ -25,17 +25,17 @@ export function App() {
   const activeTab = route.tab;
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
-  // Multi-Theme State (Nordic Fjord, Warm Sand, Terminal, Bento Quartz)
+  // Multi-Theme State (Warm Sand, Nordic Fjord, Terminal, Bento Quartz)
   const [theme, setTheme] = useState<MesurvTheme>(() => {
     try {
       const saved = localStorage.getItem('mesurv-theme') as MesurvTheme | null;
       if (saved && VALID_THEMES.includes(saved)) return saved;
     } catch {}
-    return 'nordic';
+    return 'warmsand';
   });
 
   const [lastLightTheme, setLastLightTheme] = useState<MesurvTheme>(() => {
-    return theme === 'warmsand' ? 'warmsand' : 'nordic';
+    return theme === 'nordic' ? 'nordic' : 'warmsand';
   });
   const [lastDarkTheme, setLastDarkTheme] = useState<MesurvTheme>(() => {
     return theme === 'bento' ? 'bento' : 'terminal';

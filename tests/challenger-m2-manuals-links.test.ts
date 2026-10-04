@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import * as fs from 'fs';
+import * as path from 'path';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { KNOWLEDGE_TOPICS } from '../src/data/knowledge-topics';
@@ -576,6 +578,33 @@ describe('Challenger 1 Adversarial Suite: Manuals, Badges & Deep-Linking', () =>
           expect(opt.accent).toMatch(/^#[0-9a-fA-F]{6}$/);
           expect(opt.bg).toMatch(/^#[0-9a-fA-F]{6}$/);
         });
+      });
+
+      it('filters exactly 2 themes per mode with warmsand default for light and terminal default for dark', () => {
+        const lightThemes = THEME_OPTIONS.filter(t => !t.isDark);
+        const darkThemes = THEME_OPTIONS.filter(t => t.isDark);
+        expect(lightThemes).toHaveLength(2);
+        expect(darkThemes).toHaveLength(2);
+        expect(lightThemes.map(t => t.id)).toContain('warmsand');
+        expect(darkThemes.map(t => t.id)).toContain('terminal');
+      });
+
+      it('verifies KnowledgeHub has removed redundant SOP search button', () => {
+        const fileContent = fs.readFileSync(path.resolve(__dirname, '../src/components/knowledge/KnowledgeHub.tsx'), 'utf-8');
+        expect(fileContent).not.toContain('ค้นหามาตรฐาน SOP');
+      });
+
+      it('verifies DynamicIslandMapLayout has removed the ISLAND badge next to MEMAPS', () => {
+        const fileContent = fs.readFileSync(path.resolve(__dirname, '../src/components/map/layouts/DynamicIslandMapLayout.tsx'), 'utf-8');
+        expect(fileContent).not.toContain('>ISLAND<');
+        expect(fileContent).not.toContain('bg-blue-500/10 text-blue-600 border border-blue-500/20');
+        expect(fileContent).toContain('MEMAPS');
+      });
+
+      it('verifies index.css uses synchronized 12px card-radius and 8px btn-radius across themes to prevent layout shift', () => {
+        const cssContent = fs.readFileSync(path.resolve(__dirname, '../src/index.css'), 'utf-8');
+        expect(cssContent).toContain('--card-radius: 12px;');
+        expect(cssContent).toContain('--btn-radius: 8px;');
       });
     });
   });

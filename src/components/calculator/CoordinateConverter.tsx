@@ -8,6 +8,12 @@ import {
   forwardWgs84ToIndian1975,
   inverseIndian1975ToWgs84
 } from '../../core/projections';
+import { 
+  validateWgs84, 
+  validateDms, 
+  validateUtm, 
+  validateIndian1975 
+} from '../../core/validation';
 import { Copy, Check, MapPin, ArrowRightLeft, AlertCircle, BookOpen } from 'lucide-react';
 import { useSurveyStore } from '../../store/useSurveyStore';
 
@@ -99,60 +105,34 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
   }, []);
 
   const handleApplyDD = () => {
-    const lat = parseFloat(ddLat);
-    const lng = parseFloat(ddLng);
-    if (isNaN(lat) || isNaN(lng)) {
-      setInputError('กรุณาระบุตัวเลขพิกัดละติจูดและลองจิจูดให้ครบถ้วน');
-      return;
-    }
-    if (lat < -90 || lat > 90) {
-      setInputError(`ค่าละติจูดต้องอยู่ระหว่าง -90° ถึง +90° (ตรวจพบ: ${lat}°) กรุณาตรวจสอบข้อมูลพิกัดภูมิศาสตร์`);
-      return;
-    }
-    if (lng < -180 || lng > 180) {
-      setInputError(`ค่าลองจิจูดต้องอยู่ระหว่าง -180° ถึง +180° (ตรวจพบ: ${lng}°) กรุณาตรวจสอบข้อมูลพิกัดภูมิศาสตร์`);
+    const val = validateWgs84({ lat: ddLat, lng: ddLng });
+    if (!val.isValid) {
+      setInputError(val.error);
       return;
     }
     try {
       setInputError(null);
-      calculateFromDD(lat, lng);
+      setDdLat(val.data.lat.toFixed(6));
+      setDdLng(val.data.lng.toFixed(6));
+      calculateFromDD(val.data.lat, val.data.lng);
     } catch (err: any) {
       setInputError(err.message || 'เกิดข้อผิดพลาดในการแปลงค่าพิกัด WGS84');
     }
   };
 
   const handleApplyDMS = () => {
-    const degLat = parseInt(dmsLatDeg);
-    const minLat = parseInt(dmsLatMin);
-    const secLat = parseFloat(dmsLatSec);
-    const degLng = parseInt(dmsLngDeg);
-    const minLng = parseInt(dmsLngMin);
-    const secLng = parseFloat(dmsLngSec);
-
-    if (isNaN(degLat) || isNaN(minLat) || isNaN(secLat) || isNaN(degLng) || isNaN(minLng) || isNaN(secLng)) {
-      setInputError('กรุณากรอกค่า องศา (Deg), ลิปดา (Min), และพิลิปดา (Sec) ให้ครบทุกช่อง');
-      return;
-    }
-    if (minLat < 0 || minLat >= 60 || minLng < 0 || minLng >= 60) {
-      setInputError('ค่าลิปดา (Minute) ต้องอยู่ระหว่าง 0 ถึง 59 ลิปดา กรุณาตรวจสอบสมุดจดภาคสนาม');
-      return;
-    }
-    if (secLat < 0 || secLat >= 60 || secLng < 0 || secLng >= 60) {
-      setInputError('ค่าพิลิปดา (Second) ต้องอยู่ระหว่าง 0.00 ถึง 59.99 พิลิปดา กรุณาตรวจสอบสมุดจดภาคสนาม');
-      return;
-    }
-    if (degLat < 0 || degLat > 90) {
-      setInputError(`ค่าองศาละติจูดต้องอยู่ระหว่าง 0 ถึง 90° (ตรวจพบ: ${degLat}°)`);
-      return;
-    }
-    if (degLng < 0 || degLng > 180) {
-      setInputError(`ค่าองศาลองจิจูดต้องอยู่ระหว่าง 0 ถึง 180° (ตรวจพบ: ${degLng}°)`);
+    const val = validateDms({
+      lat: { deg: dmsLatDeg, min: dmsLatMin, sec: dmsLatSec, direction: dmsLatDir },
+      lng: { deg: dmsLngDeg, min: dmsLngMin, sec: dmsLngSec, direction: dmsLngDir }
+    });
+    if (!val.isValid) {
+      setInputError(val.error);
       return;
     }
 
     try {
-      const lat = dmsToDecimal(degLat, minLat, secLat, dmsLatDir);
-      const lng = dmsToDecimal(degLng, minLng, secLng, dmsLngDir);
+      const lat = dmsToDecimal(val.data.lat.deg, val.data.lat.min, val.data.lat.sec, dmsLatDir);
+      const lng = dmsToDecimal(val.data.lng.deg, val.data.lng.min, val.data.lng.sec, dmsLngDir);
       setInputError(null);
       setDdLat(lat.toFixed(6));
       setDdLng(lng.toFixed(6));
@@ -163,23 +143,15 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
   };
 
   const handleApplyUTM = () => {
-    const e = parseFloat(utmEasting);
-    const n = parseFloat(utmNorthing);
-    if (isNaN(e) || isNaN(n)) {
-      setInputError('กรุณาระบุตัวเลขค่าพิกัด UTM Easting และ Northing ให้ครบถ้วน');
+    const val = validateUtm({ easting: utmEasting, northing: utmNorthing, zone: utmZone });
+    if (!val.isValid) {
+      setInputError(val.error);
       return;
     }
-    if (e < 100000 || e > 900000) {
-      setInputError(`ค่าพิกัด UTM Easting (E) ควรอยู่ระหว่าง 100,000 ถึง 900,000 ม. (ตรวจพบ: ${e.toLocaleString()} ม.) กรุณาตรวจสอบว่าสลับแกนระหว่างค่า N (Northing) และ E (Easting) จากกล้องประมวลผลรวม (Total Station) หรือเครื่องรับสัญญาณ GNSS หรือไม่`);
-      return;
-    }
-    if (n < 0 || n > 10000000) {
-      setInputError(`ค่าพิกัด UTM Northing (N) ในซีกโลกเหนือต้องอยู่ระหว่าง 0 ถึง 10,000,000 ม. (ตรวจพบ: ${n.toLocaleString()} ม.) กรุณาตรวจสอบข้อมูลรังวัด`);
-      return;
-    }
+
     try {
       setInputError(null);
-      const wgs = inverseUtmToWgs84(e, n, utmZone);
+      const wgs = inverseUtmToWgs84(val.data.easting, val.data.northing, utmZone);
       setDdLat(wgs.lat.toFixed(6));
       setDdLng(wgs.lng.toFixed(6));
       calculateFromDD(wgs.lat, wgs.lng);
@@ -189,23 +161,15 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
   };
 
   const handleApplyIndian = () => {
-    const e = parseFloat(indEasting);
-    const n = parseFloat(indNorthing);
-    if (isNaN(e) || isNaN(n)) {
-      setInputError('กรุณาระบุตัวเลขค่าพิกัด Indian 1975 Easting และ Northing ให้ครบถ้วน');
+    const val = validateIndian1975({ easting: indEasting, northing: indNorthing, zone: indZone });
+    if (!val.isValid) {
+      setInputError(val.error);
       return;
     }
-    if (e < 100000 || e > 900000) {
-      setInputError(`ค่าพิกัด Indian 1975 Easting (E) ควรอยู่ระหว่าง 100,000 ถึง 900,000 ม. (ตรวจพบ: ${e.toLocaleString()} ม.) กรุณาตรวจสอบว่าสลับแกนระหว่างค่า N (Northing) และ E (Easting) หรือไม่`);
-      return;
-    }
-    if (n < 0 || n > 10000000) {
-      setInputError(`ค่าพิกัด Indian 1975 Northing (N) ต้องมากกว่า 0 ม. (ตรวจพบ: ${n.toLocaleString()} ม.) กรุณาตรวจสอบข้อมูลหมุดแผนที่ทหาร (RTSD Benchmark)`);
-      return;
-    }
+
     try {
       setInputError(null);
-      const wgs = inverseIndian1975ToWgs84(e, n, indZone);
+      const wgs = inverseIndian1975ToWgs84(val.data.easting, val.data.northing, indZone);
       setDdLat(wgs.lat.toFixed(6));
       setDdLng(wgs.lng.toFixed(6));
       calculateFromDD(wgs.lat, wgs.lng);

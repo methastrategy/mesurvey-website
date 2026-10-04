@@ -1,10 +1,188 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { calculateLevelingLoop } from '../../core/leveling';
 import { useSurveyStore } from '../../store/useSurveyStore';
-import { Plus, Trash2, RotateCcw, CheckCircle2, AlertCircle, Download, Save, Eraser, BookOpen } from 'lucide-react';
+import {
+  Plus, Trash2, RotateCcw, CheckCircle2, XCircle, AlertCircle,
+  Download, Save, Eraser, BookOpen, AlertTriangle, ChevronDown, ChevronUp
+} from 'lucide-react';
 import { trackEvent } from '../../lib/telemetry';
 import { exportToCsv } from '../../utils/csv-export';
 
+type LevelingMode = 'hi' | 'stadia';
+
+// ── Stadia 3-Wire local row type ──────────────────────────────────────────────
+interface StadiaRow {
+  id: string;
+  station: string;
+  bsTop: string; bsMid: string; bsBot: string;
+  fsTop: string; fsMid: string; fsBot: string;
+  remark: string;
+}
+
+function makeStadiaRow(station = '', id?: string): StadiaRow {
+  return {
+    id: id ?? crypto.randomUUID(),
+    station,
+    bsTop: '', bsMid: '', bsBot: '',
+    fsTop: '', fsMid: '', fsBot: '',
+    remark: '',
+  };
+}
+
+const SAMPLE_STADIA: StadiaRow[] = [
+  { id: '1', station: 'BM1', bsTop: '1.628', bsMid: '1.512', bsBot: '1.396', fsTop: '', fsMid: '', fsBot: '', remark: 'หมุดเริ่มต้น' },
+  { id: '2', station: 'TP1', bsTop: '1.483', bsMid: '1.374', bsBot: '1.265', fsTop: '1.923', fsMid: '1.811', fsBot: '1.699', remark: '' },
+  { id: '3', station: 'TP2', bsTop: '1.722', bsMid: '1.605', bsBot: '1.488', fsTop: '1.612', fsMid: '1.497', fsBot: '1.382', remark: '' },
+  { id: '4', station: 'BM2', bsTop: '', bsMid: '', bsBot: '', fsTop: '1.543', fsMid: '1.428', fsBot: '1.313', remark: 'หมุดปลาย' },
+];
+
+function fmtN(v: number | null | undefined, d = 3): string {
+  if (v === null || v === undefined || isNaN(v as number)) return '—';
+  return (v as number).toFixed(d);
+}
+
+// ── 3-Wire computation ────────────────────────────────────────────────────────
+interface StadiaRowResult {
+  station: string;
+  bsDist: number | null;
+  fsDist: number | null;
+  totalDist: number | null;
+  bsMid: number | null;
+  fsMid: number | null;
+  bsMidOk: boolean; fsMidOk: boolean;
+  hi: number | null;
+  elevation: number;
+  rise: number | null;
+  fall: number | null;
+  remark: string;
+}
+
+interface StadiaResult {
+  rows: StadiaRowResult[];
+  sumBs: number; sumFs: number;
+  diffBsFs: number;
+  totalDist: number;
+  closureErrorMm: number;
+  closureErrorMeters: number;
+  arithmeticCheckPassed: boolean;
+  orderCompliance: {
+    achievedOrder: string;
+    firstOrderMaxMm: string;
+    secondOrderMaxMm: string;
+    thirdOrderMaxMm: string;
+    constructionMaxMm: string;
+  };
+  midCheckWarnings: string[];
+}
+
+function p(s: string): number | null {
+  const v = parseFloat(s);
+  return isNaN(v) || s.trim() === '' ? null : v;
+}
+
+function computeStadia(rows: StadiaRow[], startElev: number, totalDistKm: number): StadiaResult {
+  const midTol = 0.002; // 2 mm check
+  const midCheckWarnings: string[] = [];
+  const resultRows: StadiaRowResult[] = [];
+
+  let currentHI: number | null = null;
+  let currentElev = startElev;
+  let sumBs = 0;
+  let sumFs = 0;
+  let totalDist = 0;
+  let prevElev = startElev;
+
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const bsT = p(r.bsTop), bsM = p(r.bsMid), bsB = p(r.bsBot);
+    const fsT = p(r.fsTop), fsM = p(r.fsMid), fsB = p(r.fsBot);
+
+    const hasBS = bsT !== null && bsM !== null && bsB !== null;
+    const hasFS = fsT !== null && fsM !== null && fsB !== null;
+
+    let bsDist: number | null = null;
+    let fsDist: number | null = null;
+    let bsMidOk = true;
+    let fsMidOk = true;
+
+    if (hasBS) {
+      bsDist = Math.abs(bsT! - bsB!) * 100;
+      totalDist += bsDist;
+      const bsMidExpected = (bsT! + bsB!) / 2;
+      bsMidOk = Math.abs(bsM! - bsMidExpected) <= midTol;
+      if (!bsMidOk) midCheckWarnings.push(`⚠️ สถานี ${r.station} ค่า BS Mid (${bsM!.toFixed(3)}) ≠ (Top+Bot)/2 (${bsMidExpected.toFixed(3)})`);
+      sumBs += bsM!;
+      currentHI = currentElev + bsM!;
+    }
+
+    if (hasFS) {
+      fsDist = Math.abs(fsT! - fsB!) * 100;
+      totalDist += fsDist;
+      const fsMidExpected = (fsT! + fsB!) / 2;
+      fsMidOk = Math.abs(fsM! - fsMidExpected) <= midTol;
+      if (!fsMidOk) midCheckWarnings.push(`⚠️ สถานี ${r.station} ค่า FS Mid (${fsM!.toFixed(3)}) ≠ (Top+Bot)/2 (${fsMidExpected.toFixed(3)})`);
+      sumFs += fsM!;
+      if (currentHI !== null) {
+        prevElev = currentElev;
+        currentElev = currentHI - fsM!;
+      }
+    }
+
+    const rise = (!hasBS && hasFS && currentElev > prevElev) ? currentElev - prevElev : null;
+    const fall = (!hasBS && hasFS && currentElev <= prevElev) ? prevElev - currentElev : null;
+
+    resultRows.push({
+      station: r.station,
+      bsDist, fsDist,
+      totalDist: (bsDist ?? 0) + (fsDist ?? 0) || null,
+      bsMid: hasBS ? bsM : null,
+      fsMid: hasFS ? fsM : null,
+      bsMidOk, fsMidOk,
+      hi: hasBS ? currentHI : null,
+      elevation: currentElev,
+      rise, fall,
+      remark: r.remark,
+    });
+  }
+
+  const diffBsFs = sumBs - sumFs;
+  const lastElev = resultRows[resultRows.length - 1]?.elevation ?? startElev;
+  const closureErrorMeters = lastElev - startElev - diffBsFs;
+  const closureErrorMm = Math.abs(closureErrorMeters) * 1000;
+  const arithmeticCheckPassed = Math.abs(closureErrorMeters) < 0.001;
+
+  const K = totalDistKm;
+  const first = (4 * Math.sqrt(K)).toFixed(1);
+  const second = (8 * Math.sqrt(K)).toFixed(1);
+  const third = (12 * Math.sqrt(K)).toFixed(1);
+  const constr = (24 * Math.sqrt(K)).toFixed(1);
+
+  let achievedOrder = `ต่ำกว่าเกณฑ์ก่อสร้าง (>${constr} mm)`;
+  const errMm = closureErrorMm;
+  if (errMm <= parseFloat(first)) achievedOrder = `ชั้น 1 (≤ ±${first} mm) ✅`;
+  else if (errMm <= parseFloat(second)) achievedOrder = `ชั้น 2 (≤ ±${second} mm) ✅`;
+  else if (errMm <= parseFloat(third)) achievedOrder = `ชั้น 3 (≤ ±${third} mm) ✅`;
+  else if (errMm <= parseFloat(constr)) achievedOrder = `ก่อสร้าง (≤ ±${constr} mm) ✅`;
+
+  return {
+    rows: resultRows,
+    sumBs, sumFs, diffBsFs,
+    totalDist,
+    closureErrorMm,
+    closureErrorMeters,
+    arithmeticCheckPassed,
+    orderCompliance: {
+      achievedOrder,
+      firstOrderMaxMm: first,
+      secondOrderMaxMm: second,
+      thirdOrderMaxMm: third,
+      constructionMaxMm: constr,
+    },
+    midCheckWarnings,
+  };
+}
+
+// ─── Component ──────────────────────────────────────────────────────────────
 export const LevelingCalculator: React.FC = () => {
   const {
     levelingStartElevation,
@@ -17,350 +195,484 @@ export const LevelingCalculator: React.FC = () => {
     addLevelingRow,
     removeLevelingRow,
     resetLevelingToSample,
-    clearLeveling
+    clearLeveling,
   } = useSurveyStore();
+
+  const [mode, setMode] = useState<LevelingMode>('hi');
+  const [stadiaRows, setStadiaRows] = useState<StadiaRow[]>(SAMPLE_STADIA);
+  const [showResults, setShowResults] = useState(true);
 
   const startElevNum = parseFloat(levelingStartElevation) || 0;
   const distKmNum = parseFloat(levelingLoopDistanceKm) || 1.0;
 
-  let result = null;
-  let errorMsg = null;
-
+  // HI mode result
+  let hiResult: ReturnType<typeof calculateLevelingLoop> | null = null;
+  let hiError: string | null = null;
   try {
-    result = calculateLevelingLoop(levelingRows, startElevNum, startElevNum, distKmNum);
+    hiResult = calculateLevelingLoop(levelingRows, startElevNum, startElevNum, distKmNum);
   } catch (err: any) {
-    errorMsg = err.message || 'Error calculating leveling loop';
+    hiError = err.message;
   }
 
-  const handleExportCsv = () => {
-    if (!result) return;
-    trackEvent('leveling_export_csv', { count: result.rows.length });
-    const headers = ['Station', 'BS(m)', 'IFS(m)', 'FS(m)', 'HI(m)', 'Rise(m)', 'Fall(m)', 'Elevation_RL(m)', 'Remark'];
-    const csvRows = result.rows.map(r => [
-      r.station,
-      r.bs !== null ? r.bs.toFixed(3) : '',
-      r.ifs !== null ? r.ifs.toFixed(3) : '',
-      r.fs !== null ? r.fs.toFixed(3) : '',
-      r.hi !== null ? r.hi.toFixed(3) : '',
-      r.rise !== null ? r.rise.toFixed(3) : '',
-      r.fall !== null ? r.fall.toFixed(3) : '',
-      r.elevation.toFixed(3),
-      r.remark || ''
+  // Stadia result
+  const stadiaResult = useMemo(() => {
+    if (mode !== 'stadia') return null;
+    try { return computeStadia(stadiaRows, startElevNum, distKmNum); }
+    catch { return null; }
+  }, [mode, stadiaRows, startElevNum, distKmNum]);
+
+  // Stadia row editors
+  const updateStadia = (idx: number, field: keyof StadiaRow, val: string) =>
+    setStadiaRows(prev => prev.map((r, i) => i === idx ? { ...r, [field]: val } : r));
+  const addStadia = () => setStadiaRows(prev => [...prev, makeStadiaRow(`TP${prev.length}`)]);
+  const removeStadia = (idx: number) => setStadiaRows(prev => prev.filter((_, i) => i !== idx));
+
+  // CSV export HI
+  const handleExportCsvHi = () => {
+    if (!hiResult) return;
+    trackEvent('leveling_export_csv', { count: hiResult.rows.length });
+    const headers = ['Station', 'BS(m)', 'IFS(m)', 'FS(m)', 'HI(m)', 'Rise(m)', 'Fall(m)', 'RL(m)', 'Remark'];
+    const csvRows = hiResult.rows.map(r => [
+      r.station, r.bs?.toFixed(3) ?? '', r.ifs?.toFixed(3) ?? '', r.fs?.toFixed(3) ?? '',
+      r.hi?.toFixed(3) ?? '', r.rise?.toFixed(3) ?? '', r.fall?.toFixed(3) ?? '',
+      r.elevation.toFixed(3), r.remark ?? '',
     ]);
-    exportToCsv({
-      filename: `leveling_loop_results_${Date.now()}.csv`,
-      headers,
-      rows: csvRows
-    });
+    exportToCsv({ filename: `leveling_hi_${Date.now()}.csv`, headers, rows: csvRows });
   };
 
-  return (
-    <div className="space-y-6">
-      
-      {/* Configuration Header & Draft Status */}
-      <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] p-5 sm:p-6 shadow-sm">
-        
-        {/* Persistence Status Banner */}
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-4 px-3 py-2 rounded-xl bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/20 text-xs">
-          <div className="flex items-center space-x-2 text-emerald-800 dark:text-emerald-300 font-medium">
-            <Save className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 animate-pulse" />
-            <span>ระบบบันทึกฉบับร่างอัตโนมัติ (Offline Persistent Draft)</span>
-          </div>
-          <span className="text-xs text-emerald-700/80 dark:text-emerald-400 font-mono tabular-nums">
-            บันทึกแล้ว: {new Date(levelingLastSaved).toLocaleTimeString('th-TH')}
-          </span>
-        </div>
+  const handleExportCsvStadia = () => {
+    if (!stadiaResult) return;
+    const headers = ['Station', 'BS_Dist', 'FS_Dist', 'BS_Mid', 'FS_Mid', 'HI', 'Rise', 'Fall', 'RL', 'Remark'];
+    const csvRows = stadiaResult.rows.map(r => [
+      r.station,
+      fmtN(r.bsDist), fmtN(r.fsDist),
+      fmtN(r.bsMid), fmtN(r.fsMid),
+      fmtN(r.hi), fmtN(r.rise), fmtN(r.fall),
+      r.elevation.toFixed(3), r.remark,
+    ]);
+    exportToCsv({ filename: `leveling_stadia_${Date.now()}.csv`, headers, rows: csvRows });
+  };
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 border-b border-border dark:border-[#27272a] pb-4">
+  const cellInput = 'w-full bg-transparent border-0 outline-none font-mono text-xs text-center py-1 focus:bg-blue-500/10 rounded transition';
+  const autoCell = 'py-2 px-1 text-center font-mono text-xs tabular-nums';
+  const inputCell = 'py-1 px-1 border-r';
+
+  return (
+    <div className="space-y-5">
+
+      {/* ── Header ── */}
+      <div className="p-4 rounded-2xl border shadow-sm" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
-            <h3 className="font-bold text-slate-900 dark:text-white text-base">
-              ตารางจดและคำนวณงานระดับ (Differential Leveling Notebook)
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              คำนวณวิธี HI และ Rise & Fall พร้อมตรวจสอบผลบวกหน้ากระดาษ (Page Check) และเกณฑ์ความคลาดเคลื่อนปิดรอบ
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                CALC-02 • DIFFERENTIAL LEVELING
+              </span>
+              <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                <Save className="w-3 h-3 animate-pulse" />
+                บันทึก {new Date(levelingLastSaved).toLocaleTimeString('th-TH')}
+              </span>
+            </div>
+            <h3 className="font-bold text-base" style={{ color: 'var(--text-1)' }}>ตารางทำงานระดับ — Leveling Fieldbook</h3>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
+              HI Method / Rise &amp; Fall · 3-Wire Stadia · Page Check · เกณฑ์ชั้นงาน √K
             </p>
           </div>
-
-          <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
-            <a
-              href="#/knowledge/differential-leveling-survey"
-              className="min-h-[38px] px-3 py-1.5 rounded-lg bg-surface-2 dark:bg-[#18181b] hover:bg-surface-3 dark:hover:bg-[#27272a] text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors flex items-center space-x-1.5 border border-border dark:border-[#27272a]"
+          <div className="flex items-center gap-2 flex-wrap">
+            <a href="#/knowledge/differential-leveling-survey"
+              className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition"
+              style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
             >
-              <BookOpen className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-              <span>คู่มือวิชาการ: Two-Peg & 3-Wire Differential Leveling</span>
+              <BookOpen className="w-3.5 h-3.5 text-emerald-500" /> คู่มือ
             </a>
-            <button
-              onClick={resetLevelingToSample}
-              className="min-h-[38px] px-3 py-1.5 rounded-lg bg-surface-2 dark:bg-[#18181b] hover:bg-surface-3 dark:hover:bg-[#27272a] text-xs font-medium text-slate-700 dark:text-slate-300 transition-colors flex items-center space-x-1.5 border border-border dark:border-[#27272a]"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>โหลดข้อมูลตัวอย่าง</span>
-            </button>
-            <button
-              onClick={() => {
-                if (window.confirm('คุณต้องการล้างข้อมูลระดับทั้งหมดเพื่อเริ่มใหม่หรือไม่?')) {
-                  clearLeveling();
-                }
-              }}
-              className="min-h-[38px] px-3 py-1.5 rounded-lg bg-rose-500/10 dark:bg-rose-950/30 hover:bg-rose-500/20 text-xs font-medium text-rose-700 dark:text-rose-400 transition-colors flex items-center space-x-1.5 border border-rose-500/20"
-            >
-              <Eraser className="w-3.5 h-3.5" />
-              <span>ล้างตาราง</span>
-            </button>
+            {mode === 'hi' && (
+              <>
+                <button onClick={resetLevelingToSample}
+                  className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border transition"
+                  style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
+                >
+                  <RotateCcw className="w-3.5 h-3.5" /> ตัวอย่าง
+                </button>
+                <button onClick={() => { if (window.confirm('ล้างตาราง?')) clearLeveling(); }}
+                  className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400 transition"
+                >
+                  <Eraser className="w-3.5 h-3.5" /> ล้าง
+                </button>
+              </>
+            )}
+            {mode === 'stadia' && (
+              <>
+                <button onClick={() => setStadiaRows(SAMPLE_STADIA)}
+                  className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border transition"
+                  style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
+                >
+                  <RotateCcw className="w-3.5 h-3.5" /> ตัวอย่าง
+                </button>
+                <button onClick={() => { if (window.confirm('ล้างตาราง?')) setStadiaRows([makeStadiaRow('BM1')]); }}
+                  className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400 transition"
+                >
+                  <Eraser className="w-3.5 h-3.5" /> ล้าง
+                </button>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Start Elevation and Loop Distance */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs max-w-xl">
-          <div>
-            <label className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-              ค่าระดับหมุดเริ่มต้น (Start Benchmark RL - m)
-            </label>
-            <input
-              type="number"
-              step="0.001"
-              value={levelingStartElevation}
-              onChange={(e) => setLevelingStartElevation(e.target.value)}
-              className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-            />
+        {/* Config bar */}
+        <div className="rounded-xl border p-3 space-y-3" style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)' }}>
+          {/* Mode */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-xs font-semibold" style={{ color: 'var(--text-2)' }}>โหมดการคำนวณ:</span>
+            <button onClick={() => setMode('hi')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${mode === 'hi' ? 'bg-emerald-600 text-white border-emerald-500' : 'opacity-60 hover:opacity-90'}`}
+              style={mode !== 'hi' ? { borderColor: 'var(--border)', color: 'var(--text-2)', backgroundColor: 'var(--surface)' } : {}}
+            >
+              📐 HI Method / Rise &amp; Fall
+            </button>
+            <button onClick={() => setMode('stadia')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${mode === 'stadia' ? 'bg-emerald-600 text-white border-emerald-500' : 'opacity-60 hover:opacity-90'}`}
+              style={mode !== 'stadia' ? { borderColor: 'var(--border)', color: 'var(--text-2)', backgroundColor: 'var(--surface)' } : {}}
+            >
+              📏 3-Wire Stadia Leveling
+            </button>
           </div>
-
-          <div>
-            <label className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-              ระยะทางตลอดสายงานรวม K (km)
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={levelingLoopDistanceKm}
-              onChange={(e) => setLevelingLoopDistanceKm(e.target.value)}
-              className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-            />
+          {/* Common params */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+            <div>
+              <label className="block font-semibold mb-1" style={{ color: 'var(--text-2)' }}>Start BM RL (m)</label>
+              <input type="number" step="0.001" value={levelingStartElevation}
+                onChange={e => setLevelingStartElevation(e.target.value)}
+                className="w-full min-h-[36px] px-2.5 py-1.5 rounded-lg border font-mono text-xs focus:ring-1 focus:ring-emerald-500 outline-none"
+                style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-1)' }}
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1" style={{ color: 'var(--text-2)' }}>K ระยะทาง (km)</label>
+              <input type="number" step="0.01" value={levelingLoopDistanceKm}
+                onChange={e => setLevelingLoopDistanceKm(e.target.value)}
+                className="w-full min-h-[36px] px-2.5 py-1.5 rounded-lg border font-mono text-xs focus:ring-1 focus:ring-emerald-500 outline-none"
+                style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-1)' }}
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Leveling Table Input */}
-      <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] p-4 sm:p-6 shadow-sm overflow-x-auto w-full max-w-full">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-bold text-slate-900 dark:text-white text-sm">
-            บันทึกการอ่านไม้ระดับ (Staff Readings Log)
-          </h4>
-          <button
-            onClick={addLevelingRow}
-            className="min-h-[38px] px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-sm transition-colors flex items-center space-x-1"
+      {/* ── HI Mode Input Table ── */}
+      {mode === 'hi' && (
+        <div className="rounded-2xl border shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
+          <div className="flex items-center justify-between px-4 py-3 border-b"
+            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>เพิ่มแถวรังวัด</span>
-          </button>
-        </div>
-
-        <table className="w-full text-left text-xs min-w-[700px]">
-          <thead>
-            <tr className="border-b border-border dark:border-[#27272a] text-slate-400 font-semibold">
-              <th className="py-2.5 px-2">ลำดับ</th>
-              <th className="py-2.5 px-2">ชื่อสถานี (Station)</th>
-              <th className="py-2.5 px-2">ส่องหลัง BS (m)</th>
-              <th className="py-2.5 px-2">ส่องกลาง IFS (m)</th>
-              <th className="py-2.5 px-2">ส่องหน้า FS (m)</th>
-              <th className="py-2.5 px-2">หมายเหตุ (Remark)</th>
-              <th className="py-2.5 px-2 text-right">จัดการ</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border/60 dark:divide-[#27272a]">
-            {levelingRows.map((row, idx) => (
-              <tr key={row.id} className="hover:bg-surface-2/50 dark:hover:bg-[#18181b]/50 transition-colors">
-                <td className="py-2 px-2 font-mono text-slate-400">{idx + 1}</td>
-                <td className="py-2 px-2">
-                  <input
-                    type="text"
-                    aria-label={`ชื่อสถานีแถวที่ ${idx + 1}`}
-                    value={row.station}
-                    onChange={(e) => updateLevelingRow(idx, 'station', e.target.value)}
-                    className="w-24 min-h-[36px] px-2.5 py-1 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                  />
-                </td>
-                <td className="py-2 px-2">
-                  <input
-                    type="number"
-                    step="0.001"
-                    aria-label={`ค่าส่องหลัง BS แถวที่ ${idx + 1}`}
-                    value={row.bs !== null ? row.bs : ''}
-                    placeholder="BS"
-                    onChange={(e) => updateLevelingRow(idx, 'bs', e.target.value)}
-                    className="w-24 min-h-[36px] px-2.5 py-1 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                  />
-                </td>
-                <td className="py-2 px-2">
-                  <input
-                    type="number"
-                    step="0.001"
-                    aria-label={`ค่าส่องกลาง IFS แถวที่ ${idx + 1}`}
-                    value={row.ifs !== null ? row.ifs : ''}
-                    placeholder="IFS"
-                    onChange={(e) => updateLevelingRow(idx, 'ifs', e.target.value)}
-                    className="w-24 min-h-[36px] px-2.5 py-1 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                  />
-                </td>
-                <td className="py-2 px-2">
-                  <input
-                    type="number"
-                    step="0.001"
-                    aria-label={`ค่าส่องหน้า FS แถวที่ ${idx + 1}`}
-                    value={row.fs !== null ? row.fs : ''}
-                    placeholder="FS"
-                    onChange={(e) => updateLevelingRow(idx, 'fs', e.target.value)}
-                    className="w-24 min-h-[36px] px-2.5 py-1 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                  />
-                </td>
-                <td className="py-2 px-2">
-                  <input
-                    type="text"
-                    aria-label={`หมายเหตุแถวที่ ${idx + 1}`}
-                    value={row.remark || ''}
-                    placeholder="คำอธิบาย..."
-                    onChange={(e) => updateLevelingRow(idx, 'remark', e.target.value)}
-                    className="w-full min-h-[36px] px-2.5 py-1 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] text-xs text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                  />
-                </td>
-                <td className="py-2 px-2 text-right">
-                  <button
-                    onClick={() => removeLevelingRow(idx)}
-                    disabled={levelingRows.length <= 1}
-                    aria-label={`ลบแถวรังวัดที่ ${idx + 1}`}
-                    title={`ลบแถวรังวัดที่ ${idx + 1}`}
-                    className="min-h-[36px] min-w-[36px] p-2 rounded-lg text-rose-500 hover:bg-rose-500/10 dark:hover:bg-rose-950/30 disabled:opacity-30 transition-colors inline-flex items-center justify-center"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Results Section */}
-      {errorMsg ? (
-        <div className="p-4 rounded-xl bg-rose-500/10 dark:bg-rose-950/30 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs">
-          {errorMsg}
-        </div>
-      ) : result ? (
-        <div className="space-y-6">
-          
-          {/* Arithmetic Check & Quality Tolerances Banner */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
-            {/* Arithmetic Check Banner */}
-            <div className={`p-4 rounded-xl border ${
-              result.arithmeticCheckPassed 
-                ? 'bg-emerald-500/10 dark:bg-emerald-950/30 border-emerald-500/30 text-emerald-900 dark:text-emerald-100'
-                : 'bg-rose-500/10 dark:bg-rose-950/30 border-rose-500/30 text-rose-900 dark:text-rose-100'
-            }`}>
-              <div className="flex items-center space-x-2 mb-2 font-bold text-xs sm:text-sm">
-                {result.arithmeticCheckPassed ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                ) : (
-                  <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
-                )}
-                <span>
-                  {result.arithmeticCheckPassed 
-                    ? 'การตรวจสอบผลรวมหน้ากระดาษ: ถูกต้องสมบูรณ์ (Arithmetic Check Passed)'
-                    : 'ผลรวมทางคณิตศาสตร์ไม่ลงตัว (Check Math Error)'}
-                </span>
-              </div>
-              <div className="font-mono tabular-nums text-xs space-y-1 pl-7">
-                <div>Σ BS = {result.sumBs.toFixed(4)} m | Σ FS = {result.sumFs.toFixed(4)} m</div>
-                <div>Σ BS - Σ FS = {result.diffBsFs.toFixed(4)} m</div>
-                <div>Last RL - First RL = {result.deltaBenchmarks.toFixed(4)} m</div>
-                <div className="font-bold text-slate-800 dark:text-slate-200 pt-1">
-                  ความคลาดเคลื่อนปิดรอบ (Closure Error): {result.closureErrorMm.toFixed(2)} mm ({result.closureErrorMeters.toFixed(4)} m)
-                </div>
-              </div>
-            </div>
-
-            {/* RTSD Order Compliance Banner */}
-            <div className="p-4 rounded-xl bg-surface-1 dark:bg-[#111113] border border-border dark:border-[#27272a] border-l-2 border-l-indigo-500 shadow-sm flex flex-col justify-between">
-              <div>
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                  เกณฑ์ความคลาดเคลื่อนตามระยะทาง K = {result.totalDistanceKm.toFixed(2)} km
-                </span>
-                <h4 className="font-bold text-sm text-indigo-600 dark:text-indigo-400">
-                  {result.orderCompliance.achievedOrder}
-                </h4>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 text-xs font-mono tabular-nums border-t border-border dark:border-[#27272a] mt-2">
-                <div>
-                  <span className="text-slate-400 block font-sans">ชั้น 1 (±4√K):</span>
-                  <span className="font-bold">±{result.orderCompliance.firstOrderMaxMm} mm</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block font-sans">ชั้น 2 (±8√K):</span>
-                  <span className="font-bold">±{result.orderCompliance.secondOrderMaxMm} mm</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block font-sans">ชั้น 3 (±12√K):</span>
-                  <span className="font-bold">±{result.orderCompliance.thirdOrderMaxMm} mm</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block font-sans">ก่อสร้าง (±24√K):</span>
-                  <span className="font-bold">±{result.orderCompliance.constructionMaxMm} mm</span>
-                </div>
-              </div>
-            </div>
-
+            <h4 className="font-bold text-sm" style={{ color: 'var(--text-1)' }}>บันทึกการอ่านไม้ระดับ — HI / Rise &amp; Fall</h4>
+            <button onClick={addLevelingRow}
+              className="min-h-[32px] px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center gap-1 transition"
+            >
+              <Plus className="w-3.5 h-3.5" /> เพิ่มแถว
+            </button>
           </div>
-
-          {/* Computed Leveling Table */}
-          <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] p-4 sm:p-6 shadow-sm overflow-x-auto w-full max-w-full">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="font-bold text-slate-900 dark:text-white text-sm">
-                ตารางสรุปผลการคำนวณระดับ (Computed Reduced Level Table)
-              </h4>
-              <button
-                onClick={handleExportCsv}
-                className="min-h-[38px] px-3 py-1.5 rounded-lg bg-surface-2 dark:bg-[#18181b] hover:bg-surface-3 dark:hover:bg-[#27272a] text-slate-700 dark:text-slate-300 font-semibold text-xs border border-border dark:border-[#27272a] transition-colors flex items-center space-x-1.5"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>ส่งออก CSV</span>
-              </button>
-            </div>
-
-            <table className="w-full text-left text-xs min-w-[780px]">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs border-collapse" style={{ minWidth: 700 }}>
               <thead>
-                <tr className="border-b border-border dark:border-[#27272a] text-slate-400 font-semibold">
-                  <th className="py-2.5 px-2">สถานี</th>
-                  <th className="py-2.5 px-2">BS (m)</th>
-                  <th className="py-2.5 px-2">IFS (m)</th>
-                  <th className="py-2.5 px-2">FS (m)</th>
-                  <th className="py-2.5 px-2 font-mono text-indigo-600 dark:text-indigo-400">HI (m)</th>
-                  <th className="py-2.5 px-2 text-emerald-600 dark:text-emerald-400">Rise (m)</th>
-                  <th className="py-2.5 px-2 text-rose-500 dark:text-rose-400">Fall (m)</th>
-                  <th className="py-2.5 px-2 font-bold text-indigo-600 dark:text-indigo-400">ระดับ RL (m)</th>
-                  <th className="py-2.5 px-2">หมายเหตุ</th>
+                <tr style={{ backgroundColor: 'var(--surface-2)', borderBottom: '2px solid var(--border)' }}>
+                  {['#', 'สถานี', 'BS (m)', 'IFS (m)', 'FS (m)', 'HI (auto)', 'Rise (auto)', 'Fall (auto)', 'RL (auto)', 'หมายเหตุ', 'Del'].map((h, i) => (
+                    <th key={i} className="py-2.5 px-2 font-semibold text-center border-r"
+                      style={{ borderColor: 'var(--border)', color: ['HI (auto)', 'Rise (auto)', 'Fall (auto)', 'RL (auto)'].includes(h) ? '#34d399' : 'var(--text-2)', whiteSpace: 'nowrap' }}>
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/60 dark:divide-[#27272a] font-mono tabular-nums">
-                {result.rows.map((r, idx) => (
-                  <tr key={idx} className="hover:bg-surface-2/50 dark:hover:bg-[#18181b]/50 transition-colors">
-                    <td className="py-2.5 px-2 font-sans font-semibold text-slate-800 dark:text-slate-200">{r.station}</td>
-                    <td className="py-2.5 px-2">{r.bs !== null ? r.bs.toFixed(3) : '-'}</td>
-                    <td className="py-2.5 px-2">{r.ifs !== null ? r.ifs.toFixed(3) : '-'}</td>
-                    <td className="py-2.5 px-2">{r.fs !== null ? r.fs.toFixed(3) : '-'}</td>
-                    <td className="py-2.5 px-2 text-indigo-600 dark:text-indigo-400">{r.hi !== null ? r.hi.toFixed(3) : '-'}</td>
-                    <td className="py-2.5 px-2 text-emerald-600 dark:text-emerald-400">{r.rise !== null ? `+${r.rise.toFixed(3)}` : '-'}</td>
-                    <td className="py-2.5 px-2 text-rose-500 dark:text-rose-400">{r.fall !== null ? `-${r.fall.toFixed(3)}` : '-'}</td>
-                    <td className="py-2.5 px-2 font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 dark:bg-indigo-950/20 border-l border-indigo-500/30">{r.elevation.toFixed(3)}</td>
-                    <td className="py-2.5 px-2 font-sans text-slate-400 text-xs">{r.remark || '-'}</td>
+              <tbody>
+                {levelingRows.map((row, idx) => {
+                  const cr = hiResult?.rows[idx];
+                  const rowBg = idx % 2 === 0 ? 'transparent' : 'var(--surface-2)';
+                  return (
+                    <tr key={row.id} style={{ backgroundColor: rowBg, borderBottom: '1px solid var(--border)' }}>
+                      <td className="text-center font-mono py-1 px-1 border-r w-8" style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}>{idx + 1}</td>
+                      <td className={inputCell} style={{ borderColor: 'var(--border)' }}>
+                        <input value={row.station} onChange={e => updateLevelingRow(idx, 'station', e.target.value)}
+                          className={cellInput} style={{ color: 'var(--text-1)' }} />
+                      </td>
+                      <td className={inputCell} style={{ borderColor: 'var(--border)' }}>
+                        <input value={row.bs !== null ? row.bs : ''} type="number" step="0.001" placeholder="BS"
+                          onChange={e => updateLevelingRow(idx, 'bs', e.target.value)}
+                          className={cellInput + ' ' + cellInput} style={{ color: 'var(--text-1)' }} />
+                      </td>
+                      <td className={inputCell} style={{ borderColor: 'var(--border)' }}>
+                        <input value={row.ifs !== null ? row.ifs : ''} type="number" step="0.001" placeholder="IFS"
+                          onChange={e => updateLevelingRow(idx, 'ifs', e.target.value)}
+                          className={cellInput + ' ' + cellInput} style={{ color: 'var(--text-1)' }} />
+                      </td>
+                      <td className={inputCell} style={{ borderColor: 'var(--border)' }}>
+                        <input value={row.fs !== null ? row.fs : ''} type="number" step="0.001" placeholder="FS"
+                          onChange={e => updateLevelingRow(idx, 'fs', e.target.value)}
+                          className={cellInput + ' ' + cellInput} style={{ color: 'var(--text-1)' }} />
+                      </td>
+                      <td className={autoCell + ' border-r'} style={{ borderColor: 'var(--border)', color: '#34d399', backgroundColor: 'rgba(52,211,153,0.05)' }}>
+                        {cr?.hi != null ? cr.hi.toFixed(3) : '—'}
+                      </td>
+                      <td className={autoCell + ' border-r'} style={{ borderColor: 'var(--border)', color: '#34d399', backgroundColor: 'rgba(52,211,153,0.05)' }}>
+                        {cr?.rise != null ? `+${cr.rise.toFixed(3)}` : '—'}
+                      </td>
+                      <td className={autoCell + ' border-r'} style={{ borderColor: 'var(--border)', color: '#f87171', backgroundColor: 'rgba(248,113,113,0.05)' }}>
+                        {cr?.fall != null ? `-${cr.fall.toFixed(3)}` : '—'}
+                      </td>
+                      <td className={autoCell + ' border-r font-bold'} style={{ borderColor: 'var(--border)', color: '#818cf8', backgroundColor: 'rgba(99,102,241,0.07)' }}>
+                        {cr ? cr.elevation.toFixed(3) : '—'}
+                      </td>
+                      <td className={'border-r py-1 px-2'} style={{ borderColor: 'var(--border)' }}>
+                        <input value={row.remark || ''} placeholder="หมายเหตุ"
+                          onChange={e => updateLevelingRow(idx, 'remark', e.target.value)}
+                          className="w-full bg-transparent border-0 outline-none text-xs py-1" style={{ color: 'var(--text-3)' }} />
+                      </td>
+                      <td className="text-center py-1 px-1">
+                        <button onClick={() => removeLevelingRow(idx)} disabled={levelingRows.length <= 1}
+                          className="p-1 rounded text-rose-400 hover:bg-rose-500/10 disabled:opacity-30 transition inline-flex items-center justify-center">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {/* Σ row */}
+                {hiResult && (
+                  <tr className="font-bold border-t-2" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
+                    <td colSpan={2} className="py-2 px-3 text-right text-xs" style={{ color: 'var(--text-2)' }}>Σ</td>
+                    <td className="py-2 px-2 text-center font-mono" style={{ color: '#34d399' }}>{hiResult.sumBs.toFixed(3)}</td>
+                    <td className="py-2 px-2"></td>
+                    <td className="py-2 px-2 text-center font-mono" style={{ color: '#f87171' }}>{hiResult.sumFs.toFixed(3)}</td>
+                    <td colSpan={6}></td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
-
         </div>
-      ) : null}
+      )}
 
+      {/* ── 3-Wire Stadia Table ── */}
+      {mode === 'stadia' && (
+        <div className="rounded-2xl border shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
+          <div className="flex items-center justify-between px-4 py-3 border-b"
+            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}
+          >
+            <div>
+              <h4 className="font-bold text-sm" style={{ color: 'var(--text-1)' }}>ตาราง 3-Wire Stadia Leveling</h4>
+              <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-3)' }}>
+                D = 100×|Top−Bot| · Mid ≈ (Top+Bot)/2 · เซลล์แดง = Mid ผิดเกิน 2mm
+              </p>
+            </div>
+            <button onClick={addStadia}
+              className="min-h-[32px] px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center gap-1 transition">
+              <Plus className="w-3.5 h-3.5" /> เพิ่มสถานี
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs border-collapse" style={{ minWidth: 860 }}>
+              <thead>
+                <tr style={{ backgroundColor: 'var(--surface-2)', borderBottom: '2px solid var(--border)' }}>
+                  <th className="py-2 px-1 border-r text-center font-semibold w-6" style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}>#</th>
+                  <th className="py-2 px-2 border-r font-semibold text-left" style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}>สถานี</th>
+                  {/* BS group */}
+                  <th className="py-2 px-1 border-r font-semibold text-center text-sky-500" colSpan={3} style={{ borderColor: 'var(--border)' }}>Backsight (BS)</th>
+                  {/* FS group */}
+                  <th className="py-2 px-1 border-r font-semibold text-center text-orange-400" colSpan={3} style={{ borderColor: 'var(--border)' }}>Foresight (FS)</th>
+                  {/* Auto */}
+                  <th className="py-2 px-1 border-r font-semibold text-center" style={{ borderColor: 'var(--border)', color: '#34d399' }}>Dist (m)</th>
+                  <th className="py-2 px-1 border-r font-semibold text-center" style={{ borderColor: 'var(--border)', color: '#34d399' }}>HI (m)</th>
+                  <th className="py-2 px-1 border-r font-semibold text-center" style={{ borderColor: 'var(--border)', color: '#818cf8' }}>RL (m)</th>
+                  <th className="py-2 px-1 border-r font-semibold text-center text-xs" style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}>หมาย</th>
+                  <th className="py-2 px-1 text-center" style={{ color: 'var(--text-3)' }}>Del</th>
+                </tr>
+                <tr style={{ backgroundColor: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>
+                  <th colSpan={2} className="border-r" style={{ borderColor: 'var(--border)' }}></th>
+                  {['Top', 'Mid', 'Bot'].map(l => (
+                    <th key={l} className="py-1 px-1 font-semibold text-center border-r text-sky-500/80" style={{ borderColor: 'var(--border)' }}>{l}</th>
+                  ))}
+                  {['Top', 'Mid', 'Bot'].map(l => (
+                    <th key={l} className="py-1 px-1 font-semibold text-center border-r text-orange-400/80" style={{ borderColor: 'var(--border)' }}>{l}</th>
+                  ))}
+                  <th colSpan={4} className="border-r" style={{ borderColor: 'var(--border)' }}></th>
+                </tr>
+              </thead>
+              <tbody>
+                {stadiaRows.map((row, idx) => {
+                  const cr = stadiaResult?.rows[idx];
+                  const rowBg = idx % 2 === 0 ? 'transparent' : 'var(--surface-2)';
+                  return (
+                    <tr key={row.id} style={{ backgroundColor: rowBg, borderBottom: '1px solid var(--border)' }}>
+                      <td className="text-center font-mono py-1 px-1 border-r w-6" style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}>{idx + 1}</td>
+                      <td className={inputCell} style={{ borderColor: 'var(--border)' }}>
+                        <input value={row.station} onChange={e => updateStadia(idx, 'station', e.target.value)}
+                          className={cellInput} style={{ color: 'var(--text-1)' }} />
+                      </td>
+                      {/* BS Top Mid Bot */}
+                      {(['bsTop', 'bsMid', 'bsBot'] as (keyof StadiaRow)[]).map((f, fi) => {
+                        const isMid = f === 'bsMid';
+                        const badMid = isMid && cr && !cr.bsMidOk;
+                        return (
+                          <td key={f} className={inputCell} style={{ borderColor: 'var(--border)', backgroundColor: badMid ? 'rgba(248,113,113,0.18)' : undefined }}>
+                            <input value={row[f] as string} type="number" step="0.001" placeholder={['Top', 'Mid', 'Bot'][fi]}
+                              onChange={e => updateStadia(idx, f, e.target.value)}
+                              className={cellInput} style={{ color: badMid ? '#f87171' : 'var(--text-1)' }} />
+                          </td>
+                        );
+                      })}
+                      {/* FS Top Mid Bot */}
+                      {(['fsTop', 'fsMid', 'fsBot'] as (keyof StadiaRow)[]).map((f, fi) => {
+                        const isMid = f === 'fsMid';
+                        const badMid = isMid && cr && !cr.fsMidOk;
+                        return (
+                          <td key={f} className={inputCell} style={{ borderColor: 'var(--border)', backgroundColor: badMid ? 'rgba(248,113,113,0.18)' : undefined }}>
+                            <input value={row[f] as string} type="number" step="0.001" placeholder={['Top', 'Mid', 'Bot'][fi]}
+                              onChange={e => updateStadia(idx, f, e.target.value)}
+                              className={cellInput} style={{ color: badMid ? '#f87171' : 'var(--text-1)' }} />
+                          </td>
+                        );
+                      })}
+                      {/* Auto columns */}
+                      <td className={autoCell + ' border-r'} style={{ borderColor: 'var(--border)', color: '#34d399', backgroundColor: 'rgba(52,211,153,0.06)' }}>
+                        {cr?.totalDist != null ? fmtN(cr.totalDist) : '—'}
+                      </td>
+                      <td className={autoCell + ' border-r'} style={{ borderColor: 'var(--border)', color: '#34d399', backgroundColor: 'rgba(52,211,153,0.06)' }}>
+                        {cr?.hi != null ? fmtN(cr.hi) : '—'}
+                      </td>
+                      <td className={autoCell + ' border-r font-bold'} style={{ borderColor: 'var(--border)', color: '#818cf8', backgroundColor: 'rgba(99,102,241,0.07)' }}>
+                        {cr ? cr.elevation.toFixed(3) : '—'}
+                      </td>
+                      <td className="border-r py-1 px-1" style={{ borderColor: 'var(--border)' }}>
+                        <input value={row.remark} placeholder="หมาย" onChange={e => updateStadia(idx, 'remark', e.target.value)}
+                          className="w-full bg-transparent border-0 outline-none text-xs py-1" style={{ color: 'var(--text-3)' }} />
+                      </td>
+                      <td className="text-center py-1 px-1">
+                        <button onClick={() => removeStadia(idx)} disabled={stadiaRows.length <= 1}
+                          className="p-1 rounded text-rose-400 hover:bg-rose-500/10 disabled:opacity-30 transition inline-flex items-center justify-center">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {/* Σ row */}
+                {stadiaResult && (
+                  <tr className="font-bold border-t-2" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
+                    <td colSpan={2} className="py-2 px-3 text-right text-xs" style={{ color: 'var(--text-2)' }}>Σ</td>
+                    <td colSpan={3} className="py-2 px-2 text-center font-mono text-xs" style={{ color: '#34d399' }}>
+                      ΣBS = {stadiaResult.sumBs.toFixed(3)}
+                    </td>
+                    <td colSpan={3} className="py-2 px-2 text-center font-mono text-xs" style={{ color: '#f87171' }}>
+                      ΣFS = {stadiaResult.sumFs.toFixed(3)}
+                    </td>
+                    <td className="py-2 px-2 text-center font-mono text-xs" style={{ color: '#34d399' }}>
+                      {stadiaResult.totalDist.toFixed(0)} m
+                    </td>
+                    <td colSpan={4}></td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ── Results Panel ── */}
+      {(mode === 'hi' ? (hiResult || hiError) : stadiaResult) && (
+        <div className="rounded-2xl border shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
+          <button onClick={() => setShowResults(r => !r)}
+            className="w-full flex items-center justify-between px-4 py-3 border-b text-left"
+            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}
+          >
+            <div className="flex items-center gap-2">
+              {hiError ? <XCircle className="w-4 h-4 text-rose-500" />
+                : (mode === 'hi' ? hiResult?.arithmeticCheckPassed : stadiaResult?.arithmeticCheckPassed)
+                  ? <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  : <AlertCircle className="w-4 h-4 text-amber-500" />}
+              <h4 className="font-bold text-sm" style={{ color: 'var(--text-1)' }}>
+                {hiError ? `ข้อผิดพลาด: ${hiError}` : 'ผลลัพธ์การคำนวณระดับ'}
+              </h4>
+            </div>
+            {showResults ? <ChevronUp className="w-4 h-4" style={{ color: 'var(--text-3)' }} /> : <ChevronDown className="w-4 h-4" style={{ color: 'var(--text-3)' }} />}
+          </button>
+
+          {showResults && !hiError && (
+            <div className="p-4 space-y-4">
+              {/* Stadia mid check warnings */}
+              {mode === 'stadia' && stadiaResult && stadiaResult.midCheckWarnings.length > 0 && (
+                <div className="rounded-xl border p-3 space-y-1 bg-amber-500/5 border-amber-500/30">
+                  <p className="text-xs font-bold mb-1 text-amber-600 dark:text-amber-400">⚠️ Stadia Mid Check — ค่า Mid ผิดพลาด:</p>
+                  {stadiaResult.midCheckWarnings.map((w, i) => (
+                    <div key={i} className="flex items-start gap-2 text-xs text-amber-700 dark:text-amber-300">
+                      <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-amber-500" />
+                      <span>{w}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Key metrics */}
+              {(() => {
+                const r = mode === 'hi' ? hiResult : stadiaResult;
+                if (!r) return null;
+                const errMm = r.closureErrorMm;
+                const oc = r.orderCompliance;
+                return (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {[
+                      { label: 'Σ BS', val: r.sumBs.toFixed(4) + ' m', ok: true },
+                      { label: 'Σ FS', val: r.sumFs.toFixed(4) + ' m', ok: true },
+                      { label: 'Page Check (ΣBS−ΣFS)', val: r.diffBsFs.toFixed(4) + ' m', ok: r.arithmeticCheckPassed },
+                      { label: 'Closure Error', val: `${errMm.toFixed(2)} mm`, ok: errMm <= Number(oc.thirdOrderMaxMm) },
+                    ].map(({ label, val, ok }) => (
+                      <div key={label} className="rounded-xl p-3 border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
+                        <p className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--text-3)' }}>{label}</p>
+                        <p className={`text-sm font-bold font-mono ${ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>{val}</p>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+
+              {/* RTSD Order */}
+              {(() => {
+                const oc = (mode === 'hi' ? hiResult : stadiaResult)?.orderCompliance;
+                const K = distKmNum;
+                if (!oc) return null;
+                return (
+                  <div className="rounded-xl border p-3" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
+                    <p className="text-xs font-bold mb-2" style={{ color: 'var(--text-1)' }}>
+                      เกณฑ์ชั้นงานระดับ — K = {K.toFixed(2)} km · ผลการตรวจ: <span className="text-emerald-500">{oc.achievedOrder}</span>
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-mono">
+                      {[
+                        ['ชั้น 1 (4√K)', oc.firstOrderMaxMm],
+                        ['ชั้น 2 (8√K)', oc.secondOrderMaxMm],
+                        ['ชั้น 3 (12√K)', oc.thirdOrderMaxMm],
+                        ['ก่อสร้าง (24√K)', oc.constructionMaxMm],
+                      ].map(([l, v]) => (
+                        <div key={l}>
+                          <span className="block font-sans text-[10px]" style={{ color: 'var(--text-3)' }}>{l}:</span>
+                          <span className="font-bold" style={{ color: 'var(--text-1)' }}>±{v} mm</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Export */}
+              <div className="flex gap-2">
+                <button onClick={mode === 'hi' ? handleExportCsvHi : handleExportCsvStadia}
+                  className="min-h-[36px] px-4 py-2 rounded-xl border font-semibold text-xs flex items-center gap-1.5 transition"
+                  style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
+                >
+                  <Download className="w-3.5 h-3.5" /> ส่งออก CSV
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

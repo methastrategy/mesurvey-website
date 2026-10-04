@@ -1,6 +1,6 @@
 export type BasemapProvider = 'osm' | 'satellite' | 'topo' | 'dark';
 
-export type MapInteractionMode = 'none' | 'inspect' | 'distance' | 'area' | 'marker' | 'cross-section';
+export type MapInteractionMode = 'none' | 'inspect' | 'distance' | 'area' | 'measure' | 'marker' | 'cross-section';
 
 export interface BasemapConfig {
   id: BasemapProvider;
@@ -61,3 +61,5 @@ export interface TelemetryState {
   zoom: number;
   scaleText?: string;
 }
+
+export type CoordinateDatum = 'WGS84' | 'INDIAN1975_47' | 'INDIAN1975_48';

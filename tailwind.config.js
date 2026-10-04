@@ -91,6 +91,24 @@ export default {
         'card': 'var(--shadow)',
         'hairline': '0 0 0 1px var(--border)',
         'focus-ring': '0 0 0 2px var(--accent)',
+        'glass': 'var(--memaps-glass-shadow)',
+        'glass-floating': 'var(--memaps-glass-shadow-floating)',
+      },
+      transitionTimingFunction: {
+        'spring': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        'spring-snappy': 'cubic-bezier(0.25, 1, 0.5, 1)',
+        'spring-press': 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      transitionDuration: {
+        '100': '100ms',
+        '150': '150ms',
+        '180': '180ms',
+        '200': '200ms',
+      },
+      scale: {
+        '97': '0.97',
+        '98': '0.98',
+        '985': '0.985',
       }
     },
   },

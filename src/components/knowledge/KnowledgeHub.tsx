@@ -12,7 +12,6 @@ import {
   Terminal,
   ShieldCheck,
   Clock,
-  ArrowRight,
   ArrowLeft,
   Copy,
   Check,
@@ -296,16 +295,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             <p className="text-[var(--text-2)] text-sm max-w-3xl leading-relaxed">
               มาตรฐานการตั้งกล้อง ขั้นตอนการรังวัดภาคสนาม สมการปรับแก้ความคลาดเคลื่อน และขั้นตอนการใช้งานเครื่องมือสำรวจตามเกณฑ์วิศวกรรมสำรวจและภูมิสารสนเทศ
             </p>
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={() => searchInputRef.current?.focus()}
-                className="btn-primary min-h-[44px] inline-flex items-center gap-2 text-sm"
-              >
-                <span>ค้นหามาตรฐาน SOP</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
           </div>
 
           {/* ── Controls Near Content: Inline Search + Category Filter Bar ── */}

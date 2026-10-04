@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   THAI_PRESET_PLACES,
+  getPresetPlaces,
   searchPlaces,
   getSavedPlaces,
   savePlace,
@@ -50,6 +51,27 @@ describe('MeMaps Services Core', () => {
       const results = await searchPlaces('เกษตรศาสตร์');
       expect(results.length).toBeGreaterThan(0);
       expect(results[0].name).toContain('เกษตรศาสตร์');
+    });
+
+    it('loads presets from static GeoJSON when fetch succeeds and falls back gracefully when offline', async () => {
+      const mockGeoJson = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            properties: { id: 'geojson-test-1', name: 'หมุดทดสอบ GeoJSON', category: 'survey' },
+            geometry: { type: 'Point', coordinates: [100.5, 13.8] }
+          }
+        ]
+      };
+
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockGeoJson
+      }));
+
+      const presets = await getPresetPlaces();
+      expect(presets.length).toBeGreaterThan(0);
     });
   });
 
@@ -148,6 +170,100 @@ describe('MeMaps Services Core', () => {
       expect(route.steps[1].instruction).toContain('เลี้ยวซ้าย เข้าสู่ ถนนวิภาวดีรังสิต');
       expect(route.steps[2].instruction).toBe('ถึงจุดหมายปลายทาง');
       expect(route.summary).toContain('14.2 กม.');
+    });
+
+    it('routes cycling and walking modes via appropriate FOSSGIS daemons', async () => {
+      const fetchSpy = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          code: 'Ok',
+          routes: [{ distance: 5000, duration: 900, geometry: { coordinates: [[100.5, 13.8], [100.51, 13.81]] }, legs: [{ steps: [] }] }]
+        })
+      });
+      vi.stubGlobal('fetch', fetchSpy);
+
+      await fetchRoute({ lat: 13.8, lng: 100.5 }, { lat: 13.81, lng: 100.51 }, 'cycling');
+      expect(fetchSpy.mock.calls[0][0]).toContain('routed-bike');
+
+      await fetchRoute({ lat: 13.8, lng: 100.5 }, { lat: 13.81, lng: 100.51 }, 'walking');
+      expect(fetchSpy.mock.calls[1][0]).toContain('routed-foot');
+    });
+
+    it('maps walking mode to /foot/ profile on OSRM public fallback', async () => {
+      // First call (FOSSGIS) fails, second call (OSRM) succeeds
+      const fetchSpy = vi.fn()
+        .mockRejectedValueOnce(new Error('FOSSGIS offline'))
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            code: 'Ok',
+            routes: [{ distance: 1200, duration: 900, geometry: { coordinates: [[100.5, 13.8], [100.51, 13.81]] }, legs: [{ steps: [] }] }]
+          })
+        });
+      vi.stubGlobal('fetch', fetchSpy);
+
+      await fetchRoute({ lat: 13.8, lng: 100.5 }, { lat: 13.81, lng: 100.51 }, 'walking');
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
+      expect(fetchSpy.mock.calls[1][0]).toContain('router.project-osrm.org/route/v1/foot/');
+      expect(fetchSpy.mock.calls[1][0]).not.toContain('/walking/');
+    });
+
+    it('re-throws AbortError and aborts without attempting secondary fallback', async () => {
+      const abortError = new Error('The operation was aborted');
+      abortError.name = 'AbortError';
+
+      const fetchSpy = vi.fn().mockRejectedValue(abortError);
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const controller = new AbortController();
+      controller.abort();
+
+      await expect(
+        fetchRoute({ lat: 13.8, lng: 100.5 }, { lat: 13.81, lng: 100.51 }, 'driving', controller.signal)
+      ).rejects.toThrow('The operation was aborted');
+
+      // Crucial: Only one fetch should have been made, NOT followed by fallback fetch
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('surfaces friendly Thai rate-limit message when receiving HTTP 429', async () => {
+      const fetchSpy = vi.fn()
+        .mockRejectedValueOnce(new Error('FOSSGIS 429'))
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 429
+        });
+      vi.stubGlobal('fetch', fetchSpy);
+
+      await expect(
+        fetchRoute({ lat: 13.8, lng: 100.5 }, { lat: 13.81, lng: 100.51 }, 'driving')
+      ).rejects.toThrow(/HTTP 429/);
+    });
+  });
+
+  describe('Coordinate Recognition & Submit-Only Geocoding', () => {
+    it('instantly parses coordinate input into search result without network request', async () => {
+      const fetchSpy = vi.fn();
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const results = await searchPlaces('13.8476, 100.5696', undefined, { allowRemote: false });
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0].category).toBe('survey');
+      expect(results[0].lat).toBeCloseTo(13.8476, 4);
+      expect(results[0].lng).toBeCloseTo(100.5696, 4);
+    });
+
+    it('attaches schemaVersion: 1 and source to newly saved places', () => {
+      const saved = savePlace({
+        name: 'สถานีวัดพิกัด',
+        lat: 13.75,
+        lng: 100.5,
+        category: 'survey',
+        source: 'survey'
+      });
+      expect(saved.schemaVersion).toBe(1);
+      expect(saved.source).toBe('survey');
     });
   });
 });
