@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
+import { BottomNav } from './components/layout/BottomNav';
 import { AboutModal } from './components/layout/AboutModal';
 import { KnowledgeHub } from './components/knowledge/KnowledgeHub';
 import { CalculatorHub } from './components/calculator/CalculatorHub';
@@ -166,8 +167,8 @@ export function App() {
             isFullscreenView
               ? 'h-screen h-[100dvh] p-0 m-0 overflow-hidden relative'
               : activeTab === 'calculator'
-              ? 'max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-6'
-              : 'max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-8 pb-16'
+              ? 'max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-20 md:pb-6'
+              : 'max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-8 pb-24 md:pb-16'
           }`}
         >
           {activeTab === 'knowledge' && (
@@ -187,7 +188,16 @@ export function App() {
           )}
         </main>
 
-        {/* Footer: Hidden on map and calculator modes */}
+        {/* Mobile Bottom Navigation Bar (Hidden on map full screen and desktop >= md) */}
+        {!isFullscreenView && (
+          <BottomNav
+            activeTab={activeTab as any}
+            setActiveTab={handleTabChange}
+            onOpenAbout={() => setIsAboutOpen(true)}
+          />
+        )}
+
+        {/* Footer: Hidden on mobile bottom nav, map and calculator modes */}
         {!isFullscreenView && activeTab !== 'calculator' && (
           <Footer onOpenAbout={() => setIsAboutOpen(true)} />
         )}

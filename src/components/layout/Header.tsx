@@ -166,10 +166,10 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        {/* Center: Fusion 2px Underline Tab Bar (NO Box / NO Pill) */}
+        {/* Center: Fusion 2px Underline Tab Bar (Desktop / Tablet >= md) */}
         <nav
           aria-label="Primary Workspace Navigation"
-          className="flex items-center h-full overflow-x-auto no-scrollbar"
+          className="hidden md:flex items-center h-full overflow-x-auto no-scrollbar"
         >
           <button
             type="button"
