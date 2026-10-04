@@ -228,29 +228,23 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
   // 2. REPO-DIRECTORY VIEW (หน้าแรก: รายการเครื่องมือเรียบง่าย สไตล์ GitHub Repositories)
   // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-5 sm:space-y-6 max-w-4xl mx-auto py-2">
+    <div className="space-y-8 pb-16">
       
-      {/* Header Banner */}
-      <div className="space-y-1.5">
-        <div className="flex items-center gap-2 text-xs font-mono text-[var(--accent)] uppercase tracking-wider font-semibold">
-          <span>MESURV TOOLS</span>
+      {/* ── Hero Section (Streamlined Banner matching Knowledge Hub) ── */}
+      <div className="space-y-3">
+        <div className="inline-flex items-center gap-2 font-mono text-xs text-[var(--accent)] uppercase tracking-wider">
+          <span>KU GEOMATICS • COMPUTATION & FIELD INSTRUMENTS</span>
         </div>
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-1)]">
-          เครื่องมือคำนวณ
+        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-1)] tracking-tight">
+          เครื่องมือคำนวณ / Calculator Hub
         </h1>
-        <p className="text-xs sm:text-sm text-[var(--text-2)] max-w-2xl leading-relaxed">
-          เลือกเครื่องมือที่ต้องการใช้งานเพื่อเปิดหน้าต่างทำงานเต็มรูปแบบ รองรับทั้งงานคำนวณคณิตศาสตร์ งานระดับ วงรอบ แปลงพิกัด และที่ดิน
+        <p className="text-[var(--text-2)] text-sm max-w-3xl leading-relaxed">
+          เลือกเครื่องมือทางวิศวกรรมสำรวจที่ต้องการใช้งานเพื่อเปิดหน้าต่างทำงานเต็มรูปแบบ รองรับทั้งงานคำนวณคณิตศาสตร์ งานระดับ วงรอบ แปลงพิกัด และที่ดิน
         </p>
       </div>
 
-      {/* GitHub-Repo Style Filter & Search Controls */}
-      <div 
-        className="p-3 sm:p-4 rounded-xl border space-y-3 shadow-2xs"
-        style={{
-          backgroundColor: 'var(--surface)',
-          borderColor: 'var(--border)'
-        }}
-      >
+      {/* ── Controls Near Content: Inline Search + Category Filter Bar (fusion-card matching Knowledge Hub) ── */}
+      <div className="fusion-card p-3 sm:p-4 space-y-3">
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-3)] pointer-events-none" />
           <input
@@ -258,33 +252,33 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            aria-label="ค้นหาเครื่องมือ"
+            aria-label="ค้นหาเครื่องมือคำนวณ"
             placeholder="ค้นหาเครื่องมือ (เช่น เครื่องคิดเลข, ระดับ, วงรอบ, พิกัด, ไร่)... [กด /]"
-            className="w-full min-h-[42px] pl-10 pr-20 py-2 rounded-[var(--btn-radius)] border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-1)] placeholder-[var(--text-3)] text-xs sm:text-sm focus:outline-none focus:border-[var(--accent)] transition-colors"
+            className="w-full min-h-[44px] pl-10 pr-24 sm:pr-36 py-2.5 rounded-[var(--btn-radius)] border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-1)] placeholder-[var(--text-3)] text-xs sm:text-sm focus:outline-none focus:border-[var(--accent)] transition-colors"
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="px-2 py-0.5 rounded text-xs text-[var(--text-2)] hover:text-[var(--text-1)] bg-[var(--surface)] border border-[var(--border)] transition-colors"
+                className="min-h-[32px] px-2 py-1 rounded text-xs font-semibold text-[var(--text-2)] hover:text-[var(--text-1)] bg-[var(--surface)] border border-[var(--border)] transition-colors shrink-0"
               >
                 ล้าง
               </button>
             )}
-            <span className="font-mono text-[11px] text-[var(--text-3)]">
+            <span className="hidden xs:inline-block px-1.5 sm:px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--border)] text-[10px] sm:text-[11px] font-mono tabular-nums text-[var(--text-2)] shrink-0">
               {filteredTools.length} รายการ
             </span>
           </div>
         </div>
 
-        {/* Category Filter Pills */}
+        {/* Category Filter Underline Tabs (matching Knowledge Hub) */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 border-t border-[var(--border)]">
           {[
-            { id: 'all' as const, label: 'ทั้งหมด' },
-            { id: 'calc' as const, label: 'เครื่องคิดเลข' },
-            { id: 'geodesy' as const, label: 'งานสำรวจ/พิกัด' },
-            { id: 'cadastral' as const, label: 'ที่ดิน' },
+            { id: 'all' as const, label: 'ทั้งหมด', count: tools.length },
+            { id: 'calc' as const, label: 'เครื่องคิดเลข', count: tools.filter(t => t.category === 'calc').length },
+            { id: 'geodesy' as const, label: 'งานสำรวจ & พิกัด', count: tools.filter(t => t.category === 'geodesy').length },
+            { id: 'cadastral' as const, label: 'ที่ดิน', count: tools.filter(t => t.category === 'cadastral').length },
           ].map(cat => {
             const isSelected = selectedCategory === cat.id;
             return (
@@ -292,27 +286,24 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`min-h-[34px] px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition-colors cursor-pointer border ${
+                className={`min-h-[44px] inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold shrink-0 border-b-2 transition-colors cursor-pointer ${
                   isSelected
-                    ? 'bg-[var(--accent)] text-[var(--accent-text)] border-[var(--accent)]'
-                    : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface-3)] border-[var(--border)]'
+                    ? 'border-[var(--accent)] text-[var(--text-1)] bg-[var(--surface-2)]'
+                    : 'border-transparent text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface-2)]/50'
                 }`}
               >
-                {cat.label}
+                <span>{cat.label}</span>
+                <span className="font-mono tabular-nums text-[10px] px-1.5 py-0.5 rounded bg-[var(--surface)] border border-[var(--border)] text-[var(--text-2)]">
+                  {cat.count}
+                </span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* GitHub Repository Style Tool List Container */}
-      <div 
-        className="rounded-xl border divide-y overflow-hidden shadow-xs"
-        style={{
-          backgroundColor: 'var(--surface)',
-          borderColor: 'var(--border)'
-        }}
-      >
+      {/* GitHub Repository Style Tool List Container (fusion-card matching Knowledge Hub) */}
+      <div className="fusion-card divide-y divide-[var(--border)] overflow-hidden">
         {filteredTools.length === 0 ? (
           <div className="p-10 text-center text-xs text-[var(--text-3)]">
             ไม่พบเครื่องมือที่ตรงกับคำค้นหา "{searchQuery}"
