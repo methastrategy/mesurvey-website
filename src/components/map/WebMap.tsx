@@ -2363,7 +2363,20 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
             onLocateMe={handleLocateMe}
             isLocating={isLocating}
             isSavedPlacesOpen={isSavedPlacesOpen}
-            onToggleSavedPlaces={() => setIsSavedPlacesOpen(prev => !prev)}
+            onToggleSavedPlaces={() => {
+              setIsSavedPlacesOpen(prev => {
+                const next = !prev;
+                if (next) {
+                  setActivePlace(null);
+                  setOriginPlace(null);
+                  setDestinationPlace(null);
+                  setActiveRoute(null);
+                  setMeasureMode('none');
+                  handleClearMeasurements();
+                }
+                return next;
+              });
+            }}
             isInspectMode={measureMode === 'inspect'}
             onToggleInspectMode={() => {
               const nextMode = measureMode === 'inspect' ? 'none' : 'inspect';
@@ -2387,6 +2400,12 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
                 handleClearMeasurements();
               } else {
                 setMeasureMode('measure');
+                setIsSavedPlacesOpen(false);
+                setActivePlace(null);
+                setOriginPlace(null);
+                setDestinationPlace(null);
+                setActiveRoute(null);
+                setIsMenuOpen(false);
                 showToast('เปิดโหมดการวัด (จิ้มบนแผนที่เพื่อวัดระยะ/พื้นที่)');
               }
             }}

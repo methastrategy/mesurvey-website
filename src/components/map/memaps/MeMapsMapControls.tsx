@@ -53,13 +53,13 @@ export const MeMapsMapControls: React.FC<MeMapsMapControlsProps> = ({
   className = ''
 }) => {
   const [isLayersPanelOpen, setIsLayersPanelOpen] = useState(false);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Click outside to dismiss layers panel
+  // Click outside to dismiss layers panel (pointerdown event)
   useEffect(() => {
     if (!isLayersPanelOpen) return;
     const handlePointerDown = (e: PointerEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsLayersPanelOpen(false);
       }
     };
@@ -82,8 +82,8 @@ export const MeMapsMapControls: React.FC<MeMapsMapControlsProps> = ({
 
   return (
     <div className={`relative flex flex-col items-center gap-2 select-none ${className}`}>
-      {/* 1-Click Layer Settings Panel Button */}
-      <div className="relative">
+      {/* 1-Click Layer Settings Panel Button Container */}
+      <div ref={containerRef} className="relative">
         <button
           onClick={() => setIsLayersPanelOpen((prev) => !prev)}
           className={`group relative w-12 h-12 rounded-xl overflow-hidden border-2 shadow-md transition-all duration-150 ease-spring hover:scale-105 active:scale-90 focus:outline-none ${
@@ -107,18 +107,14 @@ export const MeMapsMapControls: React.FC<MeMapsMapControlsProps> = ({
                   : 'linear-gradient(135deg, #064e3b 0%, #0f172a 100%)'
             }}
           />
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
-            <Layers className="w-4 h-4 text-white drop-shadow-sm mb-0.5" />
-            <span className="text-[9px] font-bold text-white uppercase tracking-tight drop-shadow-md">
-              {currentBasemap === 'satellite' ? 'ดาวเทียม' : currentBasemap === 'osm' ? 'ถนน' : currentBasemap === 'topo' ? 'ภูมิประเทศ' : 'โหมดมืด'}
-            </span>
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+            <Layers className="w-5 h-5 text-white drop-shadow-sm" />
           </div>
         </button>
 
         {/* Floating Map Layers & CRS Settings Panel (แสดงหน้าต่าง dropdown ลงมาข้างล่างของปุ่มดาวเทียม) */}
         {isLayersPanelOpen && (
           <div
-            ref={panelRef}
             className="absolute right-0 top-14 w-72 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl shadow-glass-floating p-3.5 space-y-3 z-50 anim-spring-down select-none"
           >
             <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
@@ -232,6 +228,26 @@ export const MeMapsMapControls: React.FC<MeMapsMapControlsProps> = ({
           <Crosshair className={`w-4 h-4 ${isLocating ? 'text-white' : ''}`} />
         </button>
 
+        {/* Inspect / Pin Details Mode (เปิด/ปิดโหมดจิ้มแสดงหน้าต่างข้อมูลรายละเอียด — ต่อท้าย Locate Me) */}
+        {onToggleInspectMode && (
+          <button
+            onClick={onToggleInspectMode}
+            className={`p-2 rounded-lg transition-all duration-150 ease-spring hover:scale-105 active:scale-90 ${
+              isInspectMode
+                ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-500/30'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600'
+            }`}
+            title={
+              isInspectMode
+                ? 'ปิดโหมดจิ้มแสดงข้อมูลรายละเอียด (Inspect Mode: กำลังเปิดอยู่)'
+                : 'เปิดโหมดจิ้มแสดงหน้าต่างข้อมูลรายละเอียด (Inspect Mode)'
+            }
+            aria-label="เปิด/ปิดโหมดจิ้มแสดงหน้าต่างข้อมูลรายละเอียด"
+          >
+            <MousePointerClick className="w-4 h-4" />
+          </button>
+        )}
+
         {/* เส้นคั่นแบ่งกลุ่มระหว่างตำแหน่ง/ทิศทาง กับเครื่องมือวัด/ทำแผนที่ */}
         <div className="w-5 h-[1px] bg-slate-200 dark:bg-slate-700/80 my-0.5" />
 
@@ -252,26 +268,6 @@ export const MeMapsMapControls: React.FC<MeMapsMapControlsProps> = ({
             aria-label="เครื่องมือวัดระยะและพื้นที่"
           >
             <Ruler className="w-4 h-4" />
-          </button>
-        )}
-
-        {/* Inspect / Pin Details Mode (เปิด/ปิดโหมดจิ้มแสดงหน้าต่างข้อมูลรายละเอียด) */}
-        {onToggleInspectMode && (
-          <button
-            onClick={onToggleInspectMode}
-            className={`p-2 rounded-lg transition-all duration-150 ease-spring hover:scale-105 active:scale-90 ${
-              isInspectMode
-                ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-500/30'
-                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600'
-            }`}
-            title={
-              isInspectMode
-                ? 'ปิดโหมดจิ้มแสดงข้อมูลรายละเอียด (Inspect Mode: กำลังเปิดอยู่)'
-                : 'เปิดโหมดจิ้มแสดงหน้าต่างข้อมูลรายละเอียด (Inspect Mode)'
-            }
-            aria-label="เปิด/ปิดโหมดจิ้มแสดงหน้าต่างข้อมูลรายละเอียด"
-          >
-            <MousePointerClick className="w-4 h-4" />
           </button>
         )}
 

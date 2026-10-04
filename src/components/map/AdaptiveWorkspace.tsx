@@ -458,6 +458,7 @@ export const AdaptiveWorkspace: React.FC<AdaptiveWorkspaceProps> = ({
                         type="button"
                         onClick={() => {
                           onSelectDestination?.(activePlace);
+                          onSelectPlace?.(null);
                         }}
                         style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-text, #ffffff)' }}
                         className="flex-1 py-2 px-3 rounded-xl hover:opacity-95 text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition hover:scale-[1.02] active:scale-95 duration-150 ease-spring"
@@ -868,22 +869,41 @@ export const AdaptiveWorkspace: React.FC<AdaptiveWorkspaceProps> = ({
                 />
               </div>
             )}
-          </div>
 
-        {/* Place Card / Directions / Saved Places Drawer */}
-
-        {/* Directions Panel */}
-        {(originPlace || destinationPlace || activeRoute) && (
-          <div className="mt-3 w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl p-3.5 space-y-3 max-h-[75vh] overflow-y-auto animate-in fade-in duration-200">
-            <MeMapsDirectionsPanel
-              originPlace={originPlace || null}
-              destinationPlace={destinationPlace || null}
-              onSelectOrigin={onSelectOrigin || (() => {})}
-              onSelectDestination={onSelectDestination || (() => {})}
-              onRouteCalculated={onRouteCalculated || (() => {})}
-            />
+            {/* Directions Panel (Rendered inside menuContainerRef as part of the Single Unified Panel system) */}
+            {(originPlace || destinationPlace || activeRoute) && !isMeasuringMode && (
+              <div className="absolute top-full left-0 right-0 z-50 mt-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200 dark:border-slate-800 rounded-2xl shadow-glass-floating p-3.5 space-y-3 max-h-[75vh] overflow-y-auto anim-spring-down select-none">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-100">
+                    <Navigation className="w-3.5 h-3.5 text-blue-500" />
+                    <span>ค้นหาเส้นทาง</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelectOrigin?.(null);
+                      onSelectDestination?.(null);
+                      onRouteCalculated?.(null);
+                    }}
+                    className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition duration-150 ease-spring active:scale-95"
+                    title="ปิดการค้นหาเส้นทาง"
+                    aria-label="ปิดการค้นหาเส้นทาง"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                      <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                  </button>
+                </div>
+                <MeMapsDirectionsPanel
+                  originPlace={originPlace || null}
+                  destinationPlace={destinationPlace || null}
+                  onSelectOrigin={onSelectOrigin || (() => {})}
+                  onSelectDestination={onSelectDestination || (() => {})}
+                  onRouteCalculated={onRouteCalculated || (() => {})}
+                />
+              </div>
+            )}
           </div>
-        )}
       </div>
 
       {/* Floating GIS Status Bar (Desktop Bottom-Center) */}
