@@ -131,9 +131,9 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
     }
   };
 
-  // Category Facets: Equipment Manuals (คู่มือใช้งาน) vs Field Survey Methods (คู่มือทำงาน) + Domain Facets
+  // Category Facets: ทั้งหมด, คู่มือใช้งานอุปกรณ์, คู่มือวิธีการทำงาน
   const categories: { id: string; label: string; count: number; icon: React.ReactNode }[] = useMemo(() => [
-    { id: 'all', label: 'ทั้งหมด (All SOPs)', count: KNOWLEDGE_TOPICS.length, icon: <BookOpen className="w-3.5 h-3.5" /> },
+    { id: 'all', label: 'ทั้งหมด', count: KNOWLEDGE_TOPICS.length, icon: <BookOpen className="w-3.5 h-3.5" /> },
     { 
       id: 'equipment-manual', 
       label: 'คู่มือใช้งานอุปกรณ์', 
@@ -146,12 +146,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
       count: KNOWLEDGE_TOPICS.filter(t => t.badge === 'คู่มือทำงาน').length, 
       icon: <Layers className="w-3.5 h-3.5" /> 
     },
-    { id: 'survey-instrument', label: 'กล้องสำรวจ & วงรอบ', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'survey-instrument' || t.category === 'total-station' || t.category === 'differential-leveling').length, icon: <Ruler className="w-3.5 h-3.5" /> },
-    { id: 'gnss-gps', label: 'GNSS / RTK CORS', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'gnss-gps' || t.category === 'gnss-geodesy').length, icon: <Satellite className="w-3.5 h-3.5" /> },
-    { id: 'drone-uav', label: 'Drone / UAV', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'drone-uav' || t.category === 'drone-photogrammetry').length, icon: <Plane className="w-3.5 h-3.5" /> },
-    { id: 'scanner-slam', label: 'LiDAR / SLAM', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'scanner-slam' || t.category === 'lidar-scan-bim').length, icon: <Scan className="w-3.5 h-3.5" /> },
-    { id: 'hydrographic', label: 'หยั่งน้ำ Hydro', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'hydrographic').length, icon: <Ship className="w-3.5 h-3.5" /> },
-    { id: 'tbm-tunnel', label: 'อุโมงค์ TBM', count: KNOWLEDGE_TOPICS.filter(t => t.category === 'tbm-tunnel').length, icon: <HardHat className="w-3.5 h-3.5" /> },
   ], []);
 
   // Filtered Topics
@@ -163,22 +157,6 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
           matchCategory = t.badge === 'คู่มือใช้งาน';
         } else if (selectedCategory === 'survey-method') {
           matchCategory = t.badge === 'คู่มือทำงาน';
-        } else if (selectedCategory === 'survey-instrument') {
-          matchCategory = (
-            t.category === 'survey-instrument' || 
-            t.category === 'total-station' || 
-            t.category === 'differential-leveling'
-          );
-        } else if (selectedCategory === 'gnss-gps') {
-          matchCategory = t.category === 'gnss-gps' || t.category === 'gnss-geodesy';
-        } else if (selectedCategory === 'drone-uav') {
-          matchCategory = t.category === 'drone-uav' || t.category === 'drone-photogrammetry';
-        } else if (selectedCategory === 'scanner-slam') {
-          matchCategory = t.category === 'scanner-slam' || t.category === 'lidar-scan-bim';
-        } else if (selectedCategory === 'hydrographic') {
-          matchCategory = t.category === 'hydrographic';
-        } else if (selectedCategory === 'tbm-tunnel') {
-          matchCategory = t.category === 'tbm-tunnel';
         } else {
           matchCategory = t.category === selectedCategory;
         }
@@ -285,10 +263,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
         <div className="space-y-8">
 
           {/* ── Hero Section (Streamlined Banner) ── */}
-          <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 font-mono text-xs text-[var(--accent)] uppercase tracking-wider">
-              <span>KU GEOMATICS • FIELD SOP & STANDARDS</span>
-            </div>
+          <div className="space-y-2">
             <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-1)] tracking-tight">
               คู่มือสำรวจ / Knowledge Hub
             </h1>

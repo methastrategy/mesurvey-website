@@ -231,10 +231,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
     <div className="space-y-8 pb-16">
       
       {/* ── Hero Section (Streamlined Banner matching Knowledge Hub) ── */}
-      <div className="space-y-3">
-        <div className="inline-flex items-center gap-2 font-mono text-xs text-[var(--accent)] uppercase tracking-wider">
-          <span>KU GEOMATICS • COMPUTATION & FIELD INSTRUMENTS</span>
-        </div>
+      <div className="space-y-2">
         <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-1)] tracking-tight">
           เครื่องมือคำนวณ / Calculator Hub
         </h1>
@@ -302,71 +299,84 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
         </div>
       </div>
 
-      {/* GitHub Repository Style Tool List Container (fusion-card matching Knowledge Hub) */}
-      <div className="fusion-card divide-y divide-[var(--border)] overflow-hidden">
-        {filteredTools.length === 0 ? (
-          <div className="p-10 text-center text-xs text-[var(--text-3)]">
-            ไม่พบเครื่องมือที่ตรงกับคำค้นหา "{searchQuery}"
-          </div>
-        ) : (
-          filteredTools.map(tool => {
+      {/* ── Modern Tool Grid (Matching Knowledge Hub 3-Col / 2-Col Responsive Grid) ── */}
+      {filteredTools.length === 0 ? (
+        <div className="fusion-card p-12 text-center text-xs text-[var(--text-3)]">
+          ไม่พบเครื่องมือที่ตรงกับคำค้นหา "{searchQuery}"
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredTools.map((tool, index) => {
             const Icon = tool.icon;
+            const toolCode = `TOOL-${String(index + 1).padStart(2, '0')}`;
             return (
               <div
                 key={tool.id}
                 onClick={() => selectTool(tool.id)}
-                className="group p-4 sm:p-5 hover:bg-[var(--surface-2)] transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 select-none"
+                className="fusion-card group p-5 flex flex-col justify-between h-full cursor-pointer hover:border-[var(--accent)] hover:shadow-md transition-all duration-200 micro-press"
               >
-                <div className="flex items-start gap-3.5 min-w-0">
-                  <div 
-                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border mt-0.5 transition-colors group-hover:border-[var(--accent)]"
-                    style={{
-                      backgroundColor: 'var(--surface-2)',
-                      borderColor: 'var(--border)'
-                    }}
-                  >
-                    <Icon className="w-5 h-5 text-[var(--accent)]" />
+                <div className="space-y-4">
+                  {/* Top Meta: Code, Category Badge, Arrow */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[11px] font-semibold text-[var(--text-3)] group-hover:text-[var(--accent)] transition-colors">
+                      {toolCode}
+                    </span>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)]">
+                      {tool.categoryLabel}
+                    </span>
                   </div>
 
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold text-sm sm:text-base text-[var(--accent)] group-hover:underline">
+                  {/* Title & Icon Header */}
+                  <div className="flex items-start gap-3">
+                    <div 
+                      className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-200 group-hover:bg-[var(--accent)] group-hover:text-[var(--accent-text)] group-hover:border-[var(--accent)] shadow-sm"
+                      style={{
+                        backgroundColor: 'var(--surface-2)',
+                        borderColor: 'var(--border)'
+                      }}
+                    >
+                      <Icon className="w-5 h-5 text-[var(--accent)] group-hover:text-[var(--accent-text)] transition-colors" />
+                    </div>
+                    <div className="min-w-0">
+                      <h2 className="text-base sm:text-lg font-bold text-[var(--text-1)] group-hover:text-[var(--accent)] transition-colors leading-snug">
                         {tool.name}
-                      </span>
-                      <span className="text-xs font-mono text-[var(--text-3)]">
-                        ({tool.nameEn})
-                      </span>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)]">
-                        {tool.categoryLabel}
-                      </span>
+                      </h2>
+                      <p className="text-xs font-mono text-[var(--text-3)] truncate">
+                        {tool.nameEn}
+                      </p>
                     </div>
+                  </div>
 
-                    <p className="text-xs sm:text-sm text-[var(--text-2)] leading-relaxed">
-                      {tool.shortDesc}
-                    </p>
+                  {/* Description */}
+                  <p className="text-xs sm:text-sm text-[var(--text-2)] leading-relaxed line-clamp-3">
+                    {tool.shortDesc}
+                  </p>
 
-                    <div className="flex items-center gap-2 pt-1 flex-wrap text-[11px] text-[var(--text-3)] font-mono">
-                      {tool.features.map((feat, idx) => (
-                        <span key={idx} className="flex items-center gap-1">
-                          <span>•</span>
-                          <span>{feat}</span>
-                        </span>
-                      ))}
-                    </div>
+                  {/* Feature Tags */}
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {tool.features.map((feat, idx) => (
+                      <span 
+                        key={idx}
+                        className="text-[10px] font-medium px-2 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-3)] border border-[var(--border)]"
+                      >
+                        {feat}
+                      </span>
+                    ))}
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end sm:justify-center shrink-0 pt-1 sm:pt-0">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[var(--surface-2)] group-hover:bg-[var(--accent)] group-hover:text-[var(--accent-text)] text-[var(--text-1)] border border-[var(--border)] transition-colors">
-                    <span>เปิดเครื่องมือ</span>
+                {/* Footer Action */}
+                <div className="mt-5 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-semibold text-[var(--accent)]">
+                  <span>เปิดเครื่องมือ</span>
+                  <div className="w-7 h-7 rounded-lg bg-[var(--surface-2)] group-hover:bg-[var(--accent)] group-hover:text-[var(--accent-text)] border border-[var(--border)] flex items-center justify-center transition-colors">
                     <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                  </span>
+                  </div>
                 </div>
               </div>
             );
-          })
-        )}
-      </div>
+          })}
+        </div>
+      )}
 
     </div>
   );
