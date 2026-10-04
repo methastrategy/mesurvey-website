@@ -440,14 +440,14 @@ export const AdaptiveWorkspace: React.FC<AdaptiveWorkspaceProps> = ({
                       {/* Elevation / ค่าระดับ MSL & DEM */}
                       <div className="p-2 rounded-lg bg-white/90 dark:bg-slate-900/90 border border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-xs">
                         <span className="text-[10px] text-slate-400 font-sans font-semibold">
-                          ระดับความสูงภูมิประเทศ (MSL / รทก.):
+                          ระดับความสูงภูมิประเทศ:
                         </span>
                         <span className="font-mono font-bold" style={{ color: 'var(--accent)' }}>
                           {activePlace.elevation !== undefined
-                            ? `${activePlace.elevation.toFixed(2)} ม.`
+                            ? `MSL : ${activePlace.elevation >= 0 ? '+' : ''}${activePlace.elevation.toFixed(2)} m`
                             : (telemetry as any)?.elevation !== undefined
-                            ? `${(telemetry as any).elevation.toFixed(1)} ม. (DEM)`
-                            : '±0.00 ม. รทก.'}
+                            ? `MSL : ${(telemetry as any).elevation >= 0 ? '+' : ''}${(telemetry as any).elevation.toFixed(1)} m (DEM)`
+                            : 'MSL : ±0.00 m'}
                         </span>
                       </div>
                     </div>

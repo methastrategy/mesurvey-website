@@ -141,9 +141,9 @@ export const GisStatusBar: React.FC<GisStatusBarProps> = ({
           {/* MSL Elev */}
           <span className="text-slate-600">|</span>
           <span className="tabular-nums text-slate-300 flex items-center gap-1">
-            <span className="text-slate-400 text-[10px] font-sans">MSL Elev:</span>
+            <span className="text-slate-400 text-[10px] font-sans">MSL :</span>
             <span className="text-amber-400 font-semibold">
-              {elevation !== null ? `${Math.round(elevation)} m` : (isElevLoading ? '...' : '--')}
+              {elevation !== null ? `${elevation >= 0 ? '+' : ''}${Math.round(elevation)} m` : (isElevLoading ? '...' : '--')}
             </span>
           </span>
         </>

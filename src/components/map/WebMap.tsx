@@ -166,6 +166,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
   const [globeFlyTo, setGlobeFlyTo] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
   const routeLayerRef = useRef<L.LayerGroup | null>(null);
   const searchMarkerRef = useRef<L.Marker | null>(null);
+  const inspectRadarLayerRef = useRef<L.LayerGroup | null>(null);
   const [categoryPlaces, setCategoryPlaces] = useState<PlaceSearchResult[]>([]);
   const categoryMarkersLayerRef = useRef<L.LayerGroup | null>(null);
 
@@ -471,30 +472,34 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
       .openPopup();
   };
 
-  // Synchronize marker removal when activePlace is cleared
+  // Synchronize marker & radar removal when activePlace is cleared
   useEffect(() => {
     if (!activePlace) {
       if (inspectMarkerRef.current && mapInstanceRef.current) {
         mapInstanceRef.current.removeLayer(inspectMarkerRef.current);
         inspectMarkerRef.current = null;
       }
+      if (inspectRadarLayerRef.current) {
+        inspectRadarLayerRef.current.clearLayers();
+      }
     }
   }, [activePlace]);
 
-  // Inspect coordinate click handler with Geodetic Reticle & Flyout Dropdown Integration
+  // Inspect coordinate click handler with Geodetic Reticle & Radar Accuracy Wave
   const inspectCoordinate = (lat: number, lng: number) => {
     trackEvent('map_inspect_point', { lat, lng });
 
     // 1. Lock coordinates on bottom telemetry status bar
     setLockedPoint({ lat, lng });
     const utm = forwardWgs84ToUtm(lat, lng);
+    const zoom = Math.round(mapInstanceRef.current?.getZoom() || 5);
     setTelemetry({
       lat,
       lng,
       utmE: Math.round(utm.easting),
       utmN: Math.round(utm.northing),
       zone: utm.zone,
-      zoom: Math.round(mapInstanceRef.current?.getZoom() || 5)
+      zoom
     });
 
     // 2. Set activePlace immediately with formatted geodetic info & open dropdown flyout
@@ -510,11 +515,47 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
     setActivePlace(initialPlace);
     setIsMenuOpen(true);
 
-    // 3. Leaflet 2D reticle pin (if in 2D mode)
+    // 3. Leaflet 2D reticle pin & Radar Accuracy Scan Wave
     if (mapInstanceRef.current) {
       if (inspectMarkerRef.current) {
         mapInstanceRef.current.removeLayer(inspectMarkerRef.current);
       }
+      if (inspectRadarLayerRef.current) {
+        inspectRadarLayerRef.current.clearLayers();
+      }
+
+      // Calculate empirical click precision radius based on screen zoom scale (~12px screen cursor tolerance)
+      // At zoom 18 ~ 1.5m, zoom 15 ~ 12m, zoom 12 ~ 95m
+      const metersPerPixel = 156543.03392 * Math.cos((lat * Math.PI) / 180) / Math.pow(2, zoom);
+      const estimatedRadiusMeters = Math.max(3, Math.min(250, Math.round(metersPerPixel * 14)));
+
+      // Render outer boundary circle + animated radar expanding wave
+      if (inspectRadarLayerRef.current) {
+        // Static boundary circle showing maximum uncertainty margin
+        L.circle([lat, lng], {
+          radius: estimatedRadiusMeters,
+          color: '#3b82f6',
+          weight: 1.5,
+          dashArray: '4, 4',
+          fillColor: '#3b82f6',
+          fillOpacity: 0.08,
+          interactive: false
+        }).addTo(inspectRadarLayerRef.current);
+
+        // Animated radar wave marker with memaps-radar-wave
+        const radarWaveIcon = L.divIcon({
+          className: 'custom-radar-wave-container',
+          html: `
+            <div style="position: relative; width: 0; height: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;">
+              <div class="memaps-radar-wave" style="position: absolute; width: ${estimatedRadiusMeters * 2}px; height: ${estimatedRadiusMeters * 2}px; border-radius: 50%; background: radial-gradient(circle, rgba(59,130,246,0.35) 0%, rgba(59,130,246,0.08) 60%, rgba(59,130,246,0) 100%); border: 1.5px solid rgba(59,130,246,0.6); pointer-events: none;"></div>
+            </div>
+          `,
+          iconSize: [0, 0],
+          iconAnchor: [0, 0]
+        });
+        L.marker([lat, lng], { icon: radarWaveIcon, interactive: false }).addTo(inspectRadarLayerRef.current);
+      }
+
       const crosshairIcon = L.divIcon({
         className: 'custom-crosshair-reticle',
         html: `
@@ -551,12 +592,15 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
       });
   };
 
-  // Instantly remove inspect pin / reticle when exiting inspect mode
+  // Instantly remove inspect pin / reticle & radar when exiting inspect mode
   useEffect(() => {
     if (measureMode !== 'inspect') {
       if (inspectMarkerRef.current && mapInstanceRef.current) {
         mapInstanceRef.current.removeLayer(inspectMarkerRef.current);
         inspectMarkerRef.current = null;
+      }
+      if (inspectRadarLayerRef.current) {
+        inspectRadarLayerRef.current.clearLayers();
       }
       setLockedPoint(null);
       if (activePlace?.id?.startsWith('click-')) {
@@ -600,6 +644,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
     const traverseGroup = L.layerGroup().addTo(map);
     const routeGroup = L.layerGroup().addTo(map);
     const categoryGroup = L.layerGroup().addTo(map);
+    const inspectRadarGroup = L.layerGroup().addTo(map);
 
     tileLayerRef.current = tileLayer;
     riverBaseLayerRef.current = riverBaseGroup;
@@ -613,6 +658,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
     traverseOverlayLayerRef.current = traverseGroup;
     routeLayerRef.current = routeGroup;
     categoryMarkersLayerRef.current = categoryGroup;
+    inspectRadarLayerRef.current = inspectRadarGroup;
     mapInstanceRef.current = map;
     setMapInstance(map);
 
