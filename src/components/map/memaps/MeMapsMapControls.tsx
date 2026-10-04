@@ -205,10 +205,10 @@ export const MeMapsMapControls: React.FC<MeMapsMapControlsProps> = ({
         )}
       </div>
 
-      {/* Control Pillar — smoothly folded with CSS spring transition when 3-line menu flyout is open */}
+      {/* Control Pillar — smoothly folded with CSS spring transition when 3-line menu flyout or layers panel is open */}
       <div
         className={`bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-xl border border-slate-200 dark:border-slate-800 shadow-md p-1 flex flex-col items-center gap-1 transition-all duration-200 ease-spring ${
-          isMenuOpen
+          (isMenuOpen || isLayersPanelOpen)
             ? 'opacity-0 scale-90 pointer-events-none -translate-y-2 max-h-0 overflow-hidden py-0 border-transparent shadow-none'
             : 'opacity-100 scale-100 translate-y-0 max-h-60'
         }`}

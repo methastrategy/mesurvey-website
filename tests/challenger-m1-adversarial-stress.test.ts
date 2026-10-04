@@ -55,7 +55,7 @@ describe('Challenger 1 Adversarial Stress Suite: MeMaps UI/UX Redesign', () => {
     });
 
     it('verifies no pointer events can be captured by collapsed pillar', () => {
-      expect(mapControls).toMatch(/isMenuOpen\s*\?\s*'[^']*pointer-events-none/);
+      expect(mapControls).toMatch(/isMenuOpen[^?]*\?\s*'[^']*pointer-events-none/);
     });
 
     it('verifies clear z-index layering between workspace capsule and map controls', () => {

@@ -324,7 +324,10 @@ export const AdaptiveWorkspace: React.FC<AdaptiveWorkspaceProps> = ({
       {/* ========================================================= */}
       {/* 1. DESKTOP GOOGLE MAPS WORKSPACE (FLOATING CARD & SEARCH) */}
       {/* ========================================================= */}
-      <div className="hidden md:flex absolute top-3 sm:top-4 left-3 sm:left-4 z-[1010] flex-col items-start max-w-[420px] w-full pointer-events-auto">
+      <div 
+        className="hidden md:flex absolute left-3 sm:left-4 z-[1010] flex-col items-start max-w-[420px] w-full pointer-events-auto"
+        style={{ top: 'max(0.75rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))' }}
+      >
         {/* Back Home & Search Capsule Header & Dropdown Panels Container */}
         <div ref={menuContainerRef} className="relative w-full">
           <div className="flex items-start gap-2 w-full">

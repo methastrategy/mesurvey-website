@@ -281,7 +281,8 @@ body[data-theme="cyberlime"] {
    ========================================================================== */
 
 .nav-bar {
-  height: 64px;
+  height: calc(64px + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
   position: sticky;
   top: 0;
   z-index: 50;

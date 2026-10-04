@@ -196,8 +196,15 @@ export const ScientificCalculator: React.FC<ScientificCalculatorProps> = ({ onBa
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-[var(--bg)] text-[var(--text-1)] select-none overflow-hidden touch-none">
       
-      {/* ── Top Bar: Back to Directory + Title + Mode & History ── */}
-      <header className="h-13 sm:h-14 px-3 sm:px-6 border-b border-[var(--border)] bg-[var(--surface)] flex items-center justify-between shrink-0 z-10 shadow-xs">
+      {/* ── Top Bar: Back to Directory + Title + Mode & History (Safe Area Headroom) ── */}
+      <header
+        className="px-3 sm:px-6 border-b border-[var(--border)] bg-[var(--surface)] flex items-center justify-between shrink-0 z-10 shadow-xs"
+        style={{
+          paddingTop: 'max(0.5rem, env(safe-area-inset-top, 0px))',
+          minHeight: 'calc(3.5rem + env(safe-area-inset-top, 0px))',
+          paddingBottom: '0.5rem'
+        }}
+      >
         <div className="flex items-center gap-2 sm:gap-3">
           {onBackToDirectory && (
             <button

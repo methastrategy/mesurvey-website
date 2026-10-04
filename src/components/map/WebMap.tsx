@@ -2341,7 +2341,10 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
         )}
 
         {/* Floating MeMaps Essential Controls: Satellite thumbnail and controls pillar always visible and accessible */}
-        <div className="absolute top-4 right-4 z-[1000] pointer-events-auto">
+        <div 
+          className="absolute right-4 z-[1000] pointer-events-auto"
+          style={{ top: 'max(1rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))' }}
+        >
           <MeMapsMapControls
             currentBasemap={currentBasemap}
             onBasemapChange={setCurrentBasemap}
@@ -2389,7 +2392,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
             }}
             coordinateDatum={coordinateDatum}
             onSelectCoordinateDatum={setCoordinateDatum}
-            isMenuOpen={false}
+            isMenuOpen={isMenuOpen}
           />
         </div>
 
