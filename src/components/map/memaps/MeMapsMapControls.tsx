@@ -115,11 +115,11 @@ export const MeMapsMapControls: React.FC<MeMapsMapControlsProps> = ({
           </div>
         </button>
 
-        {/* Floating Map Layers & CRS Settings Panel */}
+        {/* Floating Map Layers & CRS Settings Panel (แสดงหน้าต่าง dropdown ลงมาข้างล่างของปุ่มดาวเทียม) */}
         {isLayersPanelOpen && (
           <div
             ref={panelRef}
-            className="absolute right-14 top-0 w-72 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl shadow-glass-floating p-3.5 space-y-3 z-50 anim-spring-down select-none"
+            className="absolute right-0 top-14 w-72 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl shadow-glass-floating p-3.5 space-y-3 z-50 anim-spring-down select-none"
           >
             <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-1.5">
@@ -128,13 +128,6 @@ export const MeMapsMapControls: React.FC<MeMapsMapControlsProps> = ({
                   ตั้งค่าแผนที่ &amp; ระบบพิกัด
                 </span>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsLayersPanelOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition duration-150 ease-spring active:scale-90"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
             </div>
 
             {/* รูปแบบแผนที่ที่แสดง (Basemap) */}

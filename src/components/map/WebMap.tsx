@@ -2392,7 +2392,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
             }}
             coordinateDatum={coordinateDatum}
             onSelectCoordinateDatum={setCoordinateDatum}
-            isMenuOpen={isMenuOpen}
+            isMenuOpen={false}
           />
         </div>
 
