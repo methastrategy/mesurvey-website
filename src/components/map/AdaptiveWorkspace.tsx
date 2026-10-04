@@ -638,6 +638,50 @@ export const AdaptiveWorkspace: React.FC<AdaptiveWorkspaceProps> = ({
                             })}
                           </div>
                         </div>
+
+                        {/* หมุดอ้างอิงแนะนำ (Survey Reference Benchmarks) */}
+                        <div className="space-y-1.5 pt-1 border-t border-slate-100 dark:border-slate-800/80">
+                          <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                            <span className="flex items-center gap-1">
+                              <Compass className="w-3 h-3 text-emerald-500" />
+                              <span>หมุดอ้างอิงแนะนำ (วศ.สำรวจ มก. &amp; กรมแผนที่ทหาร)</span>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleSelectCategory(MAP_CATEGORIES.find(c => c.id === 'survey') || MAP_CATEGORIES[7])}
+                              className="text-[10px] text-blue-500 hover:text-blue-600 dark:text-blue-400 font-normal transition hover:underline"
+                            >
+                              ดูทั้งหมด →
+                            </button>
+                          </div>
+                          <div className="space-y-1">
+                            {THAI_PRESET_PLACES.filter(p => p.category === 'survey').slice(0, 4).map((bm) => (
+                              <button
+                                key={bm.id}
+                                type="button"
+                                onClick={() => handleSelectSearchResult(bm)}
+                                className="w-full text-left p-1.5 rounded-xl hover:bg-emerald-50/80 dark:hover:bg-emerald-950/30 border border-transparent hover:border-emerald-200 dark:hover:border-emerald-800 flex items-center justify-between transition duration-150 ease-spring hover:scale-[1.01] active:scale-95"
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <Compass className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                  <div className="truncate">
+                                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 block truncate">
+                                      {bm.name}
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 dark:text-slate-500 block truncate">
+                                      {bm.address || bm.description}
+                                    </span>
+                                  </div>
+                                </div>
+                                {bm.elevation !== undefined && (
+                                  <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0 ml-1.5 px-1.5 py-0.5 rounded bg-emerald-100/60 dark:bg-emerald-950/60">
+                                    {bm.elevation.toFixed(3)} ม.
+                                  </span>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     )}
 

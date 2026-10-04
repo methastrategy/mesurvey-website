@@ -90,6 +90,39 @@ export const THAI_PRESET_PLACES: PlaceSearchResult[] = [
     category: 'survey',
     address: 'สถานีหมุดหลักฐานดาวเทียมถาวร GNSS CORS กรมแผนที่ทหาร'
   },
+  {
+    id: 'ku-bm-01',
+    name: 'หมุดหลักฐาน BM-01 (หน้าอาคาร 1 คณะวิศวกรรมศาสตร์ มก.)',
+    nameEn: 'Benchmark BM-01 (Building 1, Faculty of Engineering, KU)',
+    description: 'สาขาวิชาวิศวกรรมสำรวจ ภาควิชาวิศวกรรมโยธา ม.เกษตรศาสตร์ (UTM 47P 669576.521, 1531291.596)',
+    lat: 13.846371,
+    lng: 100.569075,
+    category: 'survey',
+    elevation: 1.142,
+    address: 'อยู่ด้านหน้าอาคาร 1 คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเกษตรศาสตร์ (บางเขน)'
+  },
+  {
+    id: 'ku-bm-02',
+    name: 'หมุดหลักฐาน BM-02 (หน้าอาคาร 8 คณะวิศวกรรมศาสตร์ มก.)',
+    nameEn: 'Benchmark BM-02 (Building 8, Faculty of Engineering, KU)',
+    description: 'สาขาวิชาวิศวกรรมสำรวจ ภาควิชาวิศวกรรมโยธา ม.เกษตรศาสตร์ (UTM 47P 669568.034, 1531154.836)',
+    lat: 13.845135,
+    lng: 100.568989,
+    category: 'survey',
+    elevation: 0.998,
+    address: 'อยู่ด้านหน้าอาคาร 8 คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเกษตรศาสตร์ (บางเขน)'
+  },
+  {
+    id: 'ku-bm-03',
+    name: 'หมุดหลักฐาน BM-03 (วศ.เครื่องกล ข้างป้อมยาม คณะวิศวกรรมศาสตร์ มก.)',
+    nameEn: 'Benchmark BM-03 (Mechanical Eng, Faculty of Engineering, KU)',
+    description: 'สาขาวิชาวิศวกรรมสำรวจ ภาควิชาวิศวกรรมโยธา ม.เกษตรศาสตร์ (UTM 47P 669572.130, 1531234.394)',
+    lat: 13.845854,
+    lng: 100.569031,
+    category: 'survey',
+    elevation: 1.065,
+    address: 'อาคาร วศ.เครื่องกล ข้างป้อมยาม คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเกษตรศาสตร์ (บางเขน)'
+  },
   // --- ร้านอาหาร (Restaurants) ---
   {
     id: 'rest-jay-fai',
