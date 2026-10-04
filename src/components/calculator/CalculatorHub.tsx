@@ -1,16 +1,11 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  Search, 
   ArrowRightLeft, 
   Compass, 
   Ruler, 
   Layers, 
   Calculator,
   ArrowRight,
-  ChevronRight,
-  ExternalLink,
-  SlidersHorizontal,
-  Sparkles,
   ArrowLeft
 } from 'lucide-react';
 import { CoordinateConverter } from './CoordinateConverter';
@@ -39,11 +34,8 @@ interface ToolItem {
 }
 
 export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initialSubTab }) => {
-  // If null, show the GitHub-repo style tool directory list
+  // If null, show the clean tool directory grid
   const [activeSubTab, setActiveSubTab] = useState<ToolId | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'calc' | 'geodesy' | 'cadastral'>('all');
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Sync with Hash URL
   useEffect(() => {
@@ -71,24 +63,6 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       setActiveSubTab(initialSubTab);
     }
   }, [initialSubTab]);
-
-  // Keyboard shortcut '/' focuses the search box on directory view
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (activeSubTab) return;
-      const target = document.activeElement;
-      const isInput = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || (target as HTMLElement)?.isContentEditable;
-      if (e.key === '/' && !isInput) {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-      }
-      if (e.key === 'Escape' && isInput && target === searchInputRef.current) {
-        searchInputRef.current?.blur();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeSubTab]);
 
   const selectTool = (toolId: ToolId | null) => {
     setActiveSubTab(toolId);
@@ -158,21 +132,6 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
     }
   ];
 
-  const filteredTools = useMemo(() => {
-    return tools.filter(t => {
-      const matchCat = selectedCategory === 'all' || t.category === selectedCategory;
-      if (!matchCat) return false;
-      const q = searchQuery.toLowerCase().trim();
-      if (!q) return true;
-      return (
-        t.name.toLowerCase().includes(q) ||
-        t.nameEn.toLowerCase().includes(q) ||
-        t.shortDesc.toLowerCase().includes(q) ||
-        t.tags.some(tag => tag.toLowerCase().includes(q))
-      );
-    });
-  }, [tools, searchQuery, selectedCategory]);
-
   const activeToolObj = tools.find(t => t.id === activeSubTab);
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -225,7 +184,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 2. REPO-DIRECTORY VIEW (หน้าแรก: รายการเครื่องมือเรียบง่าย สไตล์ GitHub Repositories)
+  // 2. DIRECTORY VIEW (หน้าแรก: แสดงการ์ดเครื่องมือทั้งหมด ไม่ต้องมีช่องค้นหาหรือหมวดหมู่)
   // ─────────────────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-8 pb-16">
@@ -240,73 +199,9 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
         </p>
       </div>
 
-      {/* ── Controls Near Content: Inline Search + Category Filter Bar (fusion-card matching Knowledge Hub) ── */}
-      <div className="fusion-card p-3 sm:p-4 space-y-3">
-        <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-3)] pointer-events-none" />
-          <input
-            ref={searchInputRef}
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            aria-label="ค้นหาเครื่องมือคำนวณ"
-            placeholder="ค้นหาเครื่องมือ (เช่น เครื่องคิดเลข, ระดับ, วงรอบ, พิกัด, ไร่)... [กด /]"
-            className="w-full min-h-[44px] pl-10 pr-24 sm:pr-36 py-2.5 rounded-[var(--btn-radius)] border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-1)] placeholder-[var(--text-3)] text-xs sm:text-sm focus:outline-none focus:border-[var(--accent)] transition-colors"
-          />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="min-h-[32px] px-2 py-1 rounded text-xs font-semibold text-[var(--text-2)] hover:text-[var(--text-1)] bg-[var(--surface)] border border-[var(--border)] transition-colors shrink-0"
-              >
-                ล้าง
-              </button>
-            )}
-            <span className="hidden xs:inline-block px-1.5 sm:px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--border)] text-[10px] sm:text-[11px] font-mono tabular-nums text-[var(--text-2)] shrink-0">
-              {filteredTools.length} รายการ
-            </span>
-          </div>
-        </div>
-
-        {/* Category Filter Underline Tabs (matching Knowledge Hub) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 border-t border-[var(--border)]">
-          {[
-            { id: 'all' as const, label: 'ทั้งหมด', count: tools.length },
-            { id: 'calc' as const, label: 'เครื่องคิดเลข', count: tools.filter(t => t.category === 'calc').length },
-            { id: 'geodesy' as const, label: 'งานสำรวจ & พิกัด', count: tools.filter(t => t.category === 'geodesy').length },
-            { id: 'cadastral' as const, label: 'ที่ดิน', count: tools.filter(t => t.category === 'cadastral').length },
-          ].map(cat => {
-            const isSelected = selectedCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`min-h-[44px] inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold shrink-0 border-b-2 transition-colors cursor-pointer ${
-                  isSelected
-                    ? 'border-[var(--accent)] text-[var(--text-1)] bg-[var(--surface-2)]'
-                    : 'border-transparent text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface-2)]/50'
-                }`}
-              >
-                <span>{cat.label}</span>
-                <span className="font-mono tabular-nums text-[10px] px-1.5 py-0.5 rounded bg-[var(--surface)] border border-[var(--border)] text-[var(--text-2)]">
-                  {cat.count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       {/* ── Modern Tool Grid (Matching Knowledge Hub 3-Col / 2-Col Responsive Grid) ── */}
-      {filteredTools.length === 0 ? (
-        <div className="fusion-card p-12 text-center text-xs text-[var(--text-3)]">
-          ไม่พบเครื่องมือที่ตรงกับคำค้นหา "{searchQuery}"
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredTools.map((tool, index) => {
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {tools.map((tool, index) => {
             const Icon = tool.icon;
             const toolCode = `TOOL-${String(index + 1).padStart(2, '0')}`;
             return (
@@ -376,10 +271,8 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
             );
           })}
         </div>
-      )}
-
-    </div>
-  );
-};
+      </div>
+    );
+  };
 
 export default CalculatorHub;
