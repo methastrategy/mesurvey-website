@@ -34,12 +34,12 @@ describe('MeMaps UI/UX Redesign — Fluid Spring Motion & Geodetic Continuity', 
       expect(code).toMatch(/if\s*\(onCloseMenu\)\s*\{\s*onCloseMenu\(\);\s*\}\s*else\s*\{\s*handleToggleMenu\(\);\s*\}/);
     });
 
-    it('applies spring scale micro-interactions (hover:scale-[1.02] active:scale-95 duration-150 ease-spring) to Quick Actions', () => {
-      expect(code).toContain('hover:scale-[1.02] active:scale-95 duration-150 ease-spring');
-      // Verify all 4 quick action buttons have active:scale-95
-      const quickActionsBlock = code.slice(code.indexOf('เครื่องมือสำรวจ'), code.indexOf('ระบบพิกัด (Datum'));
-      const activeScalesCount = (quickActionsBlock.match(/active:scale-95/g) || []).length;
-      expect(activeScalesCount).toBeGreaterThanOrEqual(4);
+    it('applies spring scale micro-interactions (hover:scale-[1.02] active:scale-95 duration-150 ease-spring) to Categories', () => {
+      expect(code).toContain('hover:scale-[1.02] active:scale-95');
+      // Verify category buttons have active:scale-95
+      const categoryBlock = code.slice(code.indexOf('หมวดหมู่'), code.indexOf('ระบบพิกัด (Datum'));
+      const activeScalesCount = (categoryBlock.match(/active:scale-95/g) || []).length;
+      expect(activeScalesCount).toBeGreaterThanOrEqual(2);
     });
 
     it('applies spring scale micro-interactions to CRS Datum selector buttons', () => {

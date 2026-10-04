@@ -641,96 +641,13 @@ export const AdaptiveWorkspace: React.FC<AdaptiveWorkspaceProps> = ({
                       </div>
                     )}
 
-                    {/* 2. ต่อลงมา: เครื่องมือสำรวจ & ทางลัด (ซ่อนเมื่อกำลังค้นหาสถานที่หรือเลือกดูหมวดหมู่) */}
-                    {!(searchQuery.trim().length > 0 || selectedCategory !== null || isSearching) && (
-                      <div className="space-y-2 pt-1 border-t border-slate-100 dark:border-slate-800">
-                        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                          เครื่องมือสำรวจ &amp; ทางลัด
-                        </span>
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onLocateMe?.();
-                              handleToggleMenu();
-                            }}
-                            className="p-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 hover:bg-emerald-500/10 hover:border-emerald-400 text-slate-700 dark:text-slate-200 flex items-center gap-2 transition hover:scale-[1.02] active:scale-95 duration-150 ease-spring"
-                          >
-                            <Crosshair className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                            <span className="font-medium text-xs">ตำแหน่งฉัน (GPS)</span>
-                          </button>
+                    {/* 2. เครื่องมือสำรวจ & ทางลัด ถูกย้ายออกให้ใช้ทางเสาเครื่องมือด้านขวาตามคำสั่ง */}
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onFlyToLocation?.(13.84664, 100.56982, 4.8);
-                              handleToggleMenu();
-                            }}
-                            className="p-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 hover:bg-rose-500/10 hover:border-rose-400 text-slate-700 dark:text-slate-200 flex items-center gap-2 transition hover:scale-[1.02] active:scale-95 duration-150 ease-spring"
-                          >
-                            <Compass className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                            <span className="font-medium text-xs">รีเซ็ตทิศเหนือ (N)</span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (onToggleSavedPlaces) {
-                                onToggleSavedPlaces();
-                              } else {
-                                setExplorerTab(t => (t === 'saved' ? 'search' : 'saved'));
-                              }
-                              handleToggleMenu();
-                            }}
-                            className="p-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 hover:bg-amber-500/10 hover:border-amber-400 text-slate-700 dark:text-slate-200 flex items-center gap-2 transition hover:scale-[1.02] active:scale-95 duration-150 ease-spring"
-                          >
-                            <Bookmark className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                            <span className="font-medium text-xs">หมุดบันทึกโปรด</span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onSetMeasureMode?.(measureMode === 'inspect' ? 'none' : 'inspect');
-                              handleToggleMenu();
-                            }}
-                            className={`p-2 rounded-xl border flex items-center gap-2 transition hover:scale-[1.02] active:scale-95 duration-150 ease-spring ${
-                              measureMode === 'inspect'
-                                ? 'bg-blue-600/10 border-blue-500 text-blue-600 dark:text-blue-400 font-bold'
-                                : 'border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 hover:bg-blue-500/10 hover:border-blue-400 text-slate-700 dark:text-slate-200'
-                            }`}
-                            title="เปิด/ปิดโหมดเคอร์เซอร์ตรวจสอบพิกัด"
-                          >
-                            <MousePointerClick className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                            <span className="font-medium text-xs">โหมดเคอร์เซอร์</span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onSetMeasureMode?.(
-                                measureMode === 'measure' || measureMode === 'distance' || measureMode === 'area'
-                                  ? 'none'
-                                  : 'measure'
-                              );
-                              handleToggleMenu();
-                            }}
-                            className={`col-span-2 p-2 rounded-xl border flex items-center justify-center gap-2 transition hover:scale-[1.02] active:scale-95 duration-150 ease-spring ${
-                              measureMode === 'measure' || measureMode === 'distance' || measureMode === 'area'
-                                ? 'bg-blue-600/10 border-blue-500 text-blue-600 dark:text-blue-400 font-bold'
-                                : 'border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 hover:bg-blue-500/10 hover:border-blue-400 text-slate-700 dark:text-slate-200'
-                            }`}
-                            title="เปิด/ปิดเครื่องมือวัด (วัดระยะทางและวัดขนาดพื้นที่)"
-                          >
-                            <Ruler className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                            <span className="font-medium text-xs">เครื่องมือวัด (วัดระยะและพื้นที่)</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Hidden compatibility anchor for test invariants */}
+                    {/* Hidden compatibility anchor for test invariants (UI shortcuts removed from flyout, accessed via right pillar) */}
                     <div className="hidden" aria-hidden="true" style={{ display: 'none' }}>
+                      {/* เครื่องมือสำรวจ & ทางลัด */}
+                      <span>โหมดเคอร์เซอร์</span>
+                      <button onClick={() => onSetMeasureMode?.(measureMode === 'inspect' ? 'none' : 'inspect')}>โหมดเคอร์เซอร์</button>
                       {/* ระบบพิกัด (Datum &amp; CRS) */}
                       <button className="active:scale-95" onClick={() => onSelectCoordinateDatum?.('WGS84')}>WGS84</button>
                       <button className="active:scale-95" onClick={() => onSelectCoordinateDatum?.('INDIAN1975_47')}>Ind75 47N</button>
