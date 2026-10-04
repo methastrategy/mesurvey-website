@@ -261,7 +261,7 @@ export const LevelingCalculator: React.FC = () => {
     <div className="space-y-5">
 
       {/* ── Header ── */}
-      <div className="p-4 rounded-2xl border shadow-sm" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
+      <div className="p-4 rounded-[var(--card-radius)] border shadow-xs" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
             <div className="flex items-center gap-2 mb-1">

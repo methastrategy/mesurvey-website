@@ -4,8 +4,6 @@ import {
   Compass, 
   Ruler, 
   Layers, 
-  ArrowLeft, 
-  ArrowRight, 
   Calculator
 } from 'lucide-react';
 import { CoordinateConverter } from './CoordinateConverter';
@@ -20,7 +18,7 @@ interface CalculatorHubProps {
 }
 
 export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initialSubTab }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'scientific' | 'coord' | 'traverse' | 'leveling' | 'area' | null>(initialSubTab || null);
+  const [activeSubTab, setActiveSubTab] = useState<'scientific' | 'coord' | 'traverse' | 'leveling' | 'area'>((initialSubTab as any) || 'scientific');
 
   useEffect(() => {
     const handleHashSync = () => {
@@ -32,7 +30,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
         if (validSubs.includes(sub)) {
           setActiveSubTab(sub);
         } else {
-          setActiveSubTab(null);
+          setActiveSubTab('scientific');
         }
       }
     };
@@ -51,12 +49,6 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
   const handleSubTabChange = (sub: 'scientific' | 'coord' | 'traverse' | 'leveling' | 'area') => {
     setActiveSubTab(sub);
     window.location.hash = `#/calculator/${sub}`;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleBackToHub = () => {
-    setActiveSubTab(null);
-    window.location.hash = '#/calculator';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -163,143 +155,100 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
     }
   ];
 
+  const activeTool = tools.find(t => t.id === activeSubTab);
+
   return (
-    <div className="space-y-6 pb-16">
-      
-      {/* ========================================================================= */}
-      {/* 1. BENTO INSTRUMENT CONSOLE PICKER (When no sub-calculator is selected)   */}
-      {/* ========================================================================= */}
-      {activeSubTab === null && (
-        <div className="space-y-4">
-          {/* Compact Tools Header Banner */}
-          <div
-            className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
-            style={{
-              backgroundColor: 'var(--surface)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--card-radius)',
-              boxShadow: 'var(--shadow)'
-            }}
-          >
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Calculator className="w-4 h-4 text-[var(--accent)]" />
-                <h1 className="text-base sm:text-lg font-bold tracking-tight text-[var(--text-1)]">
-                  เครื่องมือคำนวณวิศวกรรมสำรวจ
-                </h1>
-                <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-3)] border border-[var(--border)]">
-                  5 ENGINES
-                </span>
-              </div>
-              <p className="text-xs text-[var(--text-2)]">
-                เลือกเครื่องมือคำนวณภาคสนามตามมาตรฐานงานสำรวจ RTSD
-              </p>
-            </div>
-          </div>
+    <div className="space-y-4 sm:space-y-6 pb-12">
+      {/* ── 1. Minimal Hero Header (Aligned with Knowledge Hub Style) ── */}
+      <div className="space-y-2">
+        <div className="inline-flex items-center gap-2 font-mono text-xs text-[var(--accent)] uppercase tracking-wider">
+          <span>KU GEOMATICS • FIELD COMPUTATION ENGINE</span>
+        </div>
+        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-1)] tracking-tight">
+            เครื่องมือคำนวณ / Calculator Hub
+          </h1>
+          <span className="font-mono text-xs text-[var(--text-3)]">
+            5 ENGINES AVAILABLE • RTSD STANDARDS
+          </span>
+        </div>
+        <p className="text-[var(--text-2)] text-xs sm:text-sm max-w-3xl leading-relaxed">
+          รวมระบบประมวลผลทางวิศวกรรมสำรวจ: เครื่องคิดเลขวิทยาศาสตร์ภาคสนาม, การปรับแก้วงรอบวิธีเข็มทิศ, สมุดบันทึกระดับ 3 สายใย, แปลงค่าพิกัดแผนที่ และคำนวณเนื้อที่ดินไทย
+        </p>
+      </div>
 
-          {/* Compact Tool Cards Grid (5 tools: 1 col mobile, 2 col tablet, 3 col desktop, 5 col widescreen) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
-            {tools.map((tool) => {
-              const Icon = tool.icon;
-              return (
-                <div
-                  key={tool.id}
-                  onClick={() => handleSubTabChange(tool.id)}
-                  className="fusion-card group p-4 cursor-pointer flex flex-col justify-between hover:border-[var(--accent)] transition-all micro-lift"
+      {/* ── 2. Unified Minimal Tab Rail Bar (Single Sticky Switcher) ── */}
+      <div
+        className="sticky top-16 z-30 p-1.5 sm:p-2 rounded-[var(--card-radius)] border shadow-sm transition-all"
+        style={{
+          backgroundColor: 'var(--surface)',
+          borderColor: 'var(--border)'
+        }}
+      >
+        <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+          {tools.map((tool) => {
+            const Icon = tool.icon;
+            const isActive = activeSubTab === tool.id;
+            return (
+              <button
+                key={tool.id}
+                type="button"
+                onClick={() => handleSubTabChange(tool.id)}
+                className={`group min-h-[42px] px-3 sm:px-4 py-2 rounded-[var(--btn-radius)] text-xs font-semibold flex items-center gap-2 shrink-0 transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-xs'
+                    : 'text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface-2)] border border-transparent'
+                }`}
+                title={tool.label}
+              >
+                <Icon className={`w-3.5 h-3.5 shrink-0 transition-transform ${isActive ? 'scale-110' : 'group-hover:scale-105'}`} />
+                <span className="whitespace-nowrap">{tool.shortName}</span>
+                <span
+                  className={`font-mono text-[10px] px-1.5 py-0.2 rounded transition-colors ${
+                    isActive
+                      ? 'bg-black/20 text-white'
+                      : 'bg-[var(--surface-2)] text-[var(--text-3)] group-hover:text-[var(--text-2)]'
+                  }`}
                 >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <div
-                        className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors"
-                        style={{
-                          backgroundColor: 'var(--surface-2)',
-                          border: '1px solid var(--border)',
-                          color: 'var(--accent)'
-                        }}
-                      >
-                        <Icon className="w-4 h-4 stroke-[2]" />
-                      </div>
-                      <span className="font-mono text-[10px] text-[var(--text-3)] px-1.5 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border)]">
-                        {tool.code}
-                      </span>
-                    </div>
+                  {tool.code}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-                    <div>
-                      <h2 className="text-sm font-bold text-[var(--text-1)] group-hover:text-[var(--accent)] transition-colors leading-snug">
-                        {tool.label}
-                      </h2>
-                      <p className="text-[11px] font-mono text-[var(--text-3)] mt-1 truncate" title={tool.badge}>
-                        {tool.badge}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="pt-3 mt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-semibold text-[var(--accent)]">
-                    <span className="text-[11px]">เปิดใช้งาน</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              );
-            })}
+      {/* ── 3. Active Tool Meta Strip (Quick Specs & Feature Summary) ── */}
+      {activeTool && (
+        <div
+          className="p-3 sm:p-4 rounded-[var(--card-radius)] border text-xs flex flex-col md:flex-row md:items-center justify-between gap-2.5 transition-colors"
+          style={{
+            backgroundColor: 'var(--surface-2)',
+            borderColor: 'var(--border)'
+          }}
+        >
+          <div className="flex items-center gap-2.5">
+            <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--accent)] border border-[var(--border)]">
+              {activeTool.code}
+            </span>
+            <span className="font-bold text-[var(--text-1)] text-xs sm:text-sm">
+              {activeTool.label}
+            </span>
+          </div>
+          <div className="font-mono text-[11px] text-[var(--text-3)] flex items-center gap-1.5">
+            <span>{activeTool.badge}</span>
           </div>
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* 2. DIGITAL FIELD CONSOLE VIEW (When an instrument is active)              */}
-      {/* ========================================================================= */}
-      {activeSubTab !== null && (
-        <div className="space-y-6">
-          {/* Sticky Console Switcher Bar */}
-          <div
-            className="p-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sticky top-16 z-30"
-            style={{
-              backgroundColor: 'var(--surface)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--card-radius)',
-              boxShadow: 'var(--shadow)'
-            }}
-          >
-            <button
-              onClick={handleBackToHub}
-              className="btn-outline inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold shrink-0 min-h-[44px]"
-            >
-              <ArrowLeft className="w-4 h-4" style={{ color: 'var(--accent)' }} />
-              <span>แผงเลือกเครื่องมือทั้งหมด</span>
-            </button>
-
-            {/* Quick Instrument Switcher (2px underline style per Fusion DNA) */}
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar px-1">
-              {tools.map((tool) => {
-                const Icon = tool.icon;
-                const isActive = activeSubTab === tool.id;
-                return (
-                  <button
-                    key={tool.id}
-                    onClick={() => handleSubTabChange(tool.id)}
-                    className={`nav-tab inline-flex items-center gap-2 px-3 text-xs font-semibold shrink-0 min-h-[44px] ${
-                      isActive ? 'active' : ''
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5 shrink-0" />
-                    <span>{tool.shortName}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Active Instrument Console */}
-          <div>
-            {activeSubTab === 'scientific' && <ScientificCalculator />}
-            {activeSubTab === 'traverse' && <TraverseCalculator />}
-            {activeSubTab === 'leveling' && <LevelingCalculator />}
-            {activeSubTab === 'coord' && <CoordinateConverter onPlotOnMap={onPlotOnMap} />}
-            {activeSubTab === 'area' && <LandAreaCalculator />}
-          </div>
-        </div>
-      )}
-
+      {/* ── 4. Main Active Instrument Viewport ── */}
+      <div className="min-h-[500px] transition-all">
+        {activeSubTab === 'scientific' && <ScientificCalculator />}
+        {activeSubTab === 'traverse' && <TraverseCalculator />}
+        {activeSubTab === 'leveling' && <LevelingCalculator />}
+        {activeSubTab === 'coord' && <CoordinateConverter onPlotOnMap={onPlotOnMap} />}
+        {activeSubTab === 'area' && <LandAreaCalculator />}
+      </div>
     </div>
   );
 };

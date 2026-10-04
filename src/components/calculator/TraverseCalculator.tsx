@@ -341,7 +341,7 @@ export const TraverseCalculator: React.FC = () => {
 
       {/* ── Header ── */}
       <div
-        className="p-4 rounded-2xl border shadow-sm"
+        className="p-4 rounded-[var(--card-radius)] border shadow-xs"
         style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}
       >
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">

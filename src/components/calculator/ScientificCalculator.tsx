@@ -267,31 +267,22 @@ export const ScientificCalculator: React.FC = () => {
   return (
     <div className="flex flex-col gap-4 h-full min-h-0" style={{ maxHeight: '92dvh', overflow: 'hidden' }}>
       
-      {/* Top Banner: CASIO-Style Engineering Scientific Instrument Console */}
+      {/* Top Controls Strip: Compact Status & Mode Switchers */}
       <div 
-        className="p-5 sm:p-6 rounded-2xl border flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm"
+        className="p-3 sm:p-4 rounded-[var(--card-radius)] border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
         style={{
           backgroundColor: 'var(--surface)',
           borderColor: 'var(--border)'
         }}
       >
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-              CALC-00 • CASIO FX-CLASSWIZ
-            </span>
-            <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Natural Textbook Display &amp; Geodetic Survey Engine</span>
-            </span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <Calculator className="w-6 h-6 text-blue-500 shrink-0" />
-            <span>เครื่องคิดเลขวิทยาศาสตร์ &amp; วิศวกรรมสำรวจ</span>
+        <div className="flex items-center gap-2.5">
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+            CALC-00
+          </span>
+          <h2 className="text-sm sm:text-base font-bold text-[var(--text-1)] flex items-center gap-2">
+            <Calculator className="w-4 h-4 text-blue-500 shrink-0" />
+            <span>CASIO fx-991EX Natural Textbook Console</span>
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl">
-            ออกแบบจำลองตามมาตรฐานเครื่องคิดเลขวิศวกรรม CASIO fx-991EX / fx-5800P สำหรับงานสำรวจ รังวัด และคำนวณสามเหลี่ยมตรีโกณมิติ แปลงมุมองศาลิปดา (DMS), Pol/Rec, และรัศมีความโค้งผิวโลก
-          </p>
         </div>
 
         {/* Quick Mode & History Toggles */}
