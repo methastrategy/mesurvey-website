@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, X, Loader2, MapPin, Landmark, Compass, GraduationCap, Train, Navigation, Menu } from 'lucide-react';
+import { Search, X, Loader2, MapPin, Landmark, Compass, GraduationCap, Train, Navigation, Menu, ClipboardPaste, Check } from 'lucide-react';
 import { PlaceSearchResult } from '../../../types/memaps';
 import { searchPlaces } from '../../../core/memaps-services';
+import { parseCoordinateString } from '../../../utils/coordinate-parser';
 
 interface MeMapsSearchBoxProps {
   onSelectPlace: (place: PlaceSearchResult) => void;
@@ -44,11 +45,13 @@ export const MeMapsSearchBox: React.FC<MeMapsSearchBoxProps> = ({
   // Categories filter
   const categories = [
     { id: 'all', label: 'ทั้งหมด' },
-    { id: 'survey', label: '📐 หมุดรังวัด RTSD' },
+    { id: 'survey', label: '📐 หมุดอ้างอิง' },
     { id: 'university', label: '🎓 สถาบันการศึกษา' },
     { id: 'landmark', label: '🏛️ แลนด์มาร์ก' },
     { id: 'station', label: '🚆 สถานี/ขนส่ง' }
   ];
+
+  const [hasPastedCoord, setHasPastedCoord] = useState(false);
 
   const triggerFullSearch = async (targetQuery = query) => {
     const trimmed = targetQuery.trim();
@@ -84,6 +87,26 @@ export const MeMapsSearchBox: React.FC<MeMapsSearchBoxProps> = ({
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
+    // Fluid typing feel:
+    // If empty query, immediately clear search results
+    if (!query.trim()) {
+      setResults([]);
+      setIsLoading(false);
+      onSearchStateChange?.({
+        query: '',
+        results: [],
+        isLoading: false,
+        setQuery,
+        triggerFullSearch
+      });
+      return;
+    }
+
+    // Check if query looks like coordinates or special syntax
+    const looksLikeCoords = /^[\d\s,.\-+°'"NSEWnsew]+$/.test(query.trim());
+    // For normal text, wait 260ms so typing isn't interrupted. For coordinates, 150ms for responsive lock
+    const debounceDelay = looksLikeCoords ? 150 : 260;
+
     setIsLoading(true);
     const timer = setTimeout(async () => {
       try {
@@ -104,13 +127,74 @@ export const MeMapsSearchBox: React.FC<MeMapsSearchBoxProps> = ({
       } finally {
         setIsLoading(false);
       }
-    }, 180);
+    }, debounceDelay);
 
     return () => {
       clearTimeout(timer);
       controller.abort();
     };
   }, [query]);
+
+  // Handle pasting coordinates directly from clipboard
+  const handlePasteCoordinates = async () => {
+    try {
+      let clipText = '';
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        clipText = await navigator.clipboard.readText();
+      }
+      if (!clipText && typeof window !== 'undefined') {
+        clipText = window.prompt('วางพิกัดที่ต้องการพุ่งไป (เช่น 13.8476, 100.5696 หรือ UTM 47P 669830 1531500):') || '';
+      }
+      const trimmed = clipText.trim();
+      if (!trimmed) return;
+
+      const parsed = parseCoordinateString(trimmed);
+      if (parsed) {
+        const place: PlaceSearchResult = {
+          id: `pasted-coord-${Date.now()}`,
+          name: parsed.label,
+          description: `${parsed.format} (${parsed.datum}) ${parsed.warning ? '⚠️ ' + parsed.warning : ''}`.trim(),
+          lat: parsed.coord.lat,
+          lng: parsed.coord.lng,
+          category: 'survey',
+          address: `WGS84: ${parsed.coord.lat.toFixed(6)}, ${parsed.coord.lng.toFixed(6)}`
+        };
+        setQuery(trimmed);
+        setResults([place]);
+        setIsOpen(true);
+        setHasPastedCoord(true);
+        setTimeout(() => setHasPastedCoord(false), 2000);
+        onSelectPlace(place);
+      } else {
+        // Fallback: put in search query and trigger search
+        setQuery(trimmed);
+        setIsOpen(true);
+        triggerFullSearch(trimmed);
+      }
+    } catch {
+      const fallbackText = window.prompt('วางพิกัดหรือสถานที่ที่ต้องการค้นหา:') || '';
+      if (fallbackText.trim()) {
+        const parsed = parseCoordinateString(fallbackText.trim());
+        if (parsed) {
+          const place: PlaceSearchResult = {
+            id: `pasted-coord-${Date.now()}`,
+            name: parsed.label,
+            description: `${parsed.format} (${parsed.datum})`,
+            lat: parsed.coord.lat,
+            lng: parsed.coord.lng,
+            category: 'survey',
+            address: `WGS84: ${parsed.coord.lat.toFixed(6)}, ${parsed.coord.lng.toFixed(6)}`
+          };
+          setQuery(fallbackText.trim());
+          setResults([place]);
+          onSelectPlace(place);
+        } else {
+          setQuery(fallbackText.trim());
+          triggerFullSearch(fallbackText.trim());
+        }
+      }
+    }
+  };
 
   // Sync state on query/results/loading changes
   useEffect(() => {
@@ -237,19 +321,41 @@ export const MeMapsSearchBox: React.FC<MeMapsSearchBoxProps> = ({
           className="w-full py-2.5 pr-8 text-xs sm:text-sm bg-transparent border-0 outline-none text-slate-800 dark:text-slate-100 placeholder-slate-400"
         />
 
-        {query && (
+        <div className="flex items-center pr-1.5 shrink-0 gap-0.5">
+          {query && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery('');
+                onClear?.();
+                setIsOpen(false);
+              }}
+              className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-md transition-all duration-150 ease-spring hover:scale-110 active:scale-90"
+              title="ล้างข้อความ"
+              aria-label="ล้างข้อความ"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+
           <button
-            onClick={() => {
-              setQuery('');
-              onClear?.();
-              setIsOpen(false);
-            }}
-            className="p-1.5 mr-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-md transition-all duration-150 ease-spring hover:scale-110 active:scale-90"
-            title="ล้างข้อความ"
+            type="button"
+            onClick={handlePasteCoordinates}
+            className={`p-1.5 rounded-lg transition-all duration-150 ease-spring hover:scale-110 active:scale-90 flex items-center justify-center cursor-pointer ${
+              hasPastedCoord
+                ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40'
+                : 'text-slate-400 hover:text-blue-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+            title="วางพิกัดเพื่อพุ่งไปตำแหน่ง"
+            aria-label="วางพิกัดเพื่อพุ่งไปตำแหน่ง"
           >
-            <X className="w-3.5 h-3.5" />
+            {hasPastedCoord ? (
+              <Check className="w-3.5 h-3.5 text-emerald-500" />
+            ) : (
+              <ClipboardPaste className="w-3.5 h-3.5" />
+            )}
           </button>
-        )}
+        </div>
       </div>
 
       {/* Autocomplete Results Dropdown (Shown only when not unified with external flyout panel) */}

@@ -236,7 +236,7 @@ export const AdaptiveWorkspace: React.FC<AdaptiveWorkspaceProps> = ({
     { id: 'gas', label: 'ปั๊มน้ำมัน / EV', icon: Fuel, query: 'ปั๊มน้ำมัน' },
     { id: 'transit', label: 'สถานี / ขนส่ง', icon: Train, query: 'สถานีรถไฟฟ้า' },
     { id: 'hotel', label: 'โรงแรม / ที่พัก', icon: Building2, query: 'โรงแรม' },
-    { id: 'survey', label: 'หมุดรังวัด RTSD', icon: Compass, query: 'หมุดรังวัด' }
+    { id: 'survey', label: 'หมุดอ้างอิง', icon: Compass, query: 'หมุดรังวัด' }
   ];
 
   const handleSelectCategory = (cat: typeof MAP_CATEGORIES[0]) => {

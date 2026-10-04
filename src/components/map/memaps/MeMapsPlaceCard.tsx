@@ -89,7 +89,7 @@ export const MeMapsPlaceCard: React.FC<MeMapsPlaceCardProps> = ({
       case 'survey':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
-            <Compass className="w-3 h-3" /> หมุดรังวัด RTSD
+            <Compass className="w-3 h-3" /> หมุดอ้างอิง
           </span>
         );
       case 'university':
