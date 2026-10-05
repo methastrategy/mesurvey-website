@@ -239,18 +239,22 @@ export const AdaptiveWorkspace: React.FC<AdaptiveWorkspaceProps> = ({
     { id: 'survey', label: 'หมุดอ้างอิง', icon: Compass, query: 'หมุดรังวัด' }
   ];
 
+  // Helper to filter places strictly for selected category
+  const filterPlacesByCategory = (catId: string) => {
+    return THAI_PRESET_PLACES.filter(
+      p => p.category === catId || 
+           (catId === 'transit' && (p.category === 'transit' || p.category === 'station'))
+    );
+  };
+
   const handleSelectCategory = (cat: typeof MAP_CATEGORIES[0]) => {
     setSelectedCategory(cat.id);
     setSearchQueryRef.current?.(cat.query);
     setSearchQuery(cat.query);
     // Instant preset filtering for 0ms response
-    const matching = THAI_PRESET_PLACES.filter(
-      p => p.category === cat.id || 
-           (cat.id === 'transit' && (p.category === 'transit' || p.category === 'station'))
-    );
+    const matching = filterPlacesByCategory(cat.id);
     setSearchResults(matching);
     onCategoryPlacesChange?.(matching);
-    triggerFullSearchRef.current?.(cat.query);
   };
 
   const isMeasuringMode = measureMode === 'measure' || measureMode === 'distance' || measureMode === 'area';
@@ -363,13 +367,25 @@ export const AdaptiveWorkspace: React.FC<AdaptiveWorkspaceProps> = ({
                 }}
                 onSearchStateChange={(state) => {
                   setSearchQuery(state.query);
-                  setSearchResults(state.results);
                   setIsSearching(state.isLoading);
                   setSearchQueryRef.current = state.setQuery;
                   triggerFullSearchRef.current = state.triggerFullSearch;
+
+                  // If user is actively browsing a selected category, ensure category places are maintained
+                  if (selectedCategory) {
+                    const currentCategoryObj = MAP_CATEGORIES.find(c => c.id === selectedCategory);
+                    if (state.query.trim() === currentCategoryObj?.query.trim()) {
+                      const categoryMatching = filterPlacesByCategory(selectedCategory);
+                      setSearchResults(categoryMatching);
+                      onCategoryPlacesChange?.(categoryMatching);
+                      return;
+                    }
+                  }
+
+                  setSearchResults(state.results);
                   if (state.query.trim().length === 0 && !selectedCategory) {
                     onCategoryPlacesChange?.([]);
-                  } else if (state.results.length > 0 && (selectedCategory || state.query.trim().length > 0)) {
+                  } else if (state.results.length > 0) {
                     onCategoryPlacesChange?.(state.results);
                   }
                 }}
@@ -930,7 +946,7 @@ export const AdaptiveWorkspace: React.FC<AdaptiveWorkspaceProps> = ({
       {/* 3. MOBILE 3-SNAP BOTTOM SHEET (TOUCH ERGONOMICS)         */}
       {/* ========================================================= */}
       <div
-        className={`md:hidden fixed inset-x-0 bottom-0 z-[1100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t border-slate-200 dark:border-slate-800 rounded-t-3xl shadow-[0_-12px_36px_rgba(0,0,0,0.35)] transition-all duration-300 ease-out flex flex-col pointer-events-auto pb-[env(safe-area-inset-bottom,16px)] ${
+        className={`md:hidden fixed inset-x-0 bottom-0 z-[1100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t border-slate-200 dark:border-slate-800 rounded-t-3xl shadow-[0_-12px_36px_rgba(0,0,0,0.35)] transition-all duration-300 ease-out flex flex-col pointer-events-auto ${
           mobileSnap === 'peek'
             ? 'h-[78px]'
             : mobileSnap === 'half'
