@@ -224,13 +224,13 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                   {/* Title & Icon Header */}
                   <div className="flex items-start gap-3">
                     <div 
-                      className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-200 group-hover:bg-[var(--accent)] group-hover:text-[var(--accent-text)] group-hover:border-[var(--accent)] shadow-sm"
+                      className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-200 group-hover:bg-[var(--accent)] group-hover:text-black dark:group-hover:text-white group-hover:border-[var(--accent)] shadow-sm"
                       style={{
                         backgroundColor: 'var(--surface-2)',
                         borderColor: 'var(--border)'
                       }}
                     >
-                      <Icon className="w-5 h-5 text-[var(--accent)] group-hover:text-[var(--accent-text)] transition-colors" />
+                      <Icon className="w-5 h-5 text-[var(--accent)] group-hover:text-black dark:group-hover:text-white transition-colors" />
                     </div>
                     <div className="min-w-0">
                       <h2 className="text-base sm:text-lg font-bold text-[var(--text-1)] group-hover:text-[var(--accent)] transition-colors leading-snug">
@@ -263,7 +263,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                 {/* Footer Action */}
                 <div className="mt-5 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs font-semibold text-[var(--accent)]">
                   <span>เปิดเครื่องมือ</span>
-                  <div className="w-7 h-7 rounded-lg bg-[var(--surface-2)] group-hover:bg-[var(--accent)] group-hover:text-[var(--accent-text)] border border-[var(--border)] flex items-center justify-center transition-colors">
+                  <div className="w-7 h-7 rounded-lg bg-[var(--surface-2)] group-hover:bg-[var(--accent)] group-hover:text-black dark:group-hover:text-white border border-[var(--border)] flex items-center justify-center transition-colors">
                     <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                   </div>
                 </div>

@@ -61,7 +61,7 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({ topic, onSelect })
         {/* Top Header: Icon, Category Badge, and Corner Stamp Badge */}
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2.5 rounded-xl bg-surface-2 dark:bg-[#161618] border border-hairline text-indigo-600 dark:text-indigo-400 group-hover:scale-105 transition-transform duration-200">
+            <div className="p-2.5 rounded-xl bg-surface-2 dark:bg-[#161618] border border-hairline text-indigo-600 dark:text-indigo-400 group-hover:text-black dark:group-hover:text-white group-hover:scale-105 transition-all duration-200">
               {getIcon()}
             </div>
             <span className={`px-2.5 py-1 text-[10px] font-mono font-semibold tracking-widest uppercase rounded-full border ${

@@ -310,13 +310,13 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     key={cat.id}
                     type="button"
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`min-h-[44px] inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold shrink-0 border-b-2 transition-colors cursor-pointer ${
+                    className={`group min-h-[44px] inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold shrink-0 border-b-2 transition-colors cursor-pointer ${
                       isSelected
                         ? 'border-[var(--accent)] text-[var(--text-1)] bg-[var(--surface-2)]'
                         : 'border-transparent text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface-2)]/50'
                     }`}
                   >
-                    <span className={isSelected ? 'text-[var(--accent)]' : 'text-[var(--text-3)]'}>
+                    <span className={isSelected ? 'text-[var(--accent)]' : 'text-[var(--text-3)] group-hover:text-black dark:group-hover:text-white transition-colors'}>
                       {cat.icon}
                     </span>
                     <span>{cat.label}</span>
