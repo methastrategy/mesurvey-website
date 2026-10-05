@@ -41,10 +41,13 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   return (
     <nav
       aria-label="Mobile Bottom Navigation"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-50 transition-colors select-none border-t shadow-[0_-4px_20px_rgba(0,0,0,0.06)]"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-50 transition-colors select-none border-t shadow-[0_-4px_20px_rgba(0,0,0,0.06)] m-0 p-0"
       style={{
         backgroundColor: 'var(--surface)',
         borderColor: 'var(--border)',
+        bottom: 0,
+        marginBottom: 0,
+        paddingBottom: 0,
       }}
     >
       <div className="grid grid-cols-3 h-14 max-w-md mx-auto px-2">
