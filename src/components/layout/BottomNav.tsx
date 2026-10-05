@@ -45,7 +45,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({
       style={{
         backgroundColor: 'var(--surface)',
         borderColor: 'var(--border)',
-        paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))',
       }}
     >
       <div className="grid grid-cols-3 h-14 max-w-md mx-auto px-2">
