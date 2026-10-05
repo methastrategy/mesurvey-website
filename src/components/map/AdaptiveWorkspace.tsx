@@ -39,7 +39,8 @@ import {
   Fuel,
   Building2,
   Copy,
-  Check
+  Check,
+  X
 } from 'lucide-react';
 import { CommonMapLayoutProps } from './layouts/types';
 import { WorkspaceMode, PlaceSearchResult, SavedPlace } from '../../types/memaps';
@@ -169,6 +170,7 @@ export const AdaptiveWorkspace: React.FC<AdaptiveWorkspaceProps> = ({
   // Mobile 3-Snap Bottom Sheet State
   const [mobileSnap, setMobileSnap] = useState<MobileSnap>('peek');
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
+  const [mobileSavedTab, setMobileSavedTab] = useState<'explore' | 'saved'>('explore');
 
   // Desktop Explorer tab
   const [explorerTab, setExplorerTab] = useState<'search' | 'saved'>('search');
@@ -968,164 +970,510 @@ export const AdaptiveWorkspace: React.FC<AdaptiveWorkspaceProps> = ({
           <div className="w-10 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 mb-1" />
         </div>
 
-        {/* Peek Bar: Clean Google Maps Mobile Peek Experience */}
-        <div
-          onClick={() => {
-            if (mobileSnap === 'peek') setMobileSnap('half');
-          }}
-          className="px-3.5 py-1.5 flex items-center justify-between gap-2 cursor-pointer border-b border-slate-100 dark:border-slate-800/60"
-        >
+        {/* Peek Bar: Direct Google Maps Mobile Search Capsule & Quick Status */}
+        <div className="px-3 py-1.5 border-b border-slate-100 dark:border-slate-800/60 bg-transparent">
           {activePlace ? (
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2 truncate">
+            <div className="flex items-center justify-between gap-2">
+              <div 
+                onClick={() => setMobileSnap(s => (s === 'peek' ? 'half' : s))}
+                className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer"
+              >
                 <div className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 shrink-0">
                   <Navigation className="w-3.5 h-3.5" />
                 </div>
                 <div className="truncate">
                   <div className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{activePlace.name}</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{activePlace.address || `${activePlace.lat.toFixed(4)}°, ${activePlace.lng.toFixed(4)}°`}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                    {activePlace.address || `${activePlace.lat.toFixed(4)}°, ${activePlace.lng.toFixed(4)}°`}
+                  </div>
                 </div>
               </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectDestination?.(activePlace);
-                  setMobileSnap('half');
-                }}
-                className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-1 shadow-sm shrink-0"
-              >
-                <span>ขอเส้นทาง</span>
-              </button>
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSelectDestination?.(activePlace);
+                    setMobileSnap('half');
+                  }}
+                  className="px-2.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-1 shadow-xs transition active:scale-95"
+                >
+                  <Navigation className="w-3 h-3" />
+                  <span>เส้นทาง</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSelectPlace?.(null);
+                  }}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  title="ปิดรายละเอียด"
+                  aria-label="ปิดรายละเอียด"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           ) : activeRoute ? (
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <div 
+                onClick={() => setMobileSnap(s => (s === 'peek' ? 'half' : s))}
+                className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer"
+              >
                 <div className="p-1.5 rounded-full bg-emerald-500/10 text-emerald-600 shrink-0">
                   <Car className="w-3.5 h-3.5" />
                 </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                <div className="truncate">
+                  <div className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">
                     {(activeRoute.distanceMeters / 1000).toFixed(1)} กม. · {Math.round(activeRoute.durationSeconds / 60)} นาที
                   </div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400">เส้นทางพร้อมนำทาง</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">พร้อมเริ่มนำทาง</div>
                 </div>
               </div>
-              <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">ดูขั้นตอน &gt;</span>
+              <button
+                type="button"
+                onClick={() => setMobileSnap(s => (s === 'full' ? 'half' : 'full'))}
+                className="text-xs text-blue-600 dark:text-blue-400 font-semibold px-2 py-1"
+              >
+                ดูขั้นตอน →
+              </button>
             </div>
           ) : (
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 text-xs">
-                <Search className="w-4 h-4 text-blue-500" />
-                <span>ค้นหาสถานที่, อาคาร, พิกัด UTM...</span>
-              </div>
-              <div className="flex items-center gap-1 text-[11px]">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMobileSnap(s => (s === 'full' ? 'half' : s === 'half' ? 'peek' : 'half'));
+            <div className="flex items-center gap-1.5 w-full">
+              <div className="flex-1 min-w-0">
+                <MeMapsSearchBox
+                  onSelectPlace={(p) => {
+                    handleSelectSearchResult(p);
+                    setMobileSnap('half');
                   }}
-                  aria-label="สลับระดับหน้าต่าง"
-                  className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                >
-                  {mobileSnap === 'full' ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-                </button>
+                  placeholder="ค้นหาสถานที่, อาคาร, พิกัด UTM..."
+                  isUnifiedWithFlyout={true}
+                  onFocusInput={() => {
+                    if (mobileSnap === 'peek') setMobileSnap('half');
+                  }}
+                  onSearchStateChange={(state) => {
+                    setSearchQuery(state.query);
+                    setIsSearching(state.isLoading);
+                    setSearchQueryRef.current = state.setQuery;
+                    triggerFullSearchRef.current = state.triggerFullSearch;
+
+                    if (selectedCategory) {
+                      const currentCategoryObj = MAP_CATEGORIES.find(c => c.id === selectedCategory);
+                      if (state.query.trim() === currentCategoryObj?.query.trim()) {
+                        const categoryMatching = filterPlacesByCategory(selectedCategory);
+                        setSearchResults(categoryMatching);
+                        onCategoryPlacesChange?.(categoryMatching);
+                        return;
+                      }
+                    }
+
+                    setSearchResults(state.results);
+                    if (state.query.trim().length === 0 && !selectedCategory) {
+                      onCategoryPlacesChange?.([]);
+                    } else if (state.results.length > 0) {
+                      onCategoryPlacesChange?.(state.results);
+                    }
+                  }}
+                />
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileSnap(s => (s === 'full' ? 'half' : s === 'half' ? 'peek' : 'half'));
+                }}
+                aria-label="สลับระดับหน้าต่าง"
+                className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0 transition active:scale-95"
+              >
+                {mobileSnap === 'full' ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+              </button>
             </div>
           )}
         </div>
 
         {/* Scrollable Sheet Body (visible when half or full) */}
         {mobileSnap !== 'peek' && (
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-            {/* Universal Tools Row */}
-            <div className="flex items-center justify-between gap-1.5 overflow-x-auto pb-1 text-xs">
-              <button
-                onClick={() => onSetMeasureMode(measureMode === 'distance' ? 'none' : 'distance')}
-                className={`min-h-[44px] px-3 py-2 rounded-xl border flex items-center gap-1.5 font-medium shrink-0 ${
-                  measureMode === 'distance'
-                    ? 'bg-blue-600 text-white border-blue-500'
-                    : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'
-                }`}
-              >
-                <Ruler className="w-3.5 h-3.5" />
-                <span>วัดระยะ</span>
-              </button>
-
-              <button
-                onClick={() => onSetMeasureMode(measureMode === 'area' ? 'none' : 'area')}
-                className={`min-h-[44px] px-3 py-2 rounded-xl border flex items-center gap-1.5 font-medium shrink-0 ${
-                  measureMode === 'area'
-                    ? 'bg-emerald-600 text-white border-emerald-500'
-                    : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'
-                }`}
-              >
-                <Square className="w-3.5 h-3.5" />
-                <span>วัดพื้นที่</span>
-              </button>
-
-              <button
-                onClick={() => onSetMeasureMode(measureMode === 'inspect' ? 'none' : 'inspect')}
-                className={`min-h-[44px] px-3 py-2 rounded-xl border flex items-center gap-1.5 font-medium shrink-0 ${
-                  measureMode === 'inspect'
-                    ? 'bg-purple-600 text-white border-purple-500'
-                    : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'
-                }`}
-              >
-                <Crosshair className="w-3.5 h-3.5" />
-                <span>แตะดูพิกัด</span>
-              </button>
-
-              <button
-                onClick={onClearMeasurements}
-                className="min-h-[44px] px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-rose-500 flex items-center gap-1.5 font-medium shrink-0"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>ล้าง</span>
-              </button>
-            </div>
-
+          <div className="flex-1 overflow-y-auto px-3.5 py-3 space-y-3.5 select-none">
             {/* Mode-Specific Content */}
             {workspaceMode === 'explorer' && (
               <div className="space-y-3">
-                <MeMapsSearchBox
-                  onSelectPlace={(p) => {
-                    onSelectPlace?.(p);
-                    if (onFlyToLocation) onFlyToLocation(p.lat, p.lng, 16);
-                  }}
-                />
+                {/* 1. เมื่อมี activePlace: แสดง Place Card พิกัดภูมิศาสตร์ละเอียด + ค่าระดับ MSL */}
+                {activePlace ? (
+                  <div className="space-y-3">
+                    {/* Header bar with Back button */}
+                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                      <div className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: 'var(--accent)' }}>
+                        <MapPin className="w-3.5 h-3.5 shrink-0" />
+                        <span>รายละเอียดตำแหน่ง &amp; สถานที่</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onSelectPlace?.(null);
+                        }}
+                        className="text-[11px] text-slate-400 hover:text-[var(--accent)] dark:hover:text-[var(--accent)] font-medium px-2 py-0.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition duration-150 ease-spring active:scale-95"
+                      >
+                        ← กลับไปค้นหา
+                      </button>
+                    </div>
 
-                {activePlace && (
-                  <MeMapsPlaceCard
-                    place={activePlace}
-                    onClose={() => onSelectPlace?.(null)}
-                    onSetAsOrigin={(p) => onSelectOrigin?.(p)}
-                    onSetAsDestination={(p) => onSelectDestination?.(p)}
-                    onSaved={onPlaceSaved}
-                  />
-                )}
+                    {/* Place Title & Address */}
+                    <div className="space-y-1">
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug">
+                        {activePlace.name}
+                      </h3>
+                      {activePlace.address && (
+                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                          {activePlace.address}
+                        </p>
+                      )}
+                      {activePlace.description && activePlace.description !== activePlace.address && (
+                        <p className="text-[11px] text-slate-400 dark:text-slate-500 line-clamp-2">
+                          {activePlace.description}
+                        </p>
+                      )}
+                    </div>
 
-                {(originPlace || destinationPlace || activeRoute) && (
-                  <MeMapsDirectionsPanel
-                    originPlace={originPlace || null}
-                    destinationPlace={destinationPlace || null}
-                    onSelectOrigin={onSelectOrigin || (() => {})}
-                    onSelectDestination={onSelectDestination || (() => {})}
-                    onRouteCalculated={onRouteCalculated || (() => {})}
-                  />
-                )}
+                    {/* Geodetic Coordinates & Elevation Card */}
+                    <div className="p-2.5 rounded-xl bg-slate-50/90 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-2">
+                      <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
+                        <div className="p-1.5 rounded-lg bg-white/90 dark:bg-slate-900/90 border border-slate-200/60 dark:border-slate-800">
+                          <span className="text-[9px] text-slate-400 block font-sans font-semibold">WGS84 (DD)</span>
+                          <span className="text-slate-700 dark:text-slate-200 font-semibold tracking-tight block truncate">
+                            {activePlace.lat.toFixed(6)}°, {activePlace.lng.toFixed(6)}°
+                          </span>
+                        </div>
+                        <div className="p-1.5 rounded-lg bg-white/90 dark:bg-slate-900/90 border border-slate-200/60 dark:border-slate-800">
+                          <span className="text-[9px] text-slate-400 block font-sans font-semibold">
+                            UTM Zone {forwardWgs84ToUtm(activePlace.lat, activePlace.lng).zone}N
+                          </span>
+                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold truncate block">
+                            E {Math.round(forwardWgs84ToUtm(activePlace.lat, activePlace.lng).easting).toLocaleString()} N {Math.round(forwardWgs84ToUtm(activePlace.lat, activePlace.lng).northing).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
 
-                {!activePlace && !activeRoute && (
-                  <MeMapsSavedPlacesPanel
-                    key={savedPlacesRefresh}
-                    onSelectPlace={(p) => {
-                      onSelectPlace?.(p);
-                      if (onFlyToLocation) onFlyToLocation(p.lat, p.lng, 16);
-                    }}
-                    onSetAsDestination={(p) => {
-                      onSelectDestination?.(p);
-                      if (onFlyToLocation) onFlyToLocation(p.lat, p.lng, 16);
-                    }}
-                  />
+                      {/* Elevation / ค่าระดับ MSL & DEM */}
+                      <div className="p-2 rounded-lg bg-white/90 dark:bg-slate-900/90 border border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-xs">
+                        <span className="text-[10px] text-slate-400 font-sans font-semibold">
+                          ระดับความสูงภูมิประเทศ:
+                        </span>
+                        <span className="font-mono font-bold" style={{ color: 'var(--accent)' }}>
+                          {activePlace.elevation !== undefined
+                            ? `MSL : ${activePlace.elevation >= 0 ? '+' : ''}${activePlace.elevation.toFixed(2)} m`
+                            : (telemetry as any)?.elevation !== undefined
+                            ? `MSL : ${(telemetry as any).elevation >= 0 ? '+' : ''}${(telemetry as any).elevation.toFixed(1)} m (DEM)`
+                            : 'MSL : ±0.00 m'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Action buttons: Directions, Bookmark, Copy Coordinates */}
+                    <div className="flex items-center gap-2 pt-0.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onSelectDestination?.(activePlace);
+                          onSelectPlace?.(null);
+                        }}
+                        style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-text, #ffffff)' }}
+                        className="flex-1 py-2 px-3 rounded-xl hover:opacity-95 text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition hover:scale-[1.02] active:scale-95 duration-150 ease-spring"
+                      >
+                        <Navigation className="w-3.5 h-3.5" />
+                        <span>เส้นทาง</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const utm = forwardWgs84ToUtm(activePlace.lat, activePlace.lng);
+                          onPlaceSaved?.(
+                            savePlace({
+                              name: activePlace.name,
+                              lat: activePlace.lat,
+                              lng: activePlace.lng,
+                              utmE: Math.round(utm.easting),
+                              utmN: Math.round(utm.northing),
+                              zone: utm.zone,
+                              category: 'favorite'
+                            })
+                          );
+                        }}
+                        className="py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium flex items-center justify-center gap-1.5 transition hover:bg-slate-50 dark:hover:bg-slate-700 hover:scale-[1.02] active:scale-95 duration-150 ease-spring"
+                        title="บันทึกเป็นหมุดโปรด"
+                      >
+                        <Bookmark className="w-3.5 h-3.5 text-amber-500" />
+                        <span>บันทึก</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const utm = forwardWgs84ToUtm(activePlace.lat, activePlace.lng);
+                          const coordText = `พิกัด ${activePlace.name}\nWGS84: ${activePlace.lat.toFixed(6)}, ${activePlace.lng.toFixed(6)}\nUTM ${utm.zone}N: E ${Math.round(utm.easting)}, N ${Math.round(utm.northing)}`;
+                          navigator.clipboard?.writeText(coordText);
+                          setIsCopiedCoord(true);
+                          setTimeout(() => setIsCopiedCoord(false), 2000);
+                        }}
+                        className="py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium flex items-center justify-center gap-1.5 transition hover:bg-slate-50 dark:hover:bg-slate-700 hover:scale-[1.02] active:scale-95 duration-150 ease-spring"
+                        title="คัดลอกพิกัดตำแหน่ง"
+                      >
+                        {isCopiedCoord ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-500" />
+                            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">คัดลอกแล้ว</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5 text-slate-400" />
+                            <span>คัดลอกพิกัด</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ) : (originPlace || destinationPlace || activeRoute) ? (
+                  /* 2. เมื่อกำลังค้นหาเส้นทาง: แสดง MeMapsDirectionsPanel */
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-100">
+                        <Navigation className="w-3.5 h-3.5 text-blue-500" />
+                        <span>ค้นหาเส้นทาง</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onSelectOrigin?.(null);
+                          onSelectDestination?.(null);
+                          onRouteCalculated?.(null);
+                        }}
+                        className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        title="ปิดการค้นหาเส้นทาง"
+                        aria-label="ปิดการค้นหาเส้นทาง"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <MeMapsDirectionsPanel
+                      originPlace={originPlace || null}
+                      destinationPlace={destinationPlace || null}
+                      onSelectOrigin={onSelectOrigin || (() => {})}
+                      onSelectDestination={onSelectDestination || (() => {})}
+                      onRouteCalculated={onRouteCalculated || (() => {})}
+                    />
+                  </div>
+                ) : (
+                  /* 3. หน้าแรกสำรวจ: แสดงผลการค้นหา หรือ แท็บสลับ [สำรวจ/หมวดหมู่] และ [หมุดที่บันทึกไว้] */
+                  <div className="space-y-3">
+                    {/* Navigation Segment Tabs: สำรวจ & หมุดที่บันทึกไว้ */}
+                    <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60">
+                      <button
+                        type="button"
+                        onClick={() => setMobileSavedTab('explore')}
+                        className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 ${
+                          mobileSavedTab === 'explore'
+                            ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                        }`}
+                      >
+                        <Compass className="w-3.5 h-3.5" />
+                        <span>สำรวจ &amp; หมวดหมู่</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMobileSavedTab('saved')}
+                        className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 ${
+                          mobileSavedTab === 'saved'
+                            ? 'bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 shadow-xs'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                        }`}
+                      >
+                        <Bookmark className="w-3.5 h-3.5 text-amber-500" />
+                        <span>สถานที่ที่บันทึกไว้</span>
+                      </button>
+                    </div>
+
+                    {mobileSavedTab === 'saved' ? (
+                      <MeMapsSavedPlacesPanel
+                        key={savedPlacesRefresh}
+                        onSelectPlace={(p) => {
+                          handleSelectSearchResult(p);
+                        }}
+                        onSetAsDestination={(p) => {
+                          onSelectDestination?.(p);
+                          if (onFlyToLocation) onFlyToLocation(p.lat, p.lng, 16);
+                        }}
+                      />
+                    ) : (
+                      <>
+                        {/* Search Results or Categories & Benchmarks */}
+                        {(searchQuery.trim().length > 0 || selectedCategory !== null) ? (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                              <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-200">
+                                {selectedCategory ? (
+                                  <>
+                                    <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
+                                    <span>หมวด: {MAP_CATEGORIES.find(c => c.id === selectedCategory)?.label || selectedCategory} ({searchResults.length})</span>
+                                  </>
+                                ) : (
+                                  <span>ผลการค้นหา ({searchResults.length})</span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {isSearching && <Loader2 className="w-3 h-3 animate-spin text-blue-500" />}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedCategory(null);
+                                    setSearchQuery('');
+                                    setSearchQueryRef.current?.('');
+                                    setSearchResults([]);
+                                    onCategoryPlacesChange?.([]);
+                                  }}
+                                  className="text-[10px] text-blue-500 hover:text-blue-600 dark:text-blue-400 font-semibold transition hover:underline"
+                                >
+                                  ← ดูทุกหมวด
+                                </button>
+                              </div>
+                            </div>
+                            {searchResults.length === 0 ? (
+                              <div className="p-4 text-center text-xs text-slate-400">
+                                {isSearching ? 'กำลังค้นหาพิกัด...' : 'ไม่พบสถานที่ที่ตรงกับคำค้น'}
+                              </div>
+                            ) : (
+                              <div className="max-h-64 overflow-y-auto space-y-1 pr-1">
+                                {searchResults.map((place) => (
+                                  <button
+                                    key={place.id}
+                                    type="button"
+                                    onClick={() => handleSelectSearchResult(place)}
+                                    className="w-full text-left p-2 rounded-xl hover:bg-blue-50/80 dark:hover:bg-blue-950/40 border border-transparent hover:border-blue-200 dark:hover:border-blue-800 flex items-start gap-2.5 transition duration-150 ease-spring active:scale-95"
+                                  >
+                                    <div className="mt-0.5">{getCategoryIcon(place.category)}</div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate flex items-center justify-between">
+                                        <span>{place.name}</span>
+                                        <span className="text-[10px] text-slate-400 font-mono ml-1.5 font-normal">
+                                          {place.lat.toFixed(4)}, {place.lng.toFixed(4)}
+                                        </span>
+                                      </div>
+                                      {place.description && (
+                                        <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                                          {place.description}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {/* Recent Searches */}
+                            {recentSearches.length > 0 && (
+                              <div className="space-y-1.5">
+                                <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="w-3 h-3 text-slate-400" />
+                                    <span>ประวัติการค้นหาล่าสุด</span>
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={clearRecentSearches}
+                                    className="text-[10px] text-slate-400 hover:text-rose-500 transition font-normal"
+                                  >
+                                    ล้างประวัติ
+                                  </button>
+                                </div>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {recentSearches.map((item) => (
+                                    <button
+                                      key={item.id}
+                                      type="button"
+                                      onClick={() => handleSelectSearchResult(item)}
+                                      className="py-1 px-2.5 rounded-lg text-xs bg-slate-100 dark:bg-slate-800/80 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-1.5 transition active:scale-95"
+                                    >
+                                      <Clock className="w-3 h-3 opacity-60 shrink-0" />
+                                      <span className="truncate max-w-[140px]">{item.name}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* หมวดหมู่ (Categories 8 หมวด) */}
+                            <div className="space-y-1.5">
+                              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                                <span>หมวดหมู่แนะนำ</span>
+                              </span>
+                              <div className="grid grid-cols-4 gap-1.5">
+                                {MAP_CATEGORIES.map((cat) => {
+                                  const IconComponent = cat.icon;
+                                  return (
+                                    <button
+                                      key={cat.id}
+                                      type="button"
+                                      onClick={() => handleSelectCategory(cat)}
+                                      className="p-2 rounded-xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:border-blue-300 text-center transition active:scale-95 flex flex-col items-center justify-center gap-1"
+                                    >
+                                      <IconComponent className="w-4 h-4 text-blue-500 shrink-0" />
+                                      <span className="text-[10px] font-medium text-slate-700 dark:text-slate-300 truncate w-full">
+                                        {cat.label}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* หมุดอ้างอิงแนะนำ (Survey Reference Benchmarks) */}
+                            <div className="space-y-1.5 pt-1 border-t border-slate-100 dark:border-slate-800/80">
+                              <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                                <span className="flex items-center gap-1">
+                                  <Compass className="w-3 h-3 text-emerald-500" />
+                                  <span>หมุดอ้างอิงแนะนำ (วศ.สำรวจ มก. &amp; กรมแผนที่ทหาร)</span>
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSelectCategory(MAP_CATEGORIES.find(c => c.id === 'survey') || MAP_CATEGORIES[7])}
+                                  className="text-[10px] text-blue-500 hover:text-blue-600 dark:text-blue-400 font-normal transition hover:underline"
+                                >
+                                  ดูทั้งหมด →
+                                </button>
+                              </div>
+                              <div className="space-y-1">
+                                {THAI_PRESET_PLACES.filter(p => p.category === 'survey').slice(0, 4).map((bm) => (
+                                  <button
+                                    key={bm.id}
+                                    type="button"
+                                    onClick={() => handleSelectSearchResult(bm)}
+                                    className="w-full text-left p-1.5 rounded-xl hover:bg-emerald-50/80 dark:hover:bg-emerald-950/30 border border-transparent hover:border-emerald-200 dark:hover:border-emerald-800 flex items-center justify-between transition active:scale-95"
+                                  >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      <Compass className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                      <div className="truncate">
+                                        <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 block truncate">
+                                          {bm.name}
+                                        </span>
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-500 block truncate">
+                                          {bm.address || bm.description}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    {bm.elevation !== undefined && (
+                                      <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0 ml-1.5 px-1.5 py-0.5 rounded bg-emerald-100/60 dark:bg-emerald-950/60">
+                                        {bm.elevation.toFixed(3)} ม.
+                                      </span>
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
                 )}
               </div>
             )}
