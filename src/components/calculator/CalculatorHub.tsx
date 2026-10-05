@@ -192,7 +192,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       {/* ── Hero Section (Streamlined Banner matching Knowledge Hub) ── */}
       <div className="space-y-2">
         <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-1)] tracking-tight">
-          เครื่องมือคำนวณ / Calculator Hub
+          Tools
         </h1>
         <p className="text-[var(--text-2)] text-sm max-w-3xl leading-relaxed">
           เลือกเครื่องมือทางวิศวกรรมสำรวจที่ต้องการใช้งานเพื่อเปิดหน้าต่างทำงานเต็มรูปแบบ รองรับทั้งงานคำนวณคณิตศาสตร์ งานระดับ วงรอบ แปลงพิกัด และที่ดิน

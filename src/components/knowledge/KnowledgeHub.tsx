@@ -265,7 +265,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
           {/* ── Hero Section (Streamlined Banner) ── */}
           <div className="space-y-2">
             <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-1)] tracking-tight">
-              คู่มือสำรวจ / Knowledge Hub
+              Knowledge Hub
             </h1>
             <p className="text-[var(--text-2)] text-sm max-w-3xl leading-relaxed">
               มาตรฐานการตั้งกล้อง ขั้นตอนการรังวัดภาคสนาม สมการปรับแก้ความคลาดเคลื่อน และขั้นตอนการใช้งานเครื่องมือสำรวจตามเกณฑ์วิศวกรรมสำรวจและภูมิสารสนเทศ

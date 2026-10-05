@@ -181,7 +181,6 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <BookOpen className="w-4 h-4 shrink-0" />
             <span>คู่มือสำรวจ</span>
-            <span className="hidden md:inline font-mono text-xs text-[var(--text-3)]">Knowledge</span>
           </button>
 
           <button
@@ -193,7 +192,6 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Calculator className="w-4 h-4 shrink-0" />
             <span>คำนวณ</span>
-            <span className="hidden md:inline font-mono text-xs text-[var(--text-3)]">Calculator</span>
           </button>
 
           <button
