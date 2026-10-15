@@ -3,27 +3,30 @@ import { Upload, FileText, CheckCircle2, AlertTriangle, RefreshCw, Trash2 } from
 import { parseRinexText, type RinexParseResult, SAMPLE_RINEX_BASE, SAMPLE_RINEX_ROVER } from '../../utils/rinex-parser';
 
 interface RinexUploadPanelProps {
-  baseRinex: RinexParseResult;
-  roverRinex: RinexParseResult;
+  baseRinex: RinexParseResult | null;
+  roverRinex: RinexParseResult | null;
+  baseFileName?: string;
+  roverFileName?: string;
   onBaseLoaded: (result: RinexParseResult, filename: string) => void;
   onRoverLoaded: (result: RinexParseResult, filename: string) => void;
   onResetSample: () => void;
+  onClearFiles?: () => void;
 }
 
 export const RinexUploadPanel: React.FC<RinexUploadPanelProps> = ({
   baseRinex,
   roverRinex,
+  baseFileName = '',
+  roverFileName = '',
   onBaseLoaded,
   onRoverLoaded,
-  onResetSample
+  onResetSample,
+  onClearFiles
 }) => {
   const baseFileInputRef = useRef<HTMLInputElement>(null);
   const roverFileInputRef = useRef<HTMLInputElement>(null);
 
-  const [baseFileName, setBaseFileName] = useState<string>('SAMPLE_BASE_KU01.23O');
-  const [roverFileName, setRoverFileName] = useState<string>('SAMPLE_ROVER_ROV1.23O');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const [showPasteModal, setShowPasteModal] = useState<'base' | 'rover' | null>(null);
   const [pastedText, setPastedText] = useState<string>('');
 
@@ -36,10 +39,8 @@ export const RinexUploadPanel: React.FC<RinexUploadPanelProps> = ({
       const text = await file.text();
       const parsed = parseRinexText(text);
       if (target === 'base') {
-        setBaseFileName(file.name);
         onBaseLoaded(parsed, file.name);
       } else {
-        setRoverFileName(file.name);
         onRoverLoaded(parsed, file.name);
       }
     } catch (err: any) {
@@ -55,10 +56,8 @@ export const RinexUploadPanel: React.FC<RinexUploadPanelProps> = ({
     try {
       const parsed = parseRinexText(pastedText);
       if (showPasteModal === 'base') {
-        setBaseFileName('PASTED_BASE_RINEX.txt');
         onBaseLoaded(parsed, 'PASTED_BASE_RINEX.txt');
       } else {
-        setRoverFileName('PASTED_ROVER_RINEX.txt');
         onRoverLoaded(parsed, 'PASTED_ROVER_RINEX.txt');
       }
       setShowPasteModal(null);
@@ -81,14 +80,26 @@ export const RinexUploadPanel: React.FC<RinexUploadPanelProps> = ({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={onResetSample}
-          className="self-start sm:self-center px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-2)] hover:text-[var(--text-1)] border border-[var(--border)] text-xs font-semibold flex items-center gap-1.5 transition-colors"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-          <span>คืนค่าตัวอย่าง (Load Sample)</span>
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          {(baseRinex || roverRinex) && onClearFiles && (
+            <button
+              type="button"
+              onClick={onClearFiles}
+              className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-rose-500/10 hover:text-rose-500 text-[var(--text-2)] border border-[var(--border)] text-xs font-semibold flex items-center gap-1.5 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>ล้างไฟล์ (Clear)</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onResetSample}
+            className="self-start sm:self-center px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-2)] hover:text-[var(--text-1)] border border-[var(--border)] text-xs font-semibold flex items-center gap-1.5 transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>โหลดตัวอย่าง (Load Sample)</span>
+          </button>
+        </div>
       </div>
 
       {errorMessage && (
@@ -105,19 +116,26 @@ export const RinexUploadPanel: React.FC<RinexUploadPanelProps> = ({
         <div className="p-4 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] space-y-3">
           <div className="flex items-center justify-between">
             <span className="font-bold text-xs text-[var(--text-1)] flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span className={`w-2 h-2 rounded-full ${baseRinex ? 'bg-emerald-500' : 'bg-[var(--text-3)]'}`} />
               <span>ไฟล์สถานีฐาน (Base Station RINEX)</span>
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--text-3)] border border-[var(--border)]">
-              {baseRinex.header.markerName}
+              {baseRinex ? baseRinex.header.markerName : 'ยังไม่ได้เลือกไฟล์'}
             </span>
           </div>
 
-          <div className="text-xs space-y-1 font-mono text-[var(--text-2)] bg-[var(--surface)] p-2.5 rounded-lg border border-[var(--border)]">
-            <div className="truncate"><b>ไฟล์:</b> {baseFileName}</div>
-            <div><b>Receiver:</b> {baseRinex.header.receiverType}</div>
-            <div><b>Epochs:</b> {baseRinex.totalEpochs} ({baseRinex.durationMinutes} นาที) | <b>Sats:</b> {baseRinex.satellitesTracked.length} ดวง</div>
-          </div>
+          {baseRinex ? (
+            <div className="text-xs space-y-1 font-mono text-[var(--text-2)] bg-[var(--surface)] p-2.5 rounded-lg border border-[var(--border)]">
+              <div className="truncate"><b>ไฟล์:</b> {baseFileName || 'Base RINEX File'}</div>
+              <div><b>Receiver:</b> {baseRinex.header.receiverType || '-'}</div>
+              <div><b>Epochs:</b> {baseRinex.totalEpochs} ({baseRinex.durationMinutes} นาที) | <b>Sats:</b> {baseRinex.satellitesTracked.length} ดวง</div>
+            </div>
+          ) : (
+            <div className="text-xs text-[var(--text-3)] bg-[var(--surface)]/60 p-3.5 rounded-lg border border-dashed border-[var(--border)] flex flex-col items-center justify-center text-center space-y-1">
+              <span className="font-semibold text-[var(--text-2)]">ยังไม่มีไฟล์สถานีฐาน (Blank)</span>
+              <span className="text-[11px]">เลือกไฟล์ .obs / .rnx หรือวางข้อความ RINEX</span>
+            </div>
+          )}
 
           <div className="flex items-center gap-2 pt-1">
             <input
@@ -133,7 +151,7 @@ export const RinexUploadPanel: React.FC<RinexUploadPanelProps> = ({
               className="flex-1 py-1.5 px-3 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-3)] border border-[var(--border)] text-[var(--text-1)] font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm micro-press"
             >
               <Upload className="w-3.5 h-3.5 text-[var(--accent)]" />
-              <span>เลือกไฟล์ Base RINEX</span>
+              <span>{baseRinex ? 'เปลี่ยนไฟล์ Base' : 'เลือกไฟล์ Base RINEX'}</span>
             </button>
             <button
               type="button"
@@ -150,19 +168,26 @@ export const RinexUploadPanel: React.FC<RinexUploadPanelProps> = ({
         <div className="p-4 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] space-y-3">
           <div className="flex items-center justify-between">
             <span className="font-bold text-xs text-[var(--text-1)] flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-cyan-400" />
+              <span className={`w-2 h-2 rounded-full ${roverRinex ? 'bg-cyan-400' : 'bg-[var(--text-3)]'}`} />
               <span>ไฟล์สถานีรังวัด (Rover Station RINEX)</span>
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--text-3)] border border-[var(--border)]">
-              {roverRinex.header.markerName}
+              {roverRinex ? roverRinex.header.markerName : 'ยังไม่ได้เลือกไฟล์'}
             </span>
           </div>
 
-          <div className="text-xs space-y-1 font-mono text-[var(--text-2)] bg-[var(--surface)] p-2.5 rounded-lg border border-[var(--border)]">
-            <div className="truncate"><b>ไฟล์:</b> {roverFileName}</div>
-            <div><b>Receiver:</b> {roverRinex.header.receiverType}</div>
-            <div><b>Epochs:</b> {roverRinex.totalEpochs} ({roverRinex.durationMinutes} นาที) | <b>Sats:</b> {roverRinex.satellitesTracked.length} ดวง</div>
-          </div>
+          {roverRinex ? (
+            <div className="text-xs space-y-1 font-mono text-[var(--text-2)] bg-[var(--surface)] p-2.5 rounded-lg border border-[var(--border)]">
+              <div className="truncate"><b>ไฟล์:</b> {roverFileName || 'Rover RINEX File'}</div>
+              <div><b>Receiver:</b> {roverRinex.header.receiverType || '-'}</div>
+              <div><b>Epochs:</b> {roverRinex.totalEpochs} ({roverRinex.durationMinutes} นาที) | <b>Sats:</b> {roverRinex.satellitesTracked.length} ดวง</div>
+            </div>
+          ) : (
+            <div className="text-xs text-[var(--text-3)] bg-[var(--surface)]/60 p-3.5 rounded-lg border border-dashed border-[var(--border)] flex flex-col items-center justify-center text-center space-y-1">
+              <span className="font-semibold text-[var(--text-2)]">ยังไม่มีไฟล์สถานีรังวัด (Blank)</span>
+              <span className="text-[11px]">เลือกไฟล์ .obs / .rnx หรือวางข้อความ RINEX</span>
+            </div>
+          )}
 
           <div className="flex items-center gap-2 pt-1">
             <input
@@ -178,7 +203,7 @@ export const RinexUploadPanel: React.FC<RinexUploadPanelProps> = ({
               className="flex-1 py-1.5 px-3 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-3)] border border-[var(--border)] text-[var(--text-1)] font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm micro-press"
             >
               <Upload className="w-3.5 h-3.5 text-cyan-400" />
-              <span>เลือกไฟล์ Rover RINEX</span>
+              <span>{roverRinex ? 'เปลี่ยนไฟล์ Rover' : 'เลือกไฟล์ Rover RINEX'}</span>
             </button>
             <button
               type="button"

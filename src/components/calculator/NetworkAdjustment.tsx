@@ -62,21 +62,17 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
   // ─────────────────────────────────────────────────────────────────────────
   // 1. RINEX INGESTION STATE
   // ─────────────────────────────────────────────────────────────────────────
-  const [baseRinex, setBaseRinex] = useState<RinexParseResult>(() => parseRinexText(SAMPLE_RINEX_BASE));
-  const [roverRinex, setRoverRinex] = useState<RinexParseResult>(() => parseRinexText(SAMPLE_RINEX_ROVER));
+  const [baseRinex, setBaseRinex] = useState<RinexParseResult | null>(null);
+  const [roverRinex, setRoverRinex] = useState<RinexParseResult | null>(null);
+  const [baseFileName, setBaseFileName] = useState<string>('');
+  const [roverFileName, setRoverFileName] = useState<string>('');
   const [selectedStationView, setSelectedStationView] = useState<'base' | 'rover'>('base');
   const [constellationFilter, setConstellationFilter] = useState<string>('ALL');
 
   // ─────────────────────────────────────────────────────────────────────────
   // 2. BASELINE PROCESSING STATE
   // ─────────────────────────────────────────────────────────────────────────
-  const [baselineSolution, setBaselineSolution] = useState<BaselineSolution | null>(() => {
-    try {
-      return solveStaticBaseline(parseRinexText(SAMPLE_RINEX_BASE), parseRinexText(SAMPLE_RINEX_ROVER));
-    } catch {
-      return null;
-    }
-  });
+  const [baselineSolution, setBaselineSolution] = useState<BaselineSolution | null>(null);
   const [elevMask, setElevMask] = useState<number>(15);
   const [baselineError, setBaselineError] = useState<string | null>(null);
 
@@ -99,6 +95,7 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
   } = useSurveyStore();
 
   const [result2D, setResult2D] = useState<Network2DAdjustmentResult | null>(() => {
+    if (stations2D.length === 0 || obs2D.length === 0) return null;
     try {
       return adjust2DNetwork(stations2D, obs2D);
     } catch {
@@ -107,6 +104,7 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
   });
 
   const [result1D, setResult1D] = useState<LevelingAdjustmentResult | null>(() => {
+    if (points1D.length === 0 || obs1D.length === 0) return null;
     try {
       return adjust1DLevelingNetwork(points1D, obs1D);
     } catch {
@@ -118,6 +116,10 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
   // Re-solve Baseline
   const handleSolveBaseline = () => {
     setBaselineError(null);
+    if (!baseRinex || !roverRinex) {
+      setBaselineError('กรุณานำเข้าหรือเลือกไฟล์ RINEX ของทั้ง Base และ Rover ก่อนคำนวณเวกเตอร์ฐาน');
+      return;
+    }
     try {
       const sol = solveStaticBaseline(baseRinex, roverRinex, { elevationMaskDeg: elevMask });
       setBaselineSolution(sol);
@@ -140,7 +142,7 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
     // Extract real Base Station coordinates from parsed RINEX header if available
     let baseRefE = 669500.0;
     let baseRefN = 1531000.0;
-    if (baseRinex.header.approxGeodetic) {
+    if (baseRinex && baseRinex.header.approxGeodetic) {
       const utm = forwardWgs84ToUtm(baseRinex.header.approxGeodetic.lat, baseRinex.header.approxGeodetic.lng);
       baseRefE = Math.round(utm.easting * 1000) / 1000;
       baseRefN = Math.round(utm.northing * 1000) / 1000;
@@ -211,11 +213,23 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
     const rov = parseRinexText(SAMPLE_RINEX_ROVER);
     setBaseRinex(base);
     setRoverRinex(rov);
+    setBaseFileName('SAMPLE_BASE_KU01.23O');
+    setRoverFileName('SAMPLE_ROVER_ROV1.23O');
     try {
       setBaselineSolution(solveStaticBaseline(base, rov, { elevationMaskDeg: elevMask }));
     } catch {
       setBaselineSolution(null);
     }
+  };
+
+  // Clear RINEX files back to blank state
+  const handleClearRinex = () => {
+    setBaseRinex(null);
+    setRoverRinex(null);
+    setBaseFileName('');
+    setRoverFileName('');
+    setBaselineSolution(null);
+    setBaselineError(null);
   };
 
   // Reset Network Adjustment to Sample Data
@@ -366,10 +380,10 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
   };
 
   const activeRinex = selectedStationView === 'base' ? baseRinex : roverRinex;
-  const filteredSatellites = activeRinex.satellitesTracked.filter(s => {
+  const filteredSatellites = activeRinex ? activeRinex.satellitesTracked.filter(s => {
     if (constellationFilter === 'ALL') return true;
     return s.constellation.toUpperCase() === constellationFilter;
-  });
+  }) : [];
 
   return (
     <div className="space-y-6">
@@ -500,44 +514,90 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
           <RinexUploadPanel
             baseRinex={baseRinex}
             roverRinex={roverRinex}
-            onBaseLoaded={(res) => {
+            baseFileName={baseFileName}
+            roverFileName={roverFileName}
+            onBaseLoaded={(res, filename) => {
               setBaseRinex(res);
+              setBaseFileName(filename);
+              setSelectedStationView('base');
               setBaselineSolution(null);
             }}
-            onRoverLoaded={(res) => {
+            onRoverLoaded={(res, filename) => {
               setRoverRinex(res);
+              setRoverFileName(filename);
+              setSelectedStationView('rover');
               setBaselineSolution(null);
             }}
             onResetSample={handleResetRinexSample}
+            onClearFiles={handleClearRinex}
           />
           
-          {/* Station Switcher & Metadata Header */}
-          <div className="fusion-card p-5 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border)]">
-              <div className="flex items-center gap-2">
+          {!baseRinex && !roverRinex ? (
+            <div className="fusion-card p-8 sm:p-12 text-center space-y-4 border-dashed border-2">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-[var(--surface-2)] flex items-center justify-center text-[var(--accent)] border border-[var(--border)]">
+                <Satellite className="w-8 h-8 opacity-75" />
+              </div>
+              <div className="space-y-1.5 max-w-md mx-auto">
+                <h3 className="text-base font-bold text-[var(--text-1)]">
+                  ยังไม่มีข้อมูลไฟล์ดาวเทียม RINEX (Blank Workspace)
+                </h3>
+                <p className="text-xs text-[var(--text-2)] leading-relaxed">
+                  นำเข้าไฟล์ Observation RINEX ของสถานีฐาน (Base) และสถานีรังวัด (Rover) ด้านบน เพื่อตรวจสอบ Polar Skyplot และกลุ่มดาวเทียม หรือกดปุ่มด้านล่างเพื่อทดลองด้วยไฟล์ตัวอย่าง
+                </p>
+              </div>
+              <div className="pt-2 flex justify-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setSelectedStationView('base')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all micro-press ${
-                    selectedStationView === 'base'
-                      ? 'bg-[var(--accent)] text-black dark:text-white shadow-sm'
-                      : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text-1)]'
-                  }`}
+                  onClick={handleResetRinexSample}
+                  className="px-4 py-2 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-[var(--border)] text-xs font-semibold text-[var(--text-1)] flex items-center gap-2 transition-colors micro-press shadow-sm"
                 >
-                  สถานีฐาน (Base Station: {baseRinex.header.markerName})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedStationView('rover')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all micro-press ${
-                    selectedStationView === 'rover'
-                      ? 'bg-[var(--accent)] text-black dark:text-white shadow-sm'
-                      : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text-1)]'
-                  }`}
-                >
-                  สถานีรังวัด (Rover Station: {roverRinex.header.markerName})
+                  <RefreshCw className="w-3.5 h-3.5 text-[var(--accent)]" />
+                  <span>โหลดข้อมูลตัวอย่าง RINEX (Load Sample)</span>
                 </button>
               </div>
+            </div>
+          ) : !activeRinex ? (
+            <div className="fusion-card p-6 text-center space-y-2 border-dashed border">
+              <p className="text-xs text-[var(--text-2)]">
+                สถานีที่เลือก ({selectedStationView === 'base' ? 'ฐาน (Base)' : 'รังวัด (Rover)'}) ยังไม่ได้นำเข้าไฟล์
+              </p>
+              <button
+                type="button"
+                onClick={() => setSelectedStationView(baseRinex ? 'base' : 'rover')}
+                className="text-xs text-[var(--accent)] underline font-semibold"
+              >
+                สลับไปดูสถานี {baseRinex ? 'ฐาน (Base)' : 'รังวัด (Rover)'}
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Station Switcher & Metadata Header */}
+              <div className="fusion-card p-5 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border)]">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedStationView('base')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all micro-press ${
+                        selectedStationView === 'base'
+                          ? 'bg-[var(--accent)] text-black dark:text-white shadow-sm'
+                          : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text-1)]'
+                      }`}
+                    >
+                      สถานีฐาน (Base: {baseRinex ? baseRinex.header.markerName : 'ยังไม่มีไฟล์'})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedStationView('rover')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all micro-press ${
+                        selectedStationView === 'rover'
+                          ? 'bg-[var(--accent)] text-black dark:text-white shadow-sm'
+                          : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text-1)]'
+                      }`}
+                    >
+                      สถานีรังวัด (Rover: {roverRinex ? roverRinex.header.markerName : 'ยังไม่มีไฟล์'})
+                    </button>
+                  </div>
 
               <div className="flex items-center gap-2 text-xs font-mono">
                 <span className="text-[var(--text-3)]">Constellation:</span>
@@ -721,6 +781,8 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
             </div>
 
           </div>
+          </>
+          )}
 
         </div>
       )}
@@ -740,7 +802,11 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
                   <span>คำนวณเวกเตอร์ฐานสัมพันธ์ (Carrier-Phase Double Difference)</span>
                 </h2>
                 <p className="text-xs text-[var(--text-2)]">
-                  จับคู่สถานี {baseRinex.header.markerName} (Base) ↔ {roverRinex.header.markerName} (Rover) เพื่อหาเวกเตอร์สัมพัทธ์และความแปรปรวน
+                  {baseRinex && roverRinex ? (
+                    <>จับคู่สถานี {baseRinex.header.markerName} (Base) ↔ {roverRinex.header.markerName} (Rover) เพื่อหาเวกเตอร์สัมพัทธ์และความแปรปรวน</>
+                  ) : (
+                    <>ต้องการไฟล์ RINEX ของทั้งสถานีฐาน (Base) และสถานีรังวัด (Rover) เพื่อคำนวณ</>
+                  )}
                 </p>
               </div>
 
@@ -761,7 +827,8 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
                 <button
                   type="button"
                   onClick={handleSolveBaseline}
-                  className="px-3.5 py-1.5 rounded-[var(--btn-radius)] bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5 micro-press"
+                  disabled={!baseRinex || !roverRinex}
+                  className="px-3.5 py-1.5 rounded-[var(--btn-radius)] bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5 micro-press"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   <span>คำนวณเวกเตอร์ฐาน (Solve)</span>
@@ -777,8 +844,61 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
             </div>
           )}
 
-          {/* Baseline Solution Results Dashboard */}
-          {baselineSolution && (
+          {!baseRinex || !roverRinex ? (
+            <div className="fusion-card p-8 sm:p-12 text-center space-y-4 border-dashed border-2">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-[var(--surface-2)] flex items-center justify-center text-emerald-500 border border-[var(--border)]">
+                <Radio className="w-8 h-8 opacity-75" />
+              </div>
+              <div className="space-y-1.5 max-w-md mx-auto">
+                <h3 className="text-base font-bold text-[var(--text-1)]">
+                  ยังไม่มีไฟล์ RINEX สำหรับคำนวณเวกเตอร์ฐาน (Blank Workspace)
+                </h3>
+                <p className="text-xs text-[var(--text-2)] leading-relaxed">
+                  การคำนวณ Double Difference (Carrier-Phase) ต้องใช้ไฟล์ RINEX ของทั้งสถานีฐาน (Base) และสถานีรังวัด (Rover) ร่วมกัน กรุณานำเข้าไฟล์ในขั้นตอนที่ 1 หรือโหลดข้อมูลตัวอย่าง
+                </p>
+              </div>
+              <div className="pt-2 flex flex-wrap justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('ingestion')}
+                  className="px-4 py-2 rounded-xl bg-[var(--accent)] text-black dark:text-white text-xs font-bold flex items-center gap-2 shadow-sm micro-press"
+                >
+                  <span>ไปที่ขั้นตอนที่ 1: นำเข้าไฟล์ RINEX</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResetRinexSample}
+                  className="px-4 py-2 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-[var(--border)] text-xs font-semibold text-[var(--text-1)] flex items-center gap-2 transition-colors micro-press shadow-sm"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>โหลดตัวอย่าง RINEX เพื่อทดสอบ</span>
+                </button>
+              </div>
+            </div>
+          ) : !baselineSolution ? (
+            <div className="fusion-card p-8 text-center space-y-4 border-dashed border-2">
+              <div className="w-14 h-14 mx-auto rounded-2xl bg-[var(--surface-2)] flex items-center justify-center text-[var(--accent)] border border-[var(--border)]">
+                <RefreshCw className="w-6 h-6 opacity-75" />
+              </div>
+              <div className="space-y-1 max-w-md mx-auto">
+                <h3 className="text-sm font-bold text-[var(--text-1)]">
+                  ไฟล์ RINEX พร้อมแล้ว — ยังไม่ได้ประมวลผลเวกเตอร์
+                </h3>
+                <p className="text-xs text-[var(--text-2)]">
+                  กดปุ่ม "คำนวณเวกเตอร์ฐาน (Solve)" ด้านบนเพื่อเริ่มกระบวนการ Carrier-Phase Double Difference (LAMBDA Ambiguity Resolution)
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleSolveBaseline}
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 mx-auto shadow-sm micro-press"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>คำนวณเวกเตอร์ฐานทันที</span>
+              </button>
+            </div>
+          ) : (
             <div className="space-y-6">
               
               {/* Solution Summary Badges */}
@@ -1180,6 +1300,41 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
                 การแปลงความสูงทรงรีจากดาวเทียม ($h$) สู่ระดับความสูงออร์โธเมตริกเทียบระดับน้ำทะเลปานกลาง ($H = h - N$) โดยใช้ค่าความสูงยี่ออยด์ ($N$) ประจำพื้นที่ประเทศไทยของกรมแผนที่ทหาร มีความถูกต้องในแนวดิ่งระดับ &plusmn;3 cm
               </p>
             </div>
+
+            {/* Blank State Notice when no results yet */}
+            {!result2D && !result1D && !baselineSolution && (
+              <div className="p-6 rounded-xl bg-[var(--surface-2)]/50 border border-dashed border-[var(--border)] text-center space-y-3">
+                <div className="w-10 h-10 mx-auto rounded-xl bg-[var(--surface)] flex items-center justify-center text-amber-500">
+                  <ShieldCheck className="w-5 h-5 opacity-75" />
+                </div>
+                <div className="space-y-1 max-w-md mx-auto">
+                  <h4 className="text-xs font-bold text-[var(--text-1)]">
+                    ยังไม่มีข้อมูลรายงานการปรับแก้ (Blank Workspace)
+                  </h4>
+                  <p className="text-[11px] text-[var(--text-3)] leading-relaxed">
+                    เมื่อนำเข้าข้อมูลและกด "คำนวณปรับแก้ (Compute LSA)" ในขั้นตอนที่ 3 ตารางพิกัดปรับแก้, วงรีความคลาดเคลื่อน 95% และแผนที่โครงข่ายจะแสดงในหน้านี้โดยอัตโนมัติ
+                  </p>
+                </div>
+                <div className="pt-1 flex flex-wrap justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('adjustment')}
+                    className="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-black dark:text-white font-bold text-xs flex items-center gap-1.5 shadow-sm micro-press"
+                  >
+                    <span>ไปที่ขั้นตอนที่ 3: ปรับแก้โครงข่าย</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleResetSampleNetwork}
+                    className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-[var(--border)] text-[var(--text-1)] font-semibold text-xs flex items-center gap-1.5 transition-colors"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 text-indigo-500" />
+                    <span>โหลดโครงข่ายตัวอย่าง (2D/1D)</span>
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Final Actions Callout */}
             <div className="pt-2 flex flex-wrap items-center justify-between gap-3 text-xs">

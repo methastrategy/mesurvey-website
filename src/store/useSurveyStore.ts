@@ -396,10 +396,10 @@ export const useSurveyStore = create<SurveyStoreState>()(
 
       // --- Network Adjustment State ---
       networkAdjustmentMode: '2d',
-      networkStations2D: SAMPLE_2D_TRAVERSE_NETWORK.stations,
-      networkObs2D: SAMPLE_2D_TRAVERSE_NETWORK.observations,
-      networkPoints1D: SAMPLE_LEVELING_NETWORK.points,
-      networkObs1D: SAMPLE_LEVELING_NETWORK.observations,
+      networkStations2D: [],
+      networkObs2D: [],
+      networkPoints1D: [],
+      networkObs1D: [],
 
       setNetworkAdjustmentMode: (mode) => set({ networkAdjustmentMode: mode }),
       setNetworkStations2D: (stations) => set({ networkStations2D: stations }),
@@ -418,15 +418,9 @@ export const useSurveyStore = create<SurveyStoreState>()(
 
       clearNetwork: () => {
         set({
-          networkStations2D: [
-            { id: 'BASE', isFixed: true, knownE: 669500.0, knownN: 1531000.0 },
-            { id: 'ROV1', isFixed: false, approxE: 669600.0, approxN: 1531100.0 }
-          ],
+          networkStations2D: [],
           networkObs2D: [],
-          networkPoints1D: [
-            { id: 'BM1', isFixed: true, knownElevation: 100.0 },
-            { id: 'BM2', isFixed: false, approxElevation: 102.0 }
-          ],
+          networkPoints1D: [],
           networkObs1D: []
         });
       },
@@ -501,6 +495,19 @@ export const useSurveyStore = create<SurveyStoreState>()(
     }),
     {
       name: 'mesurv-survey-storage-v1',
+      version: 2,
+      migrate: (persistedState: any, version: number) => {
+        if (version < 2 && persistedState) {
+          return {
+            ...persistedState,
+            networkStations2D: [],
+            networkObs2D: [],
+            networkPoints1D: [],
+            networkObs1D: []
+          };
+        }
+        return persistedState;
+      },
       storage: createJSONStorage(() => localStorage)
     }
   )
