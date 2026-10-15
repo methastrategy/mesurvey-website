@@ -16,7 +16,8 @@ import {
   TrendingUp,
   Download,
   ShieldCheck,
-  Layers
+  Layers,
+  BookOpen
 } from 'lucide-react';
 import {
   adjust1DLevelingNetwork,
@@ -393,14 +394,24 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={handleCopyReport}
-            className="self-start md:self-center px-3.5 py-2 rounded-[var(--btn-radius)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] font-semibold text-xs transition-colors flex items-center gap-2 micro-press"
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>{copied ? 'คัดลอกรายงานแล้ว' : 'คัดลอกรายงานสรุป'}</span>
-          </button>
+          <div className="flex items-center gap-2 flex-wrap self-start md:self-center">
+            <a
+              href="#/knowledge/gnss-rtk-static-survey"
+              className="px-3 py-2 rounded-[var(--btn-radius)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] font-semibold text-xs transition-colors flex items-center gap-1.5 micro-press"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+              <span>คู่มือวิชาการ: การรังวัด GNSS & ปรับแก้โครงข่าย</span>
+            </a>
+
+            <button
+              type="button"
+              onClick={handleCopyReport}
+              className="px-3.5 py-2 rounded-[var(--btn-radius)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] font-semibold text-xs transition-colors flex items-center gap-2 micro-press"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copied ? 'คัดลอกรายงานแล้ว' : 'คัดลอกรายงานสรุป'}</span>
+            </button>
+          </div>
         </div>
 
         {/* ── 4-Step Interactive Workflow Ribbon ── */}

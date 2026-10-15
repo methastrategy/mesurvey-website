@@ -15,7 +15,8 @@ import {
   HelpCircle,
   Download,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  BookOpen
 } from 'lucide-react';
 import { useSurveyStore } from '../../store/useSurveyStore';
 import { parseCadastralCsv, downloadCadastralTemplateCsv } from '../../utils/survey-csv-parser';
@@ -224,32 +225,43 @@ export const LandAreaCalculator: React.FC = () => {
             </p>
           </div>
 
-          {/* Mode Switcher Tabs */}
-          <div className="flex items-center gap-1.5 p-1 rounded-xl border bg-[var(--surface-2)]" style={{ borderColor: 'var(--border)' }}>
-            <button
-              type="button"
-              onClick={() => setActiveMode('polygon')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
-                activeMode === 'polygon'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-[var(--text-2)] hover:text-[var(--text-1)]'
-              }`}
+          {/* Mode Switcher Tabs & Manual Link */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <a
+              href="#/knowledge/closed-loop-traverse"
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition"
+              style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-1)' }}
             >
-              <Eye className="w-3.5 h-3.5" />
-              <span>คำนวณพิกัดรูปแปลง (Polygon)</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveMode('converter')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
-                activeMode === 'converter'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-[var(--text-2)] hover:text-[var(--text-1)]'
-              }`}
-            >
-              <ArrowRightLeft className="w-3.5 h-3.5" />
-              <span>แปลงหน่วยโฉนด (Converter)</span>
-            </button>
+              <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
+              <span>คู่มือวิชาการ: รังวัดแปลงที่ดินและวงรอบ</span>
+            </a>
+
+            <div className="flex items-center gap-1.5 p-1 rounded-xl border bg-[var(--surface-2)]" style={{ borderColor: 'var(--border)' }}>
+              <button
+                type="button"
+                onClick={() => setActiveMode('polygon')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                  activeMode === 'polygon'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'text-[var(--text-2)] hover:text-[var(--text-1)]'
+                }`}
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>คำนวณพิกัดรูปแปลง (Polygon)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveMode('converter')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                  activeMode === 'converter'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'text-[var(--text-2)] hover:text-[var(--text-1)]'
+                }`}
+              >
+                <ArrowRightLeft className="w-3.5 h-3.5" />
+                <span>แปลงหน่วยโฉนด (Converter)</span>
+              </button>
+            </div>
           </div>
         </div>
 
