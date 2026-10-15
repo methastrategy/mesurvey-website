@@ -42,6 +42,10 @@ import {
   type BaselineSolution
 } from '../../utils/gnss-baseline';
 import { EmbeddedNetworkMap } from './EmbeddedNetworkMap';
+import { RinexUploadPanel } from './RinexUploadPanel';
+import { NetworkAdjustmentInputTable } from './NetworkAdjustmentInputTable';
+import { exportToCsv } from '../../utils/csv-export';
+import { inverseUtmToWgs84 } from '../../core/projections';
 
 interface NetworkAdjustmentProps {
   onPlotOnMap?: (lat: number, lng: number, label: string) => void;
@@ -178,6 +182,129 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
     } catch (err) {
       setAdjustmentError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการคำนวณปรับแก้');
     }
+  };
+
+  // Reset RINEX files to default sample
+  const handleResetRinexSample = () => {
+    const base = parseRinexText(SAMPLE_RINEX_BASE);
+    const rov = parseRinexText(SAMPLE_RINEX_ROVER);
+    setBaseRinex(base);
+    setRoverRinex(rov);
+    try {
+      setBaselineSolution(solveStaticBaseline(base, rov, { elevationMaskDeg: elevMask }));
+    } catch {
+      setBaselineSolution(null);
+    }
+  };
+
+  // Reset Network Adjustment to Sample Data
+  const handleResetSampleNetwork = () => {
+    setAdjustmentError(null);
+    if (adjustmentMode === '2d') {
+      setStations2D(SAMPLE_2D_TRAVERSE_NETWORK.stations);
+      setObs2D(SAMPLE_2D_TRAVERSE_NETWORK.observations);
+      try {
+        setResult2D(adjust2DNetwork(SAMPLE_2D_TRAVERSE_NETWORK.stations, SAMPLE_2D_TRAVERSE_NETWORK.observations));
+      } catch {
+        setResult2D(null);
+      }
+    } else {
+      setPoints1D(SAMPLE_LEVELING_NETWORK.points);
+      setObs1D(SAMPLE_LEVELING_NETWORK.observations);
+      try {
+        setResult1D(adjust1DLevelingNetwork(SAMPLE_LEVELING_NETWORK.points, SAMPLE_LEVELING_NETWORK.observations));
+      } catch {
+        setResult1D(null);
+      }
+    }
+  };
+
+  // Clear Network Adjustment Data for fresh custom input
+  const handleClearAllNetwork = () => {
+    setAdjustmentError(null);
+    if (adjustmentMode === '2d') {
+      setStations2D([]);
+      setObs2D([]);
+      setResult2D(null);
+    } else {
+      setPoints1D([]);
+      setObs1D([]);
+      setResult1D(null);
+    }
+  };
+
+  // Export Adjusted Results to CSV
+  const handleExportResultsCsv = () => {
+    if (!result2D) return;
+    exportToCsv({
+      filename: `mesurv_adjusted_network_${new Date().toISOString().slice(0, 10)}`,
+      headers: [
+        'Station_ID',
+        'Status',
+        'Easting_m',
+        'Northing_m',
+        'SigmaE_mm',
+        'SigmaN_mm',
+        'SemiMajor_a_mm',
+        'SemiMinor_b_mm',
+        'Orientation_deg',
+        'Conf95_a95_mm'
+      ],
+      rows: result2D.stations.map(s => [
+        s.id,
+        s.isFixed ? 'FIXED' : 'ADJUSTED',
+        s.easting.toFixed(4),
+        s.northing.toFixed(4),
+        s.sigmaEMm.toFixed(1),
+        s.sigmaNMm.toFixed(1),
+        s.errorEllipse?.semiMajorAxisMm.toFixed(1) ?? '',
+        s.errorEllipse?.semiMinorAxisMm.toFixed(1) ?? '',
+        s.errorEllipse?.orientationDeg.toFixed(1) ?? '',
+        s.errorEllipse?.conf95MajorMm.toFixed(1) ?? ''
+      ])
+    });
+  };
+
+  // Export Adjusted Stations & Error Ellipses to GeoJSON
+  const handleExportGeoJson = () => {
+    if (!result2D) return;
+    const features = result2D.stations.map(s => {
+      const geo = inverseUtmToWgs84(s.easting, s.northing, 47);
+      return {
+        type: 'Feature' as const,
+        geometry: {
+          type: 'Point' as const,
+          coordinates: [geo.lng, geo.lat]
+        },
+        properties: {
+          id: s.id,
+          isFixed: s.isFixed,
+          easting: s.easting,
+          northing: s.northing,
+          sigmaE_mm: s.sigmaEMm,
+          sigmaN_mm: s.sigmaNMm,
+          a95_mm: s.errorEllipse?.conf95MajorMm,
+          b95_mm: s.errorEllipse?.conf95MinorMm,
+          theta_deg: s.errorEllipse?.orientationDeg
+        }
+      };
+    });
+
+    const geoJson = {
+      type: 'FeatureCollection',
+      name: 'MESURV_Adjusted_Network',
+      features
+    };
+
+    const blob = new Blob([JSON.stringify(geoJson, null, 2)], { type: 'application/geo+json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `mesurv_network_stations_${new Date().toISOString().slice(0, 10)}.geojson`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   // Copy Full Comprehensive Report
@@ -337,6 +464,21 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
       {/* ─────────────────────────────────────────────────────────────────── */}
       {activeTab === 'ingestion' && (
         <div className="space-y-6">
+
+          {/* Interactive RINEX Upload Panel */}
+          <RinexUploadPanel
+            baseRinex={baseRinex}
+            roverRinex={roverRinex}
+            onBaseLoaded={(res) => {
+              setBaseRinex(res);
+              setBaselineSolution(null);
+            }}
+            onRoverLoaded={(res) => {
+              setRoverRinex(res);
+              setBaselineSolution(null);
+            }}
+            onResetSample={handleResetRinexSample}
+          />
           
           {/* Station Switcher & Metadata Header */}
           <div className="fusion-card p-5 space-y-4">
@@ -765,6 +907,21 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
             </div>
           )}
 
+          {/* Interactive Stations and Observations Input Panel */}
+          <NetworkAdjustmentInputTable
+            adjustmentMode={adjustmentMode}
+            stations2D={stations2D}
+            obs2D={obs2D}
+            points1D={points1D}
+            obs1D={obs1D}
+            onUpdateStations2D={setStations2D}
+            onUpdateObs2D={setObs2D}
+            onUpdatePoints1D={setPoints1D}
+            onUpdateObs1D={setObs1D}
+            onResetSample={handleResetSampleNetwork}
+            onClearAll={handleClearAllNetwork}
+          />
+
           {/* 2D Results Table */}
           {adjustmentMode === '2d' && result2D && (
             <div className="space-y-6">
@@ -943,7 +1100,29 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                {result2D && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleExportResultsCsv}
+                      className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] font-semibold text-xs flex items-center gap-1.5"
+                      title="ดาวน์โหลดพิกัดปรับแก้และวงรีความคลาดเคลื่อนเป็น CSV"
+                    >
+                      <Download className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>ดาวน์โหลด CSV</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleExportGeoJson}
+                      className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] font-semibold text-xs flex items-center gap-1.5"
+                      title="ดาวน์โหลดโครงข่ายหมุดและวงรีเป็น GeoJSON สำหรับ QGIS / ArcGIS"
+                    >
+                      <Download className="w-3.5 h-3.5 text-[var(--accent)]" />
+                      <span>ดาวน์โหลด GeoJSON</span>
+                    </button>
+                  </>
+                )}
                 <button
                   type="button"
                   onClick={handleCopyReport}
