@@ -207,6 +207,7 @@ export const MeMapsMapControls: React.FC<MeMapsMapControlsProps> = ({
           onClick={onResetNorth}
           className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600 transition-all duration-150 ease-spring hover:scale-105 active:scale-90"
           title="รีเซ็ตทิศเหนือ (Reset North)"
+          aria-label="รีเซ็ตทิศเหนือ"
         >
           <div className="relative w-4 h-4 flex items-center justify-center">
             <Compass className="w-4 h-4 text-rose-500 transition-transform" />

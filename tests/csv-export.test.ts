@@ -66,5 +66,12 @@ describe('Universal CSV Export Utility (csv-export.ts)', () => {
       expect(escapeCsvCell(null)).toBe('');
       expect(escapeCsvCell(undefined)).toBe('');
     });
+
+    it('neutralizes CSV formula injection attempts (=, +, @, \\t)', () => {
+      expect(escapeCsvCell('=SUM(A1:A10)')).toBe("'=SUM(A1:A10)");
+      expect(escapeCsvCell('@cmd|"/C calc"!A0')).toBe('"\'@cmd|""/C calc""!A0"');
+      expect(escapeCsvCell('+12345')).toBe("'+12345");
+      expect(escapeCsvCell(12345)).toBe('12345');
+    });
   });
 });

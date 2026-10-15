@@ -424,7 +424,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
     const popupHtml = `
       <div style="padding: 4px 6px; min-width: 220px;">
         <div style="font-size: 12px; font-weight: 700; color: #f59e0b; margin-bottom: 2px;">
-          📍 ${stationName} (หมุดรังวัด)
+          📍 ${escapeHtml(stationName)} (หมุดรังวัด)
         </div>
         <div style="font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">
           WGS84: ${coordStr}
@@ -987,7 +987,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
         html: `
           <div style="display: flex; flex-direction: column; align-items: center; pointer-events: auto; cursor: pointer; user-select: none;">
             <div style="background: rgba(15, 23, 42, 0.92); color: #ffffff; padding: 2px 7px; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.25); margin-bottom: 2px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); max-width: 170px; overflow: hidden; text-overflow: ellipsis;">
-              ${place.name}
+              ${escapeHtml(place.name)}
             </div>
             <div style="position: relative; width: 34px; height: 38px; display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));">
               <div style="width: 30px; height: 30px; border-radius: 50%; background: #ffffff; border: 2.5px solid ${color}; display: flex; align-items: center; justify-content: center; font-size: 16px; line-height: 1;">
@@ -1463,7 +1463,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
         .bindPopup(
           `<div style="font-size:12px;font-family:'JetBrains Mono',monospace;padding:4px;">
             <strong style="color:${color};">แผ่นดินไหว M ${eq.magnitude.toFixed(1)}</strong><br/>
-            บริเวณ: ${eq.place}<br/>
+            บริเวณ: ${escapeHtml(eq.place)}<br/>
             ความลึกศูนย์เกิดแผ่นดินไหว: ${eq.depthKm.toFixed(1)} km<br/>
             พิกัด: ${eq.lat.toFixed(4)}°, ${eq.lng.toFixed(4)}°
           </div>`
@@ -1746,7 +1746,7 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
       const popupContent = `
         <div style="font-size: 12px; font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; min-width: 200px; padding: 4px 6px;">
           <div style="font-weight: 700; color: #10b981; font-size: 13px; margin-bottom: 4px;">
-            หมุดวงรอบ: ${st.station}
+            หมุดวงรอบ: ${escapeHtml(st.station)}
           </div>
           <div style="color: #0f172a; margin-bottom: 2px;">
             WGS84: ${st.lat.toFixed(6)}, ${st.lng.toFixed(6)}

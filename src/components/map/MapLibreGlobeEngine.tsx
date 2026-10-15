@@ -5,6 +5,7 @@ import { BasemapProvider } from '../../types/map';
 import { PlaceSearchResult } from '../../types/memaps';
 import { forwardWgs84ToUtm } from '../../core/projections';
 import { getCategoryEmoji, getCategoryColor } from '../../core/memaps-services';
+import { escapeHtml } from '../../utils/sanitize';
 
 export interface MapLibreGlobeEngineProps {
   currentBasemap: BasemapProvider;
@@ -316,7 +317,7 @@ export const MapLibreGlobeEngine: React.FC<MapLibreGlobeEngineProps> = ({
     const pinHtml = `
       <div style="display: flex; flex-direction: column; align-items: center; pointer-events: auto; cursor: pointer; user-select: none;">
         <div style="background: rgba(15, 23, 42, 0.94); color: #ffffff; padding: 2px 8px; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.25); margin-bottom: 2px; text-shadow: 0 1px 2px rgba(0,0,0,0.6); max-width: 180px; overflow: hidden; text-overflow: ellipsis;">
-          ${activePlace.name}
+          ${escapeHtml(activePlace.name)}
         </div>
         <div style="position: relative; width: 36px; height: 42px; display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.45));">
           <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 2.5px solid ${color}; display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1;">
@@ -376,7 +377,7 @@ export const MapLibreGlobeEngine: React.FC<MapLibreGlobeEngineProps> = ({
 
       el.innerHTML = `
         <div style="background: rgba(15, 23, 42, 0.92); color: #ffffff; padding: 2px 7px; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.25); margin-bottom: 2px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); max-width: 170px; overflow: hidden; text-overflow: ellipsis;">
-          ${place.name}
+          ${escapeHtml(place.name)}
         </div>
         <div style="position: relative; width: 34px; height: 38px; display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));">
           <div style="width: 30px; height: 30px; border-radius: 50%; background: #ffffff; border: 2.5px solid ${color}; display: flex; align-items: center; justify-content: center; font-size: 16px; line-height: 1;">
