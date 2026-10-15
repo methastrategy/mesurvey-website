@@ -47,7 +47,12 @@ import { DynamicIslandMapLayout } from './layouts/DynamicIslandMapLayout';
 import { FloatingPodsMapLayout } from './layouts/FloatingPodsMapLayout';
 import { MonolithRailMapLayout } from './layouts/MonolithRailMapLayout';
 import { SplitCadMapLayout } from './layouts/SplitCadMapLayout';
-import { MapLibreGlobeEngine } from './MapLibreGlobeEngine';
+import { GeomaticsLoadingFallback } from '../layout/GeomaticsLoadingFallback';
+
+// 3D Globe Engine Isolated Chunk (Only downloaded when 3D mode is toggled)
+const MapLibreGlobeEngine = React.lazy(() =>
+  import('./MapLibreGlobeEngine').then(m => ({ default: m.MapLibreGlobeEngine }))
+);
 
 const WindParticleCanvas = React.lazy(() =>
   import('./WindParticleCanvas').then(m => ({ default: m.WindParticleCanvas }))
@@ -2318,46 +2323,48 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
       <div className={`relative ${mapLayout === 'split-cad' ? 'w-full md:flex-1 h-full' : 'w-full h-full'} overflow-hidden`}>
         {/* 3D Adaptive Globe Viewport (MapLibre GL JS) or 2D Leaflet Engine */}
         {isGlobe3D ? (
-          <MapLibreGlobeEngine
-            currentBasemap={currentBasemap}
-            activePlace={activePlace}
-            categoryPlaces={categoryPlaces}
-            onSelectPlace={(p) => {
-              setActivePlace(p);
-              setIsMenuOpen(true);
-            }}
-            onTelemetryChange={(t) => setTelemetry(t)}
-            onClickMap={(lat, lng) => {
-              setContextMenu(null);
-              const mode = measureModeRef.current;
-              if (mode === 'distance' || mode === 'area' || mode === 'measure') {
-                setMeasurePoints((prev) => [...prev, { lat, lng }]);
-                return;
-              }
-              if (mode === 'inspect') {
-                inspectCoordinate(lat, lng);
-              }
-            }}
-            onContextMenuMap={() => {
-              const mode = measureModeRef.current;
-              if (mode === 'distance' || mode === 'area' || mode === 'measure') {
-                setMeasurePoints((prev) => {
-                  if (prev.length <= 1) {
-                    setMeasurementResultText(null);
-                    return [];
-                  }
-                  return prev.slice(0, -1);
-                });
-                showToast('เลิกทำจุดล่าสุดแล้ว (Right-Click Undo)');
-              }
-            }}
-            flyToLocation={globeFlyTo}
-            liveLocation={liveLocation}
-            measurePoints={measurePoints}
-            measureMode={measureMode}
-            measureSubMode={measureSubMode}
-            isLocked={Boolean(lockedPoint)}
-          />
+          <React.Suspense fallback={<GeomaticsLoadingFallback fullHeight label="กำลังเริ่มต้นการแสดงผล 3D Adaptive Globe..." sublabel="MAPLIBRE 3D ENGINE STREAMING" />}>
+            <MapLibreGlobeEngine
+              currentBasemap={currentBasemap}
+              activePlace={activePlace}
+              categoryPlaces={categoryPlaces}
+              onSelectPlace={(p) => {
+                setActivePlace(p);
+                setIsMenuOpen(true);
+              }}
+              onTelemetryChange={(t) => setTelemetry(t)}
+              onClickMap={(lat, lng) => {
+                setContextMenu(null);
+                const mode = measureModeRef.current;
+                if (mode === 'distance' || mode === 'area' || mode === 'measure') {
+                  setMeasurePoints((prev) => [...prev, { lat, lng }]);
+                  return;
+                }
+                if (mode === 'inspect') {
+                  inspectCoordinate(lat, lng);
+                }
+              }}
+              onContextMenuMap={() => {
+                const mode = measureModeRef.current;
+                if (mode === 'distance' || mode === 'area' || mode === 'measure') {
+                  setMeasurePoints((prev) => {
+                    if (prev.length <= 1) {
+                      setMeasurementResultText(null);
+                      return [];
+                    }
+                    return prev.slice(0, -1);
+                  });
+                  showToast('เลิกทำจุดล่าสุดแล้ว (Right-Click Undo)');
+                }
+              }}
+              flyToLocation={globeFlyTo}
+              liveLocation={liveLocation}
+              measurePoints={measurePoints}
+              measureMode={measureMode}
+              measureSubMode={measureSubMode}
+              isLocked={Boolean(lockedPoint)}
+            />
+          </React.Suspense>
         ) : (
           <>
             {/* Leaflet Map DOM Canvas */}

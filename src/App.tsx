@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { BottomNav } from './components/layout/BottomNav';
 import { AboutModal } from './components/layout/AboutModal';
-import { KnowledgeHub } from './components/knowledge/KnowledgeHub';
-import { CalculatorHub } from './components/calculator/CalculatorHub';
-import { WebMap } from './components/map/WebMap';
+import { GeomaticsLoadingFallback } from './components/layout/GeomaticsLoadingFallback';
+
+// Route-level Dynamic Code Splitting for optimal First Contentful Paint
+const KnowledgeHub = lazy(() => import('./components/knowledge/KnowledgeHub').then(m => ({ default: m.KnowledgeHub })));
+const CalculatorHub = lazy(() => import('./components/calculator/CalculatorHub').then(m => ({ default: m.CalculatorHub })));
+const WebMap = lazy(() => import('./components/map/WebMap').then(m => ({ default: m.WebMap })));
 
 import { parseRouteHash, type MesurvRoute } from './utils/routing';
 
@@ -170,21 +173,23 @@ export function App() {
               : 'max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-8 pb-24 md:pb-16'
           }`}
         >
-          {activeTab === 'knowledge' && (
-            <KnowledgeHub
-              onNavigateTab={handleTabChange}
-              initialTopicId={route.topicId}
-            />
-          )}
-          {activeTab === 'calculator' && (
-            <CalculatorHub
-              onPlotOnMap={handlePlotOnMap}
-              initialSubTab={route.subTab}
-            />
-          )}
-          {activeTab === 'map' && (
-            <WebMap externalPoint={externalMapPoint} />
-          )}
+          <Suspense fallback={<GeomaticsLoadingFallback fullHeight={isFullscreenView || isScientificFullscreen} />}>
+            {activeTab === 'knowledge' && (
+              <KnowledgeHub
+                onNavigateTab={handleTabChange}
+                initialTopicId={route.topicId}
+              />
+            )}
+            {activeTab === 'calculator' && (
+              <CalculatorHub
+                onPlotOnMap={handlePlotOnMap}
+                initialSubTab={route.subTab}
+              />
+            )}
+            {activeTab === 'map' && (
+              <WebMap externalPoint={externalMapPoint} />
+            )}
+          </Suspense>
         </main>
 
         {/* Mobile Bottom Navigation Bar (Hidden on map full screen, scientific mode, and desktop >= md) */}

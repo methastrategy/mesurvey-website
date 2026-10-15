@@ -26,10 +26,10 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('leaflet')) return 'vendor-leaflet';
+            if (id.includes('leaflet') || id.includes('proj4')) return 'vendor-leaflet';
             if (id.includes('maplibre-gl')) return 'vendor-maplibre';
             if (id.includes('lucide-react')) return 'vendor-icons';
-            if (id.includes('react') || id.includes('zustand')) return 'vendor-react';
+            if (id.includes('react') || id.includes('zustand') || id.includes('clsx') || id.includes('tailwind-merge')) return 'vendor-react';
           }
           if (id.includes('src/data/knowledge-topics')) {
             return 'data-knowledge';
