@@ -41,6 +41,7 @@ import {
   solveStaticBaseline,
   type BaselineSolution
 } from '../../utils/gnss-baseline';
+import { EmbeddedNetworkMap } from './EmbeddedNetworkMap';
 
 interface NetworkAdjustmentProps {
   onPlotOnMap?: (lat: number, lng: number, label: string) => void;
@@ -874,6 +875,14 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
                 </div>
               </div>
 
+              {/* Embedded Interactive Network Map */}
+              <EmbeddedNetworkMap
+                stations={result2D.stations}
+                observations={result2D.observations}
+                utmZone={47}
+                title="แผนที่โครงข่ายราบและวงรีความคลาดเคลื่อน 95% (Interactive Network Map)"
+              />
+
             </div>
           )}
 
@@ -981,6 +990,16 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
             </div>
 
           </div>
+
+          {/* Embedded Interactive Network Map in Engineering Report */}
+          {result2D && (
+            <EmbeddedNetworkMap
+              stations={result2D.stations}
+              observations={result2D.observations}
+              utmZone={47}
+              title="แผนที่โครงข่ายหมุดควบคุมและเวกเตอร์รังวัด (Survey Network Geometry)"
+            />
+          )}
 
         </div>
       )}
