@@ -67,11 +67,15 @@ describe('Universal CSV Export Utility (csv-export.ts)', () => {
       expect(escapeCsvCell(undefined)).toBe('');
     });
 
-    it('neutralizes CSV formula injection attempts (=, +, @, \\t)', () => {
+    it('neutralizes CSV formula injection attempts (=, +, @, \\t, non-numeric -)', () => {
       expect(escapeCsvCell('=SUM(A1:A10)')).toBe("'=SUM(A1:A10)");
       expect(escapeCsvCell('@cmd|"/C calc"!A0')).toBe('"\'@cmd|""/C calc""!A0"');
       expect(escapeCsvCell('+12345')).toBe("'+12345");
       expect(escapeCsvCell(12345)).toBe('12345');
+      // Hardened dash injection check:
+      expect(escapeCsvCell('-cmd|"/C calc"!A0')).toBe('"\'-cmd|""/C calc""!A0"');
+      expect(escapeCsvCell('-123.45')).toBe('-123.45'); // Normal negative number preserved
+      expect(escapeCsvCell(-123.45)).toBe('-123.45');
     });
   });
 });

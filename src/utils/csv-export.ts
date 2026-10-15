@@ -17,9 +17,11 @@ export function escapeCsvCell(value: string | number | null | undefined): string
     return '';
   }
   let str = String(value);
-  // Neutralize CSV Formula Injection (DDE) if string starts with formula trigger characters
-  if (typeof value === 'string' && /^[=+@\t\r]/.test(str)) {
-    str = `'${str}`;
+  // Neutralize CSV Formula Injection (DDE) if string starts with formula trigger characters (=, +, @, \t, \r, or non-numeric -)
+  if (typeof value === 'string') {
+    if (/^[=+@\t\r]/.test(str) || (str.startsWith('-') && isNaN(Number(str)))) {
+      str = `'${str}`;
+    }
   }
   if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
     return `"${str.replace(/"/g, '""')}"`;

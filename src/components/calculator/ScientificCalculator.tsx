@@ -91,6 +91,19 @@ export const ScientificCalculator: React.FC<ScientificCalculatorProps> = ({ onBa
       throw new Error('Invalid characters in formula');
     }
 
+    // SAST Taint Guard: Strict Whitelist of Mathematical Tokens to prevent Sandbox Escape
+    const allowedTokens = new Set([
+      'sin', 'cos', 'tan', 'asin', 'acos', 'atan',
+      'sinh', 'cosh', 'tanh', 'sqrt', 'cbrt', 'ln', 'log', 'abs',
+      'PI', 'E'
+    ]);
+    const identifiers = clean.match(/[a-zA-Z_$][a-zA-Z0-9_$]*/g) || [];
+    for (const id of identifiers) {
+      if (!allowedTokens.has(id)) {
+        throw new Error(`ไม่อนุญาตให้ใช้คำสั่ง "${id}" ในสูตรคำนวณ`);
+      }
+    }
+
     const evaluator = new Function(
       'sin', 'cos', 'tan', 'asin', 'acos', 'atan',
       'sinh', 'cosh', 'tanh', 'sqrt', 'cbrt', 'ln', 'log', 'abs', 'PI', 'E',
