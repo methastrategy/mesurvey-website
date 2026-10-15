@@ -22,8 +22,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     },
     {
       id: 'calculator' as const,
-      label: 'เครื่องมือคำนวณ',
-      subLabel: 'Calculators',
+      label: 'เครื่องมือ',
+      subLabel: 'Tools',
       icon: Calculator,
       onClick: () => setActiveTab('calculator'),
       isActive: activeTab === 'calculator',

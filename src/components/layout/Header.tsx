@@ -144,7 +144,7 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => setActiveTab('calculator')}
                 className="hover:text-[var(--text-1)] transition-colors"
               >
-                Calculator
+                เครื่องมือ
               </button>
               <ChevronRight className="w-3.5 h-3.5 shrink-0" />
               <span className="text-[var(--accent)] font-mono font-semibold truncate">
@@ -194,7 +194,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Calculator className="w-4 h-4 shrink-0" />
-            <span>คำนวณ</span>
+            <span>เครื่องมือ</span>
           </button>
 
           <button
