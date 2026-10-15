@@ -259,3 +259,217 @@ export function parseLevelingCsv(text: string): {
 
   return { points, observations, errors };
 }
+
+/**
+ * Parses Leveling Fieldbook CSV into LevelingRowInput items.
+ * Columns: Station, BS(m), IFS(m), FS(m), [Remark]
+ */
+export function parseLevelingFieldbookCsv(text: string): {
+  rows: Array<{ id: string; station: string; bs: number | null; ifs: number | null; fs: number | null; remark?: string }>;
+  errors: string[];
+} {
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const rows: Array<{ id: string; station: string; bs: number | null; ifs: number | null; fs: number | null; remark?: string }> = [];
+  const errors: string[] = [];
+
+  if (lines.length === 0) {
+    return { rows: [], errors: ['ไฟล์ว่างเปล่า กรุณาเลือกไฟล์ที่มีข้อมูล'] };
+  }
+
+  const firstLine = lines[0].toLowerCase();
+  const hasHeader = firstLine.includes('station') || firstLine.includes('bs') || firstLine.includes('fs') || firstLine.includes('สถานี');
+  const startIdx = hasHeader ? 1 : 0;
+
+  for (let i = startIdx; i < lines.length; i++) {
+    const rawLine = lines[i];
+    if (rawLine.startsWith('#')) continue;
+
+    const delimiter = rawLine.includes('\t') ? '\t' : (rawLine.includes(';') ? ';' : ',');
+    const cols = rawLine.split(delimiter).map(c => c.trim().replace(/^["']|["']$/g, ''));
+    if (cols.length < 2) continue;
+
+    const station = cols[0] || `STN-${i + 1}`;
+    const parseNum = (v: string | undefined): number | null => {
+      if (!v || v.trim() === '' || v.trim() === '-' || v.trim() === '—') return null;
+      const num = parseFloat(v);
+      return isNaN(num) ? null : num;
+    };
+
+    const bs = parseNum(cols[1]);
+    const ifs = cols.length > 2 ? parseNum(cols[2]) : null;
+    const fs = cols.length > 3 ? parseNum(cols[3]) : null;
+    const remark = cols.length > 4 ? cols[4] : '';
+
+    rows.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : `row_${i + 1}`,
+      station,
+      bs,
+      ifs,
+      fs,
+      remark
+    });
+  }
+
+  return { rows, errors };
+}
+
+/**
+ * Parses Traverse CSV into TraverseLeg items.
+ * Columns: Station, TargetStation, Distance(m), [Angle_Deg, Angle_Min, Angle_Sec] or [Angle_Decimal]
+ */
+export function parseTraverseCsv(text: string): {
+  legs: Array<{ id: string; station: string; targetStation: string; distance: string; obsD: string; obsM: string; obsS: string }>;
+  errors: string[];
+} {
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const legs: Array<{ id: string; station: string; targetStation: string; distance: string; obsD: string; obsM: string; obsS: string }> = [];
+  const errors: string[] = [];
+
+  if (lines.length === 0) {
+    return { legs: [], errors: ['ไฟล์ว่างเปล่า กรุณาเลือกไฟล์ที่มีข้อมูล'] };
+  }
+
+  const firstLine = lines[0].toLowerCase();
+  const hasHeader = firstLine.includes('station') || firstLine.includes('from') || firstLine.includes('dist') || firstLine.includes('angle');
+  const startIdx = hasHeader ? 1 : 0;
+
+  for (let i = startIdx; i < lines.length; i++) {
+    const rawLine = lines[i];
+    if (rawLine.startsWith('#')) continue;
+
+    const cols = rawLine.split(/[,\t;]+/).map(c => c.trim().replace(/^["']|["']$/g, ''));
+    if (cols.length < 3) {
+      errors.push(`บรรทัดที่ ${i + 1}: ข้อมูลไม่ครบถ้วน (ต้องมี Station, Target, Distance) -> "${rawLine}"`);
+      continue;
+    }
+
+    const station = cols[0];
+    const target = cols[1];
+    const dist = parseFloat(cols[2]);
+    if (isNaN(dist) || dist <= 0) {
+      errors.push(`บรรทัดที่ ${i + 1}: ค่าระยะทางไม่ถูกต้อง -> "${rawLine}"`);
+      continue;
+    }
+
+    let d = '0';
+    let m = '0';
+    let s = '0';
+
+    if (cols.length >= 6) {
+      // Deg, Min, Sec
+      d = cols[3];
+      m = cols[4];
+      s = cols[5];
+    } else if (cols.length >= 4) {
+      // Decimal degrees
+      const dec = parseFloat(cols[3]);
+      if (!isNaN(dec)) {
+        const abs = Math.abs(dec);
+        const deg = Math.floor(abs);
+        const rem = (abs - deg) * 60;
+        const min = Math.floor(rem);
+        const sec = (rem - min) * 60;
+        d = deg.toString();
+        m = min.toString();
+        s = sec.toFixed(1);
+      }
+    }
+
+    legs.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : `leg_${i}`,
+      station,
+      targetStation: target,
+      distance: dist.toFixed(3),
+      obsD: d,
+      obsM: m,
+      obsS: s
+    });
+  }
+
+  return { legs, errors };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TEMPLATE DOWNLOADERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { exportToCsv } from './csv-export';
+
+/**
+ * Downloads a standard 2D Survey Station CSV template with sample row.
+ */
+export function downloadStationsTemplateCsv(): void {
+  exportToCsv({
+    filename: 'template_survey_stations_2d.csv',
+    headers: ['Station_ID', 'Easting_m', 'Northing_m', 'Is_Fixed_Control(TRUE/FALSE)', 'Description'],
+    rows: [
+      ['CK-01', 669500.250, 1531000.500, 'TRUE', 'หมุดหลักฐานอ้างอิงเริ่มต้น (Fixed Control)'],
+      ['STN-02', 669750.800, 1531200.100, 'FALSE', 'หมุดวงรอบปรับแก้ (Adjusted Station)'],
+      ['STN-03', 669900.000, 1530800.000, 'FALSE', 'หมุดวงรอบปรับแก้ (Adjusted Station)']
+    ]
+  });
+}
+
+/**
+ * Downloads a standard 2D Survey Observation CSV template with sample row.
+ */
+export function downloadObservationsTemplateCsv(): void {
+  exportToCsv({
+    filename: 'template_survey_observations_2d.csv',
+    headers: ['Obs_ID', 'Type(distance/azimuth/baseline_vector)', 'From_Station', 'To_Station', 'Value_1(m_or_deg)', 'Value_2(dN_for_GNSS)', 'StdDev(m_or_sec)'],
+    rows: [
+      ['DIST_01', 'distance', 'CK-01', 'STN-02', 254.321, '', 0.005],
+      ['AZ_01', 'azimuth', 'CK-01', 'STN-02', 45.3025, '', 5.0],
+      ['GNSS_01', 'baseline_vector', 'CK-01', 'STN-03', 399.750, -200.500, 0.008]
+    ]
+  });
+}
+
+/**
+ * Downloads a Leveling Fieldbook (HI / Rise & Fall) CSV template with sample rows.
+ */
+export function downloadLevelingFieldbookTemplateCsv(): void {
+  exportToCsv({
+    filename: 'template_leveling_fieldbook.csv',
+    headers: ['Station', 'BS_m', 'IFS_m', 'FS_m', 'Remark'],
+    rows: [
+      ['BM1', 1.542, '', '', 'หมุดเริ่มต้น (Start BM)'],
+      ['TP1', 1.325, '', 1.108, 'หมุดเปลี่ยนจุดตั้งกล้อง 1'],
+      ['TP2', 1.480, '', 1.250, 'หมุดเปลี่ยนจุดตั้งกล้อง 2'],
+      ['BM2', '', '', 1.455, 'หมุดปลายทาง (End BM)']
+    ]
+  });
+}
+
+/**
+ * Downloads a Leveling Run CSV template with sample row.
+ */
+export function downloadLevelingTemplateCsv(): void {
+  exportToCsv({
+    filename: 'template_leveling_run_1d.csv',
+    headers: ['From_BM', 'To_BM', 'DeltaH_m', 'Distance_km', 'StdDev_mm', 'Remark'],
+    rows: [
+      ['BM1', 'BM2', 1.2450, 1.20, 2.0, 'ช่วงเดินระดับ 1'],
+      ['BM2', 'BM3', -0.6500, 0.85, 2.0, 'ช่วงเดินระดับ 2'],
+      ['BM3', 'BM1', -0.5950, 1.10, 2.0, 'ช่วงเดินระดับบรรจบ 3']
+    ]
+  });
+}
+
+/**
+ * Downloads a Traverse Fieldbook CSV template with sample row.
+ */
+export function downloadTraverseTemplateCsv(): void {
+  exportToCsv({
+    filename: 'template_traverse_fieldbook.csv',
+    headers: ['Station', 'Target_Station', 'Distance_m', 'Angle_Deg', 'Angle_Min', 'Angle_Sec', 'Remark'],
+    rows: [
+      ['A', 'B', 125.340, 98, 12, 30, 'หมุด A ส่องหมุด B'],
+      ['B', 'C', 112.880, 101, 45, 15, 'หมุด B ส่องหมุด C'],
+      ['C', 'D', 98.450, 95, 30, 45, 'หมุด C ส่องหมุด D'],
+      ['D', 'E', 108.760, 108, 20, 0, 'หมุด D ส่องหมุด E'],
+      ['E', 'A', 130.120, 136, 11, 30, 'หมุด E บรรจบหมุด A']
+    ]
+  });
+}
+

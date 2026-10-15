@@ -3,10 +3,16 @@ import { calculateLevelingLoop } from '../../core/leveling';
 import { useSurveyStore } from '../../store/useSurveyStore';
 import {
   Plus, Trash2, RotateCcw, CheckCircle2, XCircle, AlertCircle,
-  Download, Save, Eraser, BookOpen, AlertTriangle, ChevronDown, ChevronUp
+  Download, Save, Eraser, BookOpen, AlertTriangle, ChevronDown, ChevronUp,
+  FileSpreadsheet, HelpCircle, Info, Upload
 } from 'lucide-react';
 import { trackEvent } from '../../lib/telemetry';
 import { exportToCsv } from '../../utils/csv-export';
+import {
+  downloadLevelingTemplateCsv,
+  downloadLevelingFieldbookTemplateCsv,
+  parseLevelingFieldbookCsv
+} from '../../utils/survey-csv-parser';
 
 type LevelingMode = 'hi' | 'stadia';
 
@@ -196,11 +202,40 @@ export const LevelingCalculator: React.FC = () => {
     removeLevelingRow,
     resetLevelingToSample,
     clearLeveling,
+    setLevelingRows,
   } = useSurveyStore();
 
   const [mode, setMode] = useState<LevelingMode>('hi');
   const [stadiaRows, setStadiaRows] = useState<StadiaRow[]>(SAMPLE_STADIA);
   const [showResults, setShowResults] = useState(true);
+  const [showFormatGuide, setShowFormatGuide] = useState<boolean>(false);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const content = evt.target?.result as string;
+      if (!content) return;
+
+      const { rows, errors } = parseLevelingFieldbookCsv(content);
+      if (errors.length > 0 && rows.length === 0) {
+        alert(`เกิดข้อผิดพลาดในการอ่านไฟล์:\n${errors.join('\n')}`);
+        return;
+      }
+
+      if (rows.length > 0) {
+        setLevelingRows(rows);
+        if (errors.length > 0) {
+          alert(`นำเข้าสำเร็จ ${rows.length} สถานี (มีข้อผิดพลาดบางบรรทัด:\n${errors.slice(0, 3).join('\n')})`);
+        }
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
   const startElevNum = parseFloat(levelingStartElevation) || 0;
   const distKmNum = parseFloat(levelingLoopDistanceKm) || 1.0;
@@ -279,24 +314,60 @@ export const LevelingCalculator: React.FC = () => {
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept=".csv,.txt"
+              className="hidden"
+            />
             <a href="#/knowledge/differential-leveling-survey"
               className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition"
               style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
             >
               <BookOpen className="w-3.5 h-3.5 text-emerald-500" /> คู่มือ
             </a>
+            <button
+              onClick={() => setShowFormatGuide(!showFormatGuide)}
+              className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition"
+              style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
+              title="ดูคำอธิบายคอลัมน์และรูปแบบข้อมูล"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-blue-500" />
+              <span>{showFormatGuide ? 'ซ่อนรูปแบบ' : 'รูปแบบ'}</span>
+            </button>
+            <button
+              onClick={downloadLevelingFieldbookTemplateCsv}
+              className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 transition"
+              title="ดาวน์โหลดไฟล์ตัวอย่าง CSV สำหรับกรอกผลระดับ"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>แม่แบบ CSV</span>
+            </button>
+            {mode === 'hi' && (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 transition"
+                title="นำเข้าไฟล์ CSV ข้อมูลระดับ"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span>นำเข้า CSV</span>
+              </button>
+            )}
             {mode === 'hi' && (
               <>
                 <button onClick={resetLevelingToSample}
                   className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border transition"
                   style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
+                  title="โหลดข้อมูลตัวอย่างสาธิต"
                 >
                   <RotateCcw className="w-3.5 h-3.5" /> ตัวอย่าง
                 </button>
-                <button onClick={() => { if (window.confirm('ล้างตาราง?')) clearLeveling(); }}
+                <button onClick={() => { if (window.confirm('ล้างตารางทั้งหมดเพื่อเริ่มต้นฟอร์มว่างเปล่า (Blank Slate)?')) clearLeveling(); }}
                   className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400 transition"
+                  title="ล้างข้อมูลเพื่อเริ่มฟอร์มว่างเปล่า (Blank Slate)"
                 >
-                  <Eraser className="w-3.5 h-3.5" /> ล้าง
+                  <Eraser className="w-3.5 h-3.5" /> ล้างเป็นฟอร์มว่าง
                 </button>
               </>
             )}
@@ -305,18 +376,73 @@ export const LevelingCalculator: React.FC = () => {
                 <button onClick={() => setStadiaRows(SAMPLE_STADIA)}
                   className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border transition"
                   style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
+                  title="โหลดข้อมูลตัวอย่างสาธิต Stadia"
                 >
                   <RotateCcw className="w-3.5 h-3.5" /> ตัวอย่าง
                 </button>
-                <button onClick={() => { if (window.confirm('ล้างตาราง?')) setStadiaRows([makeStadiaRow('BM1')]); }}
+                <button onClick={() => { if (window.confirm('ล้างตาราง Stadia เพื่อเริ่มต้นฟอร์มว่างเปล่า (Blank Slate)?')) setStadiaRows([makeStadiaRow('BM1')]); }}
                   className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400 transition"
+                  title="ล้างข้อมูลเพื่อเริ่มฟอร์มว่างเปล่า (Blank Slate)"
                 >
-                  <Eraser className="w-3.5 h-3.5" /> ล้าง
+                  <Eraser className="w-3.5 h-3.5" /> ล้างเป็นฟอร์มว่าง
                 </button>
               </>
             )}
           </div>
         </div>
+
+        {/* Format Guide Drawer */}
+        {showFormatGuide && (
+          <div className="rounded-xl border p-4 space-y-3 bg-blue-500/5 border-blue-500/20 text-xs animate-in fade-in duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 font-bold text-blue-600 dark:text-blue-400">
+                <Info className="w-4 h-4" />
+                <span>คำแนะนำรูปแบบข้อมูลการระดับ (Differential Leveling Format Guide)</span>
+              </div>
+              <button
+                onClick={() => setShowFormatGuide(false)}
+                className="text-[11px] opacity-70 hover:opacity-100 underline"
+              >
+                ปิดคำแนะนำ
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="p-2.5 rounded-lg border bg-surface/50 space-y-1.5" style={{ borderColor: 'var(--border)' }}>
+                <span className="font-semibold text-blue-600 dark:text-blue-400 block">โหมด HI Method (มาตรฐาน)</span>
+                <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-2)' }}>
+                  ประกอบด้วยคอลัมน์: <code className="font-mono font-bold text-blue-500">Station, BS, IFS, FS, Remark</code>
+                </p>
+                <ul className="list-disc list-inside text-[11px] space-y-0.5 opacity-90" style={{ color: 'var(--text-2)' }}>
+                  <li><strong>Station:</strong> ชื่อหมุด/สถานี (เช่น BM1, TP1, BM2)</li>
+                  <li><strong>BS (ไม้หลัง):</strong> ค่าอ่านไม้ระดับหลัง (เมตร เช่น 1.542) สำหรับตั้งกล้อง</li>
+                  <li><strong>IFS (ไม้กลาง):</strong> ค่าอ่านหมุดระหว่างทาง (เมตร เช่น 1.205)</li>
+                  <li><strong>FS (ไม้หน้า):</strong> ค่าอ่านไม้หน้าเพื่อย้ายจุดตั้งกล้องหรือปิดวงรอบ (เมตร เช่น 1.108)</li>
+                  <li><strong>Remark:</strong> หมายเหตุหรือคำอธิบายจุด</li>
+                </ul>
+              </div>
+              <div className="p-2.5 rounded-lg border bg-surface/50 space-y-1.5" style={{ borderColor: 'var(--border)' }}>
+                <span className="font-semibold text-purple-600 dark:text-purple-400 block">โหมด 3-Wire Stadia (ความละเอียดสูง)</span>
+                <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-2)' }}>
+                  อ่านสายใย 3 เส้น: <code className="font-mono font-bold text-purple-500">Top, Middle, Bottom</code> ทั้ง BS และ FS
+                </p>
+                <ul className="list-disc list-inside text-[11px] space-y-0.5 opacity-90" style={{ color: 'var(--text-2)' }}>
+                  <li>ระบบจะตรวจ <code className="font-mono">Mid = (Top + Bot) / 2</code> ภายในเกณฑ์ ±2 mm อัตโนมัติ</li>
+                  <li>คำนวณระยะห่าง Stadia = <code className="font-mono">(Top - Bot) × 100</code></li>
+                  <li>คำนวณความสูงและตรวจสอบสมดุลระยะไม้หลัง-ไม้หน้า</li>
+                </ul>
+              </div>
+            </div>
+            <div className="flex items-center justify-between pt-1 border-t border-blue-500/10 text-[11px]" style={{ color: 'var(--text-3)' }}>
+              <span>💡 เริ่มจากฟอร์มว่างเปล่าโดยกด <strong>"ล้างเป็นฟอร์มว่าง"</strong> แล้วพิมพ์กรอกตรงในตาราง หรือกด <strong>"แม่แบบ CSV"</strong> เพื่อนำไปกรอกใน Excel</span>
+              <button
+                onClick={downloadLevelingFieldbookTemplateCsv}
+                className="font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+              >
+                <Download className="w-3 h-3" /> ดาวน์โหลด Template CSV
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Config bar */}
         <div className="rounded-xl border p-3 space-y-3" style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)' }}>
@@ -435,6 +561,32 @@ export const LevelingCalculator: React.FC = () => {
                     </tr>
                   );
                 })}
+                {levelingRows.length === 0 && (
+                  <tr>
+                    <td colSpan={11} className="py-8 text-center text-xs" style={{ color: 'var(--text-3)' }}>
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <FileSpreadsheet className="w-8 h-8 opacity-40 text-emerald-500" />
+                        <p className="font-semibold text-sm" style={{ color: 'var(--text-2)' }}>ตารางว่างเปล่า (Blank Slate)</p>
+                        <p className="text-xs">กด &quot;เพิ่มแถว&quot; ด้านบนเพื่อเริ่มกรอกสถานีแรก, นำเข้าไฟล์ CSV หรือ โหลดตัวอย่างสาธิต</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <button
+                            onClick={addLevelingRow}
+                            className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs flex items-center gap-1"
+                          >
+                            <Plus className="w-3 h-3" /> เพิ่มแถวแรก
+                          </button>
+                          <button
+                            onClick={resetLevelingToSample}
+                            className="px-3 py-1 rounded-lg border font-medium text-xs flex items-center gap-1"
+                            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)', color: 'var(--text-2)' }}
+                          >
+                            <RotateCcw className="w-3 h-3" /> โหลดตัวอย่าง
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
                 {/* Σ row */}
                 {hiResult && (
                   <tr className="font-bold border-t-2" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>

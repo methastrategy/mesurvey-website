@@ -21,9 +21,13 @@ import type {
 import { 
   parseStationsCsv, 
   parseObservationsCsv, 
-  parseLevelingCsv 
+  parseLevelingCsv,
+  downloadStationsTemplateCsv,
+  downloadObservationsTemplateCsv,
+  downloadLevelingTemplateCsv
 } from '../../utils/survey-csv-parser';
 import { exportToCsv } from '../../utils/csv-export';
+import { HelpCircle, Info } from 'lucide-react';
 
 interface NetworkAdjustmentInputTableProps {
   adjustmentMode: '2d' | '1d';
@@ -57,6 +61,7 @@ export const NetworkAdjustmentInputTable: React.FC<NetworkAdjustmentInputTablePr
   const levelingFileInputRef = useRef<HTMLInputElement>(null);
 
   const [inputError, setInputError] = useState<string | null>(null);
+  const [showFormatGuide, setShowFormatGuide] = useState<boolean>(false);
 
   // New Station 2D Form State
   const [newStnId, setNewStnId] = useState<string>('');
@@ -361,6 +366,19 @@ export const NetworkAdjustmentInputTable: React.FC<NetworkAdjustmentInputTablePr
         <div className="flex items-center gap-2">
           <button
             type="button"
+            onClick={() => setShowFormatGuide(!showFormatGuide)}
+            className={`px-2.5 py-1.5 rounded-lg border font-semibold text-xs flex items-center gap-1.5 transition-colors ${
+              showFormatGuide 
+                ? 'bg-[var(--accent)] text-black dark:text-white border-transparent' 
+                : 'bg-[var(--surface)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border-[var(--border)]'
+            }`}
+            title="ดูคำแนะนำโครงสร้างคอลัมน์และดาวน์โหลดไฟล์แม่แบบ CSV"
+          >
+            <HelpCircle className="w-3.5 h-3.5" />
+            <span>คำแนะนำรูปแบบ & แม่แบบ (Templates)</span>
+          </button>
+          <button
+            type="button"
             onClick={onResetSample}
             className="px-2.5 py-1.5 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-3)] text-[var(--text-2)] hover:text-[var(--text-1)] border border-[var(--border)] font-semibold transition-colors flex items-center gap-1.5"
             title="โหลดชุดข้อมูลตัวอย่างมาตรฐาน (ช.การช่าง / KU)"
@@ -372,13 +390,78 @@ export const NetworkAdjustmentInputTable: React.FC<NetworkAdjustmentInputTablePr
             type="button"
             onClick={onClearAll}
             className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/30 font-semibold transition-colors flex items-center gap-1.5"
-            title="ล้างข้อมูลทั้งหมดเพื่อป้อนงานใหม่ของตัวเอง"
+            title="ล้างข้อมูลทั้งหมดเพื่อป้อนงานใหม่ของตัวเอง (Blank Slate)"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>ล้างข้อมูล (Clear All)</span>
+            <span>เริ่มฟอร์มว่างเปล่า (Blank)</span>
           </button>
         </div>
       </div>
+
+      {/* Format Guide & Template Download Drawer */}
+      {showFormatGuide && (
+        <div className="p-4 sm:p-5 rounded-xl bg-[var(--surface)] border-2 border-[var(--accent)] shadow-sm space-y-4 animate-fadeIn">
+          <div className="flex items-center justify-between pb-2 border-b border-[var(--border)]">
+            <span className="font-bold text-xs sm:text-sm text-[var(--text-1)] flex items-center gap-2">
+              <Info className="w-4 h-4 text-[var(--accent)]" />
+              <span>คู่มือรูปแบบข้อมูลและไฟล์แม่แบบ (Data Templates & Format Guide)</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowFormatGuide(false)}
+              className="text-xs text-[var(--text-3)] hover:text-[var(--text-1)]"
+            >
+              ปิดคำแนะนำ
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            {/* Guide 1: Stations */}
+            <div className="p-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[var(--text-1)]">1. ไฟล์หมุดรังวัด (Stations CSV)</span>
+                <button
+                  type="button"
+                  onClick={downloadStationsTemplateCsv}
+                  className="px-2 py-0.5 rounded bg-[var(--surface)] hover:bg-[var(--surface-3)] text-[var(--accent)] border border-[var(--border)] font-bold text-[11px] flex items-center gap-1"
+                >
+                  <Download className="w-3 h-3" />
+                  <span>ดาวน์โหลด Template</span>
+                </button>
+              </div>
+              <p className="text-[11px] text-[var(--text-2)]">
+                หัวคอลัมน์: <code className="font-mono text-[var(--accent)]">Station_ID, Easting_m, Northing_m, Is_Fixed_Control</code>
+              </p>
+              <div className="font-mono text-[10px] bg-[var(--surface)] p-2 rounded border border-[var(--border)] text-[var(--text-3)] space-y-0.5">
+                <div>CK-01, 669500.250, 1531000.500, TRUE</div>
+                <div>STN-02, 669750.800, 1531200.100, FALSE</div>
+              </div>
+            </div>
+
+            {/* Guide 2: Observations */}
+            <div className="p-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[var(--text-1)]">2. ไฟล์ค่ารังวัด (Observations CSV)</span>
+                <button
+                  type="button"
+                  onClick={downloadObservationsTemplateCsv}
+                  className="px-2 py-0.5 rounded bg-[var(--surface)] hover:bg-[var(--surface-3)] text-[var(--accent)] border border-[var(--border)] font-bold text-[11px] flex items-center gap-1"
+                >
+                  <Download className="w-3 h-3" />
+                  <span>ดาวน์โหลด Template</span>
+                </button>
+              </div>
+              <p className="text-[11px] text-[var(--text-2)]">
+                หัวคอลัมน์: <code className="font-mono text-[var(--accent)]">Obs_ID, Type, From_Station, To_Station, Value_1, Value_2, StdDev</code>
+              </p>
+              <div className="font-mono text-[10px] bg-[var(--surface)] p-2 rounded border border-[var(--border)] text-[var(--text-3)] space-y-0.5">
+                <div>DIST_01, distance, CK-01, STN-02, 254.321, , 0.005</div>
+                <div>GNSS_01, baseline_vector, CK-01, STN-03, 399.750, -200.500, 0.008</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {inputError && (
         <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs flex items-center gap-2">
@@ -413,6 +496,14 @@ export const NetworkAdjustmentInputTable: React.FC<NetworkAdjustmentInputTablePr
                   onChange={handleUploadStationsCsv}
                   className="hidden"
                 />
+                <button
+                  type="button"
+                  onClick={downloadStationsTemplateCsv}
+                  className="p-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--accent)] border border-[var(--border)] transition-colors"
+                  title="ดาวน์โหลดไฟล์แม่แบบหมุด (Template CSV)"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5" />
+                </button>
                 <button
                   type="button"
                   onClick={() => stationsFileInputRef.current?.click()}
@@ -480,8 +571,30 @@ export const NetworkAdjustmentInputTable: React.FC<NetworkAdjustmentInputTablePr
                   })}
                   {stations2D.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="py-6 text-center text-xs text-[var(--text-3)] font-sans">
-                        ยังไม่มีหมุดในโครงข่าย — กรุณาเพิ่มหมุดด้านล่าง หรือนำเข้าไฟล์ CSV
+                      <td colSpan={5} className="py-6 px-3 text-center text-xs font-sans">
+                        <div className="space-y-2">
+                          <p className="font-semibold text-[var(--text-2)]">ตารางหมุดว่างเปล่า (Blank Mode)</p>
+                          <p className="text-[11px] text-[var(--text-3)]">
+                            กรอกหมุดใหม่ด้านล่าง หรือดาวน์โหลด Template เพื่อนำเข้าจาก Excel
+                          </p>
+                          <div className="flex justify-center gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={downloadStationsTemplateCsv}
+                              className="px-2.5 py-1 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--accent)] border border-[var(--border)] font-bold text-[11px] flex items-center gap-1 shadow-sm"
+                            >
+                              <FileSpreadsheet className="w-3 h-3" />
+                              <span>ดาวน์โหลด Template หมุด</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={onResetSample}
+                              className="px-2.5 py-1 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-2)] border border-[var(--border)] text-[11px]"
+                            >
+                              โหลดตัวอย่าง
+                            </button>
+                          </div>
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -562,6 +675,14 @@ export const NetworkAdjustmentInputTable: React.FC<NetworkAdjustmentInputTablePr
                 />
                 <button
                   type="button"
+                  onClick={downloadObservationsTemplateCsv}
+                  className="p-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--accent)] border border-[var(--border)] transition-colors"
+                  title="ดาวน์โหลดไฟล์แม่แบบค่ารังวัด (Template CSV)"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
                   onClick={() => obsFileInputRef.current?.click()}
                   className="p-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-2)] hover:text-[var(--text-1)] border border-[var(--border)] transition-colors"
                   title="นำเข้าค่ารังวัดจาก CSV"
@@ -628,8 +749,30 @@ export const NetworkAdjustmentInputTable: React.FC<NetworkAdjustmentInputTablePr
                   ))}
                   {obs2D.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="py-6 text-center text-xs text-[var(--text-3)] font-sans">
-                        ยังไม่มีค่ารังวัด — กรุณาเพิ่มค่ารังวัดด้านล่าง หรือนำเข้าจาก Step 2
+                      <td colSpan={6} className="py-6 px-3 text-center text-xs font-sans">
+                        <div className="space-y-2">
+                          <p className="font-semibold text-[var(--text-2)]">ยังไม่มีค่ารังวัด (Blank Mode)</p>
+                          <p className="text-[11px] text-[var(--text-3)]">
+                            เพิ่มค่ารังวัดด้านล่าง, ส่งมาจาก Step 2, หรือดาวน์โหลด Template เพื่อนำเข้าจาก Excel
+                          </p>
+                          <div className="flex justify-center gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={downloadObservationsTemplateCsv}
+                              className="px-2.5 py-1 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--accent)] border border-[var(--border)] font-bold text-[11px] flex items-center gap-1 shadow-sm"
+                            >
+                              <FileSpreadsheet className="w-3 h-3" />
+                              <span>ดาวน์โหลด Template ค่ารังวัด</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={onResetSample}
+                              className="px-2.5 py-1 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-2)] border border-[var(--border)] text-[11px]"
+                            >
+                              โหลดตัวอย่าง
+                            </button>
+                          </div>
+                        </div>
                       </td>
                     </tr>
                   )}

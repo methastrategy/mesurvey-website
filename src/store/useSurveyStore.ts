@@ -61,6 +61,7 @@ interface SurveyStoreState {
   // Leveling Actions
   setLevelingStartElevation: (elev: string) => void;
   setLevelingLoopDistanceKm: (distKm: string) => void;
+  setLevelingRows: (rows: LevelingRowInput[]) => void;
   updateLevelingRow: (index: number, field: keyof LevelingRowInput, value: string) => void;
   addLevelingRow: () => void;
   removeLevelingRow: (index: number) => void;
@@ -177,6 +178,11 @@ export const useSurveyStore = create<SurveyStoreState>()(
 
       setLevelingLoopDistanceKm: (distKm) => {
         set({ levelingLoopDistanceKm: distKm, levelingLastSaved: Date.now() });
+      },
+
+      setLevelingRows: (rows) => {
+        set({ levelingRows: rows, levelingLastSaved: Date.now() });
+        trackEvent('leveling_import_csv', { rowCount: rows.length });
       },
 
       updateLevelingRow: (index, field, value) => {

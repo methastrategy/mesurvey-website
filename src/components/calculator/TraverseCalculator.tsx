@@ -1,13 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useSurveyStore, PlottedTraverseOverlay } from '../../store/useSurveyStore';
 import { inverseUtmToWgs84 } from '../../core/projections';
 import { polarToRect, rectToPolar } from '../../core/traverse';
 import {
   Plus, Trash2, RotateCcw, CheckCircle2, XCircle, Download, Save,
-  Eraser, MapPin, BookOpen, AlertTriangle, ChevronDown, ChevronUp
+  Eraser, MapPin, BookOpen, AlertTriangle, ChevronDown, ChevronUp,
+  Upload, FileSpreadsheet, HelpCircle, Info
 } from 'lucide-react';
 import { trackEvent } from '../../lib/telemetry';
 import { exportToCsv } from '../../utils/csv-export';
+import { parseTraverseCsv, downloadTraverseTemplateCsv } from '../../utils/survey-csv-parser';
 
 // ─── DMS helpers ────────────────────────────────────────────────────────────
 function dmsToDecDeg(d: number, m: number, s: number): number {
@@ -245,6 +247,28 @@ export const TraverseCalculator: React.FC = () => {
   const [endAz, setEndAz] = useState<DmsField>({ d: '225', m: '30', s: '00' });
 
   const [showResults, setShowResults] = useState(true);
+  const traverseFileInputRef = useRef<HTMLInputElement>(null);
+  const [showFormatGuide, setShowFormatGuide] = useState<boolean>(false);
+  const [csvError, setCsvError] = useState<string | null>(null);
+
+  const handleUploadCsv = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCsvError(null);
+    try {
+      const text = await file.text();
+      const parsed = parseTraverseCsv(text);
+      if (parsed.errors.length > 0 && parsed.legs.length === 0) {
+        setCsvError(parsed.errors.join(' | '));
+      } else {
+        setLegs(parsed.legs);
+      }
+    } catch (err: any) {
+      setCsvError(`ไม่สามารถอ่านไฟล์: ${err?.message}`);
+    } finally {
+      e.target.value = '';
+    }
+  };
 
   // Compute
   const result = useMemo(() => {
@@ -363,6 +387,42 @@ export const TraverseCalculator: React.FC = () => {
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            <input
+              ref={traverseFileInputRef}
+              type="file"
+              accept=".csv,.txt"
+              onChange={handleUploadCsv}
+              className="hidden"
+            />
+            <button
+              onClick={() => traverseFileInputRef.current?.click()}
+              className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition"
+              style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-1)' }}
+              title="นำเข้าวงรอบจากไฟล์ CSV"
+            >
+              <Upload className="w-3.5 h-3.5 text-indigo-500" />
+              <span>นำเข้า CSV</span>
+            </button>
+            <button
+              onClick={downloadTraverseTemplateCsv}
+              className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition"
+              style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-1)' }}
+              title="ดาวน์โหลดไฟล์แม่แบบวงรอบ CSV"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Template</span>
+            </button>
+            <button
+              onClick={() => setShowFormatGuide(!showFormatGuide)}
+              className={`min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition ${
+                showFormatGuide ? 'bg-indigo-600 text-white border-indigo-500' : ''
+              }`}
+              style={!showFormatGuide ? { backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' } : {}}
+              title="ดูคำแนะนำคอลัมน์และรูปแบบการกรอก"
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+              <span>รูปแบบ</span>
+            </button>
             <a href="#/knowledge/closed-loop-traverse"
               className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition"
               style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
@@ -373,16 +433,53 @@ export const TraverseCalculator: React.FC = () => {
             <button onClick={resetSample}
               className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border transition"
               style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
+              title="โหลดข้อมูลตัวอย่างวงรอบ 5 หมุด"
             >
               <RotateCcw className="w-3.5 h-3.5" /> ตัวอย่าง
             </button>
-            <button onClick={() => { if (window.confirm('ล้างตาราง?')) clearAll(); }}
+            <button onClick={() => { if (window.confirm('ล้างตารางเพื่อเริ่มงานใหม่ว่างเปล่า?')) clearAll(); }}
               className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border transition bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400"
+              title="ล้างข้อมูลทั้งหมดเพื่อเริ่มฟอร์มว่างเปล่า (Blank Slate)"
             >
-              <Eraser className="w-3.5 h-3.5" /> ล้าง
+              <Eraser className="w-3.5 h-3.5" /> ว่างเปล่า
             </button>
           </div>
         </div>
+
+        {/* ── Format Guide Box ── */}
+        {showFormatGuide && (
+          <div className="mb-4 p-4 rounded-xl border-2 border-indigo-500/40 bg-indigo-500/5 space-y-2.5 text-xs">
+            <div className="flex items-center justify-between font-bold text-indigo-600 dark:text-indigo-400">
+              <span className="flex items-center gap-1.5">
+                <Info className="w-4 h-4" />
+                <span>คำแนะนำรูปแบบไฟล์ CSV สำหรับตารางวงรอบ (Traverse CSV Format)</span>
+              </span>
+              <button
+                type="button"
+                onClick={downloadTraverseTemplateCsv}
+                className="px-2 py-0.5 rounded bg-indigo-600 text-white font-bold text-[11px] flex items-center gap-1"
+              >
+                <Download className="w-3 h-3" />
+                <span>ดาวน์โหลด Template CSV</span>
+              </button>
+            </div>
+            <p style={{ color: 'var(--text-2)' }}>
+              ไฟล์ CSV ต้องมีหัวคอลัมน์: <code className="font-mono text-indigo-600 dark:text-indigo-400 font-bold">Station, Target_Station, Distance_m, Angle_Deg, Angle_Min, Angle_Sec</code>
+            </p>
+            <div className="font-mono text-[11px] p-2 rounded border bg-[var(--surface)]" style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}>
+              <div>A, B, 125.340, 98, 12, 30</div>
+              <div>B, C, 112.880, 101, 45, 15</div>
+              <div>C, D, 98.450, 95, 30, 45</div>
+            </div>
+          </div>
+        )}
+
+        {csvError && (
+          <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>{csvError}</span>
+          </div>
+        )}
 
         {/* ── Config Bar ── */}
         <div className="rounded-xl border p-3 space-y-3" style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)' }}>

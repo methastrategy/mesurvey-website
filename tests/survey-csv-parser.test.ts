@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { parseStationsCsv, parseObservationsCsv, parseLevelingCsv } from '../src/utils/survey-csv-parser';
+import {
+  parseStationsCsv,
+  parseObservationsCsv,
+  parseLevelingCsv,
+  parseTraverseCsv,
+  parseLevelingFieldbookCsv
+} from '../src/utils/survey-csv-parser';
 
 describe('Survey CSV Parser Suite', () => {
   it('parses stations CSV with headers and fixed status', () => {
@@ -51,5 +57,46 @@ BM3,BM1,-0.595,1.8,2.0
     expect(res.observations.length).toBe(3);
     expect(res.points[0].isFixed).toBe(true);
     expect(res.points[0].knownElevation).toBe(100.0);
+  });
+
+  it('parses traverse fieldbook CSV with DMS angles and distances', () => {
+    const csv = `
+Station,Target_Station,Distance_m,Angle_Deg,Angle_Min,Angle_Sec,Remark
+A,B,125.340,98,12,30,หมุด A ส่อง B
+B,C,112.880,101,45,15,หมุด B ส่อง C
+C,A,98.450,160,02,15,หมุด C บรรจบ A
+    `;
+    const res = parseTraverseCsv(csv);
+    expect(res.errors.length).toBe(0);
+    expect(res.legs.length).toBe(3);
+    expect(res.legs[0].station).toBe('A');
+    expect(res.legs[0].targetStation).toBe('B');
+    expect(res.legs[0].distance).toBe('125.340');
+    expect(res.legs[0].obsD).toBe('98');
+    expect(res.legs[0].obsM).toBe('12');
+    expect(res.legs[0].obsS).toBe('30');
+  });
+
+  it('parses leveling fieldbook CSV with BS, IFS, FS readings', () => {
+    const csv = `
+Station,BS_m,IFS_m,FS_m,Remark
+BM1,1.542,,,Start BM
+TP1,1.325,,1.108,Turn 1
+TP2,,1.220,,Side point
+BM2,,,1.455,End BM
+    `;
+    const res = parseLevelingFieldbookCsv(csv);
+    expect(res.errors.length).toBe(0);
+    expect(res.rows.length).toBe(4);
+    expect(res.rows[0].station).toBe('BM1');
+    expect(res.rows[0].bs).toBe(1.542);
+    expect(res.rows[0].fs).toBeNull();
+    expect(res.rows[1].station).toBe('TP1');
+    expect(res.rows[1].bs).toBe(1.325);
+    expect(res.rows[1].fs).toBe(1.108);
+    expect(res.rows[2].station).toBe('TP2');
+    expect(res.rows[2].ifs).toBe(1.220);
+    expect(res.rows[3].station).toBe('BM2');
+    expect(res.rows[3].fs).toBe(1.455);
   });
 });
