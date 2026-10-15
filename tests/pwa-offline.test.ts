@@ -20,6 +20,7 @@ describe('MESURV Phase 2 PWA & 100% Offline Field Mode Test Suite', () => {
       expect(manifest.name).toBe('MESURV — Geomatics & Survey Engineering Platform');
       expect(manifest.short_name).toBe('MESURV');
       expect(manifest.description).toBe('แพลตฟอร์มวิศวกรรมสำรวจ คำนวณรังวัด และแผนที่ภูมิสารสนเทศ');
+      expect(manifest.lang).toBe('th');
       expect(manifest.display).toBe('standalone');
       expect(manifest.start_url).toBe('./#/knowledge');
       expect(manifest.scope).toBe('./');
@@ -52,6 +53,7 @@ describe('MESURV Phase 2 PWA & 100% Offline Field Mode Test Suite', () => {
       const icon192Path = path.join(rootDir, 'public', 'pwa-192x192.png');
       const icon512Path = path.join(rootDir, 'public', 'pwa-512x512.png');
       const iconSvgPath = path.join(rootDir, 'public', 'icon.svg');
+      const appleTouchPath = path.join(rootDir, 'public', 'apple-touch-icon.png');
 
       expect(fs.existsSync(icon192Path)).toBe(true);
       expect(fs.statSync(icon192Path).size).toBeGreaterThan(1000);
@@ -61,6 +63,9 @@ describe('MESURV Phase 2 PWA & 100% Offline Field Mode Test Suite', () => {
 
       expect(fs.existsSync(iconSvgPath)).toBe(true);
       expect(fs.statSync(iconSvgPath).size).toBeGreaterThan(500);
+
+      expect(fs.existsSync(appleTouchPath)).toBe(true);
+      expect(fs.statSync(appleTouchPath).size).toBeGreaterThan(1000);
     });
   });
 
@@ -72,7 +77,10 @@ describe('MESURV Phase 2 PWA & 100% Offline Field Mode Test Suite', () => {
       expect(html).toContain('apple-mobile-web-app-capable');
       expect(html).toContain('mobile-web-app-capable');
       expect(html).toContain('rel="apple-touch-icon"');
+      expect(html).toContain('href="/apple-touch-icon.png"');
       expect(html).toContain('name="theme-color"');
+      expect(html).toContain('content="#f7f5f2"');
+      expect(html).toContain('content="#050505"');
     });
   });
 
@@ -82,6 +90,8 @@ describe('MESURV Phase 2 PWA & 100% Offline Field Mode Test Suite', () => {
       expect(config).toContain("from 'vite-plugin-pwa'");
       expect(config).toContain('VitePWA({');
       expect(config).toContain("registerType: 'autoUpdate'");
+      expect(config).toContain("manifestFilename: 'manifest.json'");
+      expect(config).toContain("lang: 'th'");
     });
 
     it('vite.config.ts configures 4MB+ workbox size limit and precache patterns', () => {

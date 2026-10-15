@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="th" class="h-full" data-theme="fieldbook">
+<html lang="th" class="h-full" data-theme="warmsand">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#f3f1eb" />
+    <meta name="theme-color" content="#f7f5f2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#050505" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f7f5f2" />
     <meta name="description" content="MESURV Platform — ระบบฐานความรู้วิศวกรรมสำรวจและภูมิสารสนเทศ เครื่องมือคำนวณรังวัดภาคสนาม และแผนที่ WebGIS มาตรฐานกรมแผนที่ทหาร (RTSD)" />
     
     <!-- Open Graph / Social Sharing Metadata (Front-End Checklist Standard) -->
@@ -27,7 +29,8 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="apple-touch-icon" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/pwa-192x192.png" />
 
     <title>MESURV | Survey & Geomatics Engineering Field Terminal</title>
 
@@ -42,22 +45,24 @@
     <script>
       (function() {
         try {
-          var saved = localStorage.getItem('mesurv-theme') || 'fieldbook';
-          var theme = (saved === 'terminal' || saved === 'fieldbook') ? saved : 'fieldbook';
+          var saved = localStorage.getItem('mesurv-theme') || 'warmsand';
+          var validThemes = ['nordic', 'warmsand', 'terminal', 'bento'];
+          var theme = validThemes.indexOf(saved) !== -1 ? saved : 'warmsand';
           document.documentElement.setAttribute('data-theme', theme);
-          var metaTheme = document.querySelector('meta[name="theme-color"]');
-          if (theme === 'terminal') {
+          var isDark = theme === 'terminal' || theme === 'bento';
+          var metaThemes = document.querySelectorAll('meta[name="theme-color"]');
+          if (isDark) {
             document.documentElement.classList.add('dark');
-            if (metaTheme) metaTheme.setAttribute('content', '#050505');
+            metaThemes.forEach(function(m) { m.setAttribute('content', '#050505'); });
           } else {
             document.documentElement.classList.remove('dark');
-            if (metaTheme) metaTheme.setAttribute('content', '#f3f1eb');
+            metaThemes.forEach(function(m) { m.setAttribute('content', '#f7f5f2'); });
           }
         } catch (e) {}
       })();
     </script>
   </head>
-  <body class="h-full bg-[var(--bg)] text-[var(--text-1)] font-sans antialiased" data-theme="fieldbook">
+  <body class="h-full bg-[var(--bg)] text-[var(--text-1)] font-sans antialiased" data-theme="warmsand">
     <div id="root" class="h-full flex flex-col"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

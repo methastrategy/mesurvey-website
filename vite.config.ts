@@ -9,11 +9,13 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      includeAssets: ['icon.svg', 'pwa-192x192.png', 'pwa-512x512.png', 'data/presets.geojson'],
+      manifestFilename: 'manifest.json',
+      includeAssets: ['icon.svg', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png', 'data/presets.geojson'],
       manifest: {
         name: 'MESURV — Geomatics & Survey Engineering Platform',
         short_name: 'MESURV',
         description: 'แพลตฟอร์มวิศวกรรมสำรวจ คำนวณรังวัด และแผนที่ภูมิสารสนเทศ',
+        lang: 'th',
         theme_color: '#f7f5f2',
         background_color: '#f7f5f2',
         display: 'standalone',

@@ -2,6 +2,7 @@
   "name": "MESURV — Geomatics & Survey Engineering Platform",
   "short_name": "MESURV",
   "description": "แพลตฟอร์มวิศวกรรมสำรวจ คำนวณรังวัด และแผนที่ภูมิสารสนเทศ",
+  "lang": "th",
   "start_url": "./#/knowledge",
   "scope": "./",
   "display": "standalone",
