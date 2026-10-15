@@ -5,6 +5,7 @@ import {
   Ruler, 
   Layers, 
   Calculator,
+  Network,
   ArrowRight,
   ArrowLeft
 } from 'lucide-react';
@@ -13,13 +14,14 @@ import { TraverseCalculator } from './TraverseCalculator';
 import { LevelingCalculator } from './LevelingCalculator';
 import { LandAreaCalculator } from './LandAreaCalculator';
 import { ScientificCalculator } from './ScientificCalculator';
+import { NetworkAdjustment } from './NetworkAdjustment';
 
 interface CalculatorHubProps {
   onPlotOnMap?: (lat: number, lng: number, label: string) => void;
-  initialSubTab?: 'scientific' | 'coord' | 'traverse' | 'leveling' | 'area';
+  initialSubTab?: 'scientific' | 'coord' | 'traverse' | 'leveling' | 'area' | 'adjustment';
 }
 
-export type ToolId = 'scientific' | 'traverse' | 'leveling' | 'coord' | 'area';
+export type ToolId = 'scientific' | 'traverse' | 'leveling' | 'coord' | 'area' | 'adjustment';
 
 interface ToolItem {
   id: ToolId;
@@ -44,7 +46,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       const parts = hash.split('/').filter(Boolean);
       if (parts[0] === 'calculator') {
         const sub = parts[1] as ToolId;
-        const validSubs: ToolId[] = ['scientific', 'coord', 'traverse', 'leveling', 'area'];
+        const validSubs: ToolId[] = ['scientific', 'coord', 'traverse', 'leveling', 'area', 'adjustment'];
         if (validSubs.includes(sub)) {
           setActiveSubTab(sub);
         } else {
@@ -129,6 +131,17 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       icon: Layers,
       tags: ['rai', 'ngan', 'tarang wa', 'land', 'cadastral', 'hectare', 'acre', 'sqm'],
       features: ['แยกสัดส่วน ไร่ - งาน - ตร.ว. อัตโนมัติ', 'แปลงสองทิศทางแบบเรียลไทม์', 'มาตรฐานกรมที่ดิน']
+    },
+    {
+      id: 'adjustment',
+      name: 'การปรับแก้โครงข่าย',
+      nameEn: 'Least Squares Network Adjustment',
+      shortDesc: 'ปรับแก้โครงข่ายราบ 2D (วงรอบ/ไตรแองกูเลชัน) และโครงข่ายระดับ 1D ด้วยวิธี Gauss-Markov Least Squares คำนวณวงรีความคลาดเคลื่อน (95% Error Ellipses) และตรวจ Blunder',
+      category: 'geodesy',
+      categoryLabel: 'การปรับแก้ทางยีโอเดซี',
+      icon: Network,
+      tags: ['least squares', 'lsa', 'error ellipse', 'network adjustment', 'gauss-markov', 'baarda', 'chi-square'],
+      features: ['2D Traverse & 1D Leveling LSA', 'วงรีความคลาดเคลื่อน 95% Confidence', 'Baarda Data Snooping ตรวจจับ Outlier']
     }
   ];
 
@@ -178,6 +191,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
           {activeSubTab === 'leveling' && <LevelingCalculator />}
           {activeSubTab === 'coord' && <CoordinateConverter onPlotOnMap={onPlotOnMap} />}
           {activeSubTab === 'area' && <LandAreaCalculator />}
+          {activeSubTab === 'adjustment' && <NetworkAdjustment onPlotOnMap={onPlotOnMap} />}
         </div>
       </div>
     );

@@ -26,7 +26,7 @@ interface HeaderProps {
   setActiveTab: (tab: 'knowledge' | 'calculator' | 'map') => void;
   route?: {
     tab: 'knowledge' | 'calculator' | 'map';
-    subTab?: 'coord' | 'traverse' | 'leveling' | 'area';
+    subTab?: 'scientific' | 'coord' | 'traverse' | 'leveling' | 'area' | 'adjustment';
     topicId?: string;
   };
   theme?: MesurvTheme;
@@ -76,6 +76,7 @@ export const Header: React.FC<HeaderProps> = ({
     traverse: 'ปรับแก้วงรอบ',
     leveling: 'คำนวณระดับ',
     area: 'คำนวณเนื้อที่',
+    adjustment: 'ปรับแก้โครงข่าย',
   };
 
   const currentSubTab = route?.subTab;
