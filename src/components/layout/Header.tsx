@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BookOpen, Calculator, Map, ChevronRight, Sun, Moon, Info, Palette, Check, ChevronDown } from 'lucide-react';
+import { BookOpen, Calculator, Map, ChevronRight, Sun, Moon, Info, Palette, Check, ChevronDown, Wifi, WifiOff } from 'lucide-react';
 import type { MesurvTheme } from '../../App';
+import type { NetworkStatus } from '../../hooks/useNetworkStatus';
 
 export interface ThemeOption {
   id: MesurvTheme;
@@ -32,6 +33,7 @@ interface HeaderProps {
   onToggleTheme?: () => void;
   onSelectTheme?: (theme: MesurvTheme) => void;
   onOpenAbout?: () => void;
+  network?: NetworkStatus;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -42,6 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleTheme,
   onSelectTheme,
   onOpenAbout,
+  network,
 }) => {
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
   const themeMenuRef = useRef<HTMLDivElement>(null);
@@ -206,8 +209,32 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </nav>
 
-        {/* Right: Multi-Theme Selector (Curated Palettes) */}
+        {/* Right: Network Status + Multi-Theme Selector (Curated Palettes) */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 relative" ref={themeMenuRef}>
+          {/* Network Status Badge */}
+          {network && (
+            network.isOnline ? (
+              <div
+                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-[var(--btn-radius)] bg-[var(--surface)] border border-[var(--border)] text-[var(--text-3)] text-[11px] font-mono select-none"
+                title="เชื่อมต่ออินเทอร์เน็ตปกติ (Live Online)"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="font-semibold tracking-wider">ONLINE</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={network.resetDismissed}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[var(--btn-radius)] bg-amber-500/15 border border-amber-500/40 text-amber-500 dark:text-amber-400 text-[11px] font-mono font-bold hover:bg-amber-500/25 transition-colors micro-press focus-ring"
+                title="คลิกเพื่อดูรายละเอียดโหมดรังวัดออฟไลน์ภาคสนาม (Offline Field Mode 100%)"
+                aria-label="สถานะออฟไลน์ภาคสนาม คลิกเพื่อดูรายละเอียด"
+              >
+                <WifiOff className="w-3.5 h-3.5 shrink-0 animate-pulse" />
+                <span className="hidden sm:inline tracking-wider">OFFLINE FIELD</span>
+              </button>
+            )
+          )}
+
           {/* Quick Toggle Button (Light/Dark Toggle) */}
           {onToggleTheme && (
             <button

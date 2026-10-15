@@ -4,6 +4,8 @@ import { Footer } from './components/layout/Footer';
 import { BottomNav } from './components/layout/BottomNav';
 import { AboutModal } from './components/layout/AboutModal';
 import { GeomaticsLoadingFallback } from './components/layout/GeomaticsLoadingFallback';
+import { OfflineBanner } from './components/layout/OfflineBanner';
+import { useNetworkStatus } from './hooks/useNetworkStatus';
 
 // Route-level Dynamic Code Splitting for optimal First Contentful Paint
 const KnowledgeHub = lazy(() => import('./components/knowledge/KnowledgeHub').then(m => ({ default: m.KnowledgeHub })));
@@ -28,6 +30,7 @@ export function App() {
   const [route, setRoute] = useState(() => parseRouteHash(window.location.hash));
   const activeTab = route.tab;
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const network = useNetworkStatus();
 
   // Multi-Theme State (Warm Sand, Nordic Fjord, Terminal, Bento Quartz)
   const [theme, setTheme] = useState<MesurvTheme>(() => {
@@ -146,6 +149,9 @@ export function App() {
 
   return (
     <div className="relative flex flex-col min-h-screen w-full max-w-full overflow-x-hidden bg-[var(--bg)] text-[var(--text-1)] font-sans antialiased">
+      {/* 100% Offline Field Mode Banner */}
+      <OfflineBanner network={network} />
+
       {/* Main Content Viewport (Full Width, No Left Sidebar) */}
       <div
         className={`relative z-10 flex flex-col flex-1 min-w-0 w-full max-w-full ${
@@ -162,6 +168,7 @@ export function App() {
             onToggleTheme={toggleTheme}
             onSelectTheme={handleSelectTheme}
             onOpenAbout={() => setIsAboutOpen(true)}
+            network={network}
           />
         )}
 

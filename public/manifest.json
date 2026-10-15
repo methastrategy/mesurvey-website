@@ -1,14 +1,27 @@
 {
-  "name": "MESURV Geomatics Platform",
+  "name": "MESURV — Geomatics & Survey Engineering Platform",
   "short_name": "MESURV",
-  "description": "Survey & Geomatics Engineering Knowledge Base, Field Calculators & Interactive WebGIS Map",
-  "start_url": "/",
+  "description": "แพลตฟอร์มวิศวกรรมสำรวจ คำนวณรังวัด และแผนที่ภูมิสารสนเทศ",
+  "start_url": "./#/knowledge",
+  "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#064e3b",
-  "theme_color": "#064e3b",
-  "categories": ["utilities", "education", "engineering"],
+  "background_color": "#f7f5f2",
+  "theme_color": "#f7f5f2",
+  "categories": ["utilities", "education", "engineering", "productivity"],
   "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/icon.svg",
       "sizes": "any",
