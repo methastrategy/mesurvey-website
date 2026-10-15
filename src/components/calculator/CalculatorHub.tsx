@@ -134,14 +134,14 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
     },
     {
       id: 'adjustment',
-      name: 'การปรับแก้โครงข่าย',
-      nameEn: 'Least Squares Network Adjustment',
-      shortDesc: 'ปรับแก้โครงข่ายราบ 2D (วงรอบ/ไตรแองกูเลชัน) และโครงข่ายระดับ 1D ด้วยวิธี Gauss-Markov Least Squares คำนวณวงรีความคลาดเคลื่อน (95% Error Ellipses) และตรวจ Blunder',
+      name: 'ศูนย์ประมวลผลดาวเทียม & ปรับแก้โครงข่าย',
+      nameEn: 'Unified GNSS & Network Adjustment Studio',
+      shortDesc: 'ศูนย์รวมการประมวลผลข้อมูลดาวเทียมและโครงข่ายเบ็ดเสร็จ: ตรวจสอบไฟล์ดิบ RINEX & Polar Skyplot, คำนวณเวกเตอร์ฐาน Double Difference (LAMBDA), ปรับแก้ Least Squares 1D/2D, และประเมินวงรีความคลาดเคลื่อน 95%',
       category: 'geodesy',
-      categoryLabel: 'การปรับแก้ทางยีโอเดซี',
+      categoryLabel: 'จีเอ็นเอสเอส & การปรับแก้',
       icon: Network,
-      tags: ['least squares', 'lsa', 'error ellipse', 'network adjustment', 'gauss-markov', 'baarda', 'chi-square'],
-      features: ['2D Traverse & 1D Leveling LSA', 'วงรีความคลาดเคลื่อน 95% Confidence', 'Baarda Data Snooping ตรวจจับ Outlier']
+      tags: ['gnss', 'rinex', 'skyplot', 'double difference', 'lambda', 'least squares', 'lsa', 'error ellipse', 'network adjustment', 'baarda'],
+      features: ['RINEX 2/3 & Polar Skyplot', 'Double Difference Baseline (FIXED/FLOAT)', 'Least Squares 1D/2D & วงรี 95%']
     }
   ];
 
