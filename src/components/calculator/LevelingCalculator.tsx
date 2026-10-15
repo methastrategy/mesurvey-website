@@ -14,16 +14,12 @@ import {
   parseLevelingFieldbookCsv
 } from '../../utils/survey-csv-parser';
 
+import { type StadiaRowInput } from '../../types/survey';
+
 type LevelingMode = 'hi' | 'stadia';
 
-// ── Stadia 3-Wire local row type ──────────────────────────────────────────────
-interface StadiaRow {
-  id: string;
-  station: string;
-  bsTop: string; bsMid: string; bsBot: string;
-  fsTop: string; fsMid: string; fsBot: string;
-  remark: string;
-}
+// ── Stadia 3-Wire row type ──────────────────────────────────────────────
+export type StadiaRow = StadiaRowInput;
 
 function makeStadiaRow(station = '', id?: string): StadiaRow {
   return {
@@ -203,10 +199,13 @@ export const LevelingCalculator: React.FC = () => {
     resetLevelingToSample,
     clearLeveling,
     setLevelingRows,
+    levelingStadiaRows: stadiaRows,
+    setLevelingStadiaRows: setStadiaRows,
+    resetLevelingStadiaToSample,
+    clearLevelingStadia,
   } = useSurveyStore();
 
   const [mode, setMode] = useState<LevelingMode>('hi');
-  const [stadiaRows, setStadiaRows] = useState<StadiaRow[]>(SAMPLE_STADIA);
   const [showResults, setShowResults] = useState(true);
   const [showFormatGuide, setShowFormatGuide] = useState<boolean>(false);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -258,9 +257,9 @@ export const LevelingCalculator: React.FC = () => {
 
   // Stadia row editors
   const updateStadia = (idx: number, field: keyof StadiaRow, val: string) =>
-    setStadiaRows(prev => prev.map((r, i) => i === idx ? { ...r, [field]: val } : r));
-  const addStadia = () => setStadiaRows(prev => [...prev, makeStadiaRow(`TP${prev.length}`)]);
-  const removeStadia = (idx: number) => setStadiaRows(prev => prev.filter((_, i) => i !== idx));
+    setStadiaRows((prev: StadiaRowInput[]) => prev.map((r: StadiaRowInput, i: number) => i === idx ? { ...r, [field]: val } : r));
+  const addStadia = () => setStadiaRows((prev: StadiaRowInput[]) => [...prev, makeStadiaRow(`TP${prev.length}`)]);
+  const removeStadia = (idx: number) => setStadiaRows((prev: StadiaRowInput[]) => prev.filter((_: StadiaRowInput, i: number) => i !== idx));
 
   // CSV export HI
   const handleExportCsvHi = () => {
@@ -373,14 +372,14 @@ export const LevelingCalculator: React.FC = () => {
             )}
             {mode === 'stadia' && (
               <>
-                <button onClick={() => setStadiaRows(SAMPLE_STADIA)}
+                <button onClick={resetLevelingStadiaToSample}
                   className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border transition"
                   style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
                   title="โหลดข้อมูลตัวอย่างสาธิต Stadia"
                 >
                   <RotateCcw className="w-3.5 h-3.5" /> ตัวอย่าง
                 </button>
-                <button onClick={() => { if (window.confirm('ล้างตาราง Stadia เพื่อเริ่มต้นฟอร์มว่างเปล่า (Blank Slate)?')) setStadiaRows([makeStadiaRow('BM1')]); }}
+                <button onClick={() => { if (window.confirm('ล้างตาราง Stadia เพื่อเริ่มต้นฟอร์มว่างเปล่า (Blank Slate)?')) clearLevelingStadia(); }}
                   className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400 transition"
                   title="ล้างข้อมูลเพื่อเริ่มฟอร์มว่างเปล่า (Blank Slate)"
                 >

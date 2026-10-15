@@ -232,19 +232,26 @@ function computeTraverse(
 
 // ─── Component ──────────────────────────────────────────────────────────────
 export const TraverseCalculator: React.FC = () => {
-  const { traverseLastSaved, setPlottedTraverseOverlay } = useSurveyStore();
-
-  // Local state (not persisted — full refactor for DMS mode)
-  const [mode, setMode] = useState<TraverseMode>('loop');
-  const [legs, setLegs] = useState<TraverseLeg[]>(SAMPLE_LEGS_LOOP);
-
-  const [startE, setStartE] = useState('500000.000');
-  const [startN, setStartN] = useState('1500000.000');
-  const [startAz, setStartAz] = useState<DmsField>({ d: '45', m: '30', s: '00' });
-
-  const [endE, setEndE] = useState('500500.000');
-  const [endN, setEndN] = useState('1500200.000');
-  const [endAz, setEndAz] = useState<DmsField>({ d: '225', m: '30', s: '00' });
+  const {
+    traverseMode: mode,
+    traverseDmsLegs: legs,
+    traverseStartE: startE,
+    traverseStartN: startN,
+    traverseStartAz: startAz,
+    traverseEndE: endE,
+    traverseEndN: endN,
+    traverseEndAz: endAz,
+    traverseLastSaved,
+    setTraverseMode: setMode,
+    setTraverseDmsLegs: setLegs,
+    setTraverseStart,
+    setTraverseEnd,
+    setTraverseStartAz,
+    setTraverseEndAz,
+    resetTraverseDmsToSample: resetSample,
+    clearTraverseDms: clearAll,
+    setPlottedTraverseOverlay
+  } = useSurveyStore();
 
   const [showResults, setShowResults] = useState(true);
   const traverseFileInputRef = useRef<HTMLInputElement>(null);
@@ -286,12 +293,19 @@ export const TraverseCalculator: React.FC = () => {
 
   // ── leg editors
   const updateLeg = (idx: number, field: keyof TraverseLeg, val: string) => {
-    setLegs(prev => prev.map((l, i) => i === idx ? { ...l, [field]: val } : l));
+    const updated = legs.map((l, i) => i === idx ? { ...l, [field]: val } : l);
+    setLegs(updated);
   };
-  const addLeg = () => setLegs(prev => [...prev, makeLeg(`ST${prev.length + 1}`, `ST${prev.length + 2}`, '100.000')]);
-  const removeLeg = (idx: number) => setLegs(prev => prev.filter((_, i) => i !== idx));
-  const resetSample = () => setLegs(SAMPLE_LEGS_LOOP);
-  const clearAll = () => setLegs([makeLeg('A', 'B', '')]);
+  const addLeg = () => {
+    const last = legs[legs.length - 1];
+    const newFrom = last ? last.targetStation : 'A';
+    const newTarget = String.fromCharCode((last ? last.targetStation.charCodeAt(0) : 65) + 1);
+    setLegs([...legs, makeLeg(newFrom, newTarget, '100.000', '90', '00', '00')]);
+  };
+  const removeLeg = (idx: number) => {
+    if (legs.length <= 1) return;
+    setLegs(legs.filter((_, i) => i !== idx));
+  };
 
   // ── CSV Export
   const handleExportCsv = () => {
@@ -501,14 +515,14 @@ export const TraverseCalculator: React.FC = () => {
             {/* Start E/N */}
             <div className="col-span-1">
               <label className="block font-semibold mb-1" style={{ color: 'var(--text-2)' }}>Start E (m)</label>
-              <input value={startE} onChange={e => setStartE(e.target.value)} type="number" step="0.001"
+              <input value={startE} onChange={e => setTraverseStart(e.target.value, startN)} type="number" step="0.001"
                 className="w-full min-h-[36px] px-2.5 py-1.5 rounded-lg border font-mono text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none"
                 style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-1)' }}
               />
             </div>
             <div className="col-span-1">
               <label className="block font-semibold mb-1" style={{ color: 'var(--text-2)' }}>Start N (m)</label>
-              <input value={startN} onChange={e => setStartN(e.target.value)} type="number" step="0.001"
+              <input value={startN} onChange={e => setTraverseStart(startE, e.target.value)} type="number" step="0.001"
                 className="w-full min-h-[36px] px-2.5 py-1.5 rounded-lg border font-mono text-xs focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none"
                 style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-1)' }}
               />
@@ -519,7 +533,7 @@ export const TraverseCalculator: React.FC = () => {
               <div className="flex gap-1">
                 {(['d', 'm', 's'] as (keyof DmsField)[]).map(f => (
                   <input key={f} value={startAz[f]}
-                    onChange={e => setStartAz(prev => ({ ...prev, [f]: e.target.value }))}
+                    onChange={e => setTraverseStartAz({ ...startAz, [f]: e.target.value })}
                     type="number" placeholder={f === 'd' ? 'D' : f === 'm' ? 'M' : 'S'}
                     className="w-0 flex-1 min-h-[36px] px-1.5 py-1.5 rounded-lg border font-mono text-xs text-center focus:ring-1 focus:ring-indigo-500 outline-none"
                     style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-1)' }}
@@ -532,14 +546,14 @@ export const TraverseCalculator: React.FC = () => {
               <>
                 <div className="col-span-1">
                   <label className="block font-semibold mb-1" style={{ color: 'var(--text-2)' }}>End E (m)</label>
-                  <input value={endE} onChange={e => setEndE(e.target.value)} type="number" step="0.001"
+                  <input value={endE} onChange={e => setTraverseEnd(e.target.value, endN, false)} type="number" step="0.001"
                     className="w-full min-h-[36px] px-2.5 py-1.5 rounded-lg border font-mono text-xs focus:ring-2 focus:ring-indigo-500/50 outline-none"
                     style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-1)' }}
                   />
                 </div>
                 <div className="col-span-1">
                   <label className="block font-semibold mb-1" style={{ color: 'var(--text-2)' }}>End N (m)</label>
-                  <input value={endN} onChange={e => setEndN(e.target.value)} type="number" step="0.001"
+                  <input value={endN} onChange={e => setTraverseEnd(endE, e.target.value, false)} type="number" step="0.001"
                     className="w-full min-h-[36px] px-2.5 py-1.5 rounded-lg border font-mono text-xs focus:ring-2 focus:ring-indigo-500/50 outline-none"
                     style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-1)' }}
                   />
@@ -549,7 +563,7 @@ export const TraverseCalculator: React.FC = () => {
                   <div className="flex gap-1">
                     {(['d', 'm', 's'] as (keyof DmsField)[]).map(f => (
                       <input key={f} value={endAz[f]}
-                        onChange={e => setEndAz(prev => ({ ...prev, [f]: e.target.value }))}
+                        onChange={e => setTraverseEndAz({ ...endAz, [f]: e.target.value })}
                         type="number" placeholder={f === 'd' ? 'D' : f === 'm' ? 'M' : 'S'}
                         className="w-0 flex-1 min-h-[36px] px-1.5 py-1.5 rounded-lg border font-mono text-xs text-center focus:ring-1 focus:ring-indigo-500 outline-none"
                         style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', color: 'var(--text-1)' }}

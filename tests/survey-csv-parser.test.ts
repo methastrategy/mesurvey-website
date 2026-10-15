@@ -4,7 +4,9 @@ import {
   parseObservationsCsv,
   parseLevelingCsv,
   parseTraverseCsv,
-  parseLevelingFieldbookCsv
+  parseLevelingFieldbookCsv,
+  parseCadastralCsv,
+  parseBatchCoordinatesCsv
 } from '../src/utils/survey-csv-parser';
 
 describe('Survey CSV Parser Suite', () => {
@@ -98,5 +100,50 @@ BM2,,,1.455,End BM
     expect(res.rows[2].ifs).toBe(1.220);
     expect(res.rows[3].station).toBe('BM2');
     expect(res.rows[3].fs).toBe(1.455);
+  });
+
+  it('parses cadastral polygon coordinates CSV with Easting and Northing', () => {
+    const csv = `
+Point_Name,Easting_m,Northing_m,Remark
+หมุด 1 (SW),669500.0,1531000.0,หมุดเขตที่ดินมุมล่างซ้าย
+หมุด 2 (SE),669600.0,1531000.0,หมุดเขตที่ดินมุมล่างขวา
+หมุด 3 (NE),669600.0,1531100.0,หมุดเขตที่ดินมุมบนขวา
+หมุด 4 (NW),669500.0,1531100.0,หมุดเขตที่ดินมุมบนซ้าย
+    `;
+    const res = parseCadastralCsv(csv);
+    expect(res.errors.length).toBe(0);
+    expect(res.points.length).toBe(4);
+    expect(res.points[0].name).toBe('หมุด 1 (SW)');
+    expect(res.points[0].easting).toBe(669500.0);
+    expect(res.points[0].northing).toBe(1531000.0);
+    expect(res.points[3].name).toBe('หมุด 4 (NW)');
+  });
+
+  it('parses batch coordinate CSV and transforms across WGS84, UTM, and Indian 1975', () => {
+    const csvWgs = `
+Point_ID,Latitude_DD,Longitude_DD,Remark
+KU_MAIN,13.846640,100.569820,Kasetsart University
+MONUMENT,13.764920,100.538310,Victory Monument
+    `;
+    const resWgs = parseBatchCoordinatesCsv(csvWgs, 'wgs84_dd');
+    expect(resWgs.errors.length).toBe(0);
+    expect(resWgs.points.length).toBe(2);
+    expect(resWgs.points[0].name).toBe('KU_MAIN');
+    expect(resWgs.points[0].lat).toBeCloseTo(13.84664, 5);
+    expect(resWgs.points[0].lng).toBeCloseTo(100.56982, 5);
+    expect(resWgs.points[0].utmZone).toBe(47);
+    expect(resWgs.points[0].utmEasting).toBeGreaterThan(600000);
+    expect(resWgs.points[0].utmNorthing).toBeGreaterThan(1500000);
+    expect(resWgs.points[0].indianZone).toBe(47);
+
+    const csvUtm = `
+Point_ID,Easting_m,Northing_m
+P1,669656.82,1531321.89
+    `;
+    const resUtm = parseBatchCoordinatesCsv(csvUtm, 'utm47');
+    expect(resUtm.errors.length).toBe(0);
+    expect(resUtm.points.length).toBe(1);
+    expect(resUtm.points[0].lat).toBeCloseTo(13.84664, 3);
+    expect(resUtm.points[0].lng).toBeCloseTo(100.56982, 3);
   });
 });

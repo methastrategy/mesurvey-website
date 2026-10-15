@@ -59,6 +59,41 @@ export interface TraverseLegInput {
   azimuthDeg: number; // Decimal degrees or azimuth from bearing
 }
 
+export interface DmsField {
+  d: string;
+  m: string;
+  s: string;
+}
+
+export interface TraverseDmsLeg {
+  id: string;
+  station: string;
+  targetStation: string;
+  distance: string;
+  obsD: string;
+  obsM: string;
+  obsS: string;
+}
+
+export interface StadiaRowInput {
+  id: string;
+  station: string;
+  bsTop: string;
+  bsMid: string;
+  bsBot: string;
+  fsTop: string;
+  fsMid: string;
+  fsBot: string;
+  remark: string;
+}
+
+export interface CadastralPolygonPoint {
+  id: string;
+  name: string;
+  easting: number;
+  northing: number;
+}
+
 export interface AdjustedLegOutput {
   leg: string;
   distance: number;

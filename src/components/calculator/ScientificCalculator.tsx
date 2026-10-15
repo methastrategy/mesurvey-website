@@ -35,21 +35,19 @@ export const ScientificCalculator: React.FC<ScientificCalculatorProps> = ({ onBa
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
 
-  // Lock scroll in both document body and html for total viewport freeze on mobile & desktop
-  useEffect(() => {
-    const origBodyOverflow = document.body.style.overflow;
-    const origDocOverflow = document.documentElement.style.overflow;
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = origBodyOverflow;
-      document.documentElement.style.overflow = origDocOverflow;
-    };
-  }, []);
-
   // Safe Math Expression Evaluator
   const evaluateExpression = (expr: string): { val: number; str: string; dms?: string } => {
+    // Support Survey DMS angles: e.g. 125°30'45.5" or 125°30' or 125°
     let clean = expr
+      .replace(/(\d+(?:\.\d+)?)\s*°\s*(\d+(?:\.\d+)?)\s*['\u2019]\s*(\d+(?:\.\d+)?)\s*["\u201D]/g, (_, d, m, s) => {
+        return `(${parseFloat(d)} + ${parseFloat(m)}/60 + ${parseFloat(s)}/3600)`;
+      })
+      .replace(/(\d+(?:\.\d+)?)\s*°\s*(\d+(?:\.\d+)?)\s*['\u2019]/g, (_, d, m) => {
+        return `(${parseFloat(d)} + ${parseFloat(m)}/60)`;
+      })
+      .replace(/(\d+(?:\.\d+)?)\s*°/g, (_, d) => {
+        return `(${parseFloat(d)})`;
+      })
       .replace(/×/g, '*')
       .replace(/÷/g, '/')
       .replace(/π/g, `${Math.PI}`)
@@ -154,11 +152,35 @@ export const ScientificCalculator: React.FC<ScientificCalculatorProps> = ({ onBa
     } else if (key === 'Ans') {
       setExpression(prev => prev + 'Ans');
     } else if (key === 'DMS_CONV') {
-      const num = parseFloat(result.replace(/,/g, ''));
-      if (!isNaN(num)) {
-        const d = decimalToDms(Math.abs(num), true);
-        const formatted = `${num < 0 ? '-' : ''}${d.deg}° ${d.min}' ${d.sec.toFixed(2)}"`;
-        setDmsResult(formatted);
+      if (isSecondFunction) {
+        // Shift + DMS = Toggle Result display format between Decimal and DMS
+        const num = parseFloat(result.replace(/,/g, ''));
+        if (!isNaN(num)) {
+          if (dmsResult) {
+            setDmsResult(null);
+          } else {
+            const d = decimalToDms(Math.abs(num), true);
+            const formatted = `${num < 0 ? '-' : ''}${d.deg}° ${d.min}' ${d.sec.toFixed(2)}"`;
+            setDmsResult(formatted);
+          }
+        }
+      } else {
+        // Intelligent Casio-style DMS insertion: °, then ', then "
+        setExpression(prev => {
+          if (!prev) return prev;
+          const tokens = prev.split(/[\+\-\×\÷\*\/\(\)]/);
+          const lastToken = tokens[tokens.length - 1];
+          if (!lastToken || !/\d/.test(lastToken)) return prev;
+
+          const hasDeg = lastToken.includes('°');
+          const hasMin = lastToken.includes("'") || lastToken.includes('’');
+          const hasSec = lastToken.includes('"') || lastToken.includes('”');
+
+          if (!hasDeg) return prev + '°';
+          if (!hasMin) return prev + "'";
+          if (!hasSec) return prev + '"';
+          return prev;
+        });
       }
     } else {
       setExpression(prev => prev + key);
@@ -194,7 +216,7 @@ export const ScientificCalculator: React.FC<ScientificCalculatorProps> = ({ onBa
   }, [expression, lastAnswer, angleMode]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[var(--bg)] text-[var(--text-1)] select-none overflow-hidden touch-none">
+    <div className="fixed inset-0 z-50 flex flex-col bg-[var(--bg)] text-[var(--text-1)] select-none overflow-y-auto">
       
       {/* ── Top Bar: Back to Directory + Title + Mode & History (Safe Area Headroom) ── */}
       <header
@@ -336,10 +358,14 @@ export const ScientificCalculator: React.FC<ScientificCalculatorProps> = ({ onBa
             <button
               type="button"
               onClick={() => handleKeyPress('DMS_CONV')}
-              className="h-full min-h-[38px] rounded-xl text-xs font-bold font-mono bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--accent)] border border-[var(--border)] transition-colors micro-press flex items-center justify-center"
-              title="แปลงค่าเป็นองศา-ลิปดา-ฟิลิปดา (DMS)"
+              className={`h-full min-h-[38px] rounded-xl text-xs font-bold font-mono transition-colors micro-press flex items-center justify-center border ${
+                isSecondFunction
+                  ? 'bg-amber-500/20 text-amber-500 border-amber-500/30'
+                  : 'bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--accent)] border-[var(--border)]'
+              }`}
+              title={isSecondFunction ? "แปลงผลลัพธ์สลับไปมาระหว่างทศนิยมกับ DMS" : "ใส่สัญลักษณ์มุม ° ' \" (องศา ลิปดา พิลิปดา)"}
             >
-              ° ' "
+              {isSecondFunction ? '◄►DMS' : '° \' "'}
             </button>
             <button
               type="button"

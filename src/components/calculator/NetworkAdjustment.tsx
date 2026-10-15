@@ -45,7 +45,8 @@ import { EmbeddedNetworkMap } from './EmbeddedNetworkMap';
 import { RinexUploadPanel } from './RinexUploadPanel';
 import { NetworkAdjustmentInputTable } from './NetworkAdjustmentInputTable';
 import { exportToCsv } from '../../utils/csv-export';
-import { inverseUtmToWgs84 } from '../../core/projections';
+import { inverseUtmToWgs84, forwardWgs84ToUtm } from '../../core/projections';
+import { useSurveyStore } from '../../store/useSurveyStore';
 
 interface NetworkAdjustmentProps {
   onPlotOnMap?: (lat: number, lng: number, label: string) => void;
@@ -79,24 +80,34 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
   const [baselineError, setBaselineError] = useState<string | null>(null);
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 3. NETWORK ADJUSTMENT STATE
+  // 3. NETWORK ADJUSTMENT STATE (Zustand Persist)
   // ─────────────────────────────────────────────────────────────────────────
-  const [adjustmentMode, setAdjustmentMode] = useState<'2d' | '1d'>('2d');
-  const [stations2D, setStations2D] = useState<Station2D[]>(SAMPLE_2D_TRAVERSE_NETWORK.stations);
-  const [obs2D, setObs2D] = useState<Observation2D[]>(SAMPLE_2D_TRAVERSE_NETWORK.observations);
+  const {
+    networkAdjustmentMode: adjustmentMode,
+    networkStations2D: stations2D,
+    networkObs2D: obs2D,
+    networkPoints1D: points1D,
+    networkObs1D: obs1D,
+    setNetworkAdjustmentMode: setAdjustmentMode,
+    setNetworkStations2D: setStations2D,
+    setNetworkObs2D: setObs2D,
+    setNetworkPoints1D: setPoints1D,
+    setNetworkObs1D: setObs1D,
+    resetNetworkToSample,
+    clearNetwork
+  } = useSurveyStore();
+
   const [result2D, setResult2D] = useState<Network2DAdjustmentResult | null>(() => {
     try {
-      return adjust2DNetwork(SAMPLE_2D_TRAVERSE_NETWORK.stations, SAMPLE_2D_TRAVERSE_NETWORK.observations);
+      return adjust2DNetwork(stations2D, obs2D);
     } catch {
       return null;
     }
   });
 
-  const [points1D, setPoints1D] = useState<LevelingPoint[]>(SAMPLE_LEVELING_NETWORK.points);
-  const [obs1D, setObs1D] = useState<LevelingObservation[]>(SAMPLE_LEVELING_NETWORK.observations);
   const [result1D, setResult1D] = useState<LevelingAdjustmentResult | null>(() => {
     try {
-      return adjust1DLevelingNetwork(SAMPLE_LEVELING_NETWORK.points, SAMPLE_LEVELING_NETWORK.observations);
+      return adjust1DLevelingNetwork(points1D, obs1D);
     } catch {
       return null;
     }
@@ -125,21 +136,30 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
     const existingBase = stations2D.find(s => s.id === baseName);
     const existingRover = stations2D.find(s => s.id === roverName);
 
+    // Extract real Base Station coordinates from parsed RINEX header if available
+    let baseRefE = 669500.0;
+    let baseRefN = 1531000.0;
+    if (baseRinex.header.approxGeodetic) {
+      const utm = forwardWgs84ToUtm(baseRinex.header.approxGeodetic.lat, baseRinex.header.approxGeodetic.lng);
+      baseRefE = Math.round(utm.easting * 1000) / 1000;
+      baseRefN = Math.round(utm.northing * 1000) / 1000;
+    }
+
     const updatedStations = [...stations2D];
     if (!existingBase) {
       updatedStations.push({
         id: baseName,
         isFixed: true,
-        knownE: 669500.0,
-        knownN: 1531000.0
+        knownE: baseRefE,
+        knownN: baseRefN
       });
     }
     if (!existingRover) {
       updatedStations.push({
         id: roverName,
         isFixed: false,
-        approxE: 669500.0 + baselineSolution.vectorENU.dE,
-        approxN: 1531000.0 + baselineSolution.vectorENU.dN
+        approxE: Math.round((baseRefE + baselineSolution.vectorENU.dE) * 1000) / 1000,
+        approxN: Math.round((baseRefN + baselineSolution.vectorENU.dN) * 1000) / 1000
       });
     }
 

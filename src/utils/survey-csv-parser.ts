@@ -1,4 +1,11 @@
 import type { Station2D, Observation2D, Observation2DType, LevelingPoint, LevelingObservation } from './least-squares';
+import { 
+  forwardWgs84ToUtm, 
+  inverseUtmToWgs84, 
+  forwardWgs84ToIndian1975, 
+  inverseIndian1975ToWgs84, 
+  calculateUtmZone 
+} from '../core/projections';
 
 export interface ParseResult<T> {
   data: T[];
@@ -470,6 +477,271 @@ export function downloadTraverseTemplateCsv(): void {
       ['D', 'E', 108.760, 108, 20, 0, 'หมุด D ส่องหมุด E'],
       ['E', 'A', 130.120, 136, 11, 30, 'หมุด E บรรจบหมุด A']
     ]
+  });
+}
+
+import type { CadastralPolygonPoint } from '../types/survey';
+
+/**
+ * Parses Cadastral Polygon Coordinates CSV text.
+ * Columns: Point_Name, Easting_m, Northing_m, [Remark]
+ */
+export function parseCadastralCsv(text: string): {
+  points: CadastralPolygonPoint[];
+  errors: string[];
+} {
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const points: CadastralPolygonPoint[] = [];
+  const errors: string[] = [];
+
+  if (lines.length === 0) return { points: [], errors: ['ไฟล์ว่างเปล่า'] };
+
+  const firstLine = lines[0].toLowerCase();
+  const hasHeader = firstLine.includes('point') || firstLine.includes('name') || firstLine.includes('east') || firstLine.includes('x') || firstLine.includes('หมุด');
+  const startIdx = hasHeader ? 1 : 0;
+
+  for (let i = startIdx; i < lines.length; i++) {
+    const rawLine = lines[i];
+    if (rawLine.startsWith('#')) continue;
+
+    const delimiter = rawLine.includes('\t') ? '\t' : (rawLine.includes(';') ? ';' : ',');
+    const cols = rawLine.split(delimiter).map(c => c.trim().replace(/^["']|["']$/g, ''));
+    if (cols.length < 2) continue;
+
+    let name = cols[0];
+    let e = parseFloat(cols[1]);
+    let n = cols.length > 2 ? parseFloat(cols[2]) : NaN;
+
+    if (isNaN(n) && !isNaN(parseFloat(cols[0])) && !isNaN(parseFloat(cols[1]))) {
+      name = `P${i + 1}`;
+      e = parseFloat(cols[0]);
+      n = parseFloat(cols[1]);
+    }
+
+    if (isNaN(e) || isNaN(n)) {
+      errors.push(`บรรทัดที่ ${i + 1}: ค่าพิกัดไม่ถูกต้อง -> "${rawLine}"`);
+      continue;
+    }
+
+    points.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : `cad_${i + 1}`,
+      name,
+      easting: e,
+      northing: n
+    });
+  }
+
+  return { points, errors };
+}
+
+/**
+ * Downloads Cadastral Polygon CSV template with sample rectangular lot.
+ */
+export function downloadCadastralTemplateCsv(): void {
+  exportToCsv({
+    filename: 'template_cadastral_polygon.csv',
+    headers: ['Point_Name', 'Easting_m', 'Northing_m', 'Remark'],
+    rows: [
+      ['หมุด 1 (SW)', 669500.0, 1531000.0, 'หมุดเขตที่ดินมุมล่างซ้าย'],
+      ['หมุด 2 (SE)', 669600.0, 1531000.0, 'หมุดเขตที่ดินมุมล่างขวา'],
+      ['หมุด 3 (NE)', 669600.0, 1531100.0, 'หมุดเขตที่ดินมุมบนขวา'],
+      ['หมุด 4 (NW)', 669500.0, 1531100.0, 'หมุดเขตที่ดินมุมบนซ้าย']
+    ]
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BATCH COORDINATE TRANSFORMATION
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type BatchCoordinateSourceType = 'wgs84_dd' | 'utm47' | 'utm48' | 'ind47' | 'ind48';
+
+export interface ConvertedBatchCoordinate {
+  id: string;
+  name: string;
+  rawInput: string;
+  lat: number;
+  lng: number;
+  utmZone: 47 | 48;
+  utmEasting: number;
+  utmNorthing: number;
+  indianZone: 47 | 48;
+  indianEasting: number;
+  indianNorthing: number;
+}
+
+/**
+ * Parses batch coordinate CSV text and transforms each point into all projections.
+ * Supported source formats:
+ * - wgs84_dd: Point_ID, Latitude_DD, Longitude_DD
+ * - utm47 / utm48: Point_ID, Easting_m, Northing_m
+ * - ind47 / ind48: Point_ID, Easting_m, Northing_m
+ */
+export function parseBatchCoordinatesCsv(
+  text: string,
+  sourceType: BatchCoordinateSourceType
+): {
+  points: ConvertedBatchCoordinate[];
+  errors: string[];
+} {
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const points: ConvertedBatchCoordinate[] = [];
+  const errors: string[] = [];
+
+  if (lines.length === 0) return { points: [], errors: ['ไฟล์ว่างเปล่า กรุณาเลือกไฟล์ที่มีข้อมูล'] };
+
+  const firstLine = lines[0].toLowerCase();
+  const hasHeader = firstLine.includes('point') || firstLine.includes('id') || firstLine.includes('lat') ||
+                    firstLine.includes('east') || firstLine.includes('x') || firstLine.includes('name') ||
+                    firstLine.includes('หมุด') || firstLine.includes('station');
+  const startIdx = hasHeader ? 1 : 0;
+
+  for (let i = startIdx; i < lines.length; i++) {
+    const rawLine = lines[i];
+    if (rawLine.startsWith('#')) continue;
+
+    const delimiter = rawLine.includes('\t') ? '\t' : (rawLine.includes(';') ? ';' : ',');
+    const cols = rawLine.split(delimiter).map(c => c.trim().replace(/^["']|["']$/g, ''));
+    if (cols.length < 2) continue;
+
+    let id = `P_${i + 1}`;
+    let val1 = 0;
+    let val2 = 0;
+
+    if (cols.length >= 3) {
+      id = cols[0] || `P_${i + 1}`;
+      val1 = parseFloat(cols[1]);
+      val2 = parseFloat(cols[2]);
+    } else {
+      // 2 columns: val1, val2
+      val1 = parseFloat(cols[0]);
+      val2 = parseFloat(cols[1]);
+    }
+
+    if (isNaN(val1) || isNaN(val2)) {
+      errors.push(`บรรทัดที่ ${i + 1}: ค่าตัวเลขไม่ถูกต้อง -> "${rawLine}"`);
+      continue;
+    }
+
+    try {
+      let lat = 0;
+      let lng = 0;
+
+      if (sourceType === 'wgs84_dd') {
+        lat = val1;
+        lng = val2;
+      } else if (sourceType === 'utm47') {
+        const wgs = inverseUtmToWgs84(val1, val2, 47);
+        lat = wgs.lat;
+        lng = wgs.lng;
+      } else if (sourceType === 'utm48') {
+        const wgs = inverseUtmToWgs84(val1, val2, 48);
+        lat = wgs.lat;
+        lng = wgs.lng;
+      } else if (sourceType === 'ind47') {
+        const wgs = inverseIndian1975ToWgs84(val1, val2, 47);
+        lat = wgs.lat;
+        lng = wgs.lng;
+      } else if (sourceType === 'ind48') {
+        const wgs = inverseIndian1975ToWgs84(val1, val2, 48);
+        lat = wgs.lat;
+        lng = wgs.lng;
+      }
+
+      const utmZone = calculateUtmZone(lng);
+      const utm = forwardWgs84ToUtm(lat, lng, utmZone);
+      const ind = forwardWgs84ToIndian1975(lat, lng, utmZone);
+
+      points.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : `bpt_${i + 1}`,
+        name: id,
+        rawInput: rawLine,
+        lat: Number(lat.toFixed(7)),
+        lng: Number(lng.toFixed(7)),
+        utmZone,
+        utmEasting: Number(utm.easting.toFixed(3)),
+        utmNorthing: Number(utm.northing.toFixed(3)),
+        indianZone: utmZone,
+        indianEasting: Number(ind.easting.toFixed(3)),
+        indianNorthing: Number(ind.northing.toFixed(3))
+      });
+    } catch (err: any) {
+      errors.push(`บรรทัดที่ ${i + 1} (${id}): ${err?.message || 'การแปลงพิกัดล้มเหลว'}`);
+    }
+  }
+
+  return { points, errors };
+}
+
+/**
+ * Downloads a batch coordinate CSV template according to selected source type.
+ */
+export function downloadBatchCoordinateTemplateCsv(sourceType: BatchCoordinateSourceType): void {
+  if (sourceType === 'wgs84_dd') {
+    exportToCsv({
+      filename: 'template_batch_wgs84_dd.csv',
+      headers: ['Point_ID', 'Latitude_DD', 'Longitude_DD', 'Remark'],
+      rows: [
+        ['KU_MAIN', 13.846640, 100.569820, 'มหาวิทยาลัยเกษตรศาสตร์'],
+        ['MONUMENT', 13.764920, 100.538310, 'อนุสาวรีย์ชัยสมรภูมิ'],
+        ['SUVARNABHUMI', 13.690000, 100.750100, 'ท่าอากาศยานสุวรรณภูมิ']
+      ]
+    });
+  } else if (sourceType === 'utm47' || sourceType === 'utm48') {
+    const zone = sourceType === 'utm47' ? 47 : 48;
+    exportToCsv({
+      filename: `template_batch_utm_zone${zone}.csv`,
+      headers: ['Point_ID', 'Easting_m', 'Northing_m', 'Remark'],
+      rows: zone === 47 ? [
+        ['P1', 669656.82, 1531321.89, 'หมุดควบคุม 1 (Zone 47)'],
+        ['P2', 670120.45, 1531850.12, 'หมุดควบคุม 2 (Zone 47)'],
+        ['P3', 669210.15, 1530940.60, 'หมุดควบคุม 3 (Zone 47)']
+      ] : [
+        ['KORAT_1', 215430.20, 1658210.40, 'หมุดควบคุมโคราช (Zone 48)'],
+        ['UBON_1', 485120.50, 1685410.80, 'หมุดควบคุมอุบลฯ (Zone 48)']
+      ]
+    });
+  } else {
+    const zone = sourceType === 'ind47' ? 47 : 48;
+    exportToCsv({
+      filename: `template_batch_indian1975_zone${zone}.csv`,
+      headers: ['Point_ID', 'Easting_m', 'Northing_m', 'Remark'],
+      rows: [
+        ['RTSD_1', 669988.90, 1531019.56, `หมุดแผนที่ทหาร Indian 1975 (Zone ${zone})`],
+        ['RTSD_2', 670450.10, 1531545.80, `หมุดแผนที่ทหาร Indian 1975 (Zone ${zone})`]
+      ]
+    });
+  }
+}
+
+/**
+ * Exports converted batch coordinates to CSV with all 3 projections.
+ */
+export function exportConvertedBatchCoordinatesToCsv(points: ConvertedBatchCoordinate[]): void {
+  exportToCsv({
+    filename: `batch_coordinates_converted_${new Date().toISOString().slice(0, 10)}.csv`,
+    headers: [
+      'Point_ID',
+      'WGS84_Lat_DD',
+      'WGS84_Lng_DD',
+      'UTM_Zone',
+      'UTM_Easting_m',
+      'UTM_Northing_m',
+      'Indian1975_Zone',
+      'Indian1975_Easting_m',
+      'Indian1975_Northing_m'
+    ],
+    rows: points.map(p => [
+      p.name,
+      p.lat.toFixed(7),
+      p.lng.toFixed(7),
+      p.utmZone,
+      p.utmEasting.toFixed(3),
+      p.utmNorthing.toFixed(3),
+      p.indianZone,
+      p.indianEasting.toFixed(3),
+      p.indianNorthing.toFixed(3)
+    ])
   });
 }
 

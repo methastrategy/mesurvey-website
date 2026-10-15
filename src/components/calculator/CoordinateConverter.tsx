@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   dmsToDecimal, 
   decimalToDms, 
@@ -14,8 +14,28 @@ import {
   validateUtm, 
   validateIndian1975 
 } from '../../core/validation';
-import { Copy, Check, MapPin, ArrowRightLeft, AlertCircle, BookOpen } from 'lucide-react';
+import { 
+  Copy, 
+  Check, 
+  MapPin, 
+  ArrowRightLeft, 
+  AlertCircle, 
+  BookOpen, 
+  Trash2, 
+  RefreshCw, 
+  Upload, 
+  Download, 
+  FileSpreadsheet, 
+  Layers 
+} from 'lucide-react';
 import { useSurveyStore } from '../../store/useSurveyStore';
+import { 
+  parseBatchCoordinatesCsv, 
+  downloadBatchCoordinateTemplateCsv, 
+  exportConvertedBatchCoordinatesToCsv,
+  type ConvertedBatchCoordinate,
+  type BatchCoordinateSourceType 
+} from '../../utils/survey-csv-parser';
 
 interface CoordinateConverterProps {
   onPlotOnMap?: (lat: number, lng: number, label: string) => void;
@@ -24,8 +44,20 @@ interface CoordinateConverterProps {
 export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlotOnMap }) => {
   const { inspectedCoordinate, clearInspectedCoordinate } = useSurveyStore();
 
+  // Main Tab: 'single' | 'batch'
+  const [mainTab, setMainTab] = useState<'single' | 'batch'>('single');
+
   // Input Modes: 'dd' | 'dms' | 'utm' | 'indian'
   const [inputMode, setInputMode] = useState<'dd' | 'dms' | 'utm' | 'indian'>('dd');
+
+  // Batch states
+  const [batchSourceType, setBatchSourceType] = useState<BatchCoordinateSourceType>('wgs84_dd');
+  const [batchRawText, setBatchRawText] = useState<string>(
+    'KU_MAIN, 13.846640, 100.569820, มหาวิทยาลัยเกษตรศาสตร์\nMONUMENT, 13.764920, 100.538310, อนุสาวรีย์ชัยสมรภูมิ\nSUVARNABHUMI, 13.690000, 100.750100, ท่าอากาศยานสุวรรณภูมิ'
+  );
+  const [batchPoints, setBatchPoints] = useState<ConvertedBatchCoordinate[]>([]);
+  const [batchErrors, setBatchErrors] = useState<string[]>([]);
+  const batchFileInputRef = useRef<HTMLInputElement>(null);
 
   // Input states
   const [ddLat, setDdLat] = useState<string>('13.846640');
@@ -178,6 +210,56 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
     }
   };
 
+  const handleClearAll = () => {
+    setDdLat('');
+    setDdLng('');
+    setDmsLatDeg('');
+    setDmsLatMin('');
+    setDmsLatSec('');
+    setDmsLngDeg('');
+    setDmsLngMin('');
+    setDmsLngSec('');
+    setUtmEasting('');
+    setUtmNorthing('');
+    setIndEasting('');
+    setIndNorthing('');
+    setInputError(null);
+  };
+
+  const handleResetSample = () => {
+    setInputError(null);
+    setDdLat('13.846640');
+    setDdLng('100.569820');
+    calculateFromDD(13.84664, 100.56982);
+  };
+
+  const handleProcessBatch = () => {
+    if (!batchRawText.trim()) {
+      setBatchErrors(['กรุณาป้อนหรืออัปโหลดข้อมูลพิกัดก่อนประมวลผล']);
+      return;
+    }
+    const res = parseBatchCoordinatesCsv(batchRawText, batchSourceType);
+    setBatchPoints(res.points);
+    setBatchErrors(res.errors);
+  };
+
+  const handleBatchFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result as string;
+      if (text) {
+        setBatchRawText(text);
+        const res = parseBatchCoordinatesCsv(text, batchSourceType);
+        setBatchPoints(res.points);
+        setBatchErrors(res.errors);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
@@ -189,342 +271,584 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
   const dmsLatRes = decimalToDms(activeLat, true);
   const dmsLngRes = decimalToDms(activeLng, false);
 
+  const renderFormActionButtons = (onApply: () => void) => (
+    <div className="flex items-center gap-2 flex-wrap pt-1">
+      <button
+        onClick={onApply}
+        className="min-h-[44px] px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all active:scale-[0.98] flex items-center gap-1.5"
+      >
+        <ArrowRightLeft className="w-4 h-4" />
+        <span>คำนวณแปลงค่าพิกัด</span>
+      </button>
+
+      <button
+        type="button"
+        onClick={handleClearAll}
+        className="min-h-[44px] px-3.5 py-2.5 rounded-lg bg-surface-2 dark:bg-[#18181b] hover:bg-surface-3 dark:hover:bg-[#27272a] text-slate-700 dark:text-slate-300 font-semibold text-xs sm:text-sm border border-border dark:border-[#27272a] transition-all flex items-center gap-1.5"
+        title="ล้างฟอร์มให้ว่างเพื่อกรอกพิกัดใหม่"
+      >
+        <Trash2 className="w-4 h-4 text-slate-400" />
+        <span>ล้างฟอร์มว่าง (Blank Slate)</span>
+      </button>
+
+      <button
+        type="button"
+        onClick={handleResetSample}
+        className="min-h-[44px] px-3.5 py-2.5 rounded-lg bg-surface-2 dark:bg-[#18181b] hover:bg-surface-3 dark:hover:bg-[#27272a] text-slate-700 dark:text-slate-300 font-semibold text-xs sm:text-sm border border-border dark:border-[#27272a] transition-all flex items-center gap-1.5"
+        title="โหลดพิกัดตัวอย่าง ม.เกษตรศาสตร์"
+      >
+        <RefreshCw className="w-4 h-4 text-slate-400" />
+        <span>โหลดตัวอย่าง</span>
+      </button>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       
-      {/* Input Mode Selector & Coordinate Input Card */}
-      <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] p-5 sm:p-6 shadow-sm">
-        <div className="flex items-center justify-between flex-wrap gap-3 mb-5 border-b border-border dark:border-[#27272a] pb-4">
-          <div>
-            <h3 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
-              <ArrowRightLeft className="w-5 h-5 text-indigo-500" />
-              ป้อนค่าพิกัดต้นทาง (Coordinate Input)
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              เลือกรูปแบบพิกัดที่ต้องการนำเข้าเพื่อคำนวณแปลงค่าโดยอัตโนมัติ
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 flex-wrap">
-            <a
-              href="#/knowledge/gnss-rtk-static-survey"
-              className="min-h-[38px] px-3 py-1.5 rounded-lg bg-surface-2 dark:bg-[#18181b] hover:bg-surface-3 dark:hover:bg-[#27272a] text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors flex items-center space-x-1.5 border border-border dark:border-[#27272a]"
-            >
-              <BookOpen className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-              <span>คู่มือวิชาการ: การสำรวจรังวัดดาวเทียม GNSS RTK & Static</span>
-            </a>
-
-            {/* Precision Segmented Control */}
-            <div className="flex flex-wrap p-1 rounded-xl bg-surface-2 dark:bg-[#18181b] border border-border dark:border-[#27272a] text-xs gap-1 max-w-full">
-              <button
-                onClick={() => { setInputMode('dd'); setInputError(null); }}
-                className={`min-h-[36px] px-3 sm:px-3.5 py-1.5 rounded-lg font-medium transition-all ${
-                  inputMode === 'dd'
-                    ? 'bg-indigo-600 text-white shadow-sm font-semibold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                WGS84 (DD)
-              </button>
-              <button
-                onClick={() => { setInputMode('dms'); setInputError(null); }}
-                className={`min-h-[36px] px-3.5 py-1.5 rounded-lg font-medium transition-all ${
-                  inputMode === 'dms'
-                    ? 'bg-indigo-600 text-white shadow-sm font-semibold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                WGS84 (DMS)
-              </button>
-              <button
-                onClick={() => { setInputMode('utm'); setInputError(null); }}
-                className={`min-h-[36px] px-3.5 py-1.5 rounded-lg font-medium transition-all ${
-                  inputMode === 'utm'
-                    ? 'bg-indigo-600 text-white shadow-sm font-semibold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                WGS84 UTM (E, N)
-              </button>
-              <button
-                onClick={() => { setInputMode('indian'); setInputError(null); }}
-                className={`min-h-[36px] px-3.5 py-1.5 rounded-lg font-medium transition-all ${
-                  inputMode === 'indian'
-                    ? 'bg-indigo-600 text-white shadow-sm font-semibold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                Indian 1975
-              </button>
-            </div>
-          </div>
+      {/* ── Main Tab Navigation: Single Point vs Batch CSV ── */}
+      <div className="flex items-center justify-between flex-wrap gap-3 pb-2 border-b border-border dark:border-[#27272a]">
+        <div className="flex items-center p-1 rounded-xl bg-surface-2 dark:bg-[#18181b] border border-border dark:border-[#27272a] text-xs">
+          <button
+            type="button"
+            onClick={() => setMainTab('single')}
+            className={`min-h-[38px] px-4 py-1.5 rounded-lg font-bold transition-all flex items-center gap-2 ${
+              mainTab === 'single'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <ArrowRightLeft className="w-3.5 h-3.5" />
+            <span>แปลงพิกัดจุดเดี่ยว (Single Point)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMainTab('batch')}
+            className={`min-h-[38px] px-4 py-1.5 rounded-lg font-bold transition-all flex items-center gap-2 ${
+              mainTab === 'batch'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5" />
+            <span>แปลงพิกัดแบบชุด (Batch CSV)</span>
+          </button>
         </div>
 
-        {/* Input Form 1: Decimal Degrees */}
-        {inputMode === 'dd' && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                  Latitude ละติจูด (องศาทศนิยม - Decimal Degrees)
-                </label>
-                <input
-                  type="number"
-                  step="0.000001"
-                  value={ddLat}
-                  onChange={(e) => setDdLat(e.target.value)}
-                  placeholder="เช่น 13.846640"
-                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                  Longitude ลองจิจูด (องศาทศนิยม - Decimal Degrees)
-                </label>
-                <input
-                  type="number"
-                  step="0.000001"
-                  value={ddLng}
-                  onChange={(e) => setDdLng(e.target.value)}
-                  placeholder="เช่น 100.569820"
-                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                />
-              </div>
-            </div>
-            <button
-              onClick={handleApplyDD}
-              className="min-h-[44px] px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all active:scale-[0.98]"
-            >
-              คำนวณแปลงค่าพิกัด
-            </button>
-          </div>
-        )}
-
-        {/* Input Form 2: DMS */}
-        {inputMode === 'dms' && (
-          <div className="space-y-4">
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                  Latitude ละติจูด (Deg° Min' Sec")
-                </label>
-                <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-                  <input
-                    type="number"
-                    aria-label="องศาละติจูด (Latitude Degrees)"
-                    value={dmsLatDeg}
-                    onChange={(e) => setDmsLatDeg(e.target.value)}
-                    placeholder="Deg"
-                    className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                  />
-                  <input
-                    type="number"
-                    aria-label="ลิปดาละติจูด (Latitude Minutes)"
-                    value={dmsLatMin}
-                    onChange={(e) => setDmsLatMin(e.target.value)}
-                    placeholder="Min"
-                    className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                  />
-                  <input
-                    type="number"
-                    step="0.01"
-                    aria-label="พิลิปดาละติจูด (Latitude Seconds)"
-                    value={dmsLatSec}
-                    onChange={(e) => setDmsLatSec(e.target.value)}
-                    placeholder="Sec"
-                    className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                  />
-                  <select
-                    aria-label="ซีกโลกเหนือ-ใต้ (Latitude Direction)"
-                    value={dmsLatDir}
-                    onChange={(e) => setDmsLatDir(e.target.value as 'N' | 'S')}
-                    className="min-h-[44px] px-1.5 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#18181b] font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                  >
-                    <option value="N">N (เหนือ)</option>
-                    <option value="S">S (ใต้)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                  Longitude ลองจิจูด (Deg° Min' Sec")
-                </label>
-                <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-                  <input
-                    type="number"
-                    aria-label="องศาลองจิจูด (Longitude Degrees)"
-                    value={dmsLngDeg}
-                    onChange={(e) => setDmsLngDeg(e.target.value)}
-                    placeholder="Deg"
-                    className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                  />
-                  <input
-                    type="number"
-                    aria-label="ลิปดาลองจิจูด (Longitude Minutes)"
-                    value={dmsLngMin}
-                    onChange={(e) => setDmsLngMin(e.target.value)}
-                    placeholder="Min"
-                    className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                  />
-                  <input
-                    type="number"
-                    step="0.01"
-                    aria-label="พิลิปดาลองจิจูด (Longitude Seconds)"
-                    value={dmsLngSec}
-                    onChange={(e) => setDmsLngSec(e.target.value)}
-                    placeholder="Sec"
-                    className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                  />
-                  <select
-                    aria-label="ซีกโลกตะวันออก-ตะวันตก (Longitude Direction)"
-                    value={dmsLngDir}
-                    onChange={(e) => setDmsLngDir(e.target.value as 'E' | 'W')}
-                    className="min-h-[44px] px-1.5 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#18181b] font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                  >
-                    <option value="E">E (ออก)</option>
-                    <option value="W">W (ตก)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={handleApplyDMS}
-              className="min-h-[44px] px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all active:scale-[0.98]"
-            >
-              คำนวณแปลงค่าพิกัด
-            </button>
-          </div>
-        )}
-
-        {/* Input Form 3: WGS84 UTM */}
-        {inputMode === 'utm' && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                  UTM Zone (โซนประเทศไทย)
-                </label>
-                <select
-                  value={utmZone}
-                  onChange={(e) => setUtmZone(parseInt(e.target.value) as 47 | 48)}
-                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#18181b] text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                >
-                  <option value={47}>Zone 47N (ภาคกลาง, เหนือ, ใต้, ตะวันตก)</option>
-                  <option value={48}>Zone 48N (ภาคตะวันออกเฉียงเหนือ, ตะวันออก)</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                  Easting พิกัดราบ E (m)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={utmEasting}
-                  onChange={(e) => setUtmEasting(e.target.value)}
-                  placeholder="เช่น 669735.24"
-                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                  Northing พิกัดดิ่ง N (m)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={utmNorthing}
-                  onChange={(e) => setUtmNorthing(e.target.value)}
-                  placeholder="เช่น 1531520.18"
-                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                />
-              </div>
-            </div>
-            <button
-              onClick={handleApplyUTM}
-              className="min-h-[44px] px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all active:scale-[0.98]"
-            >
-              คำนวณแปลงค่าพิกัด
-            </button>
-          </div>
-        )}
-
-        {/* Input Form 4: Indian 1975 */}
-        {inputMode === 'indian' && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                  Indian 1975 UTM Zone
-                </label>
-                <select
-                  value={indZone}
-                  onChange={(e) => setIndZone(parseInt(e.target.value) as 47 | 48)}
-                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#18181b] text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                >
-                  <option value={47}>Zone 47N (EPSG:24047)</option>
-                  <option value={48}>Zone 48N (EPSG:24048)</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                  Easting พิกัดราบ E (m)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={indEasting}
-                  onChange={(e) => setIndEasting(e.target.value)}
-                  placeholder="เช่น 669939.24"
-                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                  Northing พิกัดดิ่ง N (m)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={indNorthing}
-                  onChange={(e) => setIndNorthing(e.target.value)}
-                  placeholder="เช่น 1532357.18"
-                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
-                />
-              </div>
-            </div>
-            <button
-              onClick={handleApplyIndian}
-              className="min-h-[44px] px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all active:scale-[0.98]"
-            >
-              คำนวณแปลงค่าพิกัด
-            </button>
-          </div>
-        )}
-
-        {/* Field-Actionable Input Error Diagnostic Banner for All Modes */}
-        {inputError && (
-          <div 
-            role="alert"
-            className="mt-4 p-4 rounded-xl bg-rose-500/10 dark:bg-rose-950/30 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs flex items-start space-x-2.5 shadow-sm"
-          >
-            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <span className="font-bold block text-rose-800 dark:text-rose-200">
-                ข้อผิดพลาดในการตรวจสอบพิกัด (Coordinate Input Error):
-              </span>
-              <p className="leading-relaxed font-sans">{inputError}</p>
-            </div>
-          </div>
-        )}
+        <a
+          href="#/knowledge/gnss-rtk-static-survey"
+          className="min-h-[38px] px-3 py-1.5 rounded-lg bg-surface-2 dark:bg-[#18181b] hover:bg-surface-3 dark:hover:bg-[#27272a] text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors flex items-center space-x-1.5 border border-border dark:border-[#27272a]"
+        >
+          <BookOpen className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+          <span>คู่มือวิชาการ: การสำรวจรังวัดดาวเทียม GNSS RTK & Static</span>
+        </a>
       </div>
 
-      {/* Output Results Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        
-        {/* WGS84 Geographic Card */}
-        <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] border-l-2 border-l-indigo-500 p-5 sm:p-6 shadow-sm">
+      {/* ── MODE 1: SINGLE COORDINATE CONVERTER ── */}
+      {mainTab === 'single' && (
+        <>
+          {/* Input Mode Selector & Coordinate Input Card */}
+          <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] p-5 sm:p-6 shadow-sm">
+            <div className="flex items-center justify-between flex-wrap gap-3 mb-5 border-b border-border dark:border-[#27272a] pb-4">
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+                  <ArrowRightLeft className="w-5 h-5 text-indigo-500" />
+                  ป้อนค่าพิกัดต้นทาง (Single Coordinate Input)
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  เลือกรูปแบบพิกัดที่ต้องการนำเข้าเพื่อคำนวณแปลงค่าโดยอัตโนมัติ
+                </p>
+              </div>
+
+              {/* Precision Segmented Control */}
+              <div className="flex flex-wrap p-1 rounded-xl bg-surface-2 dark:bg-[#18181b] border border-border dark:border-[#27272a] text-xs gap-1 max-w-full">
+                <button
+                  onClick={() => { setInputMode('dd'); setInputError(null); }}
+                  className={`min-h-[36px] px-3 sm:px-3.5 py-1.5 rounded-lg font-medium transition-all ${
+                    inputMode === 'dd'
+                      ? 'bg-indigo-600 text-white shadow-sm font-semibold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  WGS84 (DD)
+                </button>
+                <button
+                  onClick={() => { setInputMode('dms'); setInputError(null); }}
+                  className={`min-h-[36px] px-3.5 py-1.5 rounded-lg font-medium transition-all ${
+                    inputMode === 'dms'
+                      ? 'bg-indigo-600 text-white shadow-sm font-semibold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  WGS84 (DMS)
+                </button>
+                <button
+                  onClick={() => { setInputMode('utm'); setInputError(null); }}
+                  className={`min-h-[36px] px-3.5 py-1.5 rounded-lg font-medium transition-all ${
+                    inputMode === 'utm'
+                      ? 'bg-indigo-600 text-white shadow-sm font-semibold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  WGS84 UTM (E, N)
+                </button>
+                <button
+                  onClick={() => { setInputMode('indian'); setInputError(null); }}
+                  className={`min-h-[36px] px-3.5 py-1.5 rounded-lg font-medium transition-all ${
+                    inputMode === 'indian'
+                      ? 'bg-indigo-600 text-white shadow-sm font-semibold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Indian 1975
+                </button>
+              </div>
+            </div>
+
+            {/* Input Form 1: Decimal Degrees */}
+            {inputMode === 'dd' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                      Latitude ละติจูด (องศาทศนิยม - Decimal Degrees)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.000001"
+                      value={ddLat}
+                      onChange={(e) => setDdLat(e.target.value)}
+                      placeholder="เช่น 13.846640"
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                      Longitude ลองจิจูด (องศาทศนิยม - Decimal Degrees)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.000001"
+                      value={ddLng}
+                      onChange={(e) => setDdLng(e.target.value)}
+                      placeholder="เช่น 100.569820"
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    />
+                  </div>
+                </div>
+                {renderFormActionButtons(handleApplyDD)}
+              </div>
+            )}
+
+            {/* Input Form 2: DMS */}
+            {inputMode === 'dms' && (
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                      Latitude ละติจูด (Deg° Min' Sec")
+                    </label>
+                    <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+                      <input
+                        type="number"
+                        aria-label="องศาละติจูด (Latitude Degrees)"
+                        value={dmsLatDeg}
+                        onChange={(e) => setDmsLatDeg(e.target.value)}
+                        placeholder="Deg"
+                        className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                      />
+                      <input
+                        type="number"
+                        aria-label="ลิปดาละติจูด (Latitude Minutes)"
+                        value={dmsLatMin}
+                        onChange={(e) => setDmsLatMin(e.target.value)}
+                        placeholder="Min"
+                        className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                      />
+                      <input
+                        type="number"
+                        step="0.01"
+                        aria-label="พิลิปดาละติจูด (Latitude Seconds)"
+                        value={dmsLatSec}
+                        onChange={(e) => setDmsLatSec(e.target.value)}
+                        placeholder="Sec"
+                        className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                      />
+                      <select
+                        aria-label="ซีกโลกเหนือ-ใต้ (Latitude Direction)"
+                        value={dmsLatDir}
+                        onChange={(e) => setDmsLatDir(e.target.value as 'N' | 'S')}
+                        className="min-h-[44px] px-1.5 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#18181b] font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                      >
+                        <option value="N">N (เหนือ)</option>
+                        <option value="S">S (ใต้)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                      Longitude ลองจิจูด (Deg° Min' Sec")
+                    </label>
+                    <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+                      <input
+                        type="number"
+                        aria-label="องศาลองจิจูด (Longitude Degrees)"
+                        value={dmsLngDeg}
+                        onChange={(e) => setDmsLngDeg(e.target.value)}
+                        placeholder="Deg"
+                        className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                      />
+                      <input
+                        type="number"
+                        aria-label="ลิปดาลองจิจูด (Longitude Minutes)"
+                        value={dmsLngMin}
+                        onChange={(e) => setDmsLngMin(e.target.value)}
+                        placeholder="Min"
+                        className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                      />
+                      <input
+                        type="number"
+                        step="0.01"
+                        aria-label="พิลิปดาลองจิจูด (Longitude Seconds)"
+                        value={dmsLngSec}
+                        onChange={(e) => setDmsLngSec(e.target.value)}
+                        placeholder="Sec"
+                        className="min-h-[44px] px-2 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                      />
+                      <select
+                        aria-label="ซีกโลกตะวันออก-ตะวันตก (Longitude Direction)"
+                        value={dmsLngDir}
+                        onChange={(e) => setDmsLngDir(e.target.value as 'E' | 'W')}
+                        className="min-h-[44px] px-1.5 sm:px-3 py-2 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#18181b] font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                      >
+                        <option value="E">E (ออก)</option>
+                        <option value="W">W (ตก)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                {renderFormActionButtons(handleApplyDMS)}
+              </div>
+            )}
+
+            {/* Input Form 3: WGS84 UTM */}
+            {inputMode === 'utm' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                      UTM Zone (โซนประเทศไทย)
+                    </label>
+                    <select
+                      value={utmZone}
+                      onChange={(e) => setUtmZone(parseInt(e.target.value) as 47 | 48)}
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#18181b] text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    >
+                      <option value={47}>Zone 47N (ภาคกลาง, เหนือ, ใต้, ตะวันตก)</option>
+                      <option value={48}>Zone 48N (ภาคตะวันออกเฉียงเหนือ, ตะวันออก)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                      Easting พิกัดราบ E (m)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={utmEasting}
+                      onChange={(e) => setUtmEasting(e.target.value)}
+                      placeholder="เช่น 669735.24"
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                      Northing พิกัดดิ่ง N (m)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={utmNorthing}
+                      onChange={(e) => setUtmNorthing(e.target.value)}
+                      placeholder="เช่น 1531520.18"
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    />
+                  </div>
+                </div>
+                {renderFormActionButtons(handleApplyUTM)}
+              </div>
+            )}
+
+            {/* Input Form 4: Indian 1975 */}
+            {inputMode === 'indian' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                      Indian 1975 UTM Zone
+                    </label>
+                    <select
+                      value={indZone}
+                      onChange={(e) => setIndZone(parseInt(e.target.value) as 47 | 48)}
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#18181b] text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    >
+                      <option value={47}>Zone 47N (EPSG:24047)</option>
+                      <option value={48}>Zone 48N (EPSG:24048)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                      Easting พิกัดราบ E (m)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={indEasting}
+                      onChange={(e) => setIndEasting(e.target.value)}
+                      placeholder="เช่น 669939.24"
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                      Northing พิกัดดิ่ง N (m)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={indNorthing}
+                      onChange={(e) => setIndNorthing(e.target.value)}
+                      placeholder="เช่น 1532357.18"
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    />
+                  </div>
+                </div>
+                {renderFormActionButtons(handleApplyIndian)}
+              </div>
+            )}
+
+            {/* Field-Actionable Input Error Diagnostic Banner for All Modes */}
+            {inputError && (
+              <div 
+                role="alert"
+                className="mt-4 p-4 rounded-xl bg-rose-500/10 dark:bg-rose-950/30 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs flex items-start space-x-2.5 shadow-sm"
+              >
+                <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <span className="font-bold block text-rose-800 dark:text-rose-200">
+                    ข้อผิดพลาดในการตรวจสอบพิกัด (Coordinate Input Error):
+                  </span>
+                  <p className="leading-relaxed font-sans">{inputError}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* ── MODE 2: BATCH CSV TRANSFORMATION ── */}
+      {mainTab === 'batch' && (
+        <div className="space-y-6">
+          <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] p-5 sm:p-6 shadow-sm">
+            <div className="flex items-center justify-between flex-wrap gap-3 mb-4 pb-3 border-b border-border dark:border-[#27272a]">
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+                  <FileSpreadsheet className="w-5 h-5 text-indigo-500" />
+                  แปลงพิกัดแบบชุดผ่าน CSV (Batch Coordinate Transformation)
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  อัปโหลดหรือวางรายการพิกัดหลายจุดเพื่อแปลงข้าม 3 ระบบพร้อมกัน (WGS84 DD, UTM, Indian 1975)
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <input
+                  ref={batchFileInputRef}
+                  type="file"
+                  accept=".csv,.txt"
+                  className="hidden"
+                  onChange={handleBatchFileUpload}
+                />
+                <button
+                  type="button"
+                  onClick={() => downloadBatchCoordinateTemplateCsv(batchSourceType)}
+                  className="min-h-[38px] px-3.5 py-1.5 rounded-lg bg-surface-2 dark:bg-[#18181b] hover:bg-surface-3 dark:hover:bg-[#27272a] text-xs font-semibold text-slate-700 dark:text-slate-300 border border-border dark:border-[#27272a] transition-colors flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5 text-indigo-500" />
+                  <span>โหลด Template CSV</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => batchFileInputRef.current?.click()}
+                  className="min-h-[38px] px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>นำเข้าไฟล์ CSV</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Source Projection Selector */}
+            <div className="mb-4">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1.5">
+                เลือกระบบพิกัดต้นทางของข้อมูลในตาราง/ไฟล์ CSV:
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                {[
+                  { id: 'wgs84_dd', label: 'WGS84 (Lat, Lng DD)' },
+                  { id: 'utm47', label: 'WGS84 UTM Zone 47N' },
+                  { id: 'utm48', label: 'WGS84 UTM Zone 48N' },
+                  { id: 'ind47', label: 'Indian 1975 Zone 47N' },
+                  { id: 'ind48', label: 'Indian 1975 Zone 48N' }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setBatchSourceType(item.id as BatchCoordinateSourceType)}
+                    className={`min-h-[38px] px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                      batchSourceType === item.id
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                        : 'bg-surface-2 dark:bg-[#18181b] text-slate-700 dark:text-slate-300 border-border dark:border-[#27272a] hover:bg-surface-3'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Textarea for CSV */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                <span>กรอกหรือวางข้อความพิกัด (บรรทัดละจุด: ชื่อจุด, พิกัด1, พิกัด2, [หมายเหตุ]):</span>
+                <button
+                  type="button"
+                  onClick={() => { setBatchRawText(''); setBatchPoints([]); setBatchErrors([]); }}
+                  className="hover:text-rose-500 transition-colors flex items-center gap-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>ล้างข้อความ</span>
+                </button>
+              </div>
+              <textarea
+                value={batchRawText}
+                onChange={(e) => setBatchRawText(e.target.value)}
+                rows={6}
+                placeholder="เช่น KU_MAIN, 13.846640, 100.569820, หมุดหลัก ม.เกษตร"
+                className="w-full p-3 rounded-xl border border-border dark:border-[#27272a] bg-surface-2 dark:bg-[#0a0a0b] font-mono text-xs text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all leading-relaxed"
+              />
+            </div>
+
+            <div className="flex items-center justify-between flex-wrap gap-3 mt-4 pt-3 border-t border-border dark:border-[#27272a]">
+              <button
+                type="button"
+                onClick={handleProcessBatch}
+                className="min-h-[44px] px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm shadow-sm transition-all active:scale-[0.98] flex items-center gap-2"
+              >
+                <ArrowRightLeft className="w-4 h-4" />
+                <span>ประมวลผลแปลงค่าพิกัดทั้งหมด</span>
+              </button>
+
+              {batchPoints.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => exportConvertedBatchCoordinatesToCsv(batchPoints)}
+                  className="min-h-[44px] px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>ดาวน์โหลดผลลัพธ์เป็น CSV ({batchPoints.length} จุด)</span>
+                </button>
+              )}
+            </div>
+
+            {/* Error Diagnostics in Batch */}
+            {batchErrors.length > 0 && (
+              <div 
+                role="alert"
+                className="mt-4 p-4 rounded-xl bg-rose-500/10 dark:bg-rose-950/30 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs space-y-1 shadow-sm"
+              >
+                <div className="flex items-center gap-2 font-bold text-rose-800 dark:text-rose-200">
+                  <AlertCircle className="w-4 h-4 text-rose-600" />
+                  <span>พบข้อผิดพลาดในการแปลงค่า ({batchErrors.length} รายการ):</span>
+                </div>
+                <ul className="list-disc list-inside space-y-0.5 text-slate-700 dark:text-slate-300 font-mono text-[11px] max-h-32 overflow-y-auto">
+                  {batchErrors.map((err, idx) => (
+                    <li key={idx}>{err}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {/* Converted Batch Results Table */}
+          {batchPoints.length > 0 && (
+            <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] p-5 sm:p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-border dark:border-[#27272a]">
+                <div className="flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-indigo-500" />
+                  <h4 className="font-bold text-slate-900 dark:text-white text-sm">
+                    ผลลัพธ์การแปลงพิกัด ({batchPoints.length} จุด)
+                  </h4>
+                </div>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-500/20">
+                  ครอบคลุม WGS84, UTM 47/48N และ Indian 1975
+                </span>
+              </div>
+
+              <div className="overflow-x-auto rounded-xl border border-border dark:border-[#27272a]">
+                <table className="w-full text-left text-xs font-mono">
+                  <thead className="bg-surface-2 dark:bg-[#18181b] text-slate-700 dark:text-slate-300 font-bold border-b border-border dark:border-[#27272a]">
+                    <tr>
+                      <th className="py-2.5 px-3">ลำดับ</th>
+                      <th className="py-2.5 px-3">ชื่อหมุด (ID)</th>
+                      <th className="py-2.5 px-3">WGS84 Lat</th>
+                      <th className="py-2.5 px-3">WGS84 Lng</th>
+                      <th className="py-2.5 px-3">UTM Easting (m)</th>
+                      <th className="py-2.5 px-3">UTM Northing (m)</th>
+                      <th className="py-2.5 px-3">Indian 1975 E (m)</th>
+                      <th className="py-2.5 px-3">Indian 1975 N (m)</th>
+                      <th className="py-2.5 px-3 text-center">แผนที่</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border dark:divide-[#27272a] text-slate-900 dark:text-slate-100">
+                    {batchPoints.map((pt, idx) => (
+                      <tr key={pt.id} className="hover:bg-surface-2/50 dark:hover:bg-[#18181b]/50 transition-colors">
+                        <td className="py-2.5 px-3 text-slate-400">{idx + 1}</td>
+                        <td className="py-2.5 px-3 font-bold text-indigo-600 dark:text-indigo-400">{pt.name}</td>
+                        <td className="py-2.5 px-3">{pt.lat.toFixed(6)}</td>
+                        <td className="py-2.5 px-3">{pt.lng.toFixed(6)}</td>
+                        <td className="py-2.5 px-3">{pt.utmEasting.toFixed(2)} (Z{pt.utmZone})</td>
+                        <td className="py-2.5 px-3">{pt.utmNorthing.toFixed(2)}</td>
+                        <td className="py-2.5 px-3 text-amber-600 dark:text-amber-400">{pt.indianEasting.toFixed(2)}</td>
+                        <td className="py-2.5 px-3 text-amber-600 dark:text-amber-400">{pt.indianNorthing.toFixed(2)}</td>
+                        <td className="py-2.5 px-3 text-center">
+                          {onPlotOnMap && (
+                            <button
+                              type="button"
+                              onClick={() => onPlotOnMap(pt.lat, pt.lng, pt.name)}
+                              className="p-1 rounded bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 transition-colors inline-flex items-center"
+                              title="พล็อตหมุดนี้บน WebMap"
+                            >
+                              <MapPin className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Single Mode Output Results Cards ── */}
+      {mainTab === 'single' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* WGS84 Geographic Card */}
+          <div className="bg-surface-1 dark:bg-[#111113] rounded-2xl border border-border dark:border-[#27272a] border-l-2 border-l-indigo-500 p-5 sm:p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-border dark:border-[#27272a]">
             <div>
               <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 tracking-wider uppercase">
@@ -667,6 +991,7 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
         </div>
 
       </div>
+      )}
 
     </div>
   );
