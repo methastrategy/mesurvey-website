@@ -383,22 +383,11 @@ export const TraverseCalculator: React.FC = () => {
         style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}
       >
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-                CALC-01 • BOWDITCH TRAVERSE
-              </span>
-              <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                <Save className="w-3 h-3 animate-pulse" />
-                บันทึก {new Date(traverseLastSaved).toLocaleTimeString('th-TH')}
-              </span>
-            </div>
-            <h3 className="font-bold text-base" style={{ color: 'var(--text-1)' }}>
-              ตารางทำงานวงรอบ — กรอกมุมสนาม D°M′S″
-            </h3>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
-              ปรับแก้วิธีเข็มทิศ (Bowditch / Compass Rule) · Angular Closure · คำนวณพิกัดปรับแก้
-            </p>
+          <div className="flex items-center gap-2">
+            <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+              <Save className="w-3.5 h-3.5 animate-pulse" />
+              <span>บันทึก {new Date(traverseLastSaved).toLocaleTimeString('th-TH')}</span>
+            </span>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <input

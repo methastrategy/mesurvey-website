@@ -388,48 +388,9 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
   return (
     <div className="space-y-6">
       
-      {/* ── Studio Hero Header ── */}
-      <div className="fusion-card p-5 sm:p-6 space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/30">
-                TOOL-06
-              </span>
-              <span className="text-xs font-mono text-[var(--text-3)] uppercase tracking-wider">
-                Unified Geomatics & GNSS Studio
-              </span>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-1)] tracking-tight">
-              ศูนย์ประมวลผลดาวเทียมและปรับแก้โครงข่าย (GNSS Studio)
-            </h1>
-            <p className="text-xs sm:text-sm text-[var(--text-2)] max-w-3xl leading-relaxed">
-              ประมวลผลข้อมูลรังวัดครบวงจรในเครื่องมือเดียว: ตรวจสอบไฟล์ดิบ RINEX & Polar Skyplot → คำนวณเวกเตอร์ฐาน Double Difference (LAMBDA) → ปรับแก้โครงข่าย Least Squares และพล็อตวงรีความคลาดเคลื่อน 95%
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 flex-wrap self-start md:self-center">
-            <a
-              href="#/knowledge/gnss-rtk-static-survey"
-              className="px-3 py-2 rounded-[var(--btn-radius)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] font-semibold text-xs transition-colors flex items-center gap-1.5 micro-press"
-            >
-              <BookOpen className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-              <span>คู่มือวิชาการ: การรังวัด GNSS & ปรับแก้โครงข่าย</span>
-            </a>
-
-            <button
-              type="button"
-              onClick={handleCopyReport}
-              className="px-3.5 py-2 rounded-[var(--btn-radius)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] font-semibold text-xs transition-colors flex items-center gap-2 micro-press"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? 'คัดลอกรายงานแล้ว' : 'คัดลอกรายงานสรุป'}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* ── 4-Step Interactive Workflow Ribbon ── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 border-t border-[var(--border)] select-none">
+      {/* ── 4-Step Interactive Workflow Ribbon ── */}
+      <div className="fusion-card p-3 sm:p-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 select-none">
           <button
             type="button"
             onClick={() => setActiveTab('ingestion')}

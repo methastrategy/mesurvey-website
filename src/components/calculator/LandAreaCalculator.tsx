@@ -209,65 +209,48 @@ export const LandAreaCalculator: React.FC = () => {
       
       {/* ── Header ── */}
       <div className="p-4 rounded-[var(--card-radius)] border shadow-xs" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}>
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-                CALC-04 • CADASTRAL AREA ENGINE
-              </span>
-            </div>
-            <h3 className="font-bold text-base flex items-center gap-2" style={{ color: 'var(--text-1)' }}>
-              <Layers className="w-5 h-5 text-indigo-500" />
-              <span>ระบบคำนวณและแปลงหน่วยที่ดินไทย (Thai Land & Cadastral Area Unit Converter)</span>
-            </h3>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
-              คำนวณพื้นที่รูปแปลงที่ดินจากพิกัดหมุดเขต (Shoelace Formula) และแปลงหน่วยโฉนดที่ดินไทย (1 ไร่ = 4 งาน = 400 ตร.ว. = 1,600 ตร.ม.)
-            </p>
-          </div>
-
-          {/* Mode Switcher Tabs & Manual Link */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <a
-              href="#/knowledge/closed-loop-traverse"
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition"
-              style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-1)' }}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* Mode Switcher Tabs */}
+          <div className="flex items-center gap-1.5 p-1 rounded-xl border bg-[var(--surface-2)]" style={{ borderColor: 'var(--border)' }}>
+            <button
+              type="button"
+              onClick={() => setActiveMode('polygon')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                activeMode === 'polygon'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-[var(--text-2)] hover:text-[var(--text-1)]'
+              }`}
             >
-              <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
-              <span>คู่มือวิชาการ: รังวัดแปลงที่ดินและวงรอบ</span>
-            </a>
-
-            <div className="flex items-center gap-1.5 p-1 rounded-xl border bg-[var(--surface-2)]" style={{ borderColor: 'var(--border)' }}>
-              <button
-                type="button"
-                onClick={() => setActiveMode('polygon')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
-                  activeMode === 'polygon'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'text-[var(--text-2)] hover:text-[var(--text-1)]'
-                }`}
-              >
-                <Eye className="w-3.5 h-3.5" />
-                <span>คำนวณพิกัดรูปแปลง (Polygon)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveMode('converter')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
-                  activeMode === 'converter'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'text-[var(--text-2)] hover:text-[var(--text-1)]'
-                }`}
-              >
-                <ArrowRightLeft className="w-3.5 h-3.5" />
-                <span>แปลงหน่วยโฉนด (Converter)</span>
-              </button>
-            </div>
+              <Eye className="w-3.5 h-3.5" />
+              <span>คำนวณพิกัดรูปแปลง (Polygon)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveMode('converter')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                activeMode === 'converter'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-[var(--text-2)] hover:text-[var(--text-1)]'
+              }`}
+            >
+              <ArrowRightLeft className="w-3.5 h-3.5" />
+              <span>แปลงหน่วยโฉนด (Converter)</span>
+            </button>
           </div>
+
+          <a
+            href="#/knowledge/closed-loop-traverse"
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition"
+            style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-1)' }}
+          >
+            <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
+            <span>คู่มือวิชาการ: รังวัดแปลงที่ดินและวงรอบ</span>
+          </a>
         </div>
 
         {/* Action Toolbar for Polygon Mode */}
         {activeMode === 'polygon' && (
-          <div className="flex items-center gap-2 flex-wrap pt-3 border-t border-[var(--border)]">
+          <div className="flex items-center gap-2 flex-wrap mt-3 pt-3 border-t border-[var(--border)]">
             <input
               ref={fileInputRef}
               type="file"
