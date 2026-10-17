@@ -30,9 +30,9 @@
       "purpose": "any maskable"
     },
     {
-      "src": "/assets/mascot/sticker_surveyor_field.jpg",
+      "src": "/assets/mascot/sticker_surveyor_field.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
