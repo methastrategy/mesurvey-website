@@ -1,17 +1,36 @@
 import React from 'react';
 import { Compass } from 'lucide-react';
+import { DragonSurveyorLoader, type DragonLoaderSize } from '../common/DragonSurveyorLoader';
 
 interface GeomaticsLoadingFallbackProps {
   label?: string;
   sublabel?: string;
   fullHeight?: boolean;
+  styleMode?: 'mascot' | 'compass';
+  size?: DragonLoaderSize;
+  cycleMessages?: boolean;
 }
 
 export const GeomaticsLoadingFallback: React.FC<GeomaticsLoadingFallbackProps> = ({
   label = 'กำลังเชื่อมต่อและโหลดข้อมูลโมดูลวิศวกรรมสำรวจ...',
   sublabel = 'GEOMATICS ENGINE INITIALIZING',
-  fullHeight = false
+  fullHeight = false,
+  styleMode = 'mascot',
+  size = 'md',
+  cycleMessages = false,
 }) => {
+  if (styleMode === 'mascot') {
+    return (
+      <DragonSurveyorLoader
+        size={size}
+        label={label}
+        sublabel={sublabel}
+        fullHeight={fullHeight}
+        cycleMessages={cycleMessages}
+      />
+    );
+  }
+
   return (
     <div 
       className={`flex flex-col items-center justify-center w-full py-16 px-4 select-none anim-fade-in ${

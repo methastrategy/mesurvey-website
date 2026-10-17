@@ -837,3 +837,57 @@ body[data-theme="cyberlime"] {
   transform-origin: center center;
 }
 
+/* ==========================================================================
+   SURVEYOR DRAGON SPRITE LOADING ANIMATION (6 FRAMES)
+   Universal Geomatics Mascot · Pixel-Perfect Action Loop
+   ========================================================================== */
+
+.pixel-art {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+@keyframes dragonSpriteWalk {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.dragon-sprite-strip-anim {
+  animation: dragonSpriteWalk 1.15s steps(6) infinite;
+  will-change: transform;
+}
+
+.dragon-sprite-strip-anim-paused {
+  animation-play-state: paused;
+}
+
+/* ==========================================================================
+   WALKING DRAGON SPRITE GPS NAVIGATOR (8 FRAMES)
+   Universal Geomatics Mascot · Route Tracking & Real-Time Cadence
+   ========================================================================== */
+
+@keyframes dragonWalkStride {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.dragon-walk-strip-anim {
+  animation: dragonWalkStride 0.88s steps(8) infinite;
+  will-change: transform;
+}
+
+.dragon-walk-strip-anim-paused {
+  animation-play-state: paused;
+}
+
+
+

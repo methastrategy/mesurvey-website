@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { PlaceSearchResult, RouteResult, TravelMode } from '../../../types/memaps';
 import { fetchRoute } from '../../../core/memaps-services';
+import { DragonWalkingTracker } from '../../common/DragonWalkingTracker';
+
 
 interface MeMapsDirectionsPanelProps {
   originPlace: PlaceSearchResult | null;
@@ -263,16 +265,24 @@ export const MeMapsDirectionsPanel: React.FC<MeMapsDirectionsPanelProps> = ({
               </div>
             </div>
 
-            {onSendToSurvey && originPlace && destinationPlace && (
-              <button
-                onClick={() => onSendToSurvey(originPlace, destinationPlace)}
-                className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-medium flex items-center gap-1 shadow-xs transition-all duration-150 ease-spring hover:scale-[1.02] active:scale-95"
-                title="ส่งพิกัดต้นทาง-ปลายทางไปตารางรังวัดวงรอบ"
-              >
-                <Send className="w-3 h-3" />
-                <span>เข้าโต๊ะรังวัด</span>
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {mode === 'walking' && (
+                <div className="shrink-0 flex items-center pr-1" title="มังกรเดินนำทางเส้นทางสำรวจ (GPS Pedestrian Route)">
+                  <DragonWalkingTracker size="xs" variant="minimal" isMoving={true} />
+                </div>
+              )}
+
+              {onSendToSurvey && originPlace && destinationPlace && (
+                <button
+                  onClick={() => onSendToSurvey(originPlace, destinationPlace)}
+                  className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-medium flex items-center gap-1 shadow-xs transition-all duration-150 ease-spring hover:scale-[1.02] active:scale-95"
+                  title="ส่งพิกัดต้นทาง-ปลายทางไปตารางรังวัดวงรอบ"
+                >
+                  <Send className="w-3 h-3" />
+                  <span>เข้าโต๊ะรังวัด</span>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Toggle Steps Accordion */}

@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, Compass, Award, ExternalLink, ShieldCheck, BookOpen } from 'lucide-react';
+import { DragonSurveyorLoader } from '../common/DragonSurveyorLoader';
+import { DragonWalkingTracker } from '../common/DragonWalkingTracker';
 
 interface AboutModalProps {
   isOpen: boolean;
@@ -7,6 +9,8 @@ interface AboutModalProps {
 }
 
 export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
+  const [mascotTab, setMascotTab] = useState<'surveyor' | 'walking'>('surveyor');
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -76,6 +80,70 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
                 <span><strong>องค์ความรู้และสถิติภาคสนาม:</strong> ประยุกต์ใช้จากเอกสารวิชาการและการปฏิบัติงานจริงของภาควิชาวิศวกรรมสำรวจและสารสนเทศภูมิศาสตร์ คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเกษตรศาสตร์</span>
               </li>
             </ul>
+          </div>
+
+          {/* Mascot Section */}
+          <div className="p-4 rounded-[var(--card-radius)] bg-[var(--surface-2)] border border-[var(--border)]">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-bold text-[var(--text-1)] flex items-center gap-1.5 leading-normal">
+                <span className="text-base">🐉</span>
+                <span>มาสคอตมังกรวิศวกรรมสำรวจ (MESURV Dragon Studio)</span>
+              </h4>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--accent)] font-semibold border border-[var(--border)]">
+                {mascotTab === 'surveyor' ? '6-FRAME ACTION' : '8-FRAME WALK GPS'}
+              </span>
+            </div>
+
+            {/* Mascot Mode Toggle */}
+            <div className="flex rounded-lg bg-[var(--surface)] p-1 border border-[var(--border)] mb-3 gap-1">
+              <button
+                type="button"
+                onClick={() => setMascotTab('surveyor')}
+                className={`flex-1 min-h-[44px] py-2 px-3 rounded-md text-xs font-semibold flex items-center justify-center transition-all ${
+                  mascotTab === 'surveyor'
+                    ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-xs'
+                    : 'text-[var(--text-2)] hover:text-[var(--text-1)]'
+                }`}
+              >
+                🔭 โหมดส่องกล้องรังวัด (6 เฟรม)
+              </button>
+              <button
+                type="button"
+                onClick={() => setMascotTab('walking')}
+                className={`flex-1 min-h-[44px] py-2 px-3 rounded-md text-xs font-semibold flex items-center justify-center transition-all ${
+                  mascotTab === 'walking'
+                    ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-xs'
+                    : 'text-[var(--text-2)] hover:text-[var(--text-1)]'
+                }`}
+              >
+                🚶 โหมดเดินติดตาม GPS (8 เฟรม)
+              </button>
+            </div>
+
+            <p className="text-xs leading-relaxed text-[var(--text-2)] mb-3">
+              {mascotTab === 'surveyor'
+                ? 'แอนิเมชันแสดงขั้นตอนการปฏิบัติงานรังวัดภาคสนาม ตั้งแต่ปรับตั้งกล้อง Total Station, เล็งแนวส่องปริซึม, ยิงสัญญาณวัดระยะลาด (EDM), จนถึงการคำนวณพิกัดและยืนยันความถูกต้อง 👍'
+                : 'แอนิเมชันวัฏจักรการก้าวเดิน (Walk Cycle 8 เฟรม) พร้อมระบบพลิกทิศทางตามมุม Azimuth/Heading อัตโนมัติ สำหรับแสดงผลขณะเดินสำรวจและนำทางเส้นทาง GPS ภาคสนาม 🛰️'}
+            </p>
+
+            <div className="flex flex-col items-center justify-center p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
+              {mascotTab === 'surveyor' ? (
+                <DragonSurveyorLoader 
+                  size="md" 
+                  mode="interactive"
+                  variant="minimal"
+                />
+              ) : (
+                <DragonWalkingTracker
+                  size="md"
+                  mode="interactive"
+                  variant="minimal"
+                  heading={60}
+                  speedKmh={4.2}
+                  accuracy={1.8}
+                />
+              )}
+            </div>
           </div>
 
           <div className="p-4 rounded-[var(--card-radius)] bg-[var(--surface-2)] border border-[var(--border)]">
