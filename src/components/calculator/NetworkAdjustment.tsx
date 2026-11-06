@@ -174,6 +174,12 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
     setBannerMessage(null);
     setBaselineError(null);
 
+    // If existing store network is just sample data (STN-1, STN-2, P-A, P-B), cleanly purge it
+    if (stations2D.some(s => ['STN-1', 'STN-2', 'P-A', 'P-B'].includes(s.id))) {
+      clearNetwork();
+      setResult2D(null);
+    }
+
     try {
       const ext = file.name.split('.').pop()?.toLowerCase() || '';
 
@@ -365,7 +371,8 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
       baseRefN = Math.round(utm.northing * 1000) / 1000;
     }
 
-    const updatedStations = [...stations2D];
+    const isSampleNetwork = stations2D.some(s => ['STN-1', 'STN-2', 'P-A', 'P-B'].includes(s.id));
+    const updatedStations = isSampleNetwork ? [] : [...stations2D];
     const existingBase = updatedStations.find(s => s.id === baseName);
     if (!existingBase) {
       updatedStations.push({
@@ -397,7 +404,10 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
       stdDev2: Math.max(0.002, baselineSolution.stdDevMm.dN / 1000.0)
     };
 
-    const updatedObs = [...obs2D.filter(o => o.id !== newVectorObs.id), newVectorObs];
+    const updatedObs = [
+      ...(isSampleNetwork ? [] : obs2D.filter(o => o.id !== newVectorObs.id)),
+      newVectorObs
+    ];
     setStations2D(updatedStations);
     setObs2D(updatedObs);
 
@@ -579,71 +589,95 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
   // ─────────────────────────────────────────────────────────────────────────
   // COMPOSING STATIONS & OBSERVATIONS FOR EMBEDDED MAP
   // ─────────────────────────────────────────────────────────────────────────
+  const currentUtmZone: 47 | 48 = useMemo(() => {
+    if (baseCoords && typeof baseCoords.lng === 'number' && !isNaN(baseCoords.lng)) {
+      return baseCoords.lng >= 102.0 ? 48 : 47;
+    }
+    return 47;
+  }, [baseCoords]);
+
   const displayStations: AdjustedStation2D[] = useMemo(() => {
+    // 1. Static and Kinematic GNSS modes: strictly isolated to active Base and Rover!
+    // Never show unrelated 2D traverse networks, previous samples, or other tools.
+    if (processingMode === 'static' || processingMode === 'kinematic') {
+      const stns: AdjustedStation2D[] = [];
+      if (baseRinex?.header.approxGeodetic) {
+        const baseUtm = forwardWgs84ToUtm(baseCoords.lat, baseCoords.lng);
+        const baseName = baseRinex.header.markerName || 'BASE';
+        stns.push({
+          id: baseName,
+          isFixed: true,
+          easting: baseUtm.easting,
+          northing: baseUtm.northing,
+          sigmaEMm: 0.5,
+          sigmaNMm: 0.5
+        });
+
+        if (baselineSolution) {
+          const roverName = baselineSolution.roverStation || roverRinex?.header.markerName || 'ROVER';
+          stns.push({
+            id: roverName,
+            isFixed: false,
+            easting: baseUtm.easting + baselineSolution.vectorENU.dE,
+            northing: baseUtm.northing + baselineSolution.vectorENU.dN,
+            sigmaEMm: baselineSolution.stdDevMm.dE,
+            sigmaNMm: baselineSolution.stdDevMm.dN,
+            errorEllipse: {
+              semiMajorAxisMm: baselineSolution.stdDevMm.dN * 2.45,
+              semiMinorAxisMm: baselineSolution.stdDevMm.dE * 2.45,
+              orientationDeg: baselineSolution.vectorENU.azimuthDeg,
+              conf95MajorMm: baselineSolution.stdDevMm.dN * 2.45,
+              conf95MinorMm: baselineSolution.stdDevMm.dE * 2.45
+            }
+          });
+        } else if (roverRinex?.header.approxGeodetic) {
+          const rovUtm = forwardWgs84ToUtm(roverRinex.header.approxGeodetic.lat, roverRinex.header.approxGeodetic.lng);
+          const roverName = roverRinex.header.markerName || 'ROVER';
+          stns.push({
+            id: roverName,
+            isFixed: false,
+            easting: rovUtm.easting,
+            northing: rovUtm.northing,
+            sigmaEMm: 2.5,
+            sigmaNMm: 2.5
+          });
+        }
+      }
+      return stns;
+    }
+
+    // 2. Network Adjustment Mode:
+    // Only display 2D network adjustment result stations when user is in 'adjustment' mode!
     if (result2D && result2D.stations.length > 0) {
       return result2D.stations;
     }
-    const stns: AdjustedStation2D[] = [];
-    if (baseRinex?.header.approxGeodetic) {
-      const baseUtm = forwardWgs84ToUtm(baseCoords.lat, baseCoords.lng);
-      stns.push({
-        id: baseRinex.header.markerName || 'BASE',
-        isFixed: true,
-        easting: baseUtm.easting,
-        northing: baseUtm.northing,
-        sigmaEMm: 0.5,
-        sigmaNMm: 0.5
-      });
-
-      if (baselineSolution) {
-        stns.push({
-          id: baselineSolution.roverStation || 'ROVER',
-          isFixed: false,
-          easting: baseUtm.easting + baselineSolution.vectorENU.dE,
-          northing: baseUtm.northing + baselineSolution.vectorENU.dN,
-          sigmaEMm: baselineSolution.stdDevMm.dE,
-          sigmaNMm: baselineSolution.stdDevMm.dN,
-          errorEllipse: {
-            semiMajorAxisMm: baselineSolution.stdDevMm.dN * 2.45,
-            semiMinorAxisMm: baselineSolution.stdDevMm.dE * 2.45,
-            orientationDeg: baselineSolution.vectorENU.azimuthDeg,
-            conf95MajorMm: baselineSolution.stdDevMm.dN * 2.45,
-            conf95MinorMm: baselineSolution.stdDevMm.dE * 2.45
-          }
-        });
-      } else if (roverRinex?.header.approxGeodetic) {
-        const rovUtm = forwardWgs84ToUtm(roverRinex.header.approxGeodetic.lat, roverRinex.header.approxGeodetic.lng);
-        stns.push({
-          id: roverRinex.header.markerName || 'ROVER',
-          isFixed: false,
-          easting: rovUtm.easting,
-          northing: rovUtm.northing,
-          sigmaEMm: 2.5,
-          sigmaNMm: 2.5
-        });
-      }
-    }
-    return stns;
-  }, [result2D, baseRinex, roverRinex, baselineSolution, baseCoords]);
+    return [];
+  }, [processingMode, baseRinex, roverRinex, baselineSolution, baseCoords, result2D]);
 
   const displayObservations: (Observation2D | AdjustedObs2D)[] = useMemo(() => {
+    // 1. Static and Kinematic GNSS modes: strictly the baseline vector
+    if (processingMode === 'static' || processingMode === 'kinematic') {
+      if (baselineSolution && baseRinex) {
+        return [{
+          id: `GNSS_${baselineSolution.id}`,
+          type: 'baseline_vector',
+          fromStation: baselineSolution.baseStation || baseRinex.header.markerName || 'BASE',
+          toStation: baselineSolution.roverStation || roverRinex?.header.markerName || 'ROVER',
+          measuredValue: baselineSolution.vectorENU.dE,
+          measuredValue2: baselineSolution.vectorENU.dN,
+          stdDev: baselineSolution.stdDevMm.dE / 1000,
+          stdDev2: baselineSolution.stdDevMm.dN / 1000
+        }];
+      }
+      return [];
+    }
+
+    // 2. Network Adjustment Mode:
     if (result2D && result2D.observations.length > 0) {
       return result2D.observations;
     }
-    if (baselineSolution && baseRinex) {
-      return [{
-        id: `GNSS_${baselineSolution.id}`,
-        type: 'baseline_vector',
-        fromStation: baselineSolution.baseStation,
-        toStation: baselineSolution.roverStation,
-        measuredValue: baselineSolution.vectorENU.dE,
-        measuredValue2: baselineSolution.vectorENU.dN,
-        stdDev: baselineSolution.stdDevMm.dE / 1000,
-        stdDev2: baselineSolution.stdDevMm.dN / 1000
-      }];
-    }
     return [];
-  }, [result2D, baselineSolution, baseRinex]);
+  }, [processingMode, baselineSolution, baseRinex, roverRinex, result2D]);
 
   // Skyplot Active Satellites
   const activeSkyplotRinex = selectedStationView === 'base' ? baseRinex : roverRinex;
@@ -1436,7 +1470,7 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
                 <EmbeddedNetworkMap
                   stations={displayStations}
                   observations={displayObservations}
-                  utmZone={47}
+                  utmZone={currentUtmZone}
                   title="Ground Track & Survey Network Vector Map"
                 />
               </div>

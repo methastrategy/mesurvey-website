@@ -34,7 +34,7 @@ export const EmbeddedNetworkMap: React.FC<EmbeddedNetworkMapProps> = ({
   const [basemapType, setBasemapType] = useState<'satellite' | 'street'>('satellite');
   const [showEllipses, setShowEllipses] = useState<boolean>(true);
   const [showLines, setShowLines] = useState<boolean>(true);
-  const [scaleMultiplier, setScaleMultiplier] = useState<number>(5000);
+  const [scaleMultiplier, setScaleMultiplier] = useState<number>(1000);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
   // Initialize Map
