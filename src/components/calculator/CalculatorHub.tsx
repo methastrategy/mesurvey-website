@@ -6,8 +6,7 @@ import {
   Layers, 
   Calculator,
   Network,
-  ArrowRight,
-  ArrowLeft
+  ArrowRight
 } from 'lucide-react';
 import { CoordinateConverter } from './CoordinateConverter';
 import { TraverseCalculator } from './TraverseCalculator';
@@ -156,27 +155,12 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
     }
 
     return (
-      <div className="space-y-4">
-        {/* Top-Left Minimal Back Navigation */}
-        <div className="flex items-center">
-          <button
-            type="button"
-            onClick={() => selectTool(null)}
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[var(--accent)] hover:underline cursor-pointer transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 shrink-0" />
-            <span>เครื่องมือทั้งหมด</span>
-          </button>
-        </div>
-
-        {/* Selected Tool Component */}
-        <div>
-          {activeSubTab === 'traverse' && <TraverseCalculator />}
-          {activeSubTab === 'leveling' && <LevelingCalculator />}
-          {activeSubTab === 'coord' && <CoordinateConverter onPlotOnMap={onPlotOnMap} />}
-          {activeSubTab === 'area' && <LandAreaCalculator />}
-          {activeSubTab === 'adjustment' && <NetworkAdjustment onPlotOnMap={onPlotOnMap} />}
-        </div>
+      <div>
+        {activeSubTab === 'traverse' && <TraverseCalculator />}
+        {activeSubTab === 'leveling' && <LevelingCalculator />}
+        {activeSubTab === 'coord' && <CoordinateConverter onPlotOnMap={onPlotOnMap} />}
+        {activeSubTab === 'area' && <LandAreaCalculator />}
+        {activeSubTab === 'adjustment' && <NetworkAdjustment onPlotOnMap={onPlotOnMap} />}
       </div>
     );
   }

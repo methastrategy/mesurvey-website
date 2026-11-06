@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BookOpen, Calculator, Map, ChevronRight, Sun, Moon, Info, Palette, Check, ChevronDown, Wifi, WifiOff } from 'lucide-react';
+import { BookOpen, Calculator, Map, ChevronRight, Sun, Moon, Info, Palette, Check, ChevronDown, Wifi, WifiOff, ArrowLeft } from 'lucide-react';
 import type { MesurvTheme } from '../../App';
 import type { NetworkStatus } from '../../hooks/useNetworkStatus';
 
@@ -137,20 +137,26 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </button>
 
-          {/* Sub-level Breadcrumb Indicator (Desktop) */}
+          {/* Back to All Tools Button in Top Header */}
           {activeTab === 'calculator' && currentSubTab && (
-            <div className="hidden lg:flex items-center gap-1.5 text-xs text-[var(--text-3)] truncate">
-              <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+            <div className="flex items-center gap-2 pl-1 sm:pl-2">
               <button
+                type="button"
                 onClick={() => setActiveTab('calculator')}
-                className="hover:text-[var(--text-1)] transition-colors"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] hover:text-[var(--accent)] border border-[var(--border)] text-xs font-semibold transition-colors micro-press cursor-pointer shadow-2xs group"
+                title="ย้อนกลับไปหน้ารวมเครื่องมือทั้งหมด"
               >
-                เครื่องมือ
+                <ArrowLeft className="w-3.5 h-3.5 shrink-0 text-[var(--accent)] group-hover:-translate-x-0.5 transition-transform" />
+                <span>เครื่องมือทั้งหมด</span>
               </button>
-              <ChevronRight className="w-3.5 h-3.5 shrink-0" />
-              <span className="text-[var(--accent)] font-mono font-semibold truncate">
-                {subTabNames[currentSubTab] || currentSubTab}
-              </span>
+              {subTabNames[currentSubTab] && (
+                <div className="hidden sm:flex items-center gap-1 text-[var(--text-3)] text-xs font-mono">
+                  <span>/</span>
+                  <span className="font-semibold text-[var(--accent)] truncate max-w-[150px]">
+                    {subTabNames[currentSubTab]}
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
