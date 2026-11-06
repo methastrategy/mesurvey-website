@@ -63,18 +63,24 @@ import { NetworkAdjustmentInputTable } from './NetworkAdjustmentInputTable';
 import { exportToCsv } from '../../utils/csv-export';
 import { inverseUtmToWgs84, forwardWgs84ToUtm } from '../../core/projections';
 import { useSurveyStore } from '../../store/useSurveyStore';
+import { GnssNetworkMeshPanel } from './GnssNetworkMeshPanel';
+import { LoopClosureTable } from './LoopClosureTable';
+import type { LoopClosureResult } from '../../core/gnss/loop-closure-analyzer';
 
 interface NetworkAdjustmentProps {
   onPlotOnMap?: (lat: number, lng: number, label: string) => void;
 }
 
 export type ProcessingMode = 'static' | 'kinematic' | 'adjustment' | 'rinex';
-export type CanvasView = 'map' | 'skyplot' | 'adjustment' | 'report';
+export type CanvasView = 'map' | 'skyplot' | 'adjustment' | 'report' | 'loops';
+export type StudioMode = 'single' | 'network';
 
 export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMap }) => {
   // ── Mode & View State ──
+  const [studioMode, setStudioMode] = useState<StudioMode>('single');
   const [processingMode, setProcessingMode] = useState<ProcessingMode>('static');
   const [canvasView, setCanvasView] = useState<CanvasView>('map');
+  const [networkLoops, setNetworkLoops] = useState<LoopClosureResult[]>([]);
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -557,6 +563,11 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
   }, [baseCoords]);
 
   const displayStations: AdjustedStation2D[] = useMemo(() => {
+    // 0. Network Mesh Mode (CGO2)
+    if (studioMode === 'network' && result2D && result2D.stations.length > 0) {
+      return result2D.stations;
+    }
+
     // 1. Static and Kinematic GNSS modes: strictly isolated to active Base and Rover!
     // Never show unrelated 2D traverse networks, previous samples, or other tools.
     if (processingMode === 'static' || processingMode === 'kinematic') {
@@ -612,9 +623,14 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
       return result2D.stations;
     }
     return [];
-  }, [processingMode, baseRinex, roverRinex, baselineSolution, baseCoords, result2D]);
+  }, [studioMode, processingMode, baseRinex, roverRinex, baselineSolution, baseCoords, result2D]);
 
   const displayObservations: (Observation2D | AdjustedObs2D)[] = useMemo(() => {
+    // 0. Network Mesh Mode (CGO2)
+    if (studioMode === 'network' && result2D && result2D.observations.length > 0) {
+      return result2D.observations;
+    }
+
     // 1. Static and Kinematic GNSS modes: strictly the baseline vector
     if (processingMode === 'static' || processingMode === 'kinematic') {
       if (baselineSolution && baseRinex) {
@@ -637,7 +653,7 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
       return result2D.observations;
     }
     return [];
-  }, [processingMode, baselineSolution, baseRinex, roverRinex, result2D]);
+  }, [studioMode, processingMode, baselineSolution, baseRinex, roverRinex, result2D]);
 
   // Skyplot Active Satellites
   const activeSkyplotRinex = selectedStationView === 'base' ? baseRinex : roverRinex;
@@ -682,6 +698,48 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
           
           <div className="fusion-card p-4 space-y-3.5">
             
+            {/* Dual Studio Mode Switcher: 1-to-1 Pair vs Multi-Station Network */}
+            <div className="grid grid-cols-2 p-1 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => setStudioMode('single')}
+                className={`py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  studioMode === 'single'
+                    ? 'bg-[var(--surface)] text-[var(--accent)] shadow-xs border border-[var(--border)]'
+                    : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
+                }`}
+              >
+                <Radio className="w-3.5 h-3.5" />
+                <span>คู่รังวัด (1:1)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setStudioMode('network')}
+                className={`py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  studioMode === 'network'
+                    ? 'bg-[var(--surface)] text-[var(--accent)] shadow-xs border border-[var(--border)]'
+                    : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
+                }`}
+              >
+                <Network className="w-3.5 h-3.5" />
+                <span>โครงข่าย (Mesh)</span>
+              </button>
+            </div>
+
+            {studioMode === 'network' ? (
+              <GnssNetworkMeshPanel
+                onAdjustmentComplete={(res, stns, obss, loops) => {
+                  setStations2D(stns);
+                  setObs2D(obss);
+                  setResult2D(res);
+                  setNetworkLoops(loops);
+                  setCanvasView('map');
+                }}
+                onViewLoops={() => setCanvasView('loops')}
+                onSetBanner={(msg) => setBannerMessage(msg)}
+              />
+            ) : (
+            <>
             {/* Mode Selector Dropdown (Styled after Emlid Studio 1.11) */}
             <div className="relative">
               <button
@@ -1290,6 +1348,8 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
                 )}
               </div>
             )}
+            </>
+            )}
 
           </div>
 
@@ -1355,6 +1415,24 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
                 >
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Survey Report</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCanvasView('loops')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all micro-press flex items-center gap-1.5 ${
+                    canvasView === 'loops'
+                      ? 'bg-[var(--surface)] text-[var(--accent)] shadow-xs border border-[var(--border)]'
+                      : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
+                  }`}
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>Loop Closures</span>
+                  {networkLoops.length > 0 && (
+                    <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-500 font-bold">
+                      {networkLoops.length}
+                    </span>
+                  )}
                 </button>
               </div>
 
@@ -1628,6 +1706,13 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
                     ยังไม่มีผลลัพธ์เวกเตอร์ฐาน กรุณานำเข้าไฟล์และกด Process ทางฝั่งซ้าย
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* ── CANVAS BODY: VIEW 5 - LOOP CLOSURE AUDIT TABLE ── */}
+            {canvasView === 'loops' && (
+              <div className="min-h-[580px]">
+                <LoopClosureTable loops={networkLoops} />
               </div>
             )}
 

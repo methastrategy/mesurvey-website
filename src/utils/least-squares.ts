@@ -341,6 +341,8 @@ export interface Observation2D {
   toStation: string;
   measuredValue: number; // distance (m), azimuth (degrees), or dE (m)
   measuredValue2?: number; // for baseline_vector: dN (m)
+  dE?: number; // Direct GNSS baseline vector dE (meters)
+  dN?: number; // Direct GNSS baseline vector dN (meters)
   stdDev: number; // e.g. 0.005 m for distance, 5 arc-sec for angle, 0.008 m for GNSS
   stdDev2?: number; // for dN
 }
@@ -525,18 +527,22 @@ export function adjust2DNetwork(
         P[rowIdx][rowIdx] = 1.0 / Math.max(1e-12, stdRad * stdRad);
         rowIdx++;
       } else if (obs.type === 'baseline_vector') {
+        const valE = obs.dE ?? obs.measuredValue;
+        const valN = obs.dN ?? obs.measuredValue2 ?? 0;
+        const stdE = obs.stdDev;
+        const stdN = obs.stdDev2 ?? obs.stdDev;
+
         // dE = e_j - e_i
         if (fromIdx !== undefined) A[rowIdx][fromIdx] = -1;
         if (toIdx !== undefined) A[rowIdx][toIdx] = 1;
-        L[rowIdx][0] = obs.measuredValue - dE;
-        P[rowIdx][rowIdx] = 1.0 / Math.max(1e-8, obs.stdDev * obs.stdDev);
+        L[rowIdx][0] = valE - dE;
+        P[rowIdx][rowIdx] = 1.0 / Math.max(1e-8, stdE * stdE);
         rowIdx++;
 
         // dN = n_j - n_i
         if (fromIdx !== undefined) A[rowIdx][fromIdx + 1] = -1;
         if (toIdx !== undefined) A[rowIdx][toIdx + 1] = 1;
-        const stdN = obs.stdDev2 ?? obs.stdDev;
-        L[rowIdx][0] = (obs.measuredValue2 ?? 0) - dN;
+        L[rowIdx][0] = valN - dN;
         P[rowIdx][rowIdx] = 1.0 / Math.max(1e-8, stdN * stdN);
         rowIdx++;
       }
