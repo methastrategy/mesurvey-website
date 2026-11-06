@@ -157,32 +157,16 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
 
     return (
       <div className="space-y-4">
-        {/* Simple Breadcrumb Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[var(--border)]">
-          <div className="flex items-center gap-2 text-xs sm:text-sm">
-            <button
-              type="button"
-              onClick={() => selectTool(null)}
-              className="inline-flex items-center gap-1.5 font-semibold text-[var(--accent)] hover:underline cursor-pointer"
-            >
-              <ArrowLeft className="w-4 h-4 shrink-0" />
-              <span>เครื่องมือทั้งหมด</span>
-            </button>
-            <span className="text-[var(--text-3)]">/</span>
-            <span className="font-bold text-[var(--text-1)]">
-              {activeToolObj?.name}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => selectTool(null)}
-              className="text-xs px-2.5 py-1 rounded-[var(--btn-radius)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] font-semibold transition-colors micro-press"
-            >
-              เปลี่ยนเครื่องมือ
-            </button>
-          </div>
+        {/* Top-Left Minimal Back Navigation */}
+        <div className="flex items-center">
+          <button
+            type="button"
+            onClick={() => selectTool(null)}
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[var(--accent)] hover:underline cursor-pointer transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 shrink-0" />
+            <span>เครื่องมือทั้งหมด</span>
+          </button>
         </div>
 
         {/* Selected Tool Component */}

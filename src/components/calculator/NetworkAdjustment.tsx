@@ -30,8 +30,6 @@ import {
 import {
   adjust1DLevelingNetwork,
   adjust2DNetwork,
-  SAMPLE_LEVELING_NETWORK,
-  SAMPLE_2D_TRAVERSE_NETWORK,
   type LevelingPoint,
   type LevelingObservation,
   type LevelingAdjustmentResult,
@@ -43,8 +41,6 @@ import {
 } from '../../utils/least-squares';
 import {
   parseRinexText,
-  SAMPLE_RINEX_BASE,
-  SAMPLE_RINEX_ROVER,
   type RinexParseResult,
   type SatelliteTrack
 } from '../../utils/rinex-parser';
@@ -427,42 +423,6 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
   // ─────────────────────────────────────────────────────────────────────────
   // SAMPLE & CLEAR ACTIONS
   // ─────────────────────────────────────────────────────────────────────────
-  const handleLoadSample = () => {
-    const base = parseRinexText(SAMPLE_RINEX_BASE);
-    const rover = parseRinexText(SAMPLE_RINEX_ROVER);
-    setBaseRinex(base);
-    setRoverRinex(rover);
-    setBaseFileName('BM01_1309W.26o');
-    setRoverFileName('ROV1_1309W.26o');
-    setNavFileName('BM01_1309W.26p');
-    setBaseAntennaHeight(1.7085);
-    setRoverAntennaHeight(1.8000);
-
-    if (base.header.approxGeodetic) {
-      setBaseCoords(base.header.approxGeodetic);
-    }
-
-    try {
-      const sol = solveStaticBaseline(base, rover, { elevationMaskDeg: elevMask });
-      setBaselineSolution(sol);
-    } catch {
-      setBaselineSolution(null);
-    }
-
-    resetNetworkToSample();
-    try {
-      setResult2D(adjust2DNetwork(SAMPLE_2D_TRAVERSE_NETWORK.stations, SAMPLE_2D_TRAVERSE_NETWORK.observations));
-    } catch {
-      setResult2D(null);
-    }
-
-    setBannerMessage({
-      text: 'โหลดข้อมูลตัวอย่าง GNSS Baseline & โครงข่ายปรับแก้เรียบร้อยแล้ว',
-      type: 'success'
-    });
-    setCanvasView('map');
-  };
-
   const handleClearAll = () => {
     setBaseRinex(null);
     setRoverRinex(null);
@@ -689,48 +649,6 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
   return (
     <div className="space-y-4">
       
-      {/* ── Top Application Title & Global Utilities ── */}
-      <div className="fusion-card px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[var(--accent)]/15 text-[var(--accent)] flex items-center justify-center font-bold">
-            <Radio className="w-4 h-4" />
-          </div>
-          <div>
-            <h2 className="text-sm font-bold text-[var(--text-1)] flex items-center gap-2">
-              <span>MESURV GNSS & Network Studio</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-3)] border border-[var(--border)]">
-                Emlid & CGO2 Architecture
-              </span>
-            </h2>
-            <p className="text-[11px] text-[var(--text-3)]">
-              Double-Difference Carrier Phase & Gauss-Markov Least Squares
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleLoadSample}
-            className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] text-xs font-semibold flex items-center gap-1.5 transition-colors micro-press shadow-xs"
-            title="โหลดข้อมูลตัวอย่าง Base, Rover และโครงข่าย"
-          >
-            <RefreshCw className="w-3.5 h-3.5 text-[var(--accent)]" />
-            <span>โหลดตัวอย่าง</span>
-          </button>
-          
-          <button
-            type="button"
-            onClick={handleClearAll}
-            className="px-2.5 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-rose-500/10 hover:text-rose-500 text-[var(--text-3)] border border-[var(--border)] text-xs font-semibold flex items-center gap-1 transition-colors micro-press shadow-xs"
-            title="ล้างข้อมูลทั้งหมดเพื่อเริ่มรังวัดใหม่"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">ล้าง</span>
-          </button>
-        </div>
-      </div>
-
       {/* ── Banner Notification ── */}
       {bannerMessage && (
         <div className={`p-2.5 px-3 rounded-xl border text-xs flex items-center justify-between gap-2 shadow-xs ${
@@ -1160,6 +1078,18 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
                         <option value={35}>35 dB-Hz (Standard)</option>
                         <option value={40}>40 dB-Hz (High Quality)</option>
                       </select>
+                    </div>
+                    <div className="pt-2 border-t border-[var(--border)] flex justify-between items-center">
+                      <span className="text-[11px] text-[var(--text-3)]">รีเซ็ตพื้นที่ทำงาน:</span>
+                      <button
+                        type="button"
+                        onClick={handleClearAll}
+                        className="text-[11px] text-rose-500 hover:text-rose-600 font-semibold flex items-center gap-1 cursor-pointer"
+                        title="ล้างข้อมูลทั้งหมดในพื้นที่ทำงาน"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>ล้างข้อมูล</span>
+                      </button>
                     </div>
                   </div>
                 )}
