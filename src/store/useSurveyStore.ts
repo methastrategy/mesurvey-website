@@ -495,15 +495,27 @@ export const useSurveyStore = create<SurveyStoreState>()(
     }),
     {
       name: 'mesurv-survey-storage-v1',
-      version: 2,
+      version: 3,
+      partialize: (state) => {
+        // Exclude transient map overlays and inspected pins from persistence
+        // so that the map starts 100% clean with zero phantom pins on page load.
+        const {
+          plottedTraverseOverlay,
+          inspectedCoordinate,
+          ...rest
+        } = state;
+        return rest;
+      },
       migrate: (persistedState: any, version: number) => {
-        if (version < 2 && persistedState) {
+        if (version < 3 && persistedState) {
           return {
             ...persistedState,
             networkStations2D: [],
             networkObs2D: [],
             networkPoints1D: [],
-            networkObs1D: []
+            networkObs1D: [],
+            plottedTraverseOverlay: null,
+            inspectedCoordinate: null
           };
         }
         return persistedState;

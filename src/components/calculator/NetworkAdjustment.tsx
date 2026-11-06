@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { 
   Network, 
   Ruler, 
@@ -150,24 +150,17 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
     clearNetwork
   } = useSurveyStore();
 
-  const [result2D, setResult2D] = useState<Network2DAdjustmentResult | null>(() => {
-    if (stations2D.length === 0 || obs2D.length === 0) return null;
-    try {
-      return adjust2DNetwork(stations2D, obs2D);
-    } catch {
-      return null;
-    }
-  });
-
-  const [result1D, setResult1D] = useState<LevelingAdjustmentResult | null>(() => {
-    if (points1D.length === 0 || obs1D.length === 0) return null;
-    try {
-      return adjust1DLevelingNetwork(points1D, obs1D);
-    } catch {
-      return null;
-    }
-  });
+  const [result2D, setResult2D] = useState<Network2DAdjustmentResult | null>(null);
+  const [result1D, setResult1D] = useState<LevelingAdjustmentResult | null>(null);
   const [adjustmentError, setAdjustmentError] = useState<string | null>(null);
+
+  // Blank workspace guarantee on mount: purge any leftover sample network stations
+  useEffect(() => {
+    if (stations2D.some(s => ['STN-1', 'STN-2', 'P-A', 'P-B'].includes(s.id))) {
+      clearNetwork();
+      setResult2D(null);
+    }
+  }, []);
 
   // ─────────────────────────────────────────────────────────────────────────
   // FILE PROCESSING & PARSING
@@ -563,9 +556,12 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
   }, [baseCoords]);
 
   const displayStations: AdjustedStation2D[] = useMemo(() => {
-    // 0. Network Mesh Mode (CGO2)
-    if (studioMode === 'network' && result2D && result2D.stations.length > 0) {
-      return result2D.stations;
+    // 0. Network Mesh Mode (CGO2): strictly isolated to active multi-station sessions
+    if (studioMode === 'network') {
+      if (networkLoops.length > 0 && result2D && result2D.stations.length > 0) {
+        return result2D.stations;
+      }
+      return [];
     }
 
     // 1. Static and Kinematic GNSS modes: strictly isolated to active Base and Rover!
@@ -618,17 +614,21 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
     }
 
     // 2. Network Adjustment Mode:
-    // Only display 2D network adjustment result stations when user is in 'adjustment' mode!
-    if (result2D && result2D.stations.length > 0) {
+    // Only display 2D network adjustment result stations when user is in 'adjustment' mode
+    // and an actual adjustment has been computed or loaded!
+    if (processingMode === 'adjustment' && result2D && result2D.stations.length > 0) {
       return result2D.stations;
     }
     return [];
-  }, [studioMode, processingMode, baseRinex, roverRinex, baselineSolution, baseCoords, result2D]);
+  }, [studioMode, processingMode, baseRinex, roverRinex, baselineSolution, baseCoords, result2D, networkLoops]);
 
   const displayObservations: (Observation2D | AdjustedObs2D)[] = useMemo(() => {
     // 0. Network Mesh Mode (CGO2)
-    if (studioMode === 'network' && result2D && result2D.observations.length > 0) {
-      return result2D.observations;
+    if (studioMode === 'network') {
+      if (networkLoops.length > 0 && result2D && result2D.observations.length > 0) {
+        return result2D.observations;
+      }
+      return [];
     }
 
     // 1. Static and Kinematic GNSS modes: strictly the baseline vector
@@ -649,11 +649,11 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
     }
 
     // 2. Network Adjustment Mode:
-    if (result2D && result2D.observations.length > 0) {
+    if (processingMode === 'adjustment' && result2D && result2D.observations.length > 0) {
       return result2D.observations;
     }
     return [];
-  }, [studioMode, processingMode, baselineSolution, baseRinex, roverRinex, result2D]);
+  }, [studioMode, processingMode, baselineSolution, baseRinex, roverRinex, result2D, networkLoops]);
 
   // Skyplot Active Satellites
   const activeSkyplotRinex = selectedStationView === 'base' ? baseRinex : roverRinex;
