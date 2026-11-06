@@ -149,11 +149,15 @@ function computeStadia(rows: StadiaRow[], startElev: number, totalDistKm: number
 
   const diffBsFs = sumBs - sumFs;
   const lastElev = resultRows[resultRows.length - 1]?.elevation ?? startElev;
-  const closureErrorMeters = lastElev - startElev - diffBsFs;
+  // For closed leveling loops returning to start benchmark:
+  // True closure error = Last Elevation - Start Elevation = sumBS - sumFS
+  const closureErrorMeters = lastElev - startElev;
   const closureErrorMm = Math.abs(closureErrorMeters) * 1000;
-  const arithmeticCheckPassed = Math.abs(closureErrorMeters) < 0.001;
+  // Three-fold Page Check arithmetic equality: Σ BS - Σ FS = Last RL - First RL
+  const arithmeticCheckPassed = Math.abs((lastElev - startElev) - diffBsFs) < 0.0015;
 
-  const K = totalDistKm;
+  // Use explicit distance if given, otherwise sum of stadia distances in kilometers
+  const K = Math.max(0.001, totalDistKm > 0 ? totalDistKm : (totalDist / 1000.0));
   const first = (4 * Math.sqrt(K)).toFixed(1);
   const second = (8 * Math.sqrt(K)).toFixed(1);
   const third = (12 * Math.sqrt(K)).toFixed(1);

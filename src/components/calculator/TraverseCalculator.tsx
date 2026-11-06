@@ -134,14 +134,9 @@ function computeTraverse(
   let currentAz = startAzDeg;
   for (let i = 0; i < n; i++) {
     // Back azimuth of previous leg + corrected interior angle → forward azimuth
-    if (i === 0) {
-      // First leg azimuth is startAz (given directly for first leg)
-      azimuths.push(currentAz);
-      currentAz = (currentAz + corrAngles[i] - 180 + 360) % 360;
-    } else {
-      azimuths.push(currentAz);
-      currentAz = (currentAz + corrAngles[i] - 180 + 360) % 360;
-    }
+    azimuths.push(currentAz);
+    // Strict geodetic angle wrapping in [0, 360) preventing negative modulo
+    currentAz = ((currentAz + corrAngles[i] + 180) % 360 + 360) % 360;
   }
 
   // Departures and latitudes
@@ -155,7 +150,7 @@ function computeTraverse(
   const misclosureE = sumRawDe - targetDe;
   const misclosureN = sumRawDn - targetDn;
   const linearMisclosure = Math.hypot(misclosureE, misclosureN);
-  const precisionRatio = linearMisclosure > 0.0001 ? Math.round(totalPerimeter / linearMisclosure) : 999999;
+  const precisionRatio = linearMisclosure > 0.0001 ? Math.round(totalPerimeter / linearMisclosure) : 100000;
 
   // Bowditch correction: proportional to distance
   const corrDe_perM = totalPerimeter > 0 ? -misclosureE / totalPerimeter : 0;

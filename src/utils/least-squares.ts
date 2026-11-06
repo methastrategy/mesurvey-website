@@ -166,6 +166,17 @@ export function adjust1DLevelingNetwork(
     throw new Error(`จำนวนค่าสังเกต (${n}) น้อยกว่าจำนวนหมุดที่ไม่ทราบค่า (${u}) ไม่สามารถปรับแก้ได้`);
   }
 
+  // Pre-validate that all observation stations exist in the points list
+  const pointIdSet = new Set(points.map((p) => p.id));
+  for (const obs of observations) {
+    if (!pointIdSet.has(obs.fromStation)) {
+      throw new Error(`ไม่พบหมุดระดับต้นทาง "${obs.fromStation}" ในรายการหมุดโครงข่าย (รังวัด ${obs.id})`);
+    }
+    if (!pointIdSet.has(obs.toStation)) {
+      throw new Error(`ไม่พบหมุดระดับปลายทาง "${obs.toStation}" ในรายการหมุดโครงข่าย (รังวัด ${obs.id})`);
+    }
+  }
+
   // Map unknown point IDs to unknown vector indices
   const unknownIndexMap = new Map<string, number>();
   unknownPoints.forEach((p, idx) => unknownIndexMap.set(p.id, idx));
@@ -393,6 +404,17 @@ export function adjust2DNetwork(
     throw new Error('ต้องมีหมุดหลักฐานอ้างอิงพิกัด (Fixed Control Station) อย่างน้อย 1 หมุด');
   }
 
+  // Pre-validate that all observation stations exist in the stations list
+  const stationIdSet = new Set(stations.map((s) => s.id));
+  for (const obs of observations) {
+    if (!stationIdSet.has(obs.fromStation)) {
+      throw new Error(`ไม่พบหมุดต้นทาง "${obs.fromStation}" ในรายการหมุดโครงข่าย (รังวัด ${obs.id})`);
+    }
+    if (!stationIdSet.has(obs.toStation)) {
+      throw new Error(`ไม่พบหมุดปลายทาง "${obs.toStation}" ในรายการหมุดโครงข่าย (รังวัด ${obs.id})`);
+    }
+  }
+
   const u = unknownStations.length * 2; // Each unknown station has [dE, dN]
   const unknownMap = new Map<string, number>();
   unknownStations.forEach((s, i) => unknownMap.set(s.id, i * 2));
@@ -451,6 +473,9 @@ export function adjust2DNetwork(
       const dE = e_j - e_i;
       const dN = n_j - n_i;
       const dist = Math.hypot(dE, dN);
+      if (dist < 0.0001 && obs.type !== 'baseline_vector') {
+        throw new Error(`ระยะระหว่างหมุด "${obs.fromStation}" และ "${obs.toStation}" เป็น 0 หรือพิกัดเริ่มต้นซ้ำกัน กรุณากำหนดพิกัดประมาณการที่แตกต่างกัน`);
+      }
       const azimuthRad = Math.atan2(dE, dN);
 
       const fromIdx = unknownMap.get(obs.fromStation);

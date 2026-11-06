@@ -239,4 +239,41 @@ describe('2D Traverse & Network Adjustment (with Error Ellipses)', () => {
     expect(r2?.northing).toBeCloseTo(2600.115, 1);
     expect(r1?.errorEllipse?.semiMajorAxisMm).toBeGreaterThan(0);
   });
+
+  it('rejects 2D network with unknown station ID in observations with clear Thai error', () => {
+    const stations: Station2D[] = [
+      { id: 'STN_A', isFixed: true, knownE: 1000, knownN: 2000 },
+      { id: 'STN_B', isFixed: false, approxE: 1200, approxN: 2100 }
+    ];
+    const invalidObs: Observation2D[] = [
+      { id: 'D1', type: 'distance', fromStation: 'STN_A', toStation: 'STN_C', measuredValue: 223.6, stdDev: 0.005 }
+    ];
+
+    expect(() => adjust2DNetwork(stations, invalidObs)).toThrowError(/ไม่พบหมุดปลายทาง "STN_C"/);
+  });
+
+  it('rejects 1D leveling network with unknown station ID in observations with clear Thai error', () => {
+    const points: LevelingPoint[] = [
+      { id: 'BM1', isFixed: true, knownElevation: 10.0 }
+    ];
+    const invalidObs: LevelingObservation[] = [
+      { id: 'L1', fromStation: 'BM1', toStation: 'BM99', measuredDh: 1.25 }
+    ];
+
+    expect(() => adjust1DLevelingNetwork(points, invalidObs)).toThrowError(/ไม่พบหมุดระดับปลายทาง "BM99"/);
+  });
+
+  it('rejects 2D network with zero distance between stations', () => {
+    const stations: Station2D[] = [
+      { id: 'STN_A', isFixed: true, knownE: 1000, knownN: 2000 },
+      { id: 'STN_B', isFixed: false, approxE: 1000, approxN: 2000 } // Duplicate coords
+    ];
+    const obs: Observation2D[] = [
+      { id: 'D1', type: 'distance', fromStation: 'STN_A', toStation: 'STN_B', measuredValue: 50.0, stdDev: 0.005 },
+      { id: 'A1', type: 'azimuth', fromStation: 'STN_A', toStation: 'STN_B', measuredValue: 45.0, stdDev: 5.0 },
+      { id: 'D2', type: 'distance', fromStation: 'STN_B', toStation: 'STN_A', measuredValue: 50.0, stdDev: 0.005 }
+    ];
+
+    expect(() => adjust2DNetwork(stations, obs)).toThrowError(/ระยะระหว่างหมุด.*เป็น 0/);
+  });
 });
