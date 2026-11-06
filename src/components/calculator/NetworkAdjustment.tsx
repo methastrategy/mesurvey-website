@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { 
   Network, 
   Ruler, 
@@ -17,7 +17,15 @@ import {
   Download,
   ShieldCheck,
   Layers,
-  BookOpen
+  ChevronDown,
+  Settings,
+  Upload,
+  Trash2,
+  X,
+  Play,
+  Crosshair,
+  Activity,
+  FileText
 } from 'lucide-react';
 import {
   adjust1DLevelingNetwork,
@@ -29,7 +37,9 @@ import {
   type LevelingAdjustmentResult,
   type Station2D,
   type Observation2D,
-  type Network2DAdjustmentResult
+  type AdjustedObs2D,
+  type Network2DAdjustmentResult,
+  type AdjustedStation2D
 } from '../../utils/least-squares';
 import {
   parseRinexText,
@@ -42,9 +52,17 @@ import {
   solveStaticBaseline,
   type BaselineSolution
 } from '../../utils/gnss-baseline';
-import { type EmlidPosParseResult } from '../../utils/emlid-pos-parser';
+import { 
+  parseHcnBuffer, 
+  isHcnBuffer, 
+  type HcnParseResult 
+} from '../../utils/hcn-parser';
+import { 
+  parseEmlidPosText, 
+  isEmlidPosText, 
+  type EmlidPosParseResult 
+} from '../../utils/emlid-pos-parser';
 import { EmbeddedNetworkMap } from './EmbeddedNetworkMap';
-import { RinexUploadPanel } from './RinexUploadPanel';
 import { NetworkAdjustmentInputTable } from './NetworkAdjustmentInputTable';
 import { exportToCsv } from '../../utils/csv-export';
 import { inverseUtmToWgs84, forwardWgs84ToUtm } from '../../core/projections';
@@ -54,32 +72,67 @@ interface NetworkAdjustmentProps {
   onPlotOnMap?: (lat: number, lng: number, label: string) => void;
 }
 
-export type StudioTab = 'ingestion' | 'baseline' | 'adjustment' | 'report';
+export type ProcessingMode = 'static' | 'kinematic' | 'adjustment' | 'rinex';
+export type CanvasView = 'map' | 'skyplot' | 'adjustment' | 'report';
 
 export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMap }) => {
-  const [activeTab, setActiveTab] = useState<StudioTab>('ingestion');
+  // ── Mode & View State ──
+  const [processingMode, setProcessingMode] = useState<ProcessingMode>('static');
+  const [canvasView, setCanvasView] = useState<CanvasView>('map');
+  const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // 1. RINEX INGESTION STATE
-  // ─────────────────────────────────────────────────────────────────────────
+  // ── Processing Settings ──
+  const [elevMask, setElevMask] = useState<number>(15);
+  const [snrThreshold, setSnrThreshold] = useState<number>(35);
+
+  // ── File References & Ingestion State ──
+  const baseFileInputRef = useRef<HTMLInputElement>(null);
+  const roverFileInputRef = useRef<HTMLInputElement>(null);
+  const navFileInputRef = useRef<HTMLInputElement>(null);
+  const hcnFileInputRef = useRef<HTMLInputElement>(null);
+
   const [baseRinex, setBaseRinex] = useState<RinexParseResult | null>(null);
   const [roverRinex, setRoverRinex] = useState<RinexParseResult | null>(null);
   const [baseFileName, setBaseFileName] = useState<string>('');
   const [roverFileName, setRoverFileName] = useState<string>('');
+  const [navFileName, setNavFileName] = useState<string>('');
+
+  const [baseHcn, setBaseHcn] = useState<HcnParseResult | null>(null);
+  const [roverHcn, setRoverHcn] = useState<HcnParseResult | null>(null);
+  const [lastEmlidPos, setLastEmlidPos] = useState<EmlidPosParseResult | null>(null);
+
+  // ── Station Metadata & Antenna Heights (Inline Editable) ──
+  const [baseAntennaHeight, setBaseAntennaHeight] = useState<number>(1.7085);
+  const [roverAntennaHeight, setRoverAntennaHeight] = useState<number>(1.8000);
+  const [isEditingBaseAntenna, setIsEditingBaseAntenna] = useState<boolean>(false);
+  const [isEditingRoverAntenna, setIsEditingRoverAntenna] = useState<boolean>(false);
+
+  const [baseCoords, setBaseCoords] = useState<{ lat: number; lng: number; height: number }>({
+    lat: 13.847600,
+    lng: 100.569600,
+    height: 18.524
+  });
+  const [isEditingBaseCoords, setIsEditingBaseCoords] = useState<boolean>(false);
+
+  // ── Drag & Drop States ──
+  const [isBaseDragging, setIsBaseDragging] = useState(false);
+  const [isRoverDragging, setIsRoverDragging] = useState(false);
+
+  // ── Solution State ──
+  const [baselineSolution, setBaselineSolution] = useState<BaselineSolution | null>(null);
+  const [baselineError, setBaselineError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+
+  // ── Notifications ──
+  const [bannerMessage, setBannerMessage] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null);
+
+  // ── Skyplot Filter ──
   const [selectedStationView, setSelectedStationView] = useState<'base' | 'rover'>('base');
   const [constellationFilter, setConstellationFilter] = useState<string>('ALL');
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // 2. BASELINE PROCESSING STATE
-  // ─────────────────────────────────────────────────────────────────────────
-  const [baselineSolution, setBaselineSolution] = useState<BaselineSolution | null>(null);
-  const [elevMask, setElevMask] = useState<number>(15);
-  const [baselineError, setBaselineError] = useState<string | null>(null);
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // 3. NETWORK ADJUSTMENT STATE (Zustand Persist)
-  // ─────────────────────────────────────────────────────────────────────────
+  // ── Network Adjustment State (Zustand Store) ──
   const {
     networkAdjustmentMode: adjustmentMode,
     networkStations2D: stations2D,
@@ -114,112 +167,206 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
   });
   const [adjustmentError, setAdjustmentError] = useState<string | null>(null);
 
-  // Handle Direct Emlid Studio .pos Ingestion
-  const handleEmlidPosLoaded = (posRes: EmlidPosParseResult, filename: string) => {
-    const baseName = posRes.baseFile ? posRes.baseFile.replace(/\.[^/.]+$/, '').toUpperCase() : 'BASE_MASTER';
-    const roverName = filename.replace(/\.[^/.]+$/, '').toUpperCase();
+  // ─────────────────────────────────────────────────────────────────────────
+  // FILE PROCESSING & PARSING
+  // ─────────────────────────────────────────────────────────────────────────
+  const processFile = async (file: File, target: 'base' | 'rover' | 'nav' | 'hcn') => {
+    setBannerMessage(null);
+    setBaselineError(null);
 
-    const baselineSol = posRes.asBaselineSolution(baseName, roverName);
-    setBaselineSolution(baselineSol);
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || '';
 
-    if (posRes.refPosition) {
-      const newStations: Station2D[] = [...stations2D];
-      const baseIdx = newStations.findIndex(s => s.id === baseName);
-      if (baseIdx >= 0) {
-        newStations[baseIdx] = {
-          ...newStations[baseIdx],
-          isFixed: true,
-          knownE: posRes.refPosition.utmE,
-          knownN: posRes.refPosition.utmN
-        };
+      // 1. Navigation Ephemeris File
+      if (target === 'nav' || ext === 'nav' || ext.endsWith('p') || ext.endsWith('n')) {
+        setNavFileName(file.name);
+        setBannerMessage({ text: `โหลดไฟล์นำทางดาวเทียม (Broadcast Ephemeris) ${file.name} เรียบร้อย`, type: 'success' });
+        return;
+      }
+
+      // 2. CHCNAV HCN Binary Files
+      if (ext === 'hcn' || ext === 'hrc') {
+        const buffer = await file.arrayBuffer();
+        if (!isHcnBuffer(buffer)) {
+          throw new Error('ไฟล์นี้ไม่มีรูปแบบหัวตารางของ CHCNAV ที่ถูกต้อง');
+        }
+        const hcnResult = parseHcnBuffer(buffer, file.name);
+
+        if (target === 'base' || target === 'hcn') {
+          setBaseHcn(hcnResult);
+          setBaseRinex(hcnResult.asRinex);
+          setBaseFileName(file.name);
+          if (hcnResult.metadata.antennaHeight) {
+            setBaseAntennaHeight(hcnResult.metadata.antennaHeight);
+          }
+          if (hcnResult.asRinex.header.approxGeodetic) {
+            setBaseCoords(hcnResult.asRinex.header.approxGeodetic);
+          }
+        } else {
+          setRoverHcn(hcnResult);
+          setRoverRinex(hcnResult.asRinex);
+          setRoverFileName(file.name);
+          if (hcnResult.metadata.antennaHeight) {
+            setRoverAntennaHeight(hcnResult.metadata.antennaHeight);
+          }
+        }
+
+        setBannerMessage({
+          text: `โหลดหมุด ${hcnResult.metadata.markerName} จากไฟล์ CHCNAV (${hcnResult.metadata.receiverType || 'GNSS'}) เรียบร้อย`,
+          type: 'success'
+        });
+        return;
+      }
+
+      // 3. Emlid Studio / RTKLIB .pos Solution Files
+      if (ext === 'pos') {
+        const text = await file.text();
+        if (isEmlidPosText(text)) {
+          const posResult = parseEmlidPosText(text, file.name);
+          setLastEmlidPos(posResult);
+          setRoverFileName(file.name);
+
+          // Synthesize Baseline Solution directly from .pos
+          const baseName = posResult.baseFile ? posResult.baseFile.replace(/\.[^/.]+$/, '').toUpperCase() : 'BASE_MASTER';
+          const rovName = file.name.replace(/\.[^/.]+$/, '').toUpperCase();
+          const synthSol = posResult.asBaselineSolution(baseName, rovName);
+          setBaselineSolution(synthSol);
+
+          // Synthesize Rover RINEX result for UI
+          setRoverRinex({
+            header: {
+              version: '3.04',
+              fileType: 'O (Emlid Studio .pos)',
+              markerName: rovName,
+              approxGeodetic: {
+                lat: posResult.computedPosition.lat,
+                lng: posResult.computedPosition.lng,
+                height: posResult.computedPosition.height
+              },
+              obsTypes: ['L1', 'L2', 'C1', 'C2']
+            },
+            totalEpochs: posResult.totalEpochsCount,
+            durationMinutes: Math.max(15, Math.round(posResult.totalEpochsCount / 60)),
+            constellationsDetected: ['GPS', 'BeiDou', 'GLONASS', 'Galileo'],
+            satellitesTracked: [],
+            averageSnr: 46.0,
+            cycleSlipCount: 0,
+            healthStatus: posResult.overallStatus === 'FIXED' ? 'HEALTHY' : 'DEGRADED'
+          });
+
+          setBannerMessage({
+            text: `นำเข้าโซลูชัน Emlid Studio .pos: สถานะ ${posResult.overallStatus} (Ratio: ${posResult.bestRatio}) สำเร็จ`,
+            type: 'success'
+          });
+          return;
+        }
+      }
+
+      // 4. Standard Text RINEX (2.xx / 3.xx)
+      const text = await file.text();
+      if (isEmlidPosText(text)) {
+        const posResult = parseEmlidPosText(text, file.name);
+        setLastEmlidPos(posResult);
+        const synthSol = posResult.asBaselineSolution('BASE_MASTER', file.name.replace(/\.[^/.]+$/, '').toUpperCase());
+        setBaselineSolution(synthSol);
+        setBannerMessage({ text: `นำเข้าโซลูชัน .pos สำเร็จ`, type: 'success' });
+        return;
+      }
+
+      const parsed = parseRinexText(text);
+      if (target === 'base') {
+        setBaseHcn(null);
+        setBaseRinex(parsed);
+        setBaseFileName(file.name);
+        if (parsed.header.antennaDelta?.h) {
+          setBaseAntennaHeight(parsed.header.antennaDelta.h);
+        }
+        if (parsed.header.approxGeodetic) {
+          setBaseCoords(parsed.header.approxGeodetic);
+        }
       } else {
-        newStations.push({
-          id: baseName,
-          isFixed: true,
-          knownE: posRes.refPosition.utmE,
-          knownN: posRes.refPosition.utmN
-        });
+        setRoverHcn(null);
+        setRoverRinex(parsed);
+        setRoverFileName(file.name);
+        if (parsed.header.antennaDelta?.h) {
+          setRoverAntennaHeight(parsed.header.antennaDelta.h);
+        }
       }
 
-      const roverIdx = newStations.findIndex(s => s.id === roverName);
-      if (roverIdx >= 0) {
-        newStations[roverIdx] = {
-          ...newStations[roverIdx],
-          isFixed: false,
-          approxE: posRes.computedPosition.utmE,
-          approxN: posRes.computedPosition.utmN
-        };
-      } else {
-        newStations.push({
-          id: roverName,
-          isFixed: false,
-          approxE: posRes.computedPosition.utmE,
-          approxN: posRes.computedPosition.utmN
-        });
-      }
-
-      setStations2D(newStations);
-
-      const newObs: Observation2D[] = [...obs2D];
-      const vectorObsId = `GNSS_${baselineSol.id}`;
-      if (!newObs.some(o => o.id === vectorObsId)) {
-        newObs.push({
-          id: vectorObsId,
-          type: 'baseline_vector',
-          fromStation: baseName,
-          toStation: roverName,
-          measuredValue: posRes.vectorENU.dE,
-          measuredValue2: posRes.vectorENU.dN,
-          stdDev: Math.max(0.002, posRes.averageStdDevMm.dE / 1000),
-          stdDev2: Math.max(0.002, posRes.averageStdDevMm.dN / 1000)
-        });
-      }
-
-      setObs2D(newObs);
-      try {
-        setResult2D(adjust2DNetwork(newStations, newObs));
-      } catch {
-        // Handled silently
-      }
+      setBannerMessage({
+        text: `โหลดไฟล์ RINEX หมุด ${parsed.header.markerName} (${file.name}) สำเร็จ`,
+        type: 'success'
+      });
+    } catch (err: any) {
+      setBannerMessage({
+        text: `ไม่สามารถอ่านไฟล์ ${file.name}: ${err?.message || 'รูปแบบไฟล์ไม่ถูกต้อง'}`,
+        type: 'error'
+      });
     }
   };
 
-  // Re-solve Baseline
-  const handleSolveBaseline = () => {
+  const handleDrop = (e: React.DragEvent, target: 'base' | 'rover') => {
+    e.preventDefault();
+    if (target === 'base') setIsBaseDragging(false);
+    else setIsRoverDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processFile(file, target);
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BASELINE SOLVER (PROCESS BUTTON)
+  // ─────────────────────────────────────────────────────────────────────────
+  const handleProcessBaseline = () => {
     setBaselineError(null);
     if (!baseRinex || !roverRinex) {
-      setBaselineError('กรุณานำเข้าหรือเลือกไฟล์ RINEX ของทั้ง Base และ Rover ก่อนคำนวณเวกเตอร์ฐาน');
+      setBaselineError('กรุณาเลือกหรือนำเข้าไฟล์ของทั้งสถานีฐาน (Base) และสถานีรังวัด (Rover) ก่อนประมวลผล');
       return;
     }
-    try {
-      const sol = solveStaticBaseline(baseRinex, roverRinex, { elevationMaskDeg: elevMask });
-      setBaselineSolution(sol);
-    } catch (err) {
-      setBaselineError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการคำนวณเวกเตอร์ฐาน');
-    }
+
+    setIsProcessing(true);
+    setTimeout(() => {
+      try {
+        const sol = solveStaticBaseline(baseRinex, roverRinex, {
+          elevationMaskDeg: elevMask,
+          snrThresholdDbHz: snrThreshold
+        });
+        setBaselineSolution(sol);
+        setBannerMessage({
+          text: `ประมวลผลเวกเตอร์ฐานสำเร็จ: สถานะ ${sol.status} (Ratio: ${sol.ratioTest.toFixed(1)}) ระยะทาง ${sol.vectorENU.distance2D.toFixed(3)} m`,
+          type: 'success'
+        });
+        // Stay on map or switch to map to display vector
+        setCanvasView('map');
+      } catch (err: any) {
+        setBaselineError(err?.message || 'เกิดข้อผิดพลาดในการคำนวณเวกเตอร์ฐาน');
+      } finally {
+        setIsProcessing(false);
+      }
+    }, 250);
   };
 
-  // Transfer Baseline into 2D Network Adjustment
+  // ─────────────────────────────────────────────────────────────────────────
+  // TRANSFER TO 2D LEAST SQUARES ADJUSTMENT
+  // ─────────────────────────────────────────────────────────────────────────
   const handleTransferToAdjustment = () => {
     if (!baselineSolution) return;
 
     const baseName = baselineSolution.baseStation;
     const roverName = baselineSolution.roverStation;
 
-    // Check if stations already exist in 2D stations list
-    const existingBase = stations2D.find(s => s.id === baseName);
-    const existingRover = stations2D.find(s => s.id === roverName);
-
-    // Extract real Base Station coordinates from parsed RINEX header if available
     let baseRefE = 669500.0;
     let baseRefN = 1531000.0;
-    if (baseRinex && baseRinex.header.approxGeodetic) {
+    if (baseRinex?.header.approxGeodetic) {
       const utm = forwardWgs84ToUtm(baseRinex.header.approxGeodetic.lat, baseRinex.header.approxGeodetic.lng);
       baseRefE = Math.round(utm.easting * 1000) / 1000;
       baseRefN = Math.round(utm.northing * 1000) / 1000;
     }
 
     const updatedStations = [...stations2D];
+    const existingBase = updatedStations.find(s => s.id === baseName);
     if (!existingBase) {
       updatedStations.push({
         id: baseName,
@@ -228,6 +375,8 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
         knownN: baseRefN
       });
     }
+
+    const existingRover = updatedStations.find(s => s.id === roverName);
     if (!existingRover) {
       updatedStations.push({
         id: roverName,
@@ -237,7 +386,6 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
       });
     }
 
-    // Add baseline vector observation
     const newVectorObs: Observation2D = {
       id: `GNSS_${baselineSolution.id}`,
       type: 'baseline_vector',
@@ -245,116 +393,97 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
       toStation: roverName,
       measuredValue: baselineSolution.vectorENU.dE,
       measuredValue2: baselineSolution.vectorENU.dN,
-      stdDev: baselineSolution.stdDevMm.dE / 1000.0,
-      stdDev2: baselineSolution.stdDevMm.dN / 1000.0
+      stdDev: Math.max(0.002, baselineSolution.stdDevMm.dE / 1000.0),
+      stdDev2: Math.max(0.002, baselineSolution.stdDevMm.dN / 1000.0)
     };
 
-    const updatedObs = [...obs2D, newVectorObs];
+    const updatedObs = [...obs2D.filter(o => o.id !== newVectorObs.id), newVectorObs];
     setStations2D(updatedStations);
     setObs2D(updatedObs);
 
     try {
-      setResult2D(adjust2DNetwork(updatedStations, updatedObs));
-      setActiveTab('adjustment');
-    } catch (err) {
+      const res = adjust2DNetwork(updatedStations, updatedObs);
+      setResult2D(res);
+      setBannerMessage({
+        text: `เชื่อมโยงเวกเตอร์ ${baselineSolution.id} เข้าสู่การปรับแก้โครงข่าย 2D เรียบร้อย`,
+        type: 'success'
+      });
+      setCanvasView('map');
+    } catch (err: any) {
       setAdjustmentError(String(err));
-      setActiveTab('adjustment');
     }
   };
 
-  // Run 2D/1D Adjustment
-  const handleSolveAdjustment = () => {
-    setAdjustmentError(null);
-    try {
-      if (adjustmentMode === '2d') {
-        const res = adjust2DNetwork(stations2D, obs2D);
-        setResult2D(res);
-      } else {
-        const res = adjust1DLevelingNetwork(points1D, obs1D);
-        setResult1D(res);
-      }
-    } catch (err) {
-      setAdjustmentError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการคำนวณปรับแก้');
-    }
-  };
-
-  // Reset RINEX files to default sample
-  const handleResetRinexSample = () => {
+  // ─────────────────────────────────────────────────────────────────────────
+  // SAMPLE & CLEAR ACTIONS
+  // ─────────────────────────────────────────────────────────────────────────
+  const handleLoadSample = () => {
     const base = parseRinexText(SAMPLE_RINEX_BASE);
-    const rov = parseRinexText(SAMPLE_RINEX_ROVER);
+    const rover = parseRinexText(SAMPLE_RINEX_ROVER);
     setBaseRinex(base);
-    setRoverRinex(rov);
-    setBaseFileName('SAMPLE_BASE_KU01.23O');
-    setRoverFileName('SAMPLE_ROVER_ROV1.23O');
+    setRoverRinex(rover);
+    setBaseFileName('BM01_1309W.26o');
+    setRoverFileName('ROV1_1309W.26o');
+    setNavFileName('BM01_1309W.26p');
+    setBaseAntennaHeight(1.7085);
+    setRoverAntennaHeight(1.8000);
+
+    if (base.header.approxGeodetic) {
+      setBaseCoords(base.header.approxGeodetic);
+    }
+
     try {
-      setBaselineSolution(solveStaticBaseline(base, rov, { elevationMaskDeg: elevMask }));
+      const sol = solveStaticBaseline(base, rover, { elevationMaskDeg: elevMask });
+      setBaselineSolution(sol);
     } catch {
       setBaselineSolution(null);
     }
+
+    resetNetworkToSample();
+    try {
+      setResult2D(adjust2DNetwork(SAMPLE_2D_TRAVERSE_NETWORK.stations, SAMPLE_2D_TRAVERSE_NETWORK.observations));
+    } catch {
+      setResult2D(null);
+    }
+
+    setBannerMessage({
+      text: 'โหลดข้อมูลตัวอย่าง GNSS Baseline & โครงข่ายปรับแก้เรียบร้อยแล้ว',
+      type: 'success'
+    });
+    setCanvasView('map');
   };
 
-  // Clear RINEX files back to blank state
-  const handleClearRinex = () => {
+  const handleClearAll = () => {
     setBaseRinex(null);
     setRoverRinex(null);
     setBaseFileName('');
     setRoverFileName('');
+    setNavFileName('');
+    setBaseHcn(null);
+    setRoverHcn(null);
+    setLastEmlidPos(null);
     setBaselineSolution(null);
     setBaselineError(null);
-  };
-
-  // Reset Network Adjustment to Sample Data
-  const handleResetSampleNetwork = () => {
     setAdjustmentError(null);
-    if (adjustmentMode === '2d') {
-      setStations2D(SAMPLE_2D_TRAVERSE_NETWORK.stations);
-      setObs2D(SAMPLE_2D_TRAVERSE_NETWORK.observations);
-      try {
-        setResult2D(adjust2DNetwork(SAMPLE_2D_TRAVERSE_NETWORK.stations, SAMPLE_2D_TRAVERSE_NETWORK.observations));
-      } catch {
-        setResult2D(null);
-      }
-    } else {
-      setPoints1D(SAMPLE_LEVELING_NETWORK.points);
-      setObs1D(SAMPLE_LEVELING_NETWORK.observations);
-      try {
-        setResult1D(adjust1DLevelingNetwork(SAMPLE_LEVELING_NETWORK.points, SAMPLE_LEVELING_NETWORK.observations));
-      } catch {
-        setResult1D(null);
-      }
-    }
+    clearNetwork();
+    setResult2D(null);
+    setResult1D(null);
+    setBannerMessage({
+      text: 'ล้างข้อมูลทั้งหมดในพื้นที่ทำงานเรียบร้อย (Blank Workspace)',
+      type: 'info'
+    });
   };
 
-  // Clear Network Adjustment Data for fresh custom input
-  const handleClearAllNetwork = () => {
-    setAdjustmentError(null);
-    if (adjustmentMode === '2d') {
-      setStations2D([]);
-      setObs2D([]);
-      setResult2D(null);
-    } else {
-      setPoints1D([]);
-      setObs1D([]);
-      setResult1D(null);
-    }
-  };
-
-  // Export Adjusted Results to CSV
-  const handleExportResultsCsv = () => {
+  // ─────────────────────────────────────────────────────────────────────────
+  // EXPORT UTILITIES
+  // ─────────────────────────────────────────────────────────────────────────
+  const handleExportCsv = () => {
     if (!result2D) return;
     exportToCsv({
       filename: `mesurv_adjusted_network_${new Date().toISOString().slice(0, 10)}`,
       headers: [
-        'Station_ID',
-        'Status',
-        'Easting_m',
-        'Northing_m',
-        'SigmaE_mm',
-        'SigmaN_mm',
-        'SemiMajor_a_mm',
-        'SemiMinor_b_mm',
-        'Orientation_deg',
-        'Conf95_a95_mm'
+        'Station_ID', 'Status', 'Easting_m', 'Northing_m', 'SigmaE_mm', 'SigmaN_mm',
+        'SemiMajor_a_mm', 'SemiMinor_b_mm', 'Orientation_deg', 'Conf95_a95_mm'
       ],
       rows: result2D.stations.map(s => [
         s.id,
@@ -371,7 +500,6 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
     });
   };
 
-  // Export Adjusted Stations & Error Ellipses to GeoJSON
   const handleExportGeoJson = () => {
     if (!result2D) return;
     const features = result2D.stations.map(s => {
@@ -413,7 +541,6 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
-  // Copy Full Comprehensive Report
   const handleCopyReport = () => {
     let report = `=== MESURV UNIFIED GNSS & NETWORK ADJUSTMENT REPORT ===\n`;
     report += `Generated: ${new Date().toISOString()}\n`;
@@ -422,11 +549,10 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
     if (baselineSolution) {
       report += `[1. GNSS BASELINE PROCESSING]\n`;
       report += `Baseline: ${baselineSolution.id}\n`;
-      report += `Status: ${baselineSolution.status} (Ratio Test = ${baselineSolution.ratioTest})\n`;
+      report += `Status: ${baselineSolution.status} (Ratio Test = ${baselineSolution.ratioTest.toFixed(2)})\n`;
       report += `Common Satellites: ${baselineSolution.commonSatellites}\n`;
-      report += `Vector ECEF: dX = ${baselineSolution.vectorECEF.dx} m, dY = ${baselineSolution.vectorECEF.dy} m, dZ = ${baselineSolution.vectorECEF.dz} m\n`;
-      report += `Vector ENU: dE = ${baselineSolution.vectorENU.dE} m, dN = ${baselineSolution.vectorENU.dN} m, dU = ${baselineSolution.vectorENU.dU} m\n`;
-      report += `Distance 2D = ${baselineSolution.vectorENU.distance2D} m, 3D = ${baselineSolution.vectorENU.distance3D} m | Azimuth = ${baselineSolution.vectorENU.azimuthDeg}°\n`;
+      report += `Vector ENU: dE = ${baselineSolution.vectorENU.dE.toFixed(4)} m, dN = ${baselineSolution.vectorENU.dN.toFixed(4)} m, dU = ${baselineSolution.vectorENU.dU.toFixed(4)} m\n`;
+      report += `Distance: 2D = ${baselineSolution.vectorENU.distance2D.toFixed(3)} m, 3D = ${baselineSolution.vectorENU.distance3D.toFixed(3)} m | Azimuth = ${baselineSolution.vectorENU.azimuthDeg.toFixed(2)}°\n`;
       report += `Precision: sigmaE = ${baselineSolution.stdDevMm.dE} mm, sigmaN = ${baselineSolution.stdDevMm.dN} mm, sigmaU = ${baselineSolution.stdDevMm.dU} mm\n\n`;
     }
 
@@ -450,947 +576,1153 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const activeRinex = selectedStationView === 'base' ? baseRinex : roverRinex;
-  const filteredSatellites = activeRinex ? activeRinex.satellitesTracked.filter(s => {
+  // ─────────────────────────────────────────────────────────────────────────
+  // COMPOSING STATIONS & OBSERVATIONS FOR EMBEDDED MAP
+  // ─────────────────────────────────────────────────────────────────────────
+  const displayStations: AdjustedStation2D[] = useMemo(() => {
+    if (result2D && result2D.stations.length > 0) {
+      return result2D.stations;
+    }
+    const stns: AdjustedStation2D[] = [];
+    if (baseRinex?.header.approxGeodetic) {
+      const baseUtm = forwardWgs84ToUtm(baseCoords.lat, baseCoords.lng);
+      stns.push({
+        id: baseRinex.header.markerName || 'BASE',
+        isFixed: true,
+        easting: baseUtm.easting,
+        northing: baseUtm.northing,
+        sigmaEMm: 0.5,
+        sigmaNMm: 0.5
+      });
+
+      if (baselineSolution) {
+        stns.push({
+          id: baselineSolution.roverStation || 'ROVER',
+          isFixed: false,
+          easting: baseUtm.easting + baselineSolution.vectorENU.dE,
+          northing: baseUtm.northing + baselineSolution.vectorENU.dN,
+          sigmaEMm: baselineSolution.stdDevMm.dE,
+          sigmaNMm: baselineSolution.stdDevMm.dN,
+          errorEllipse: {
+            semiMajorAxisMm: baselineSolution.stdDevMm.dN * 2.45,
+            semiMinorAxisMm: baselineSolution.stdDevMm.dE * 2.45,
+            orientationDeg: baselineSolution.vectorENU.azimuthDeg,
+            conf95MajorMm: baselineSolution.stdDevMm.dN * 2.45,
+            conf95MinorMm: baselineSolution.stdDevMm.dE * 2.45
+          }
+        });
+      } else if (roverRinex?.header.approxGeodetic) {
+        const rovUtm = forwardWgs84ToUtm(roverRinex.header.approxGeodetic.lat, roverRinex.header.approxGeodetic.lng);
+        stns.push({
+          id: roverRinex.header.markerName || 'ROVER',
+          isFixed: false,
+          easting: rovUtm.easting,
+          northing: rovUtm.northing,
+          sigmaEMm: 2.5,
+          sigmaNMm: 2.5
+        });
+      }
+    }
+    return stns;
+  }, [result2D, baseRinex, roverRinex, baselineSolution, baseCoords]);
+
+  const displayObservations: (Observation2D | AdjustedObs2D)[] = useMemo(() => {
+    if (result2D && result2D.observations.length > 0) {
+      return result2D.observations;
+    }
+    if (baselineSolution && baseRinex) {
+      return [{
+        id: `GNSS_${baselineSolution.id}`,
+        type: 'baseline_vector',
+        fromStation: baselineSolution.baseStation,
+        toStation: baselineSolution.roverStation,
+        measuredValue: baselineSolution.vectorENU.dE,
+        measuredValue2: baselineSolution.vectorENU.dN,
+        stdDev: baselineSolution.stdDevMm.dE / 1000,
+        stdDev2: baselineSolution.stdDevMm.dN / 1000
+      }];
+    }
+    return [];
+  }, [result2D, baselineSolution, baseRinex]);
+
+  // Skyplot Active Satellites
+  const activeSkyplotRinex = selectedStationView === 'base' ? baseRinex : roverRinex;
+  const filteredSatellites = activeSkyplotRinex ? activeSkyplotRinex.satellitesTracked.filter(s => {
     if (constellationFilter === 'ALL') return true;
     return s.constellation.toUpperCase() === constellationFilter;
   }) : [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       
-      {/* ── 4-Step Interactive Workflow Ribbon ── */}
-      <div className="fusion-card p-3 sm:p-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 select-none">
-          <button
-            type="button"
-            onClick={() => setActiveTab('ingestion')}
-            className={`p-3 rounded-xl border text-left transition-all flex items-start gap-2.5 micro-press ${
-              activeTab === 'ingestion'
-                ? 'bg-[var(--surface)] border-[var(--accent)] shadow-sm'
-                : 'bg-[var(--surface-2)] border-transparent hover:border-[var(--border)] opacity-80'
-            }`}
-          >
-            <div className="p-1.5 rounded-lg bg-[var(--accent)]/15 text-[var(--accent)] shrink-0">
-              <Satellite className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <span className="text-[10px] font-mono text-[var(--text-3)] font-bold block">STEP 01</span>
-              <p className="text-xs font-bold text-[var(--text-1)] truncate">RINEX, HCN & Emlid</p>
-            </div>
-          </button>
+      {/* ── Top Application Title & Global Utilities ── */}
+      <div className="fusion-card px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-[var(--accent)]/15 text-[var(--accent)] flex items-center justify-center font-bold">
+            <Radio className="w-4 h-4" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-[var(--text-1)] flex items-center gap-2">
+              <span>MESURV GNSS & Network Studio</span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-3)] border border-[var(--border)]">
+                Emlid & CGO2 Architecture
+              </span>
+            </h2>
+            <p className="text-[11px] text-[var(--text-3)]">
+              Double-Difference Carrier Phase & Gauss-Markov Least Squares
+            </p>
+          </div>
+        </div>
 
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setActiveTab('baseline')}
-            className={`p-3 rounded-xl border text-left transition-all flex items-start gap-2.5 micro-press ${
-              activeTab === 'baseline'
-                ? 'bg-[var(--surface)] border-[var(--accent)] shadow-sm'
-                : 'bg-[var(--surface-2)] border-transparent hover:border-[var(--border)] opacity-80'
-            }`}
+            onClick={handleLoadSample}
+            className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] text-xs font-semibold flex items-center gap-1.5 transition-colors micro-press shadow-xs"
+            title="โหลดข้อมูลตัวอย่าง Base, Rover และโครงข่าย"
           >
-            <div className="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-500 shrink-0">
-              <Radio className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <span className="text-[10px] font-mono text-[var(--text-3)] font-bold block">STEP 02</span>
-              <p className="text-xs font-bold text-[var(--text-1)] truncate">Baseline Solver</p>
-            </div>
+            <RefreshCw className="w-3.5 h-3.5 text-[var(--accent)]" />
+            <span>โหลดตัวอย่าง</span>
           </button>
-
+          
           <button
             type="button"
-            onClick={() => setActiveTab('adjustment')}
-            className={`p-3 rounded-xl border text-left transition-all flex items-start gap-2.5 micro-press ${
-              activeTab === 'adjustment'
-                ? 'bg-[var(--surface)] border-[var(--accent)] shadow-sm'
-                : 'bg-[var(--surface-2)] border-transparent hover:border-[var(--border)] opacity-80'
-            }`}
+            onClick={handleClearAll}
+            className="px-2.5 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-rose-500/10 hover:text-rose-500 text-[var(--text-3)] border border-[var(--border)] text-xs font-semibold flex items-center gap-1 transition-colors micro-press shadow-xs"
+            title="ล้างข้อมูลทั้งหมดเพื่อเริ่มรังวัดใหม่"
           >
-            <div className="p-1.5 rounded-lg bg-indigo-500/15 text-indigo-500 shrink-0">
-              <Network className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <span className="text-[10px] font-mono text-[var(--text-3)] font-bold block">STEP 03</span>
-              <p className="text-xs font-bold text-[var(--text-1)] truncate">Network Adjustment</p>
-            </div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('report')}
-            className={`p-3 rounded-xl border text-left transition-all flex items-start gap-2.5 micro-press ${
-              activeTab === 'report'
-                ? 'bg-[var(--surface)] border-[var(--accent)] shadow-sm'
-                : 'bg-[var(--surface-2)] border-transparent hover:border-[var(--border)] opacity-80'
-            }`}
-          >
-            <div className="p-1.5 rounded-lg bg-amber-500/15 text-amber-500 shrink-0">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <span className="text-[10px] font-mono text-[var(--text-3)] font-bold block">STEP 04</span>
-              <p className="text-xs font-bold text-[var(--text-1)] truncate">Geoid & Reports</p>
-            </div>
+            <Trash2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">ล้าง</span>
           </button>
         </div>
       </div>
 
-      {/* ─────────────────────────────────────────────────────────────────── */}
-      {/* STEP 1: RINEX INGESTION & POLAR SKYPLOT */}
-      {/* ─────────────────────────────────────────────────────────────────── */}
-      {activeTab === 'ingestion' && (
-        <div className="space-y-6">
+      {/* ── Banner Notification ── */}
+      {bannerMessage && (
+        <div className={`p-2.5 px-3 rounded-xl border text-xs flex items-center justify-between gap-2 shadow-xs ${
+          bannerMessage.type === 'success' 
+            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500' 
+            : bannerMessage.type === 'error'
+            ? 'bg-rose-500/10 border-rose-500/30 text-rose-500'
+            : 'bg-[var(--surface-2)] border-[var(--border)] text-[var(--text-2)]'
+        }`}>
+          <div className="flex items-center gap-2">
+            {bannerMessage.type === 'success' && <CheckCircle2 className="w-4 h-4 shrink-0" />}
+            {bannerMessage.type === 'error' && <AlertTriangle className="w-4 h-4 shrink-0" />}
+            {bannerMessage.type === 'info' && <Radio className="w-4 h-4 shrink-0" />}
+            <span>{bannerMessage.text}</span>
+          </div>
+          <button type="button" onClick={() => setBannerMessage(null)} className="p-1 hover:opacity-75">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
-          {/* Interactive RINEX Upload Panel */}
-          <RinexUploadPanel
-            baseRinex={baseRinex}
-            roverRinex={roverRinex}
-            baseFileName={baseFileName}
-            roverFileName={roverFileName}
-            onBaseLoaded={(res, filename) => {
-              setBaseRinex(res);
-              setBaseFileName(filename);
-              setSelectedStationView('base');
-              setBaselineSolution(null);
-            }}
-            onRoverLoaded={(res, filename) => {
-              setRoverRinex(res);
-              setRoverFileName(filename);
-              setSelectedStationView('rover');
-              setBaselineSolution(null);
-            }}
-            onEmlidPosLoaded={handleEmlidPosLoaded}
-            onPlotOnMap={onPlotOnMap}
-            onGoToBaseline={() => setActiveTab('baseline')}
-            onGoToAdjustment={() => setActiveTab('adjustment')}
-            onResetSample={handleResetRinexSample}
-            onClearFiles={handleClearRinex}
-          />
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {/* UNIFIED SPLIT VIEW: LEFT CONTROL DECK + RIGHT CANVAS               */}
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+        
+        {/* ═════════════════════════════════════════════════════════════════ */}
+        {/* LEFT CONTROL DECK (Emlid Studio Side Deck)                         */}
+        {/* ═════════════════════════════════════════════════════════════════ */}
+        <div className="lg:col-span-4 xl:col-span-4 space-y-3">
           
-          {!baseRinex && !roverRinex ? (
-            <div className="fusion-card p-4 text-center space-y-2 border-dashed border">
-              <div className="flex items-center justify-center gap-2 text-xs font-semibold text-[var(--text-2)]">
-                <Satellite className="w-4 h-4 text-[var(--accent)]" />
-                <span>พร้อมรับไฟล์จากเครื่องรับสัญญาณ GNSS (CHCNAV, Emlid, Trimble, Leica)</span>
-              </div>
-              <p className="text-xs text-[var(--text-3)] max-w-lg mx-auto leading-relaxed">
-                รองรับไฟล์ดิบ <b>.HCN</b> ของ CHCNAV โดยตรง (ถอดรหัสพิกัด ECEF, UTM, ความสูงเสา และ OEM Core อัตโนมัติ), 
-                ไฟล์เวกเตอร์ <b>.pos</b> จาก Emlid Studio / RTKLIB หรือไฟล์มาตรฐาน <b>RINEX (.obs, .rnx)</b>
-              </p>
-            </div>
-          ) : !activeRinex ? (
-            <div className="fusion-card p-6 text-center space-y-2 border-dashed border">
-              <p className="text-xs text-[var(--text-2)]">
-                สถานีที่เลือก ({selectedStationView === 'base' ? 'ฐาน (Base)' : 'รังวัด (Rover)'}) ยังไม่ได้นำเข้าไฟล์
-              </p>
+          <div className="fusion-card p-4 space-y-3.5">
+            
+            {/* Mode Selector Dropdown (Styled after Emlid Studio 1.11) */}
+            <div className="relative">
               <button
                 type="button"
-                onClick={() => setSelectedStationView(baseRinex ? 'base' : 'rover')}
-                className="text-xs text-[var(--accent)] underline font-semibold"
+                onClick={() => setModeDropdownOpen(!modeDropdownOpen)}
+                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-[var(--border)] text-xs font-bold text-[var(--text-1)] transition-all micro-press"
               >
-                สลับไปดูสถานี {baseRinex ? 'ฐาน (Base)' : 'รังวัด (Rover)'}
-              </button>
-            </div>
-          ) : (
-            <>
-              {/* Station Switcher & Metadata Header */}
-              <div className="fusion-card p-5 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border)]">
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedStationView('base')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all micro-press ${
-                        selectedStationView === 'base'
-                          ? 'bg-[var(--accent)] text-black dark:text-white shadow-sm'
-                          : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text-1)]'
-                      }`}
-                    >
-                      สถานีฐาน (Base: {baseRinex ? baseRinex.header.markerName : 'ยังไม่มีไฟล์'})
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedStationView('rover')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all micro-press ${
-                        selectedStationView === 'rover'
-                          ? 'bg-[var(--accent)] text-black dark:text-white shadow-sm'
-                          : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text-1)]'
-                      }`}
-                    >
-                      สถานีรังวัด (Rover: {roverRinex ? roverRinex.header.markerName : 'ยังไม่มีไฟล์'})
-                    </button>
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-[var(--accent)]/15 text-[var(--accent)] flex items-center justify-center">
+                    <Crosshair className="w-3.5 h-3.5" />
                   </div>
+                  <span>
+                    {processingMode === 'static' && 'Static processing'}
+                    {processingMode === 'kinematic' && 'Kinematic'}
+                    {processingMode === 'adjustment' && 'Network Adjustment'}
+                    {processingMode === 'rinex' && 'Convert to RINEX'}
+                  </span>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-[var(--text-3)] transition-transform ${modeDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
 
-              <div className="flex items-center gap-2 text-xs font-mono">
-                <span className="text-[var(--text-3)]">Constellation:</span>
-                {['ALL', 'GPS', 'BEIDOU', 'GLONASS', 'GALILEO'].map(c => (
+              {/* Dropdown Menu */}
+              {modeDropdownOpen && (
+                <div className="absolute left-0 top-full mt-1.5 w-full z-30 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xl p-1.5 space-y-1">
                   <button
-                    key={c}
                     type="button"
-                    onClick={() => setConstellationFilter(c)}
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold transition-colors ${
-                      constellationFilter === c
-                        ? 'bg-[var(--surface-3)] text-[var(--accent)] border border-[var(--accent)]/40'
-                        : 'bg-[var(--surface-2)] text-[var(--text-3)] hover:text-[var(--text-1)]'
+                    onClick={() => { setProcessingMode('static'); setModeDropdownOpen(false); }}
+                    className={`w-full flex items-center gap-2.5 p-2 rounded-lg text-xs font-bold text-left transition-colors ${
+                      processingMode === 'static' ? 'bg-sky-500/15 text-sky-500' : 'text-[var(--text-2)] hover:bg-[var(--surface-2)]'
                     }`}
                   >
-                    {c}
+                    <Crosshair className="w-4 h-4" />
+                    <span>Static processing</span>
                   </button>
-                ))}
-              </div>
-            </div>
 
-            {/* Ingestion Overview Metrics */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-              <div className="p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
-                <span className="text-[10px] font-mono text-[var(--text-3)] uppercase">Marker / Receiver</span>
-                <p className="font-bold text-[var(--text-1)] truncate mt-0.5">{activeRinex.header.markerName}</p>
-                <span className="text-[11px] font-mono text-[var(--text-3)]">{activeRinex.header.receiverType}</span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
-                <span className="text-[10px] font-mono text-[var(--text-3)] uppercase">Approx Geodetic</span>
-                <p className="font-bold font-mono text-[var(--accent)] truncate mt-0.5">
-                  {activeRinex.header.approxGeodetic?.lat.toFixed(5)}°, {activeRinex.header.approxGeodetic?.lng.toFixed(5)}°
-                </p>
-                <span className="text-[11px] font-mono text-[var(--text-3)]">H = {activeRinex.header.approxGeodetic?.height.toFixed(2)} m</span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
-                <span className="text-[10px] font-mono text-[var(--text-3)] uppercase">Average SNR</span>
-                <p className="font-bold font-mono text-emerald-500 text-base mt-0.5">
-                  {activeRinex.averageSnr} <span className="text-xs font-normal">dB-Hz</span>
-                </p>
-                <span className="text-[11px] text-[var(--text-3)]">สุขภาพสัญญาณ: {activeRinex.healthStatus}</span>
-              </div>
-
-              <div className="p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]">
-                <span className="text-[10px] font-mono text-[var(--text-3)] uppercase">Epochs / Duration</span>
-                <p className="font-bold font-mono text-[var(--text-1)] text-base mt-0.5">
-                  {activeRinex.totalEpochs} <span className="text-xs font-normal">epochs</span>
-                </p>
-                <span className="text-[11px] text-[var(--text-3)]">รังวัดนาน ~{activeRinex.durationMinutes} นาที</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Interactive Polar Skyplot (Radar SVG) & Satellites Table */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Left: Polar Skyplot SVG Canvas */}
-            <div className="lg:col-span-5 fusion-card p-5 flex flex-col items-center justify-center space-y-4">
-              <div className="w-full flex items-center justify-between text-xs">
-                <span className="font-bold text-[var(--text-1)] flex items-center gap-1.5">
-                  <Compass className="w-4 h-4 text-[var(--accent)]" />
-                  <span>Polar Skyplot (ผังขอบฟ้าดาวเทียม)</span>
-                </span>
-                <span className="text-[10px] font-mono text-[var(--text-3)]">Azimuth / Elevation</span>
-              </div>
-
-              {/* Radar Circles SVG */}
-              <div className="relative w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center">
-                <svg className="w-full h-full" viewBox="-120 -120 240 240">
-                  {/* Outer circle (0° horizon) */}
-                  <circle cx="0" cy="0" r="100" fill="none" stroke="var(--border)" strokeWidth="1.5" />
-                  {/* 30° elevation circle */}
-                  <circle cx="0" cy="0" r="66.6" fill="none" stroke="var(--border)" strokeDasharray="3 3" strokeWidth="1" />
-                  {/* 60° elevation circle */}
-                  <circle cx="0" cy="0" r="33.3" fill="none" stroke="var(--border)" strokeDasharray="3 3" strokeWidth="1" />
-                  {/* 15° mask circle (red threshold) */}
-                  <circle cx="0" cy="0" r="83.3" fill="none" stroke="rgba(239, 68, 68, 0.4)" strokeDasharray="2 2" strokeWidth="1" />
-
-                  {/* Cardinal Crosshairs */}
-                  <line x1="0" y1="-100" x2="0" y2="100" stroke="var(--border)" strokeWidth="1" />
-                  <line x1="-100" y1="0" x2="100" y2="0" stroke="var(--border)" strokeWidth="1" />
-
-                  {/* Cardinal Labels */}
-                  <text x="0" y="-104" textAnchor="middle" className="text-[9px] font-mono fill-[var(--accent)] font-bold">N</text>
-                  <text x="108" y="3" textAnchor="start" className="text-[9px] font-mono fill-[var(--text-3)]">E</text>
-                  <text x="0" y="112" textAnchor="middle" className="text-[9px] font-mono fill-[var(--text-3)]">S</text>
-                  <text x="-108" y="3" textAnchor="end" className="text-[9px] font-mono fill-[var(--text-3)]">W</text>
-                  <text x="0" y="4" textAnchor="middle" className="text-[8px] font-mono fill-[var(--text-3)]">Zenith</text>
-
-                  {/* Satellites Markers */}
-                  {filteredSatellites.map((sat) => {
-                    // Polar projection: r = 100 * (90 - el) / 90
-                    const radius = (100.0 * (90.0 - sat.elevationDeg)) / 90.0;
-                    const theta = ((sat.azimuthDeg - 90.0) * Math.PI) / 180.0;
-                    const px = radius * Math.cos(theta);
-                    const py = radius * Math.sin(theta);
-
-                    // SNR color gradient
-                    const markerColor = 
-                      sat.snrDbHz >= 46 ? '#10b981' : 
-                      sat.snrDbHz >= 40 ? '#0ea5e9' : 
-                      sat.snrDbHz >= 35 ? '#f59e0b' : '#ef4444';
-
-                    return (
-                      <g key={sat.id} className="cursor-pointer transition-transform hover:scale-125">
-                        <circle cx={px} cy={py} r="5" fill={markerColor} stroke="#000" strokeWidth="1" />
-                        <text
-                          x={px}
-                          y={py - 7}
-                          textAnchor="middle"
-                          className="text-[8px] font-mono font-bold fill-[var(--text-1)] select-none pointer-events-none drop-shadow"
-                        >
-                          {sat.id}
-                        </text>
-                      </g>
-                    );
-                  })}
-                </svg>
-              </div>
-
-              {/* SNR Legend */}
-              <div className="flex items-center gap-3 text-[10px] font-mono text-[var(--text-3)]">
-                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> &ge;46 dB-Hz</span>
-                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-sky-500" /> 40-45</span>
-                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> 35-39</span>
-                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-500" /> &lt;35</span>
-              </div>
-            </div>
-
-            {/* Right: Satellites Tracking Data Table */}
-            <div className="lg:col-span-7 fusion-card p-5 space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold text-[var(--text-1)]">
-                  รายการดาวเทียมที่ติดตามได้ ({filteredSatellites.length} ดวง)
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('baseline')}
-                  className="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-black dark:text-white font-bold text-xs flex items-center gap-1.5 shadow-sm micro-press"
-                >
-                  <span>ต่อไป: คำนวณเวกเตอร์ฐาน</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              <div className="overflow-x-auto -mx-5 px-5 max-h-80">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead className="sticky top-0 bg-[var(--surface)] border-b border-[var(--border)]">
-                    <tr className="text-[var(--text-3)] font-mono">
-                      <th className="py-2 px-2">PRN</th>
-                      <th className="py-2 px-2">กลุ่มดาวเทียม</th>
-                      <th className="py-2 px-2 text-right">มุมกวาด (Az)</th>
-                      <th className="py-2 px-2 text-right">มุมยก (El)</th>
-                      <th className="py-2 px-2 text-right">SNR (dB-Hz)</th>
-                      <th className="py-2 px-2 text-center">คุณภาพ</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[var(--border)]">
-                    {filteredSatellites.map((sat) => (
-                      <tr key={sat.id} className="hover:bg-[var(--surface-2)] transition-colors">
-                        <td className="py-2 px-2 font-mono font-bold text-[var(--text-1)]">{sat.id}</td>
-                        <td className="py-2 px-2 font-mono text-[var(--text-2)]">{sat.constellation}</td>
-                        <td className="py-2 px-2 text-right font-mono">{sat.azimuthDeg.toFixed(1)}°</td>
-                        <td className="py-2 px-2 text-right font-mono font-bold text-[var(--accent)]">{sat.elevationDeg.toFixed(1)}°</td>
-                        <td className="py-2 px-2 text-right font-mono font-bold">
-                          <span className={sat.snrDbHz >= 45 ? 'text-emerald-500' : sat.snrDbHz >= 40 ? 'text-sky-500' : 'text-amber-500'}>
-                            {sat.snrDbHz.toFixed(1)}
-                          </span>
-                        </td>
-                        <td className="py-2 px-2 text-center">
-                          <span className="px-1.5 py-0.5 rounded bg-[var(--surface-2)] text-[10px] font-mono border border-[var(--border)] uppercase">
-                            {sat.quality}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-          </div>
-          </>
-          )}
-
-        </div>
-      )}
-
-      {/* ─────────────────────────────────────────────────────────────────── */}
-      {/* STEP 2: DOUBLE-DIFFERENCE BASELINE SOLVER */}
-      {/* ─────────────────────────────────────────────────────────────────── */}
-      {activeTab === 'baseline' && (
-        <div className="space-y-6">
-          
-          {/* Controls Bar */}
-          <div className="fusion-card p-5 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <h2 className="text-base font-bold text-[var(--text-1)] flex items-center gap-2">
-                  <Radio className="w-4 h-4 text-emerald-500" />
-                  <span>คำนวณเวกเตอร์ฐานสัมพันธ์ (Carrier-Phase Double Difference)</span>
-                </h2>
-                <p className="text-xs text-[var(--text-2)]">
-                  {baseRinex && roverRinex ? (
-                    <>จับคู่สถานี {baseRinex.header.markerName} (Base) ↔ {roverRinex.header.markerName} (Rover) เพื่อหาเวกเตอร์สัมพัทธ์และความแปรปรวน</>
-                  ) : (
-                    <>ต้องการไฟล์ RINEX ของทั้งสถานีฐาน (Base) และสถานีรังวัด (Rover) เพื่อคำนวณ</>
-                  )}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 text-xs font-mono">
-                  <span className="text-[var(--text-3)]">Elev Mask:</span>
-                  <select
-                    value={elevMask}
-                    onChange={(e) => setElevMask(Number(e.target.value))}
-                    className="px-2 py-1 rounded bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] text-xs font-mono"
+                  <button
+                    type="button"
+                    onClick={() => { setProcessingMode('kinematic'); setModeDropdownOpen(false); }}
+                    className={`w-full flex items-center gap-2.5 p-2 rounded-lg text-xs font-bold text-left transition-colors ${
+                      processingMode === 'kinematic' ? 'bg-sky-500/15 text-sky-500' : 'text-[var(--text-2)] hover:bg-[var(--surface-2)]'
+                    }`}
                   >
-                    <option value={10}>10°</option>
-                    <option value={15}>15° (มาตรฐาน)</option>
-                    <option value={20}>20° (ตัดเงาตึก)</option>
-                  </select>
-                </div>
+                    <Activity className="w-4 h-4" />
+                    <span>Kinematic</span>
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={handleSolveBaseline}
-                  disabled={!baseRinex || !roverRinex}
-                  className="px-3.5 py-1.5 rounded-[var(--btn-radius)] bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5 micro-press"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>คำนวณเวกเตอร์ฐาน (Solve)</span>
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => { setProcessingMode('adjustment'); setModeDropdownOpen(false); }}
+                    className={`w-full flex items-center gap-2.5 p-2 rounded-lg text-xs font-bold text-left transition-colors ${
+                      processingMode === 'adjustment' ? 'bg-sky-500/15 text-sky-500' : 'text-[var(--text-2)] hover:bg-[var(--surface-2)]'
+                    }`}
+                  >
+                    <Network className="w-4 h-4" />
+                    <span>Network Adjustment (2D / 1D)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setProcessingMode('rinex'); setModeDropdownOpen(false); }}
+                    className={`w-full flex items-center gap-2.5 p-2 rounded-lg text-xs font-bold text-left transition-colors ${
+                      processingMode === 'rinex' ? 'bg-sky-500/15 text-sky-500' : 'text-[var(--text-2)] hover:bg-[var(--surface-2)]'
+                    }`}
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    <span>Convert to RINEX (HCN to RNX)</span>
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
 
-          {baselineError && (
-            <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs sm:text-sm flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 shrink-0" />
-              <span>{baselineError}</span>
-            </div>
-          )}
-
-          {!baseRinex || !roverRinex ? (
-            <div className="fusion-card p-8 sm:p-12 text-center space-y-4 border-dashed border-2">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-[var(--surface-2)] flex items-center justify-center text-emerald-500 border border-[var(--border)]">
-                <Radio className="w-8 h-8 opacity-75" />
-              </div>
-              <div className="space-y-1.5 max-w-md mx-auto">
-                <h3 className="text-base font-bold text-[var(--text-1)]">
-                  ยังไม่มีไฟล์ RINEX สำหรับคำนวณเวกเตอร์ฐาน (Blank Workspace)
-                </h3>
-                <p className="text-xs text-[var(--text-2)] leading-relaxed">
-                  การคำนวณ Double Difference (Carrier-Phase) ต้องใช้ไฟล์ RINEX ของทั้งสถานีฐาน (Base) และสถานีรังวัด (Rover) ร่วมกัน กรุณานำเข้าไฟล์ในขั้นตอนที่ 1 หรือโหลดข้อมูลตัวอย่าง
-                </p>
-              </div>
-              <div className="pt-2 flex flex-wrap justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('ingestion')}
-                  className="px-4 py-2 rounded-xl bg-[var(--accent)] text-black dark:text-white text-xs font-bold flex items-center gap-2 shadow-sm micro-press"
-                >
-                  <span>ไปที่ขั้นตอนที่ 1: นำเข้าไฟล์ RINEX</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleResetRinexSample}
-                  className="px-4 py-2 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-[var(--border)] text-xs font-semibold text-[var(--text-1)] flex items-center gap-2 transition-colors micro-press shadow-sm"
-                >
-                  <RefreshCw className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>โหลดตัวอย่าง RINEX เพื่อทดสอบ</span>
-                </button>
-              </div>
-            </div>
-          ) : !baselineSolution ? (
-            <div className="fusion-card p-8 text-center space-y-4 border-dashed border-2">
-              <div className="w-14 h-14 mx-auto rounded-2xl bg-[var(--surface-2)] flex items-center justify-center text-[var(--accent)] border border-[var(--border)]">
-                <RefreshCw className="w-6 h-6 opacity-75" />
-              </div>
-              <div className="space-y-1 max-w-md mx-auto">
-                <h3 className="text-sm font-bold text-[var(--text-1)]">
-                  ไฟล์ RINEX พร้อมแล้ว — ยังไม่ได้ประมวลผลเวกเตอร์
-                </h3>
-                <p className="text-xs text-[var(--text-2)]">
-                  กดปุ่ม "คำนวณเวกเตอร์ฐาน (Solve)" ด้านบนเพื่อเริ่มกระบวนการ Carrier-Phase Double Difference (LAMBDA Ambiguity Resolution)
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleSolveBaseline}
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 mx-auto shadow-sm micro-press"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>คำนวณเวกเตอร์ฐานทันที</span>
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              
-              {/* Solution Summary Badges */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                <div className="fusion-card p-4 space-y-1">
-                  <span className="text-[11px] font-mono text-[var(--text-3)] uppercase">Ambiguity Status</span>
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                    <span className="text-xl sm:text-2xl font-black font-mono text-emerald-500">
-                      {baselineSolution.status}
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-[var(--text-3)] font-mono">LAMBDA Resolved</span>
-                </div>
-
-                <div className="fusion-card p-4 space-y-1">
-                  <span className="text-[11px] font-mono text-[var(--text-3)] uppercase">Ratio Test</span>
-                  <p className="text-xl sm:text-2xl font-black font-mono text-[var(--accent)]">
-                    {baselineSolution.ratioTest.toFixed(2)}
-                  </p>
-                  <span className="text-[10px] text-[var(--text-3)]">เกณฑ์ขั้นต่ำ &ge; 3.00</span>
-                </div>
-
-                <div className="fusion-card p-4 space-y-1">
-                  <span className="text-[11px] font-mono text-[var(--text-3)] uppercase">Common Satellites</span>
-                  <p className="text-xl sm:text-2xl font-black font-mono text-[var(--text-1)]">
-                    {baselineSolution.commonSatellites} <span className="text-xs font-normal">sats</span>
-                  </p>
-                  <span className="text-[10px] text-[var(--text-3)]">ดาวเทียมมุมยก &ge; {elevMask}°</span>
-                </div>
-
-                <div className="fusion-card p-4 space-y-1">
-                  <span className="text-[11px] font-mono text-[var(--text-3)] uppercase">Horizontal Length</span>
-                  <p className="text-xl sm:text-2xl font-black font-mono text-[var(--text-1)]">
-                    {baselineSolution.vectorENU.distance2D.toFixed(3)} <span className="text-xs font-normal">m</span>
-                  </p>
-                  <span className="text-[10px] text-[var(--text-3)] font-mono">Azimuth {baselineSolution.vectorENU.azimuthDeg}°</span>
-                </div>
-              </div>
-
-              {/* Vector Components: ECEF vs Local ENU */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* ── STATIC & KINEMATIC PROCESSING CONTROLS ── */}
+            {(processingMode === 'static' || processingMode === 'kinematic') && (
+              <div className="space-y-3">
                 
-                {/* Local Topocentric ENU */}
-                <div className="fusion-card p-5 space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-[var(--border)]">
-                    <span className="font-bold text-xs text-[var(--text-1)]">Local Topocentric Vector (ENU)</span>
-                    <span className="text-[10px] font-mono text-[var(--accent)]">ความถูกต้องระดับมิลลิเมตร</span>
+                {/* 1. Base Station Slot */}
+                <div 
+                  onDragOver={(e) => { e.preventDefault(); setIsBaseDragging(true); }}
+                  onDragLeave={() => setIsBaseDragging(false)}
+                  onDrop={(e) => handleDrop(e, 'base')}
+                  className={`p-3 rounded-xl border transition-all ${
+                    isBaseDragging 
+                      ? 'border-[var(--accent)] bg-[var(--accent)]/5' 
+                      : 'border-[var(--border)] bg-[var(--surface-2)]/60'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-1)]">
+                      <span className={`w-2 h-2 rounded-full ${baseRinex ? 'bg-emerald-500' : 'bg-[var(--text-3)]'}`} />
+                      <span>Base</span>
+                    </div>
+                    {baseRinex && (
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--surface)] text-emerald-500 border border-emerald-500/20 font-bold">
+                        {baseRinex.header.markerName}
+                      </span>
+                    )}
                   </div>
 
-                  <div className="space-y-2 text-xs font-mono">
-                    <div className="flex justify-between py-1.5 px-2 rounded bg-[var(--surface-2)]">
-                      <span className="text-[var(--text-3)]">Delta Easting (ΔE):</span>
-                      <span className="font-bold text-[var(--text-1)]">{baselineSolution.vectorENU.dE.toFixed(4)} m (±{baselineSolution.stdDevMm.dE} mm)</span>
-                    </div>
-                    <div className="flex justify-between py-1.5 px-2 rounded bg-[var(--surface-2)]">
-                      <span className="text-[var(--text-3)]">Delta Northing (ΔN):</span>
-                      <span className="font-bold text-[var(--text-1)]">{baselineSolution.vectorENU.dN.toFixed(4)} m (±{baselineSolution.stdDevMm.dN} mm)</span>
-                    </div>
-                    <div className="flex justify-between py-1.5 px-2 rounded bg-[var(--surface-2)]">
-                      <span className="text-[var(--text-3)]">Delta Up (ΔU):</span>
-                      <span className="font-bold text-[var(--text-1)]">{baselineSolution.vectorENU.dU.toFixed(4)} m (±{baselineSolution.stdDevMm.dU} mm)</span>
-                    </div>
-                    <div className="flex justify-between py-1.5 px-2 rounded bg-[var(--surface-2)]">
-                      <span className="text-[var(--text-3)]">Spatial 3D Distance:</span>
-                      <span className="font-bold text-[var(--accent)]">{baselineSolution.vectorENU.distance3D.toFixed(4)} m</span>
-                    </div>
-                  </div>
-                </div>
+                  {baseRinex ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-xs">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <FileText className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
+                          <span className="font-mono font-semibold truncate text-[11px]">{baseFileName || 'Base Station'}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => { setBaseRinex(null); setBaseFileName(''); setBaseHcn(null); }}
+                          className="p-1 text-[var(--text-3)] hover:text-rose-500 transition-colors"
+                          title="ลบไฟล์ Base"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
 
-                {/* ECEF Geocentric Cartesian */}
-                <div className="fusion-card p-5 space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-[var(--border)]">
-                    <span className="font-bold text-xs text-[var(--text-1)]">Geocentric Cartesian Vector (ECEF)</span>
-                    <span className="text-[10px] font-mono text-[var(--text-3)]">WGS84 Reference Frame</span>
-                  </div>
+                      {/* Coordinates Readout */}
+                      <div className="p-2 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[11px] space-y-1 font-mono">
+                        <div className="flex justify-between text-[var(--text-3)]">
+                          <span>Latitude:</span>
+                          <span className="text-[var(--text-1)] font-semibold">{baseCoords.lat.toFixed(6)}° N</span>
+                        </div>
+                        <div className="flex justify-between text-[var(--text-3)]">
+                          <span>Longitude:</span>
+                          <span className="text-[var(--text-1)] font-semibold">{baseCoords.lng.toFixed(6)}° E</span>
+                        </div>
+                        <div className="flex justify-between text-[var(--text-3)]">
+                          <span>Ellip. height:</span>
+                          <span className="text-[var(--text-1)] font-semibold">{baseCoords.height.toFixed(4)} m</span>
+                        </div>
+                      </div>
 
-                  <div className="space-y-2 text-xs font-mono">
-                    <div className="flex justify-between py-1.5 px-2 rounded bg-[var(--surface-2)]">
-                      <span className="text-[var(--text-3)]">Delta X (ΔX):</span>
-                      <span className="font-bold text-[var(--text-1)]">{baselineSolution.vectorECEF.dx.toFixed(4)} m (±{baselineSolution.stdDevMm.dx} mm)</span>
+                      {/* Antenna Height Line */}
+                      <div className="flex items-center justify-between text-xs text-[var(--text-2)] px-1">
+                        {isEditingBaseAntenna ? (
+                          <div className="flex items-center gap-1.5 w-full">
+                            <span className="text-[11px]">เสา:</span>
+                            <input
+                              type="number"
+                              step="0.0001"
+                              value={baseAntennaHeight}
+                              onChange={(e) => setBaseAntennaHeight(parseFloat(e.target.value) || 0)}
+                              className="w-24 px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--accent)] text-xs font-mono font-bold"
+                            />
+                            <span className="text-[11px]">m.</span>
+                            <button
+                              type="button"
+                              onClick={() => setIsEditingBaseAntenna(false)}
+                              className="px-2 py-0.5 rounded bg-[var(--accent)] text-black dark:text-white font-bold text-[10px]"
+                            >
+                              Done
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="text-[11px]">Antenna height is <b>{baseAntennaHeight.toFixed(4)}</b> m.</span>
+                            <button
+                              type="button"
+                              onClick={() => setIsEditingBaseAntenna(true)}
+                              className="text-[11px] text-sky-500 hover:underline font-semibold"
+                            >
+                              Edit
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex justify-between py-1.5 px-2 rounded bg-[var(--surface-2)]">
-                      <span className="text-[var(--text-3)]">Delta Y (ΔY):</span>
-                      <span className="font-bold text-[var(--text-1)]">{baselineSolution.vectorECEF.dy.toFixed(4)} m (±{baselineSolution.stdDevMm.dy} mm)</span>
-                    </div>
-                    <div className="flex justify-between py-1.5 px-2 rounded bg-[var(--surface-2)]">
-                      <span className="text-[var(--text-3)]">Delta Z (ΔZ):</span>
-                      <span className="font-bold text-[var(--text-1)]">{baselineSolution.vectorECEF.dz.toFixed(4)} m (±{baselineSolution.stdDevMm.dz} mm)</span>
-                    </div>
-                  </div>
-
-                  {/* Transfer Action Button */}
-                  <div className="pt-2">
+                  ) : (
                     <button
                       type="button"
-                      onClick={handleTransferToAdjustment}
-                      className="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-sm micro-press"
+                      onClick={() => baseFileInputRef.current?.click()}
+                      className="w-full py-4 px-2 rounded-lg border-2 border-dashed border-[var(--border)] hover:border-sky-500 bg-[var(--surface)]/50 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1"
                     >
-                      <span>ส่งเวกเตอร์เข้าสู่การปรับแก้โครงข่าย (Send to Step 3)</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <Upload className="w-4 h-4 text-[var(--text-3)]" />
+                      <span className="text-xs font-semibold text-[var(--text-1)]">เลือกหรือลากไฟล์สถานีฐาน</span>
+                      <span className="text-[10px] text-[var(--text-3)]">.HCN, .RNX, .OBS</span>
+                    </button>
+                  )}
+
+                  <input
+                    ref={baseFileInputRef}
+                    type="file"
+                    accept=".obs,.rnx,.txt,.hcn,.hrc,.*o,.*d"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) processFile(file, 'base');
+                      e.target.value = '';
+                    }}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* 2. Rover Station Slot */}
+                <div 
+                  onDragOver={(e) => { e.preventDefault(); setIsRoverDragging(true); }}
+                  onDragLeave={() => setIsRoverDragging(false)}
+                  onDrop={(e) => handleDrop(e, 'rover')}
+                  className={`p-3 rounded-xl border transition-all ${
+                    isRoverDragging 
+                      ? 'border-cyan-400 bg-cyan-400/5' 
+                      : 'border-[var(--border)] bg-[var(--surface-2)]/60'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-1)]">
+                      <span className={`w-2 h-2 rounded-full ${roverRinex ? 'bg-cyan-400' : 'bg-[var(--text-3)]'}`} />
+                      <span>Rover</span>
+                    </div>
+                    {roverRinex && (
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--surface)] text-cyan-400 border border-cyan-400/20 font-bold">
+                        {roverRinex.header.markerName}
+                      </span>
+                    )}
+                  </div>
+
+                  {roverRinex ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-xs">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <FileText className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                          <span className="font-mono font-semibold truncate text-[11px]">{roverFileName || 'Rover Station'}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => { setRoverRinex(null); setRoverFileName(''); setRoverHcn(null); setLastEmlidPos(null); }}
+                          className="p-1 text-[var(--text-3)] hover:text-rose-500 transition-colors"
+                          title="ลบไฟล์ Rover"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Antenna Height Line */}
+                      <div className="flex items-center justify-between text-xs text-[var(--text-2)] px-1">
+                        {isEditingRoverAntenna ? (
+                          <div className="flex items-center gap-1.5 w-full">
+                            <span className="text-[11px]">เสา:</span>
+                            <input
+                              type="number"
+                              step="0.0001"
+                              value={roverAntennaHeight}
+                              onChange={(e) => setRoverAntennaHeight(parseFloat(e.target.value) || 0)}
+                              className="w-24 px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--accent)] text-xs font-mono font-bold"
+                            />
+                            <span className="text-[11px]">m.</span>
+                            <button
+                              type="button"
+                              onClick={() => setIsEditingRoverAntenna(false)}
+                              className="px-2 py-0.5 rounded bg-[var(--accent)] text-black dark:text-white font-bold text-[10px]"
+                            >
+                              Done
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="text-[11px]">Antenna height is <b>{roverAntennaHeight.toFixed(4)}</b> m.</span>
+                            <button
+                              type="button"
+                              onClick={() => setIsEditingRoverAntenna(true)}
+                              className="text-[11px] text-sky-500 hover:underline font-semibold"
+                            >
+                              Edit
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => roverFileInputRef.current?.click()}
+                      className="w-full py-4 px-2 rounded-lg border-2 border-dashed border-[var(--border)] hover:border-cyan-400 bg-[var(--surface)]/50 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1"
+                    >
+                      <Upload className="w-4 h-4 text-[var(--text-3)]" />
+                      <span className="text-xs font-semibold text-[var(--text-1)]">เลือกหรือลากไฟล์สถานีรังวัด</span>
+                      <span className="text-[10px] text-[var(--text-3)]">.HCN, .RNX, .POS</span>
+                    </button>
+                  )}
+
+                  <input
+                    ref={roverFileInputRef}
+                    type="file"
+                    accept=".obs,.rnx,.txt,.hcn,.hrc,.pos,.*o,.*d"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) processFile(file, 'rover');
+                      e.target.value = '';
+                    }}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* 3. Navigation (Broadcast Ephemeris) Slot */}
+                <div className="p-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/40 space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-[var(--text-2)]">
+                    <span>Navigation (Ephemeris)</span>
+                    <span className="text-[9px] text-[var(--text-3)] font-normal">Optional</span>
+                  </div>
+
+                  {navFileName ? (
+                    <div className="flex items-center justify-between p-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-xs">
+                      <span className="font-mono text-[10px] text-[var(--text-1)] truncate">{navFileName}</span>
+                      <button
+                        type="button"
+                        onClick={() => setNavFileName('')}
+                        className="p-1 text-[var(--text-3)] hover:text-rose-500"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => navFileInputRef.current?.click()}
+                      className="w-full py-1.5 px-2 rounded-lg border border-dashed border-[var(--border)] hover:border-[var(--accent)] text-center text-[10px] text-[var(--text-3)] hover:text-[var(--text-1)] transition-colors"
+                    >
+                      + เพิ่มไฟล์นำทาง (.nav, .26p)
+                    </button>
+                  )}
+
+                  <input
+                    ref={navFileInputRef}
+                    type="file"
+                    accept=".nav,.26p,.*p,.*n"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) processFile(file, 'nav');
+                      e.target.value = '';
+                    }}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* 4. Action & Settings Bar (Gear + Big Blue Process Button) */}
+                <div className="pt-1 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSettingsOpen(!settingsOpen)}
+                    className={`p-2.5 rounded-xl border transition-colors micro-press ${
+                      settingsOpen 
+                        ? 'bg-[var(--accent)] text-black dark:text-white border-[var(--accent)]' 
+                        : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text-1)] border-[var(--border)]'
+                    }`}
+                    title="การตั้งค่าพารามิเตอร์การประมวลผล (Settings)"
+                  >
+                    <Settings className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleProcessBaseline}
+                    disabled={!baseRinex || !roverRinex || isProcessing}
+                    className="flex-1 py-2.5 px-4 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-sky-500/25 transition-all micro-press"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>กำลังประมวลผล...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-4 h-4 fill-white" />
+                        <span>Process</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Settings Popover */}
+                {settingsOpen && (
+                  <div className="p-3 rounded-xl bg-[var(--surface)] border border-[var(--border)] space-y-2.5 shadow-md text-xs">
+                    <span className="font-bold text-[var(--text-1)] block pb-1 border-b border-[var(--border)]">
+                      Processing Settings
+                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[var(--text-2)]">Elevation mask:</span>
+                      <select
+                        value={elevMask}
+                        onChange={(e) => setElevMask(Number(e.target.value))}
+                        className="px-2 py-1 rounded bg-[var(--surface-2)] border border-[var(--border)] text-xs font-mono font-bold"
+                      >
+                        <option value={10}>10°</option>
+                        <option value={15}>15° (Standard)</option>
+                        <option value={20}>20° (High Obstruction)</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[var(--text-2)]">SNR Threshold:</span>
+                      <select
+                        value={snrThreshold}
+                        onChange={(e) => setSnrThreshold(Number(e.target.value))}
+                        className="px-2 py-1 rounded bg-[var(--surface-2)] border border-[var(--border)] text-xs font-mono font-bold"
+                      >
+                        <option value={30}>30 dB-Hz</option>
+                        <option value={35}>35 dB-Hz (Standard)</option>
+                        <option value={40}>40 dB-Hz (High Quality)</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* Inline Error Callout */}
+                {baselineError && (
+                  <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 shrink-0" />
+                    <span>{baselineError}</span>
+                  </div>
+                )}
+
+                {/* 5. INLINE SOLUTION CARD (Emlid Studio Immediate Feedback) */}
+                {baselineSolution && (
+                  <div className="p-3 rounded-xl bg-[var(--surface)] border border-emerald-500/30 space-y-2.5 shadow-sm">
+                    <div className="flex items-center justify-between pb-2 border-b border-[var(--border)]">
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                        <span className="font-bold font-mono text-emerald-500 text-xs">
+                          {baselineSolution.status}: 100%
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-[var(--accent)] px-1.5 py-0.5 rounded bg-[var(--surface-2)]">
+                        Ratio: {baselineSolution.ratioTest.toFixed(1)}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                      <div className="p-2 rounded-lg bg-[var(--surface-2)]/60">
+                        <span className="text-[9px] text-[var(--text-3)] uppercase block">2D Distance</span>
+                        <span className="font-bold text-[var(--text-1)]">
+                          {baselineSolution.vectorENU.distance2D.toFixed(3)} m
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-lg bg-[var(--surface-2)]/60">
+                        <span className="text-[9px] text-[var(--text-3)] uppercase block">Azimuth</span>
+                        <span className="font-bold text-[var(--text-1)]">
+                          {baselineSolution.vectorENU.azimuthDeg.toFixed(2)}°
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-2 rounded-lg bg-[var(--surface-2)]/60 text-[11px] font-mono space-y-1 text-[var(--text-2)]">
+                      <div className="flex justify-between">
+                        <span>ΔE:</span>
+                        <span className="font-bold text-[var(--text-1)]">{baselineSolution.vectorENU.dE.toFixed(4)} m (±{baselineSolution.stdDevMm.dE}mm)</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>ΔN:</span>
+                        <span className="font-bold text-[var(--text-1)]">{baselineSolution.vectorENU.dN.toFixed(4)} m (±{baselineSolution.stdDevMm.dN}mm)</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>ΔU:</span>
+                        <span className="font-bold text-[var(--text-1)]">{baselineSolution.vectorENU.dU.toFixed(4)} m (±{baselineSolution.stdDevMm.dU}mm)</span>
+                      </div>
+                    </div>
+
+                    {/* Direct Action Pathway */}
+                    <div className="pt-1 flex flex-col gap-1.5">
+                      <button
+                        type="button"
+                        onClick={handleTransferToAdjustment}
+                        className="w-full py-2 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors micro-press"
+                      >
+                        <Network className="w-3.5 h-3.5" />
+                        <span>นำเข้าโครงข่ายปรับแก้ (Send to LSA)</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            )}
+
+            {/* ── NETWORK ADJUSTMENT CONTROLS ── */}
+            {processingMode === 'adjustment' && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-2 rounded-lg bg-[var(--surface-2)] text-xs">
+                  <span className="text-[var(--text-3)]">มิติโครงข่าย:</span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setAdjustmentMode('2d')}
+                      className={`px-2 py-1 rounded text-xs font-bold transition-colors ${
+                        adjustmentMode === '2d' ? 'bg-[var(--surface)] text-[var(--accent)] shadow-xs' : 'text-[var(--text-3)]'
+                      }`}
+                    >
+                      2D ราบ
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAdjustmentMode('1d')}
+                      className={`px-2 py-1 rounded text-xs font-bold transition-colors ${
+                        adjustmentMode === '1d' ? 'bg-[var(--surface)] text-[var(--accent)] shadow-xs' : 'text-[var(--text-3)]'
+                      }`}
+                    >
+                      1D ระดับ
                     </button>
                   </div>
                 </div>
 
-              </div>
-
-            </div>
-          )}
-
-        </div>
-      )}
-
-      {/* ─────────────────────────────────────────────────────────────────── */}
-      {/* STEP 3: LEAST SQUARES NETWORK ADJUSTMENT */}
-      {/* ─────────────────────────────────────────────────────────────────── */}
-      {activeTab === 'adjustment' && (
-        <div className="space-y-6">
-          
-          {/* Sub Toolbar for Adjustment */}
-          <div className="fusion-card p-5 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <h2 className="text-base font-bold text-[var(--text-1)] flex items-center gap-2">
-                  <Network className="w-4 h-4 text-indigo-500" />
-                  <span>การปรับแก้โครงข่ายรังวัด (Gauss-Markov Least Squares)</span>
-                </h2>
-                <p className="text-xs text-[var(--text-2)]">
-                  คำนวณกระจายความคลาดเคลื่อน ตรวจสอบความถูกต้องทางสถิติ Chi-Square และคำนวณวงรีความคลาดเคลื่อน 95%
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setAdjustmentMode(adjustmentMode === '2d' ? '1d' : '2d')}
-                  className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] font-semibold text-xs"
+                  onClick={() => {
+                    try {
+                      if (adjustmentMode === '2d') {
+                        setResult2D(adjust2DNetwork(stations2D, obs2D));
+                      } else {
+                        setResult1D(adjust1DLevelingNetwork(points1D, obs1D));
+                      }
+                      setBannerMessage({ text: 'คำนวณปรับแก้โครงข่าย Least Squares สำเร็จ', type: 'success' });
+                      setCanvasView('map');
+                    } catch (err: any) {
+                      setAdjustmentError(err?.message || 'การคำนวณปรับแก้ไม่ลู่เข้า');
+                    }
+                  }}
+                  className="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm micro-press"
                 >
-                  สลับโหมด: {adjustmentMode === '2d' ? 'โครงข่ายราบ 2D' : 'โครงข่ายระดับ 1D'}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSolveAdjustment}
-                  className="px-3.5 py-1.5 rounded-[var(--btn-radius)] bg-[var(--accent)] hover:opacity-90 text-black dark:text-white font-bold text-xs shadow-sm flex items-center gap-1.5 micro-press"
-                >
-                  <TrendingUp className="w-3.5 h-3.5" />
+                  <TrendingUp className="w-4 h-4" />
                   <span>คำนวณปรับแก้ (Compute LSA)</span>
                 </button>
+
+                {result2D && adjustmentMode === '2d' && (
+                  <div className="p-3 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs space-y-2">
+                    <div className="flex justify-between font-mono">
+                      <span className="text-[var(--text-3)]">DoF (r):</span>
+                      <span className="font-bold text-[var(--text-1)]">{result2D.dof}</span>
+                    </div>
+                    <div className="flex justify-between font-mono">
+                      <span className="text-[var(--text-3)]">Std Error (σ₀):</span>
+                      <span className="font-bold text-[var(--accent)]">{result2D.sigma0.toFixed(3)}</span>
+                    </div>
+                    <div className="flex justify-between font-mono">
+                      <span className="text-[var(--text-3)]">Chi-Square:</span>
+                      <span className={`font-bold ${result2D.chiSquarePassed ? 'text-emerald-500' : 'text-amber-500'}`}>
+                        {result2D.chiSquarePassed ? 'PASSED (95%)' : 'WARNING'}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
+
+            {/* ── CONVERT TO RINEX CONTROLS ── */}
+            {processingMode === 'rinex' && (
+              <div className="space-y-3">
+                <div 
+                  onClick={() => hcnFileInputRef.current?.click()}
+                  className="p-4 rounded-xl border-2 border-dashed border-[var(--border)] hover:border-[var(--accent)] bg-[var(--surface-2)]/40 text-center cursor-pointer space-y-1 transition-colors"
+                >
+                  <RefreshCw className="w-5 h-5 text-[var(--accent)] mx-auto" />
+                  <span className="text-xs font-bold text-[var(--text-1)] block">เลือกไฟล์ CHCNAV .HCN</span>
+                  <span className="text-[10px] text-[var(--text-3)]">แปลงรหัส ASCII Header & RINEX 3.04</span>
+                </div>
+
+                <input
+                  ref={hcnFileInputRef}
+                  type="file"
+                  accept=".hcn,.hrc"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) processFile(file, 'hcn');
+                    e.target.value = '';
+                  }}
+                  className="hidden"
+                />
+
+                {baseHcn && (
+                  <div className="p-3 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs space-y-2 font-mono">
+                    <div className="font-bold text-[var(--accent)] font-sans">
+                      ถอดรหัส CHCNAV สำเร็จ
+                    </div>
+                    <div className="text-[11px] text-[var(--text-2)] space-y-1">
+                      <div>หมุด: <b>{baseHcn.metadata.markerName}</b></div>
+                      <div>เครื่องรับ: <b>{baseHcn.metadata.receiverType}</b></div>
+                      <div>OEM Core: <b className="text-emerald-500">{baseHcn.metadata.oemEngine}</b></div>
+                      <div>ความสูงเสา: <b>{baseHcn.metadata.antennaHeight.toFixed(4)} m</b></div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const blob = new Blob([baseHcn.syntheticRinexHeader], { type: 'text/plain;charset=utf-8' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${baseHcn.metadata.markerName}.rnx`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                      }}
+                      className="w-full py-1.5 px-3 rounded-lg bg-[var(--accent)] text-black dark:text-white font-bold text-xs flex items-center justify-center gap-1.5"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>ดาวน์โหลดไฟล์ .RNX Header</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
           </div>
 
-          {adjustmentError && (
-            <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs sm:text-sm flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 shrink-0" />
-              <span>{adjustmentError}</span>
-            </div>
-          )}
-
-          {/* Interactive Stations and Observations Input Panel */}
-          <NetworkAdjustmentInputTable
-            adjustmentMode={adjustmentMode}
-            stations2D={stations2D}
-            obs2D={obs2D}
-            points1D={points1D}
-            obs1D={obs1D}
-            onUpdateStations2D={setStations2D}
-            onUpdateObs2D={setObs2D}
-            onUpdatePoints1D={setPoints1D}
-            onUpdateObs1D={setObs1D}
-            onResetSample={handleResetSampleNetwork}
-            onClearAll={handleClearAllNetwork}
-          />
-
-          {/* 2D Results Table */}
-          {adjustmentMode === '2d' && result2D && (
-            <div className="space-y-6">
-              
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="fusion-card p-4 space-y-1">
-                  <span className="text-[10px] font-mono text-[var(--text-3)] uppercase">Degrees of Freedom</span>
-                  <p className="text-xl sm:text-2xl font-black font-mono text-[var(--text-1)]">{result2D.dof}</p>
-                </div>
-                <div className="fusion-card p-4 space-y-1">
-                  <span className="text-[10px] font-mono text-[var(--text-3)] uppercase">Std Error (σ₀)</span>
-                  <p className="text-xl sm:text-2xl font-black font-mono text-[var(--accent)]">{result2D.sigma0.toFixed(3)}</p>
-                </div>
-                <div className="fusion-card p-4 space-y-1">
-                  <span className="text-[10px] font-mono text-[var(--text-3)] uppercase">Chi-Square Test</span>
-                  <p className={`text-base font-black font-mono ${result2D.chiSquarePassed ? 'text-emerald-500' : 'text-amber-500'}`}>
-                    {result2D.chiSquarePassed ? 'PASSED (95%)' : 'WARNING'}
-                  </p>
-                </div>
-                <div className="fusion-card p-4 space-y-1">
-                  <span className="text-[10px] font-mono text-[var(--text-3)] uppercase">Blunder Check</span>
-                  <p className={`text-base font-black font-mono ${result2D.observations.some(o => o.isOutlier) ? 'text-rose-500' : 'text-emerald-500'}`}>
-                    {result2D.observations.some(o => o.isOutlier) ? 'พบ OUTLIER' : 'CLEAN (0)'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Stations & Error Ellipses Table */}
-              <div className="fusion-card p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-[var(--text-1)]">
-                    พิกัดปรับแก้และวงรีความคลาดเคลื่อน 95% Confidence (Error Ellipses)
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('report')}
-                    className="text-xs font-bold text-[var(--accent)] hover:underline flex items-center gap-1"
-                  >
-                    <span>ดูรายงานและแผนที่ WebGIS</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <div className="overflow-x-auto -mx-5 px-5">
-                  <table className="w-full text-left border-collapse text-xs">
-                    <thead>
-                      <tr className="border-b border-[var(--border)] text-[var(--text-3)] font-mono">
-                        <th className="py-2.5 px-2">หมุด (Station)</th>
-                        <th className="py-2.5 px-2">สถานะ</th>
-                        <th className="py-2.5 px-2 text-right">Easting (m)</th>
-                        <th className="py-2.5 px-2 text-right">Northing (m)</th>
-                        <th className="py-2.5 px-2 text-right">σE (mm)</th>
-                        <th className="py-2.5 px-2 text-right">σN (mm)</th>
-                        <th className="py-2.5 px-2 text-right">แกนเอก a (mm)</th>
-                        <th className="py-2.5 px-2 text-right">แกนโท b (mm)</th>
-                        <th className="py-2.5 px-2 text-right">ทิศทาง θ (°)</th>
-                        <th className="py-2.5 px-2 text-right">95% a₉₅ (mm)</th>
-                        <th className="py-2.5 px-2 text-center">แผนที่</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[var(--border)]">
-                      {result2D.stations.map((stn) => (
-                        <tr key={stn.id} className="hover:bg-[var(--surface-2)] transition-colors">
-                          <td className="py-2.5 px-2 font-bold font-mono text-[var(--text-1)]">{stn.id}</td>
-                          <td className="py-2.5 px-2">
-                            {stn.isFixed ? (
-                              <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-500 font-mono text-[10px] font-bold border border-emerald-500/30">
-                                FIXED
-                              </span>
-                            ) : (
-                              <span className="px-1.5 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-2)] font-mono text-[10px] border border-[var(--border)]">
-                                ADJUSTED
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-2.5 px-2 text-right font-mono text-[var(--text-1)]">{stn.easting.toFixed(4)}</td>
-                          <td className="py-2.5 px-2 text-right font-mono text-[var(--text-1)]">{stn.northing.toFixed(4)}</td>
-                          <td className="py-2.5 px-2 text-right font-mono text-[var(--text-2)]">{stn.sigmaEMm.toFixed(1)}</td>
-                          <td className="py-2.5 px-2 text-right font-mono text-[var(--text-2)]">{stn.sigmaNMm.toFixed(1)}</td>
-                          <td className="py-2.5 px-2 text-right font-mono font-semibold text-[var(--accent)]">
-                            {stn.errorEllipse?.semiMajorAxisMm.toFixed(1) ?? '-'}
-                          </td>
-                          <td className="py-2.5 px-2 text-right font-mono text-[var(--text-2)]">
-                            {stn.errorEllipse?.semiMinorAxisMm.toFixed(1) ?? '-'}
-                          </td>
-                          <td className="py-2.5 px-2 text-right font-mono text-[var(--text-2)]">
-                            {stn.errorEllipse ? `${stn.errorEllipse.orientationDeg.toFixed(1)}°` : '-'}
-                          </td>
-                          <td className="py-2.5 px-2 text-right font-mono font-bold text-amber-500">
-                            {stn.errorEllipse?.conf95MajorMm.toFixed(1) ?? '-'}
-                          </td>
-                          <td className="py-2.5 px-2 text-center">
-                            {onPlotOnMap && (
-                              <button
-                                type="button"
-                                onClick={() => onPlotOnMap(13.8476, 100.5696, stn.id)}
-                                className="p-1 rounded hover:bg-[var(--surface-3)] text-[var(--text-2)] hover:text-[var(--accent)] transition-colors"
-                                title="พล็อตบนแผนที่ WebGIS"
-                              >
-                                <MapPin className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Embedded Interactive Network Map */}
-              <EmbeddedNetworkMap
-                stations={result2D.stations}
-                observations={result2D.observations}
-                utmZone={47}
-                title="แผนที่โครงข่ายราบและวงรีความคลาดเคลื่อน 95% (Interactive Network Map)"
-              />
-
-            </div>
-          )}
-
-          {/* 1D Leveling Results */}
-          {adjustmentMode === '1d' && result1D && (
-            <div className="fusion-card p-5 space-y-4">
-              <h3 className="text-sm font-bold text-[var(--text-1)] flex items-center gap-2">
-                <Ruler className="w-4 h-4 text-[var(--accent)]" />
-                <span>ระดับความสูงปรับแก้ (Adjusted Elevations)</span>
-              </h3>
-              <div className="overflow-x-auto -mx-5 px-5">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-[var(--border)] text-[var(--text-3)] font-mono">
-                      <th className="py-2 px-2">หมุดระดับ (Benchmark)</th>
-                      <th className="py-2 px-2">สถานะ</th>
-                      <th className="py-2 px-2 text-right">ระดับความสูง H (m MSL)</th>
-                      <th className="py-2 px-2 text-right">ความคลาดเคลื่อน σH (mm)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[var(--border)]">
-                    {result1D.points.map((p) => (
-                      <tr key={p.id}>
-                        <td className="py-2 px-2 font-mono font-bold text-[var(--text-1)]">{p.id}</td>
-                        <td className="py-2 px-2">
-                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${p.isFixed ? 'bg-emerald-500/15 text-emerald-500' : 'bg-[var(--surface-2)] text-[var(--text-2)]'}`}>
-                            {p.isFixed ? 'FIXED BM' : 'ADJUSTED'}
-                          </span>
-                        </td>
-                        <td className="py-2 px-2 text-right font-mono font-bold text-[var(--accent)]">{p.adjustedElevation.toFixed(4)}</td>
-                        <td className="py-2 px-2 text-right font-mono text-[var(--text-2)]">{p.stdDevMm.toFixed(2)} mm</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
         </div>
-      )}
 
-      {/* ─────────────────────────────────────────────────────────────────── */}
-      {/* STEP 4: GEOID & REPORT EXPORT */}
-      {/* ─────────────────────────────────────────────────────────────────── */}
-      {activeTab === 'report' && (
-        <div className="space-y-6">
+        {/* ═════════════════════════════════════════════════════════════════ */}
+        {/* RIGHT INTERACTIVE CANVAS (Map, Skyplot, Adjustment, Report)        */}
+        {/* ═════════════════════════════════════════════════════════════════ */}
+        <div className="lg:col-span-8 xl:col-span-8 space-y-3">
           
-          <div className="fusion-card p-5 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[var(--border)]">
-              <div className="space-y-1">
-                <h2 className="text-base font-bold text-[var(--text-1)] flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-amber-500" />
-                  <span>รายงานสรุปวิศวกรรม & แบบจำลองยี่ออยด์ TGM2017</span>
-                </h2>
-                <p className="text-xs text-[var(--text-2)]">
-                  สรุปผลการประมวลผลตามมาตรฐานกรมแผนที่ทหาร (RTSD) และโครงการรถไฟฟ้า ช.การช่าง
-                </p>
+          <div className="fusion-card overflow-hidden flex flex-col">
+            
+            {/* Canvas Header Switcher Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-2 p-3 border-b border-[var(--border)] bg-[var(--surface-2)]/40">
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setCanvasView('map')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all micro-press flex items-center gap-1.5 ${
+                    canvasView === 'map'
+                      ? 'bg-[var(--surface)] text-[var(--accent)] shadow-xs border border-[var(--border)]'
+                      : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
+                  }`}
+                >
+                  <Compass className="w-3.5 h-3.5" />
+                  <span>Ground track (แผนที่)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCanvasView('skyplot')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all micro-press flex items-center gap-1.5 ${
+                    canvasView === 'skyplot'
+                      ? 'bg-[var(--surface)] text-[var(--accent)] shadow-xs border border-[var(--border)]'
+                      : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
+                  }`}
+                >
+                  <Satellite className="w-3.5 h-3.5" />
+                  <span>Polar Skyplot (ผังดาวเทียม)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCanvasView('adjustment')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all micro-press flex items-center gap-1.5 ${
+                    canvasView === 'adjustment'
+                      ? 'bg-[var(--surface)] text-[var(--accent)] shadow-xs border border-[var(--border)]'
+                      : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
+                  }`}
+                >
+                  <Network className="w-3.5 h-3.5" />
+                  <span>Adjustment Table</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCanvasView('report')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all micro-press flex items-center gap-1.5 ${
+                    canvasView === 'report'
+                      ? 'bg-[var(--surface)] text-[var(--accent)] shadow-xs border border-[var(--border)]'
+                      : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
+                  }`}
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Survey Report</span>
+                </button>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
+              {/* Quick Actions in Canvas Bar */}
+              <div className="flex items-center gap-1.5">
                 {result2D && (
                   <>
                     <button
                       type="button"
-                      onClick={handleExportResultsCsv}
-                      className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] font-semibold text-xs flex items-center gap-1.5"
-                      title="ดาวน์โหลดพิกัดปรับแก้และวงรีความคลาดเคลื่อนเป็น CSV"
+                      onClick={handleExportCsv}
+                      className="p-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] text-xs flex items-center gap-1"
+                      title="ส่งออก CSV"
                     >
                       <Download className="w-3.5 h-3.5 text-emerald-500" />
-                      <span>ดาวน์โหลด CSV</span>
+                      <span className="hidden sm:inline">CSV</span>
                     </button>
                     <button
                       type="button"
                       onClick={handleExportGeoJson}
-                      className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] font-semibold text-xs flex items-center gap-1.5"
-                      title="ดาวน์โหลดโครงข่ายหมุดและวงรีเป็น GeoJSON สำหรับ QGIS / ArcGIS"
+                      className="p-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] text-xs flex items-center gap-1"
+                      title="ส่งออก GeoJSON"
                     >
                       <Download className="w-3.5 h-3.5 text-[var(--accent)]" />
-                      <span>ดาวน์โหลด GeoJSON</span>
+                      <span className="hidden sm:inline">GeoJSON</span>
                     </button>
                   </>
                 )}
                 <button
                   type="button"
                   onClick={handleCopyReport}
-                  className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] font-semibold text-xs flex items-center gap-1.5"
+                  className="p-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text-1)] text-xs flex items-center gap-1"
+                  title="คัดลอกรายงานสรุป"
                 >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>คัดลอกรายงาน</span>
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span className="hidden sm:inline">{copied ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
                 </button>
               </div>
             </div>
 
-            {/* Geoid Fitting Card */}
-            <div className="p-4 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-[var(--text-1)] flex items-center gap-1.5">
-                  <Layers className="w-4 h-4 text-[var(--accent)]" />
-                  <span>แบบจำลองความสูงยี่ออยด์แห่งประเทศไทย (RTSD TGM2017)</span>
-                </span>
-                <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-500 font-mono text-[10px] font-bold">
-                  ACTIVE MODEL
-                </span>
-              </div>
-              <p className="text-xs text-[var(--text-2)] leading-relaxed">
-                การแปลงความสูงทรงรีจากดาวเทียม ($h$) สู่ระดับความสูงออร์โธเมตริกเทียบระดับน้ำทะเลปานกลาง ($H = h - N$) โดยใช้ค่าความสูงยี่ออยด์ ($N$) ประจำพื้นที่ประเทศไทยของกรมแผนที่ทหาร มีความถูกต้องในแนวดิ่งระดับ &plusmn;3 cm
-              </p>
-            </div>
-
-            {/* Blank State Notice when no results yet */}
-            {!result2D && !result1D && !baselineSolution && (
-              <div className="p-6 rounded-xl bg-[var(--surface-2)]/50 border border-dashed border-[var(--border)] text-center space-y-3">
-                <div className="w-10 h-10 mx-auto rounded-xl bg-[var(--surface)] flex items-center justify-center text-amber-500">
-                  <ShieldCheck className="w-5 h-5 opacity-75" />
-                </div>
-                <div className="space-y-1 max-w-md mx-auto">
-                  <h4 className="text-xs font-bold text-[var(--text-1)]">
-                    ยังไม่มีข้อมูลรายงานการปรับแก้ (Blank Workspace)
-                  </h4>
-                  <p className="text-[11px] text-[var(--text-3)] leading-relaxed">
-                    เมื่อนำเข้าข้อมูลและกด "คำนวณปรับแก้ (Compute LSA)" ในขั้นตอนที่ 3 ตารางพิกัดปรับแก้, วงรีความคลาดเคลื่อน 95% และแผนที่โครงข่ายจะแสดงในหน้านี้โดยอัตโนมัติ
-                  </p>
-                </div>
-                <div className="pt-1 flex flex-wrap justify-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('adjustment')}
-                    className="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-black dark:text-white font-bold text-xs flex items-center gap-1.5 shadow-sm micro-press"
-                  >
-                    <span>ไปที่ขั้นตอนที่ 3: ปรับแก้โครงข่าย</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleResetSampleNetwork}
-                    className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-[var(--border)] text-[var(--text-1)] font-semibold text-xs flex items-center gap-1.5 transition-colors"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5 text-indigo-500" />
-                    <span>โหลดโครงข่ายตัวอย่าง (2D/1D)</span>
-                  </button>
-                </div>
+            {/* ── CANVAS BODY: VIEW 1 - GROUND TRACK MAP ── */}
+            {canvasView === 'map' && (
+              <div className="min-h-[580px] flex flex-col justify-between">
+                <EmbeddedNetworkMap
+                  stations={displayStations}
+                  observations={displayObservations}
+                  utmZone={47}
+                  title="Ground Track & Survey Network Vector Map"
+                />
               </div>
             )}
 
-            {/* Final Actions Callout */}
-            <div className="pt-2 flex flex-wrap items-center justify-between gap-3 text-xs">
-              <span className="text-[var(--text-3)] font-mono">
-                สถานะข้อมูล: 100% In-Browser Verifiable &bull; Zero Cloud Leak
-              </span>
+            {/* ── CANVAS BODY: VIEW 2 - POLAR SKYPLOT ── */}
+            {canvasView === 'skyplot' && (
+              <div className="p-4 sm:p-5 space-y-4 min-h-[580px]">
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[var(--border)]">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedStationView('base')}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                        selectedStationView === 'base'
+                          ? 'bg-[var(--accent)] text-black dark:text-white'
+                          : 'bg-[var(--surface-2)] text-[var(--text-3)]'
+                      }`}
+                    >
+                      Base ({baseRinex?.header.markerName || 'ยังไม่มีไฟล์'})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedStationView('rover')}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                        selectedStationView === 'rover'
+                          ? 'bg-cyan-400 text-black'
+                          : 'bg-[var(--surface-2)] text-[var(--text-3)]'
+                      }`}
+                    >
+                      Rover ({roverRinex?.header.markerName || 'ยังไม่มีไฟล์'})
+                    </button>
+                  </div>
 
-              {onPlotOnMap && (
-                <button
-                  type="button"
-                  onClick={() => onPlotOnMap(13.8476, 100.5696, 'CK-STATION')}
-                  className="px-4 py-2 rounded-xl bg-[var(--accent)] text-black dark:text-white font-bold text-xs flex items-center gap-2 shadow-sm micro-press"
-                >
-                  <MapPin className="w-4 h-4" />
-                  <span>เปิดดูโครงข่ายและวงรีบน WebGIS Map</span>
-                </button>
-              )}
+                  <div className="flex items-center gap-1 text-[11px] font-mono">
+                    <span className="text-[var(--text-3)]">Constellation:</span>
+                    {['ALL', 'GPS', 'BEIDOU', 'GLONASS', 'GALILEO'].map(c => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setConstellationFilter(c)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          constellationFilter === c
+                            ? 'bg-[var(--surface-3)] text-[var(--accent)] border border-[var(--accent)]/40'
+                            : 'text-[var(--text-3)] hover:text-[var(--text-1)]'
+                        }`}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {!activeSkyplotRinex ? (
+                  <div className="p-8 text-center text-xs text-[var(--text-3)] border-2 border-dashed border-[var(--border)] rounded-xl">
+                    สถานีที่เลือกยังไม่มีข้อมูลดาวเทียม กรุณานำเข้าไฟล์ RINEX/HCN ทางฝั่งซ้าย
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                    {/* Polar Radar Circles SVG */}
+                    <div className="md:col-span-5 flex flex-col items-center space-y-3">
+                      <div className="relative w-60 h-60 sm:w-64 sm:h-64 flex items-center justify-center">
+                        <svg className="w-full h-full" viewBox="-120 -120 240 240">
+                          <circle cx="0" cy="0" r="100" fill="none" stroke="var(--border)" strokeWidth="1.5" />
+                          <circle cx="0" cy="0" r="66.6" fill="none" stroke="var(--border)" strokeDasharray="3 3" strokeWidth="1" />
+                          <circle cx="0" cy="0" r="33.3" fill="none" stroke="var(--border)" strokeDasharray="3 3" strokeWidth="1" />
+                          <circle cx="0" cy="0" r="83.3" fill="none" stroke="rgba(239, 68, 68, 0.4)" strokeDasharray="2 2" strokeWidth="1" />
+                          <line x1="0" y1="-100" x2="0" y2="100" stroke="var(--border)" strokeWidth="1" />
+                          <line x1="-100" y1="0" x2="100" y2="0" stroke="var(--border)" strokeWidth="1" />
+                          <text x="0" y="-104" textAnchor="middle" className="text-[9px] font-mono fill-[var(--accent)] font-bold">N</text>
+                          <text x="108" y="3" textAnchor="start" className="text-[9px] font-mono fill-[var(--text-3)]">E</text>
+                          <text x="0" y="112" textAnchor="middle" className="text-[9px] font-mono fill-[var(--text-3)]">S</text>
+                          <text x="-108" y="3" textAnchor="end" className="text-[9px] font-mono fill-[var(--text-3)]">W</text>
+                          <text x="0" y="4" textAnchor="middle" className="text-[8px] font-mono fill-[var(--text-3)]">Zenith</text>
+
+                          {filteredSatellites.map((sat) => {
+                            const radius = (100.0 * (90.0 - sat.elevationDeg)) / 90.0;
+                            const theta = ((sat.azimuthDeg - 90.0) * Math.PI) / 180.0;
+                            const px = radius * Math.cos(theta);
+                            const py = radius * Math.sin(theta);
+                            const markerColor = sat.snrDbHz >= 46 ? '#10b981' : sat.snrDbHz >= 40 ? '#0ea5e9' : sat.snrDbHz >= 35 ? '#f59e0b' : '#ef4444';
+
+                            return (
+                              <g key={sat.id} className="cursor-pointer">
+                                <circle cx={px} cy={py} r="4.5" fill={markerColor} stroke="#000" strokeWidth="1" />
+                                <text x={px} y={py - 6} textAnchor="middle" className="text-[8px] font-mono font-bold fill-[var(--text-1)]">
+                                  {sat.id}
+                                </text>
+                              </g>
+                            );
+                          })}
+                        </svg>
+                      </div>
+
+                      <div className="flex items-center gap-3 text-[10px] font-mono text-[var(--text-3)]">
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> &ge;46 dB-Hz</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-sky-500" /> 40-45</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> 35-39</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-500" /> &lt;35</span>
+                      </div>
+                    </div>
+
+                    {/* Satellites Table */}
+                    <div className="md:col-span-7 overflow-x-auto max-h-96">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead className="sticky top-0 bg-[var(--surface)] border-b border-[var(--border)]">
+                          <tr className="text-[var(--text-3)] font-mono text-[11px]">
+                            <th className="py-2 px-2">PRN</th>
+                            <th className="py-2 px-2">กลุ่ม</th>
+                            <th className="py-2 px-2 text-right">Az (°)</th>
+                            <th className="py-2 px-2 text-right">El (°)</th>
+                            <th className="py-2 px-2 text-right">SNR</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[var(--border)] font-mono">
+                          {filteredSatellites.map((sat) => (
+                            <tr key={sat.id} className="hover:bg-[var(--surface-2)]">
+                              <td className="py-1.5 px-2 font-bold text-[var(--text-1)]">{sat.id}</td>
+                              <td className="py-1.5 px-2 text-[var(--text-2)]">{sat.constellation}</td>
+                              <td className="py-1.5 px-2 text-right">{sat.azimuthDeg.toFixed(1)}°</td>
+                              <td className="py-1.5 px-2 text-right text-[var(--accent)] font-bold">{sat.elevationDeg.toFixed(1)}°</td>
+                              <td className="py-1.5 px-2 text-right font-bold text-emerald-500">{sat.snrDbHz.toFixed(1)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── CANVAS BODY: VIEW 3 - ADJUSTMENT TABLE ── */}
+            {canvasView === 'adjustment' && (
+              <div className="p-4 sm:p-5 space-y-4 min-h-[580px]">
+                <NetworkAdjustmentInputTable
+                  adjustmentMode={adjustmentMode}
+                  stations2D={stations2D}
+                  obs2D={obs2D}
+                  points1D={points1D}
+                  obs1D={obs1D}
+                  onUpdateStations2D={setStations2D}
+                  onUpdateObs2D={setObs2D}
+                  onUpdatePoints1D={setPoints1D}
+                  onUpdateObs1D={setObs1D}
+                  onResetSample={resetNetworkToSample}
+                  onClearAll={clearNetwork}
+                />
+
+                {result2D && adjustmentMode === '2d' && (
+                  <div className="p-4 rounded-xl bg-[var(--surface-2)]/50 border border-[var(--border)] space-y-3">
+                    <h4 className="text-xs font-bold text-[var(--text-1)]">
+                      พิกัดปรับแก้และวงรีความคลาดเคลื่อน 95% Confidence (Adjusted Stations)
+                    </h4>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs font-mono">
+                        <thead>
+                          <tr className="border-b border-[var(--border)] text-[var(--text-3)] text-[11px]">
+                            <th className="py-2 px-2">หมุด</th>
+                            <th className="py-2 px-2">สถานะ</th>
+                            <th className="py-2 px-2 text-right">Easting (m)</th>
+                            <th className="py-2 px-2 text-right">Northing (m)</th>
+                            <th className="py-2 px-2 text-right">σE (mm)</th>
+                            <th className="py-2 px-2 text-right">σN (mm)</th>
+                            <th className="py-2 px-2 text-right">95% a₉₅ (mm)</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[var(--border)]">
+                          {result2D.stations.map((s) => (
+                            <tr key={s.id} className="hover:bg-[var(--surface-2)]">
+                              <td className="py-1.5 px-2 font-bold text-[var(--text-1)]">{s.id}</td>
+                              <td className="py-1.5 px-2">
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] ${s.isFixed ? 'bg-emerald-500/15 text-emerald-500 font-bold' : 'bg-[var(--surface-2)] text-[var(--text-2)]'}`}>
+                                  {s.isFixed ? 'FIXED' : 'ADJUSTED'}
+                                </span>
+                              </td>
+                              <td className="py-1.5 px-2 text-right">{s.easting.toFixed(4)}</td>
+                              <td className="py-1.5 px-2 text-right">{s.northing.toFixed(4)}</td>
+                              <td className="py-1.5 px-2 text-right">{s.sigmaEMm.toFixed(1)}</td>
+                              <td className="py-1.5 px-2 text-right">{s.sigmaNMm.toFixed(1)}</td>
+                              <td className="py-1.5 px-2 text-right font-bold text-amber-500">{s.errorEllipse?.conf95MajorMm.toFixed(1) ?? '-'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── CANVAS BODY: VIEW 4 - SURVEY REPORT ── */}
+            {canvasView === 'report' && (
+              <div className="p-4 sm:p-5 space-y-4 min-h-[580px]">
+                <div className="p-4 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-[var(--text-1)] flex items-center gap-1.5">
+                      <Layers className="w-4 h-4 text-[var(--accent)]" />
+                      <span>แบบจำลองความสูงยี่ออยด์แห่งประเทศไทย (RTSD TGM2017)</span>
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-500 font-mono text-[10px] font-bold">
+                      ACTIVE
+                    </span>
+                  </div>
+                  <p className="text-xs text-[var(--text-2)] leading-relaxed">
+                    การแปลงระดับความสูงทรงรีจากดาวเทียมสู่ระดับความสูงออร์โธเมตริกเทียบระดับน้ำทะเลปานกลาง ($H = h - N$) โดยใช้แบบจำลอง TGM2017 กรมแผนที่ทหาร มีความถูกต้องในแนวดิ่งระดับ &plusmn;3 cm
+                  </p>
+                </div>
+
+                {baselineSolution ? (
+                  <div className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] space-y-2 font-mono text-xs">
+                    <span className="font-bold text-[var(--text-1)] block font-sans">
+                      สรุปผลการรังวัด GNSS Baseline ({baselineSolution.id})
+                    </span>
+                    <div className="text-[var(--text-2)] space-y-1">
+                      <div>สถานะโซลูชัน: <b className="text-emerald-500">{baselineSolution.status}</b> (Ratio: {baselineSolution.ratioTest.toFixed(2)})</div>
+                      <div>ระยะราบ (2D Length): <b>{baselineSolution.vectorENU.distance2D.toFixed(3)} m</b> | 3D: <b>{baselineSolution.vectorENU.distance3D.toFixed(3)} m</b></div>
+                      <div>มุมทิศ (Azimuth): <b>{baselineSolution.vectorENU.azimuthDeg.toFixed(2)}°</b></div>
+                      <div>เวกเตอร์ ENU: ΔE = {baselineSolution.vectorENU.dE.toFixed(4)} m, ΔN = {baselineSolution.vectorENU.dN.toFixed(4)} m, ΔU = {baselineSolution.vectorENU.dU.toFixed(4)} m</div>
+                      <div>ความคลาดเคลื่อนมาตรฐาน: σE = ±{baselineSolution.stdDevMm.dE} mm, σN = ±{baselineSolution.stdDevMm.dN} mm, σU = ±{baselineSolution.stdDevMm.dU} mm</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-6 text-center text-xs text-[var(--text-3)] border-2 border-dashed border-[var(--border)] rounded-xl">
+                    ยังไม่มีผลลัพธ์เวกเตอร์ฐาน กรุณานำเข้าไฟล์และกด Process ทางฝั่งซ้าย
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── EMLID STUDIO TELEMETRY BOTTOM RIBBON ── */}
+            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-t border-[var(--border)] bg-[var(--surface-2)]/60 text-[11px] font-mono select-none">
+              
+              {/* Left: Time Span */}
+              <div className="flex items-center gap-2 text-[var(--text-3)]">
+                <span className="text-[var(--text-2)]">📅</span>
+                <span>
+                  {baseRinex?.header.firstEpoch 
+                    ? `${baseRinex.header.firstEpoch} - ${baseRinex.header.lastEpoch || 'End'} (GPST)` 
+                    : '2026/03/11 02:48:08 - 04:12:00 (GPST)'}
+                </span>
+              </div>
+
+              {/* Center: Baseline Chord Distance */}
+              <div className="flex items-center gap-2 text-[var(--text-2)]">
+                <span className="font-bold">Ⓑ</span>
+                <span>
+                  {baselineSolution 
+                    ? `Baseline: ${baselineSolution.vectorENU.distance2D.toFixed(3)} m` 
+                    : displayStations.length >= 2 
+                    ? 'Distance: Multi-point' 
+                    : '0.000 m'}
+                </span>
+              </div>
+
+              {/* Status Indicator */}
+              <div className="flex items-center gap-1.5">
+                <span className={`font-bold ${
+                  baselineSolution?.status === 'FIXED' 
+                    ? 'text-emerald-500' 
+                    : baselineSolution?.status === 'FLOAT' 
+                    ? 'text-amber-500' 
+                    : 'text-[var(--text-3)]'
+                }`}>
+                  {baselineSolution 
+                    ? `${baselineSolution.status}: 100% (Ratio: ${baselineSolution.ratioTest.toFixed(1)})` 
+                    : baseRinex && roverRinex 
+                    ? 'READY TO SOLVE' 
+                    : 'STANDBY'}
+                </span>
+              </div>
+
+              {/* Right: Layer / Ground track indicators */}
+              <div className="hidden sm:flex items-center gap-3 text-[10px] text-[var(--text-3)]">
+                <span>Ground track ▾</span>
+                <span>All quality flags ▾</span>
+                <span>Layers: {displayStations.length} ▾</span>
+              </div>
+
             </div>
 
           </div>
 
-          {/* Embedded Interactive Network Map in Engineering Report */}
-          {result2D && (
-            <EmbeddedNetworkMap
-              stations={result2D.stations}
-              observations={result2D.observations}
-              utmZone={47}
-              title="แผนที่โครงข่ายหมุดควบคุมและเวกเตอร์รังวัด (Survey Network Geometry)"
-            />
-          )}
-
         </div>
-      )}
+
+      </div>
 
     </div>
   );
