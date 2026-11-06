@@ -229,23 +229,22 @@ export const AdaptiveWorkspace: React.FC<AdaptiveWorkspaceProps> = ({
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Categories list for quick exploratory browsing
+  // Categories list for quick exploratory browsing in Geomatics Field Terminal
   const MAP_CATEGORIES = [
-    { id: 'restaurant', label: 'ร้านอาหาร', icon: Utensils, query: 'ร้านอาหาร' },
-    { id: 'hospital', label: 'โรงพยาบาล', icon: Hospital, query: 'โรงพยาบาล' },
-    { id: 'mall', label: 'ห้างสรรพสินค้า', icon: ShoppingBag, query: 'ห้างสรรพสินค้า' },
-    { id: 'cafe', label: 'คาเฟ่ / กาแฟ', icon: Coffee, query: 'คาเฟ่' },
-    { id: 'gas', label: 'ปั๊มน้ำมัน / EV', icon: Fuel, query: 'ปั๊มน้ำมัน' },
-    { id: 'transit', label: 'สถานี / ขนส่ง', icon: Train, query: 'สถานีรถไฟฟ้า' },
-    { id: 'hotel', label: 'โรงแรม / ที่พัก', icon: Building2, query: 'โรงแรม' },
-    { id: 'survey', label: 'หมุดอ้างอิง', icon: Compass, query: 'หมุดรังวัด' }
+    { id: 'survey', label: 'หมุดอ้างอิง RTSD', icon: Compass, query: 'หมุดรังวัด' },
+    { id: 'cors', label: 'สถานี CORS', icon: Crosshair, query: 'CORS' },
+    { id: 'university', label: 'วศ.สำรวจ มก.', icon: GraduationCap, query: 'เกษตรศาสตร์' },
+    { id: 'landmark', label: 'จุดหลักฐานระดับ', icon: Landmark, query: 'หมุดระดับ' }
   ];
 
   // Helper to filter places strictly for selected category
   const filterPlacesByCategory = (catId: string) => {
     return THAI_PRESET_PLACES.filter(
       p => p.category === catId || 
-           (catId === 'transit' && (p.category === 'transit' || p.category === 'station'))
+           (catId === 'survey' && (p.category === 'survey' || p.category === 'station')) ||
+           (catId === 'cors' && (p.category === 'station' || p.category === 'survey')) ||
+           (catId === 'university' && p.category === 'university') ||
+           (catId === 'landmark' && p.category === 'landmark')
     );
   };
 

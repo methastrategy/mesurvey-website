@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import { PlaceSearchResult, RouteResult, TravelMode } from '../../../types/memaps';
 import { fetchRoute } from '../../../core/memaps-services';
-import { DragonWalkingTracker } from '../../common/DragonWalkingTracker';
 
 
 interface MeMapsDirectionsPanelProps {
@@ -266,11 +265,6 @@ export const MeMapsDirectionsPanel: React.FC<MeMapsDirectionsPanelProps> = ({
             </div>
 
             <div className="flex items-center gap-2">
-              {mode === 'walking' && (
-                <div className="shrink-0 flex items-center pr-1" title="มังกรเดินนำทางเส้นทางสำรวจ (GPS Pedestrian Route)">
-                  <DragonWalkingTracker size="xs" variant="minimal" isMoving={true} />
-                </div>
-              )}
 
               {onSendToSurvey && originPlace && destinationPlace && (
                 <button

@@ -132,9 +132,9 @@ export const WebMap: React.FC<WebMapProps> = ({ externalPoint, onSendToCalculato
   const [activeWorkspace, setActiveWorkspace] = useState<MapWorkspaceTab>('survey');
 
   // Unified MeMaps Workspace Mode: Default to 'explorer' (Google Maps style)
-  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>('explorer');
+  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>('survey');
 
-  const [mapLayout, setMapLayout] = useState<WebMapLayoutType>('dynamic-island');
+  const [mapLayout, setMapLayout] = useState<WebMapLayoutType>('split-cad');
 
   const handleSelectWorkspaceMode = (mode: WorkspaceMode) => {
     setWorkspaceMode(mode);

@@ -42,6 +42,7 @@ import {
   solveStaticBaseline,
   type BaselineSolution
 } from '../../utils/gnss-baseline';
+import { type EmlidPosParseResult } from '../../utils/emlid-pos-parser';
 import { EmbeddedNetworkMap } from './EmbeddedNetworkMap';
 import { RinexUploadPanel } from './RinexUploadPanel';
 import { NetworkAdjustmentInputTable } from './NetworkAdjustmentInputTable';
@@ -112,6 +113,76 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
     }
   });
   const [adjustmentError, setAdjustmentError] = useState<string | null>(null);
+
+  // Handle Direct Emlid Studio .pos Ingestion
+  const handleEmlidPosLoaded = (posRes: EmlidPosParseResult, filename: string) => {
+    const baseName = posRes.baseFile ? posRes.baseFile.replace(/\.[^/.]+$/, '').toUpperCase() : 'BASE_MASTER';
+    const roverName = filename.replace(/\.[^/.]+$/, '').toUpperCase();
+
+    const baselineSol = posRes.asBaselineSolution(baseName, roverName);
+    setBaselineSolution(baselineSol);
+
+    if (posRes.refPosition) {
+      const newStations: Station2D[] = [...stations2D];
+      const baseIdx = newStations.findIndex(s => s.id === baseName);
+      if (baseIdx >= 0) {
+        newStations[baseIdx] = {
+          ...newStations[baseIdx],
+          isFixed: true,
+          knownE: posRes.refPosition.utmE,
+          knownN: posRes.refPosition.utmN
+        };
+      } else {
+        newStations.push({
+          id: baseName,
+          isFixed: true,
+          knownE: posRes.refPosition.utmE,
+          knownN: posRes.refPosition.utmN
+        });
+      }
+
+      const roverIdx = newStations.findIndex(s => s.id === roverName);
+      if (roverIdx >= 0) {
+        newStations[roverIdx] = {
+          ...newStations[roverIdx],
+          isFixed: false,
+          approxE: posRes.computedPosition.utmE,
+          approxN: posRes.computedPosition.utmN
+        };
+      } else {
+        newStations.push({
+          id: roverName,
+          isFixed: false,
+          approxE: posRes.computedPosition.utmE,
+          approxN: posRes.computedPosition.utmN
+        });
+      }
+
+      setStations2D(newStations);
+
+      const newObs: Observation2D[] = [...obs2D];
+      const vectorObsId = `GNSS_${baselineSol.id}`;
+      if (!newObs.some(o => o.id === vectorObsId)) {
+        newObs.push({
+          id: vectorObsId,
+          type: 'baseline_vector',
+          fromStation: baseName,
+          toStation: roverName,
+          measuredValue: posRes.vectorENU.dE,
+          measuredValue2: posRes.vectorENU.dN,
+          stdDev: Math.max(0.002, posRes.averageStdDevMm.dE / 1000),
+          stdDev2: Math.max(0.002, posRes.averageStdDevMm.dN / 1000)
+        });
+      }
+
+      setObs2D(newObs);
+      try {
+        setResult2D(adjust2DNetwork(newStations, newObs));
+      } catch {
+        // Handled silently
+      }
+    }
+  };
 
   // Re-solve Baseline
   const handleSolveBaseline = () => {
@@ -405,7 +476,7 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
             </div>
             <div className="min-w-0">
               <span className="text-[10px] font-mono text-[var(--text-3)] font-bold block">STEP 01</span>
-              <p className="text-xs font-bold text-[var(--text-1)] truncate">RINEX & Skyplot</p>
+              <p className="text-xs font-bold text-[var(--text-1)] truncate">RINEX, HCN & Emlid</p>
             </div>
           </button>
 
@@ -489,33 +560,24 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
               setSelectedStationView('rover');
               setBaselineSolution(null);
             }}
+            onEmlidPosLoaded={handleEmlidPosLoaded}
+            onPlotOnMap={onPlotOnMap}
+            onGoToBaseline={() => setActiveTab('baseline')}
+            onGoToAdjustment={() => setActiveTab('adjustment')}
             onResetSample={handleResetRinexSample}
             onClearFiles={handleClearRinex}
           />
           
           {!baseRinex && !roverRinex ? (
-            <div className="fusion-card p-8 sm:p-12 text-center space-y-4 border-dashed border-2">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-[var(--surface-2)] flex items-center justify-center text-[var(--accent)] border border-[var(--border)]">
-                <Satellite className="w-8 h-8 opacity-75" />
+            <div className="fusion-card p-4 text-center space-y-2 border-dashed border">
+              <div className="flex items-center justify-center gap-2 text-xs font-semibold text-[var(--text-2)]">
+                <Satellite className="w-4 h-4 text-[var(--accent)]" />
+                <span>พร้อมรับไฟล์จากเครื่องรับสัญญาณ GNSS (CHCNAV, Emlid, Trimble, Leica)</span>
               </div>
-              <div className="space-y-1.5 max-w-md mx-auto">
-                <h3 className="text-base font-bold text-[var(--text-1)]">
-                  ยังไม่มีข้อมูลไฟล์ดาวเทียม RINEX (Blank Workspace)
-                </h3>
-                <p className="text-xs text-[var(--text-2)] leading-relaxed">
-                  นำเข้าไฟล์ Observation RINEX ของสถานีฐาน (Base) และสถานีรังวัด (Rover) ด้านบน เพื่อตรวจสอบ Polar Skyplot และกลุ่มดาวเทียม หรือกดปุ่มด้านล่างเพื่อทดลองด้วยไฟล์ตัวอย่าง
-                </p>
-              </div>
-              <div className="pt-2 flex justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={handleResetRinexSample}
-                  className="px-4 py-2 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-[var(--border)] text-xs font-semibold text-[var(--text-1)] flex items-center gap-2 transition-colors micro-press shadow-sm"
-                >
-                  <RefreshCw className="w-3.5 h-3.5 text-[var(--accent)]" />
-                  <span>โหลดข้อมูลตัวอย่าง RINEX (Load Sample)</span>
-                </button>
-              </div>
+              <p className="text-xs text-[var(--text-3)] max-w-lg mx-auto leading-relaxed">
+                รองรับไฟล์ดิบ <b>.HCN</b> ของ CHCNAV โดยตรง (ถอดรหัสพิกัด ECEF, UTM, ความสูงเสา และ OEM Core อัตโนมัติ), 
+                ไฟล์เวกเตอร์ <b>.pos</b> จาก Emlid Studio / RTKLIB หรือไฟล์มาตรฐาน <b>RINEX (.obs, .rnx)</b>
+              </p>
             </div>
           ) : !activeRinex ? (
             <div className="fusion-card p-6 text-center space-y-2 border-dashed border">
