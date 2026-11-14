@@ -1,5 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BookOpen, Calculator, Map, ChevronRight, Sun, Moon, Info, Palette, Check, ChevronDown, Wifi, WifiOff, ArrowLeft, Languages } from 'lucide-react';
+import { 
+  BookOpen, 
+  Calculator, 
+  Map, 
+  ChevronRight, 
+  Sun, 
+  Moon, 
+  Check, 
+  ChevronDown, 
+  Wifi, 
+  WifiOff, 
+  ArrowLeft 
+} from 'lucide-react';
 import type { MesurvTheme } from '../../App';
 import type { NetworkStatus } from '../../hooks/useNetworkStatus';
 import { useI18n } from '../../core/i18n';
@@ -75,15 +87,37 @@ export const Header: React.FC<HeaderProps> = ({
 
   const currentSubTab = route?.subTab;
   const currentTopicId = route?.topicId;
-
   const currentSubTabLabel = currentSubTab ? (t.header.currentSubTab[currentSubTab] || currentSubTab) : '';
 
+  const navItems = [
+    {
+      id: 'knowledge' as const,
+      label: t.nav.knowledge,
+      icon: BookOpen,
+      countBadge: '34',
+    },
+    {
+      id: 'calculator' as const,
+      label: t.nav.calculator,
+      icon: Calculator,
+      countBadge: '10',
+    },
+    {
+      id: 'map' as const,
+      label: t.nav.map,
+      icon: Map,
+      countBadge: 'GIS',
+    },
+  ];
+
   return (
-    <header className="nav-bar select-none">
+    <header className="sticky top-0 z-50 w-full select-none bg-[var(--surface)]/95 backdrop-blur-md border-b border-[var(--border)] transition-colors h-16">
       <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-2 sm:gap-4">
         
-        {/* Left: MESURV Modern Precision Brand Identity (Triggers About Modal) */}
-        <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 shrink-0">
+        {/* ================================================================= */}
+        {/* ZONE 1 (LEFT): Brand Identity & Contextual Return Breadcrumb     */}
+        {/* ================================================================= */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
           <button
             onClick={() => {
               if (onOpenAbout) {
@@ -96,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({
             title="เกี่ยวกับระบบ MESURV (คลิกเพื่อดูข้อมูล)"
             aria-label="เกี่ยวกับระบบ MESURV"
           >
-            {/* Custom High-Precision Geomatics Reticle / Prism SVG Icon */}
+            {/* High-Precision Geomatics Reticle / Prism Icon */}
             <div className="relative w-8 h-8 rounded-lg bg-[var(--surface-2)] group-hover:bg-[var(--accent)]/15 border border-[var(--border)] group-hover:border-[var(--accent)]/40 flex items-center justify-center transition-all shadow-sm">
               <svg 
                 className="w-4 h-4 text-[var(--accent)] transition-transform duration-300 group-hover:rotate-45" 
@@ -133,9 +167,9 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </button>
 
-          {/* Back to All Tools Button in Top Header */}
+          {/* Contextual Sub-Route Pill in Left Zone */}
           {activeTab === 'calculator' && currentSubTab && (
-            <div className="flex items-center gap-2 pl-1 sm:pl-2">
+            <div className="hidden sm:flex items-center gap-1.5 pl-1.5 border-l border-[var(--border)]">
               <button
                 type="button"
                 onClick={() => setActiveTab('calculator')}
@@ -146,9 +180,9 @@ export const Header: React.FC<HeaderProps> = ({
                 <span>{t.common.back}</span>
               </button>
               {currentSubTabLabel && (
-                <div className="hidden sm:flex items-center gap-1 text-[var(--text-3)] text-xs font-mono">
+                <div className="flex items-center gap-1 text-[var(--text-3)] text-xs font-mono">
                   <span>/</span>
-                  <span className="font-semibold text-[var(--accent)] truncate max-w-[150px]">
+                  <span className="font-semibold text-[var(--accent)] truncate max-w-[140px]">
                     {currentSubTabLabel}
                   </span>
                 </div>
@@ -157,8 +191,7 @@ export const Header: React.FC<HeaderProps> = ({
           )}
 
           {activeTab === 'knowledge' && currentTopicId && (
-            <div className="hidden lg:flex items-center gap-1.5 text-xs text-[var(--text-3)] truncate max-w-[200px]">
-              <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+            <div className="hidden xl:flex items-center gap-1.5 pl-1.5 border-l border-[var(--border)] text-xs text-[var(--text-3)] truncate max-w-[180px]">
               <button
                 onClick={() => setActiveTab('knowledge')}
                 className="hover:text-[var(--text-1)] transition-colors shrink-0"
@@ -173,50 +206,48 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        {/* Center: Fusion 2px Underline Tab Bar (Desktop / Tablet >= md) */}
+        {/* ================================================================= */}
+        {/* ZONE 2 (CENTER): Precision Floating Segmented Navigation Island  */}
+        {/* ================================================================= */}
         <nav
           aria-label="Primary Workspace Navigation"
-          className="hidden md:flex items-center justify-center flex-1 h-full overflow-x-auto no-scrollbar gap-1"
+          className="hidden md:flex items-center justify-center flex-1 shrink-0"
         >
-          <button
-            type="button"
-            onClick={() => setActiveTab('knowledge')}
-            className={`nav-tab min-h-[44px] focus-ring ${
-              activeTab === 'knowledge' ? 'active' : ''
-            }`}
-          >
-            <BookOpen className="w-4 h-4 shrink-0" />
-            <span>{t.nav.knowledge}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('calculator')}
-            className={`nav-tab min-h-[44px] focus-ring ${
-              activeTab === 'calculator' ? 'active' : ''
-            }`}
-          >
-            <Calculator className="w-4 h-4 shrink-0" />
-            <span>{t.nav.calculator}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('map')}
-            className={`nav-tab min-h-[44px] focus-ring ${
-              activeTab === 'map' ? 'active' : ''
-            }`}
-          >
-            <Map className="w-4 h-4 shrink-0" />
-            <span>{t.nav.map}</span>
-          </button>
+          <div className="inline-flex items-center p-1 rounded-2xl bg-[var(--surface-2)]/90 border border-[var(--border)] shadow-2xs gap-1 backdrop-blur-xs">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActiveTab(item.id)}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`min-h-[40px] px-3.5 lg:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-150 flex items-center gap-2 micro-press cursor-pointer select-none ${
+                    isActive
+                      ? 'bg-[var(--surface)] text-[var(--accent)] font-bold shadow-xs border border-[var(--border)]/80 scale-[1.02]'
+                      : 'text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface)]/50 border border-transparent'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 shrink-0 transition-transform ${isActive ? 'scale-110 text-[var(--accent)]' : 'text-[var(--text-3)]'}`} />
+                  <span>{item.label}</span>
+                  {isActive && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_6px_var(--accent)] shrink-0" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </nav>
 
-        {/* Right: Language Switcher (TH / EN / ZH) + Network Status + Multi-Theme Selector */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 relative" ref={themeMenuRef}>
-          {/* Quick Segmented Language Switcher (TH / EN / ZH) */}
+        {/* ================================================================= */}
+        {/* ZONE 3 (RIGHT): Modular Utility Dock (Language + Status + Theme)   */}
+        {/* ================================================================= */}
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 relative" ref={themeMenuRef}>
+          
+          {/* Module 1: Language Switcher Capsule */}
           <div 
-            className="flex items-center p-0.5 rounded-[var(--btn-radius)] bg-[var(--surface)] border border-[var(--border)] shrink-0 shadow-2xs"
+            className="flex items-center p-0.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] shrink-0 shadow-2xs"
             role="group"
             aria-label={t.header.languageSelector}
           >
@@ -227,10 +258,10 @@ export const Header: React.FC<HeaderProps> = ({
                   key={langItem.code}
                   type="button"
                   onClick={() => setLanguage(langItem.code)}
-                  className={`min-h-[36px] min-w-[34px] sm:min-w-[38px] px-2 py-1 rounded-lg text-[11px] sm:text-xs font-mono font-bold transition-all micro-press cursor-pointer ${
+                  className={`min-h-[34px] min-w-[32px] sm:min-w-[36px] px-2 py-0.5 rounded-lg text-[11px] sm:text-xs font-mono font-bold transition-all micro-press cursor-pointer ${
                     isSelected
                       ? 'bg-[var(--accent)] text-black dark:text-white shadow-xs'
-                      : 'text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--surface-2)]'
+                      : 'text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--surface)]/60'
                   }`}
                   title={`${langItem.label} - ${langItem.nameNative}`}
                   aria-pressed={isSelected}
@@ -241,11 +272,12 @@ export const Header: React.FC<HeaderProps> = ({
               );
             })}
           </div>
-          {/* Network Status Badge */}
+
+          {/* Module 2: Live Network Telemetry Badge */}
           {network && (
             network.isOnline ? (
               <div
-                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-[var(--btn-radius)] bg-[var(--surface)] border border-[var(--border)] text-[var(--text-3)] text-[11px] font-mono select-none"
+                className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-3)] text-[11px] font-mono select-none"
                 title="เชื่อมต่ออินเทอร์เน็ตปกติ (Live Online)"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -255,51 +287,54 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={network.resetDismissed}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[var(--btn-radius)] bg-amber-500/15 border border-amber-500/40 text-amber-500 dark:text-amber-400 text-[11px] font-mono font-bold hover:bg-amber-500/25 transition-colors micro-press focus-ring"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-500 dark:text-amber-400 text-[11px] font-mono font-bold hover:bg-amber-500/25 transition-colors micro-press focus-ring"
                 title="คลิกเพื่อดูรายละเอียดโหมดรังวัดออฟไลน์ภาคสนาม (Offline Field Mode 100%)"
                 aria-label="สถานะออฟไลน์ภาคสนาม คลิกเพื่อดูรายละเอียด"
               >
                 <WifiOff className="w-3.5 h-3.5 shrink-0 animate-pulse" />
-                <span className="hidden sm:inline tracking-wider">OFFLINE FIELD</span>
+                <span className="hidden sm:inline tracking-wider">OFFLINE</span>
               </button>
             )
           )}
 
-          {/* Quick Toggle Button (Light/Dark Toggle) */}
-          {onToggleTheme && (
+          {/* Module 3: Appearance & Curated Palette Dock */}
+          <div className="flex items-center p-0.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] shrink-0 shadow-2xs gap-0.5">
+            {/* Quick Dark/Light Toggle Button */}
+            {onToggleTheme && (
+              <button
+                type="button"
+                onClick={onToggleTheme}
+                aria-label={currentThemeObj.isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด'}
+                title={currentThemeObj.isDark ? 'สลับเป็นโหมดสว่าง (Light Mode)' : 'สลับเป็นโหมดมืด (Dark Mode)'}
+                className="min-h-[34px] min-w-[34px] p-2 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-2)] text-[var(--text-1)] flex items-center justify-center transition-colors micro-press focus-ring cursor-pointer"
+              >
+                {currentThemeObj.isDark ? (
+                  <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                ) : (
+                  <Moon className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
+                )}
+              </button>
+            )}
+
+            {/* Theme Dropdown Trigger Button */}
             <button
               type="button"
-              onClick={onToggleTheme}
-              aria-label={currentThemeObj.isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด'}
-              title={currentThemeObj.isDark ? 'สลับเป็นโหมดสว่าง (Light Mode)' : 'สลับเป็นโหมดมืด (Dark Mode)'}
-              className="min-h-[44px] min-w-[44px] p-2.5 rounded-[var(--btn-radius)] bg-[var(--surface)] hover:bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-strong)] text-[var(--text-1)] flex items-center justify-center transition-colors micro-press focus-ring"
+              onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
+              aria-expanded={isThemeMenuOpen}
+              aria-label="เลือกธีมสีของระบบ"
+              title={`ธีมปัจจุบัน: ${currentThemeObj.name} (คลิกเพื่อเลือกจาก ${isDark ? 'โหมดมืด 2 แบบ' : 'โหมดสว่าง 2 แบบ'})`}
+              className="min-h-[34px] px-2.5 py-1 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-2)] text-[var(--text-1)] flex items-center gap-2 transition-all micro-press focus-ring cursor-pointer"
             >
-              {currentThemeObj.isDark ? (
-                <Sun className="w-4 h-4 text-amber-400 shrink-0" />
-              ) : (
-                <Moon className="w-4 h-4 text-[var(--accent)] shrink-0" />
-              )}
+              <span
+                className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs border border-black/10 dark:border-white/20"
+                style={{ backgroundColor: currentThemeObj.accent }}
+              />
+              <span className="hidden md:inline font-mono text-[11px] font-bold tracking-wide w-[80px] truncate text-left">
+                {currentThemeObj.name.toUpperCase()}
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 text-[var(--text-3)] transition-transform duration-150 shrink-0 ${isThemeMenuOpen ? 'rotate-180' : ''}`} />
             </button>
-          )}
-
-          {/* Theme Dropdown Trigger Button */}
-          <button
-            type="button"
-            onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
-            aria-expanded={isThemeMenuOpen}
-            aria-label="เลือกธีมสีของระบบ"
-            title={`ธีมปัจจุบัน: ${currentThemeObj.name} (คลิกเพื่อเลือกจาก ${isDark ? 'โหมดมืด 2 แบบ' : 'โหมดสว่าง 2 แบบ'})`}
-            className="min-h-[44px] px-2.5 sm:px-3 py-1.5 rounded-[var(--btn-radius)] bg-[var(--surface)] hover:bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--border-strong)] text-[var(--text-1)] flex items-center gap-2 transition-all micro-press focus-ring"
-          >
-            <span
-              className="w-3 h-3 rounded-full shrink-0 shadow-sm border border-black/10 dark:border-white/20"
-              style={{ backgroundColor: currentThemeObj.accent }}
-            />
-            <span className="hidden sm:inline font-mono text-[11px] font-bold tracking-wide w-[92px] truncate text-left">
-              {currentThemeObj.name.toUpperCase()}
-            </span>
-            <ChevronDown className={`w-3.5 h-3.5 text-[var(--text-3)] transition-transform duration-150 shrink-0 ${isThemeMenuOpen ? 'rotate-180' : ''}`} />
-          </button>
+          </div>
 
           {/* Dropdown Menu Popover */}
           {isThemeMenuOpen && (
@@ -322,7 +357,7 @@ export const Header: React.FC<HeaderProps> = ({
                         if (onSelectTheme) onSelectTheme(opt.id);
                         setIsThemeMenuOpen(false);
                       }}
-                      className={`w-full min-h-[44px] px-3 py-2 rounded-xl text-left flex items-center justify-between gap-2.5 transition-all ${
+                      className={`w-full min-h-[44px] px-3 py-2 rounded-xl text-left flex items-center justify-between gap-2.5 transition-all cursor-pointer ${
                         isActive
                           ? 'bg-[var(--surface-2)] border border-[var(--border-strong)] shadow-sm'
                           : 'hover:bg-[var(--surface-2)] border border-transparent'
@@ -368,4 +403,3 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
-
