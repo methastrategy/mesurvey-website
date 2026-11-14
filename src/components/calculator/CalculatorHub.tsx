@@ -294,17 +294,17 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
     <div className="space-y-8 pb-16">
       
       {/* ── Hero Section ── */}
-      <div className="space-y-2">
-        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-1)] tracking-tight">
+      <div className="text-center max-w-3xl mx-auto space-y-2 py-1 sm:py-2">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[var(--text-1)] tracking-tight">
           {t.tools.heroTitle}
         </h1>
-        <p className="text-[var(--text-2)] text-sm max-w-3xl leading-relaxed">
+        <p className="text-[var(--text-2)] text-xs sm:text-sm md:text-base leading-relaxed">
           {t.tools.heroSubtitle}
         </p>
       </div>
 
       {/* ── 4 Domain Workspaces Selector Tabs ── */}
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar p-1.5 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)]">
+      <div className="flex items-center justify-start lg:justify-center gap-2 overflow-x-auto no-scrollbar p-1.5 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)]">
         {domains.map((dom) => {
           const isSelected = activeDomain === dom.id;
           const Icon = dom.icon;
@@ -332,7 +332,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       </div>
 
       {/* ── Search Bar within Tools ── */}
-      <div className="relative">
+      <div className="relative max-w-4xl mx-auto w-full">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-3)] pointer-events-none" />
         <input
           type="text"
@@ -352,9 +352,9 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
         )}
       </div>
 
-      {/* ── Modern Tool Grid (Responsive 1-Col / 2-Col / 3-Col) ── */}
+      {/* ── Modern Tool Grid (Responsive 1-Col / 2-Col / 3-Col / 4-Col) ── */}
       {filteredTools.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 sm:gap-6">
           {filteredTools.map((tool, index) => {
             const Icon = tool.icon;
             const toolCode = `TOOL-${String(index + 1).padStart(2, '0')}`;

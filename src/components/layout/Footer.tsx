@@ -8,7 +8,7 @@ interface FooterProps {
 export const Footer: React.FC<FooterProps> = ({ onOpenAbout }) => {
   return (
     <footer className="bg-[var(--surface)] text-[var(--text-2)] text-xs py-4 px-4 sm:px-6 border-t border-[var(--border)]">
-      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+      <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-2 gap-y-1">
           <div className="flex items-center space-x-2">
             <Compass className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />

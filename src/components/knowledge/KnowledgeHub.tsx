@@ -404,17 +404,17 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
         <div className="space-y-6">
 
           {/* ── Hero Section (Unified Banner) ── */}
-          <div className="space-y-2">
-            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-1)] tracking-tight">
+          <div className="text-center max-w-3xl mx-auto space-y-2 py-1 sm:py-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[var(--text-1)] tracking-tight">
               {t.knowledge.heroTitle}
             </h1>
-            <p className="text-[var(--text-2)] text-xs sm:text-sm max-w-3xl leading-relaxed">
+            <p className="text-[var(--text-2)] text-xs sm:text-sm md:text-base leading-relaxed">
               {t.knowledge.heroSubtitle}
             </p>
           </div>
 
           {/* ── Category Filter Pills Bar ── */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar p-1.5 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)]">
+          <div className="flex items-center justify-start lg:justify-center gap-2 overflow-x-auto no-scrollbar p-1.5 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)]">
             {categoryFilters.map((tab) => {
               const isSelected = selectedCategory === tab.id;
               return (
@@ -455,7 +455,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
           ) : (
             <div className="space-y-6">
               {/* Search Bar */}
-              <div className="fusion-card p-3 sm:p-4">
+              <div className="fusion-card p-3 sm:p-4 max-w-4xl mx-auto w-full">
                 <div className="relative">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-3)] pointer-events-none" />
                   <input
@@ -484,9 +484,9 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                 </div>
               </div>
 
-              {/* 3-Column Knowledge Card Grid */}
+              {/* Responsive Knowledge Card Grid */}
               {filteredCards.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5 sm:gap-6">
                   {filteredCards.map((card) => (
                     <div
                       key={card.id}

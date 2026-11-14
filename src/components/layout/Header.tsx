@@ -80,7 +80,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="nav-bar select-none">
-      <div className="max-w-6xl mx-auto px-2.5 sm:px-6 h-full flex items-center justify-between gap-1 sm:gap-2">
+      <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-2 sm:gap-4">
         
         {/* Left: MESURV Modern Precision Brand Identity (Triggers About Modal) */}
         <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 shrink-0">
@@ -176,7 +176,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Center: Fusion 2px Underline Tab Bar (Desktop / Tablet >= md) */}
         <nav
           aria-label="Primary Workspace Navigation"
-          className="hidden md:flex items-center h-full overflow-x-auto no-scrollbar"
+          className="hidden md:flex items-center justify-center flex-1 h-full overflow-x-auto no-scrollbar gap-1"
         >
           <button
             type="button"
