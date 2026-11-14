@@ -1,5 +1,6 @@
 import React from 'react';
 import { BookOpen, Calculator, Map } from 'lucide-react';
+import { useI18n } from '../../core/i18n';
 
 interface BottomNavProps {
   activeTab: 'knowledge' | 'calculator' | 'map';
@@ -11,10 +12,12 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   activeTab,
   setActiveTab,
 }) => {
+  const { t } = useI18n();
+
   const tabs = [
     {
       id: 'knowledge' as const,
-      label: 'คู่มือสำรวจ',
+      label: t.nav.knowledge,
       subLabel: 'Knowledge',
       icon: BookOpen,
       onClick: () => setActiveTab('knowledge'),
@@ -22,7 +25,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     },
     {
       id: 'calculator' as const,
-      label: 'เครื่องมือ',
+      label: t.nav.calculator,
       subLabel: 'Tools',
       icon: Calculator,
       onClick: () => setActiveTab('calculator'),
@@ -30,7 +33,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     },
     {
       id: 'map' as const,
-      label: 'แผนที่สนาม',
+      label: t.nav.map,
       subLabel: 'WebGIS',
       icon: Map,
       onClick: () => setActiveTab('map'),

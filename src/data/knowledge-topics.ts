@@ -15,7 +15,7 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     badge: 'คู่มือใช้งาน',
     iconName: 'Ruler',
     verificationStatus: 'draft',
-    verificationProof: 'Topcon AT-B Series & Leica NA700 Operator Manuals; ระเบียบกรมแผนที่ทหารว่าด้วยการรังวัดระดับ พ.ศ. 2548; วิชา 01218211 Surveying for Mapping (KU Geomatics)',
+    verificationProof: 'Topcon AT-B Series & Leica NA700 Operator Manuals; ตำรากล้องระดับ ฉบับฟงหวิน; เอกสารการทำระดับ 3 สายใยและวงรอบปิด ภาควิชาวิศวกรรมสำรวจ มก.; ระเบียบกรมแผนที่ทหารว่าด้วยการรังวัดระดับ พ.ศ. 2548',
     courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & มาตรฐานเครื่องมือสำรวจ กรมแผนที่ทหาร (RTSD)',
     instrumentVariants: [
       {
@@ -117,7 +117,7 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
       {
         title: 'ขั้นตอนที่ 1: การกางขาตั้งกล้องและการติดตั้งตัวกล้องระดับ (Tripod Setup & Mounting)',
         details: 'ปลดตัวล็อกขาตั้งกล้องทั้ง 3 ขา ดึงขากล้องให้มีความสูงประมาณระดับอกของผู้ส่อง กางขาทั้ง 3 ออกให้เป็นรูปสามเหลี่ยมด้านเท่า กดแป้นเหยียบปลายขาตั้งกล้องลงในดินให้แน่นและจัดให้แป้นหัวขาตั้งอยู่ในแนวราบด้วยสายตา จากนั้นนำกล้องระดับวางบนแป้นหัวขาตั้งแล้วหมุนสกรูยึดแกนกลาง (Center Fixing Screw) เข้ากับฐานกล้องให้แน่นพอตึงมือ',
-        criticalCaution: 'ขณะยกกล้องออกจากกล่องและวางบนขาตั้ง ต้องใช้มือข้างหนึ่งจับประคองตัวกล้องไว้เสมอจนกว่าจะขันสกรูยึดใต้ฐานกล้องแน่นสนิท'
+        criticalCaution: 'ขณะยกกล้องออกจากกล่องและวางบนขาตั้ง ต้องใช้มือข้างหนึ่งจับประคองตัวกล้องไว้เสมอจนกว่าจะขันสกรูยึดใต้ฐานกล้องแน่นสนิท และกรณีตั้งบนพื้นกระเบื้อง/คอนกรีตลื่น ต้องใช้โซ่ล่ามขากล้อง (Tripod Floor Spreader) เสมอ ป้องกันขาแบะกล้องคว่ำ'
       },
       {
         title: 'ขั้นตอนที่ 2: การปรับลูกน้ำฟองกลมด้วยสกรู 3 เส้า (Circular Bubble Centering)',
@@ -130,7 +130,7 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
       },
       {
         title: 'ขั้นตอนที่ 4: การกดปุ่มทดสอบ Compensator และการอ่านค่าไม้วัดระดับ (Compensator Test & Reading)',
-        details: 'ก่อนอ่านค่า ให้กดปุ่มเช็คกลไกชดเชย (Compensator Button) เบาๆ แล้วปล่อย เส้นสายใยต้องกระดกและดีดกลับมาหยุดที่ตำแหน่งเดิมอย่างรวดเร็ว แสดงว่าลูกตุ้มชดเชยทำงานปกติ จากนั้นอ่านค่าที่เส้นสายใยตัดกับไม้ระดับเป็นทศนิยม 3 ตำแหน่ง (เมตร.เดซิเมตร-เซนติเมตร-มิลลิเมตร เช่น 1.350 m) โดยอ่านสายใยกลาง (M) หรืออ่านครบทั้ง 3 สายใย (U, M, L) เพื่อเช็คความถูกต้อง'
+        details: 'ก่อนอ่านค่า ให้กดปุ่มเช็คกลไกชดเชย (Compensator Button) เบาๆ แล้วปล่อย เส้นสายใยต้องกระดกและดีดกลับมาหยุดที่ตำแหน่งเดิมอย่างรวดเร็ว แสดงว่าลูกตุ้มชดเชยทำงานปกติ จากนั้นอ่านค่าที่เส้นสายใยตัดกับไม้ระดับเป็นทศนิยม 3 ตำแหน่ง (เมตร.เดซิเมตร-เซนติเมตร-มิลลิเมตร เช่น 1.350 m) โดยอ่านสายใยกลาง (M) หรืออ่านครบทั้ง 3 สายใย (U, M, L) เพื่อเช็คความถูกต้อง หากไม่มีลูกน้ำฟองกลมหลังไม้สต๊าฟ ให้คนถือไม้โยกไม้ระดับหน้า-หลังช้าๆ (Staff Waving) แล้วผู้ส่องจดค่าอ่านที่ต่ำที่สุด (Minimum Reading) ซึ่งเป็นตำแหน่งที่ไม้ตั้งฉากจริง'
       },
       {
         title: 'ขั้นตอนที่ 5: การดูแลรักษาและการเก็บกล้องลงกล่องหลังเสร็จงาน (Instrument Care & Storage)',
@@ -252,7 +252,7 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     badge: 'คู่มือใช้งาน',
     iconName: 'Compass',
     verificationStatus: 'draft',
-    verificationProof: 'คู่มือปฏิบัติการวิชา 01218211 Geomatics Engineering (ม.เกษตรศาสตร์); มาตรฐานงานรังวัดหมุดควบคุม กรมที่ดิน; Leica Geosystems FlexLine TS06/TS07 Manual; Topcon GM-50 Series Instruction Manual',
+    verificationProof: 'คู่มือปฏิบัติการวิชา 01218211 Surveying for Mapping (ม.เกษตรศาสตร์); ตำรากล้องวัดมุม ฉบับฟงหวิน; มาตรฐานงานรังวัดหมุดควบคุม กรมที่ดิน; Leica Geosystems FlexLine TS06/TS07 Manual; Topcon GM-50 Series Instruction Manual',
     courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & ข้อกำหนดงานรังวัดวงรอบและผังโครงการ',
     instrumentVariants: [
       {
@@ -1212,7 +1212,7 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     badge: 'คู่มือทำงาน',
     iconName: 'Ruler',
     verificationStatus: 'draft',
-    verificationProof: 'FGCC Standards and Specifications for Geodetic Control Networks (1984); ระเบียบกรมแผนที่ทหารว่าด้วยการรังวัดระดับ พ.ศ. 2548; Ghilani, C.D. & Wolf, P.R. (2012) Elementary Surveying (13th ed.)',
+    verificationProof: 'FGCC Standards (1984); เอกสารการทำระดับแบบสามสายใยและแบบบันทึกงานรังวัดระดับ ภาควิชาวิศวกรรมสำรวจ มก.; ตำรากล้องระดับ ฉบับฟงหวิน; ระเบียบกรมแผนที่ทหารว่าด้วยการรังวัดระดับ พ.ศ. 2548; Ghilani & Wolf (2012)',
     courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & มาตรฐาน กรมแผนที่ทหาร (RTSD)',
     equipmentRequired: [
       'กล้องระดับอัตโนมัติ (Automatic Level) กำลังขยาย 28x-32x หรือ Digital Level พร้อมกล่องกันกระแทก',
@@ -1396,7 +1396,7 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     badge: 'คู่มือทำงาน',
     iconName: 'Compass',
     verificationStatus: 'draft',
-    verificationProof: 'Bowditch, N. (1807) Compass Rule; มาตรฐานการรังวัดและคำนวณวงรอบ กรมแผนที่ทหาร (RTSD 1st-3rd Order Traverse Specifications); Schofield, W. & Breach, M. (2007) Engineering Surveying',
+    verificationProof: 'Bowditch Compass Rule (1807); ตำราการคำนวณวงรอบปิดและอาซิมุด ภาควิชาวิศวกรรมสำรวจ มก.; มาตรฐานงานรังวัดหมุดควบคุม กรมแผนที่ทหาร (RTSD); Schofield & Breach (2007)',
     courseRelation: 'วิชา 01218211 Surveying for Mapping (KU Geomatics) & ข้อกำหนดงานรังวัดวงรอบ',
     equipmentRequired: [
       'กล้องประมวลผลรวม (Total Station) หรือกล้องวัดมุมและเครื่องวัดระยะอิเล็กทรอนิกส์ (EDM) ความละเอียดสูง',
@@ -1409,7 +1409,7 @@ export const KNOWLEDGE_TOPICS: KnowledgeTopic[] = [
     workingPrinciple: [
       'ทฤษฎีเรขาคณิตรูปปิดหลายเหลี่ยม: ผลรวมมุมภายในของรูปหลายเหลี่ยม n ด้าน ต้องเท่ากับ Σθ = (n - 2) × 180° หากรังวัดเป็นมุมภายนอก ผลรวมต้องเท่ากับ (n + 2) × 180°',
       'การตรวจสอบค่าคลาดเคลื่อนทางมุม (Angular Misclosure: c_θ): c_θ = Σθ_actual - (n - 2) × 180° ค่าที่ได้ต้องไม่เกินเกณฑ์ชั้นงาน เช่น C_max = ±1.5\'√n หรือ ±30"√n หากผ่านเกณฑ์ ให้กระจายแก้ค่ามุมเฉลี่ย Corr = -c_θ / n ให้แต่ละมุมเท่าๆ กัน',
-      'การคำนวณ Azimuth ต่อเนื่อง: Az_i = Az_{i-1} + 180° + θ_adjusted (หากค่าเกิน 360° ให้ลบออก 360° หรือถ้าติดลบให้บวก 360°)',
+      'การคำนวณ Azimuth ต่อเนื่อง: Az_i = Az_{i-1} + 180° + θ_adjusted หรือสูตรจำขึ้นใจภาคสนาม: Az_ไป = Az_มา + มุมกลาง ± 180° (ถ้าผลบวก < 180° ให้ +180°, ถ้า 180°–540° ให้ -180°, ถ้า > 540° ให้ -540°)',
       'การคำนวณผลต่างพิกัดราบ: ละติจูด (Latitude: ΔN) = L × cos(Az) และ เดพาร์ทเจอร์ (Departure: ΔE) = L × sin(Az) โดยในวงรอบรูปปิดวง ผลรวมทางทฤษฎีต้องเป็นศูนย์: ΣΔN = 0 และ ΣΔE = 0',
       'ความคลาดเคลื่อนเชิงเส้นและอัตราส่วนชั้นงาน: ระยะคลาดเคลื่อนเชิงเส้น E_L = √( (ΣΔN)² + (ΣΔE)² ) อัตราส่วนความละเอียด Precision = 1 : (Perimeter / E_L) เช่น 1:10,000 หรือ 1:20,000',
       'ทฤษฎีการปรับแก้แบบ Bowditch (Compass Rule): มีสมมติฐานว่าการวัดมุมและการวัดระยะทางมีความแม่นยำเทียบเท่ากัน ค่าปรับแก้พิกัดของแต่ละด้านจะเป็นสัดส่วนโดยตรงกับความยาวของด้านนั้น: Corr_Lat_i = -(ΣΔN / Perimeter) × L_i และ Corr_Dep_i = -(ΣΔE / Perimeter) × L_i'

@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BookOpen, Calculator, Map, ChevronRight, Sun, Moon, Info, Palette, Check, ChevronDown, Wifi, WifiOff, ArrowLeft } from 'lucide-react';
+import { BookOpen, Calculator, Map, ChevronRight, Sun, Moon, Info, Palette, Check, ChevronDown, Wifi, WifiOff, ArrowLeft, Languages } from 'lucide-react';
 import type { MesurvTheme } from '../../App';
 import type { NetworkStatus } from '../../hooks/useNetworkStatus';
+import { useI18n } from '../../core/i18n';
 
 export interface ThemeOption {
   id: MesurvTheme;
@@ -70,17 +71,12 @@ export const Header: React.FC<HeaderProps> = ({
     return a.id === 'terminal' ? -1 : b.id === 'terminal' ? 1 : 0;
   });
 
-  const subTabNames: Record<string, string> = {
-    scientific: 'เครื่องคิดเลข',
-    coord: 'แปลงพิกัด',
-    traverse: 'ปรับแก้วงรอบ',
-    leveling: 'คำนวณระดับ',
-    area: 'คำนวณเนื้อที่',
-    adjustment: 'ปรับแก้โครงข่าย',
-  };
+  const { language, setLanguage, t, allLanguages } = useI18n();
 
   const currentSubTab = route?.subTab;
   const currentTopicId = route?.topicId;
+
+  const currentSubTabLabel = currentSubTab ? (t.header.currentSubTab[currentSubTab] || currentSubTab) : '';
 
   return (
     <header className="nav-bar select-none">
@@ -144,16 +140,16 @@ export const Header: React.FC<HeaderProps> = ({
                 type="button"
                 onClick={() => setActiveTab('calculator')}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] hover:text-[var(--accent)] border border-[var(--border)] text-xs font-semibold transition-colors micro-press cursor-pointer shadow-2xs group"
-                title="ย้อนกลับไปหน้ารวมเครื่องมือทั้งหมด"
+                title={t.tools.backToDirectory}
               >
                 <ArrowLeft className="w-3.5 h-3.5 shrink-0 text-[var(--accent)] group-hover:-translate-x-0.5 transition-transform" />
-                <span>เครื่องมือทั้งหมด</span>
+                <span>{t.common.back}</span>
               </button>
-              {subTabNames[currentSubTab] && (
+              {currentSubTabLabel && (
                 <div className="hidden sm:flex items-center gap-1 text-[var(--text-3)] text-xs font-mono">
                   <span>/</span>
                   <span className="font-semibold text-[var(--accent)] truncate max-w-[150px]">
-                    {subTabNames[currentSubTab]}
+                    {currentSubTabLabel}
                   </span>
                 </div>
               )}
@@ -190,7 +186,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <BookOpen className="w-4 h-4 shrink-0" />
-            <span>คู่มือสำรวจ</span>
+            <span>{t.nav.knowledge}</span>
           </button>
 
           <button
@@ -201,7 +197,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Calculator className="w-4 h-4 shrink-0" />
-            <span>เครื่องมือ</span>
+            <span>{t.nav.calculator}</span>
           </button>
 
           <button
@@ -212,12 +208,39 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Map className="w-4 h-4 shrink-0" />
-            <span>WebGIS</span>
+            <span>{t.nav.map}</span>
           </button>
         </nav>
 
-        {/* Right: Network Status + Multi-Theme Selector (Curated Palettes) */}
+        {/* Right: Language Switcher (TH / EN / ZH) + Network Status + Multi-Theme Selector */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 relative" ref={themeMenuRef}>
+          {/* Quick Segmented Language Switcher (TH / EN / ZH) */}
+          <div 
+            className="flex items-center p-0.5 rounded-[var(--btn-radius)] bg-[var(--surface)] border border-[var(--border)] shrink-0 shadow-2xs"
+            role="group"
+            aria-label={t.header.languageSelector}
+          >
+            {allLanguages.map((langItem) => {
+              const isSelected = language === langItem.code;
+              return (
+                <button
+                  key={langItem.code}
+                  type="button"
+                  onClick={() => setLanguage(langItem.code)}
+                  className={`min-h-[36px] min-w-[34px] sm:min-w-[38px] px-2 py-1 rounded-lg text-[11px] sm:text-xs font-mono font-bold transition-all micro-press cursor-pointer ${
+                    isSelected
+                      ? 'bg-[var(--accent)] text-black dark:text-white shadow-xs'
+                      : 'text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--surface-2)]'
+                  }`}
+                  title={`${langItem.label} - ${langItem.nameNative}`}
+                  aria-pressed={isSelected}
+                  aria-label={`Switch to ${langItem.nameEn}`}
+                >
+                  {langItem.shortLabel}
+                </button>
+              );
+            })}
+          </div>
           {/* Network Status Badge */}
           {network && (
             network.isOnline ? (

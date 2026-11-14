@@ -23,24 +23,84 @@ import {
   Satellite,
   Scan,
   Plane,
-  Layers
+  Layers,
+  Scale,
+  Wrench
 } from 'lucide-react';
 import { KNOWLEDGE_TOPICS } from '../../data/knowledge-topics';
 import { KnowledgeTopic, KnowledgeCategory, DeviceScreenStep } from '../../types/survey';
+import { 
+  BUILDING_LAW_ITEMS, 
+  FIELD_TROUBLESHOOTING_ITEMS, 
+  SITE_ENGINEERING_ITEMS,
+  BuildingLawItem,
+  TroubleshootingItem,
+  SiteEngineeringItem
+} from '../../data/site-knowledge';
+import { GlossaryView } from './GlossaryView';
+import { useI18n, cleanParenthesizedTitle, getLocalizedTitle } from '../../core/i18n';
 
 interface KnowledgeHubProps {
   onNavigateTab?: (tab: 'calculator' | 'map') => void;
   initialTopicId?: string | null;
 }
 
+export type KnowledgeCategoryFilter = 'all' | 'equipment' | 'sop' | 'laws' | 'site' | 'troubleshooting' | 'glossary';
+
+export interface UnifiedKnowledgeCard {
+  id: string;
+  code: string;
+  title: string;
+  titleEn: string;
+  category: 'equipment' | 'sop' | 'laws' | 'site' | 'troubleshooting';
+  categoryLabel: string;
+  badge: { label: string; className: string };
+  codeBadgeClass: string;
+  summary: string;
+  icon: React.ReactNode;
+  tags: string[];
+  workflowTarget?: { hash: string; label: string } | null;
+  kind: 'topic' | 'law' | 'site' | 'troubleshooting';
+  topicData?: KnowledgeTopic;
+  lawData?: BuildingLawItem;
+  siteData?: SiteEngineeringItem;
+  troubleData?: TroubleshootingItem;
+  telemetryCount?: string;
+}
+
 export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNavigateTab }) => {
+  const { language, t } = useI18n();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(initialTopicId || null);
+  const [selectedCategory, setSelectedCategory] = useState<KnowledgeCategoryFilter>(() => {
+    if (initialTopicId && ['laws', 'troubleshooting', 'glossary', 'equipment', 'sop', 'site'].includes(initialTopicId)) {
+      return initialTopicId as KnowledgeCategoryFilter;
+    }
+    return 'all';
+  });
+  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(() => {
+    if (initialTopicId && !['laws', 'troubleshooting', 'glossary', 'equipment', 'sop', 'site'].includes(initialTopicId)) {
+      return initialTopicId;
+    }
+    return null;
+  });
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
   const [copiedText, setCopiedText] = useState<boolean>(false);
   const [anatomyImgLoaded, setAnatomyImgLoaded] = useState<boolean>(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Synchronize category and selectedTopicId when URL hash / initialTopicId updates
+  useEffect(() => {
+    if (!initialTopicId) {
+      setSelectedTopicId(null);
+      return;
+    }
+    if (['laws', 'troubleshooting', 'glossary', 'equipment', 'sop', 'site'].includes(initialTopicId)) {
+      setSelectedCategory(initialTopicId as KnowledgeCategoryFilter);
+      setSelectedTopicId(null);
+    } else {
+      setSelectedTopicId(initialTopicId);
+    }
+  }, [initialTopicId]);
 
   const getWorkflowTarget = (topic: KnowledgeTopic) => {
     const wf = topic.downstreamWorkflow;
@@ -121,88 +181,15 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
       case 'lidar-slam-instrument-manual':
         return ['3D Laser Scanner TLS', 'Mobile SLAM', 'Target Spheres', 'Point Cloud Density', 'HDR Panorama'];
       case 'terrestrial-lidar-slam':
-        return ['TLS Registration', 'Cloud-to-Cloud ICP', 'Loop Closure SLAM', 'Scan-to-BIM LOD 300'];
+        return ['TLS Point Cloud', 'Target-based Registration', 'Cloud-to-Cloud ICP', 'ASPRS Accuracy'];
       case 'hydrographic-bathymetric-survey':
-        return ['Multi-Beam Echo', 'Bathymetric Survey', 'MRU Roll/Pitch', 'IHO S-44 Standards'];
+        return ['Single-Beam Sonar', 'Tide Gauge MSL', 'Bar Check Calib', 'Sound Velocity Profiler'];
       case 'tbm-tunnel-guidance-survey':
-        return ['TBM Guidance', 'Motorized TS', 'DTA Deviations', 'Gyrotheodolite'];
+        return ['TBM Laser Guidance', 'Laser Target Unit LTU', 'Underground Traverse', 'Breakthrough QA'];
       default:
-        return ['Field SOP', 'Survey Engineering', 'Geomatics'];
+        return ['Survey Standard', 'Field Guide'];
     }
   };
-
-  // Category Facets: ทั้งหมด, คู่มือใช้งานอุปกรณ์, คู่มือวิธีการทำงาน
-  const categories: { id: string; label: string; count: number; icon: React.ReactNode }[] = useMemo(() => [
-    { id: 'all', label: 'ทั้งหมด', count: KNOWLEDGE_TOPICS.length, icon: <BookOpen className="w-3.5 h-3.5" /> },
-    { 
-      id: 'equipment-manual', 
-      label: 'คู่มือใช้งานอุปกรณ์', 
-      count: KNOWLEDGE_TOPICS.filter(t => t.badge === 'คู่มือใช้งาน').length, 
-      icon: <Compass className="w-3.5 h-3.5" /> 
-    },
-    { 
-      id: 'survey-method', 
-      label: 'คู่มือวิธีการทำงาน', 
-      count: KNOWLEDGE_TOPICS.filter(t => t.badge === 'คู่มือทำงาน').length, 
-      icon: <Layers className="w-3.5 h-3.5" /> 
-    },
-  ], []);
-
-  // Filtered Topics
-  const filteredTopics = useMemo(() => {
-    return KNOWLEDGE_TOPICS.filter((t) => {
-      let matchCategory = selectedCategory === 'all';
-      if (!matchCategory) {
-        if (selectedCategory === 'equipment-manual') {
-          matchCategory = t.badge === 'คู่มือใช้งาน';
-        } else if (selectedCategory === 'survey-method') {
-          matchCategory = t.badge === 'คู่มือทำงาน';
-        } else {
-          matchCategory = t.category === selectedCategory;
-        }
-      }
-      const q = searchQuery.toLowerCase().trim();
-      if (!q) return matchCategory;
-      const matchQuery = (
-        t.title.toLowerCase().includes(q) ||
-        t.titleEn.toLowerCase().includes(q) ||
-        t.summary.toLowerCase().includes(q) ||
-        (t.courseRelation && t.courseRelation.toLowerCase().includes(q)) ||
-        getTopicTags(t.id).some(tag => tag.toLowerCase().includes(q))
-      );
-      return matchCategory && matchQuery;
-    });
-  }, [searchQuery, selectedCategory]);
-
-  const activeTopic: KnowledgeTopic | undefined = useMemo(() => {
-    if (!selectedTopicId) return undefined;
-    return KNOWLEDGE_TOPICS.find((t) => t.id === selectedTopicId);
-  }, [selectedTopicId]);
-
-  const deviceSteps: DeviceScreenStep[] = activeTopic?.deviceWorkflow || [];
-  const currentStep: DeviceScreenStep | undefined = deviceSteps[activeStepIndex] || deviceSteps[0];
-
-  // Hash-based Topic Synchronization
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace(/^#\/?/, '').trim();
-      const parts = hash.split('/').filter(Boolean);
-      if (parts[0] === 'knowledge') {
-        if (parts[1]) {
-          const match = KNOWLEDGE_TOPICS.some((t) => t.id === parts[1]);
-          if (match) {
-            setSelectedTopicId(parts[1]);
-            return;
-          }
-        }
-        setSelectedTopicId(null);
-      }
-    };
-
-    handleHashChange();
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
 
   // Keyboard shortcut: Pressing '/' focuses the search box
   useEffect(() => {
@@ -223,17 +210,161 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedTopicId]);
 
-  const handleSelectTopic = (id: string) => {
-    setSelectedTopicId(id);
+  // Master Unified Cards Collection (EQ, SOP, LAW, SITE, TRBL)
+  const allCards: UnifiedKnowledgeCard[] = useMemo(() => {
+    const cards: UnifiedKnowledgeCard[] = [];
+
+    // 1. Equipment Manuals (EQ-01 to EQ-05)
+    KNOWLEDGE_TOPICS.slice(0, 5).forEach((t, i) => {
+      const code = t.code || `EQ-0${i + 1}`;
+      cards.push({
+        id: t.id,
+        code,
+        title: t.title,
+        titleEn: t.titleEn || '',
+        category: 'equipment',
+        categoryLabel: 'เครื่องมือสำรวจ',
+        badge: { label: 'คู่มือใช้งาน', className: 'badge badge-manual-usage' },
+        codeBadgeClass: 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-cyan-500/30',
+        summary: t.summary,
+        icon: getTopicIcon(t.iconName, 'w-4 h-4 text-cyan-600 dark:text-cyan-400'),
+        tags: getTopicTags(t.id).slice(0, 3),
+        workflowTarget: getWorkflowTarget(t),
+        kind: 'topic',
+        topicData: t,
+        telemetryCount: `${t.fieldProcedures.length} ขั้นตอน`
+      });
+    });
+
+    // 2. Field SOPs (SOP-01 to SOP-08)
+    KNOWLEDGE_TOPICS.slice(5, 13).forEach((t, i) => {
+      const code = t.code || `SOP-0${i + 1}`;
+      cards.push({
+        id: t.id,
+        code,
+        title: t.title,
+        titleEn: t.titleEn || '',
+        category: 'sop',
+        categoryLabel: 'วิธีปฏิบัติงานสนาม',
+        badge: { label: 'คู่มือทำงาน', className: 'badge badge-manual-work' },
+        codeBadgeClass: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
+        summary: t.summary,
+        icon: getTopicIcon(t.iconName, 'w-4 h-4 text-emerald-600 dark:text-emerald-400'),
+        tags: getTopicTags(t.id).slice(0, 3),
+        workflowTarget: getWorkflowTarget(t),
+        kind: 'topic',
+        topicData: t,
+        telemetryCount: `${t.fieldProcedures.length} ขั้นตอน`
+      });
+    });
+
+    // 3. Building & Land Laws (LAW-01 to LAW-08)
+    BUILDING_LAW_ITEMS.forEach((law, i) => {
+      const code = `LAW-0${i + 1}`;
+      cards.push({
+        id: law.id,
+        code,
+        title: law.title,
+        titleEn: law.legalClause,
+        category: 'laws',
+        categoryLabel: law.categoryLabel,
+        badge: { label: 'ข้อกำหนดกฎหมาย', className: 'badge bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30' },
+        codeBadgeClass: 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/30',
+        summary: `${law.condition} — ${law.requirement}`,
+        icon: <Scale className="w-4 h-4 text-purple-600 dark:text-purple-400" />,
+        tags: ['ระยะร่นอาคาร', 'พ.ร.บ. ควบคุมอาคาร', law.categoryLabel],
+        kind: 'law',
+        lawData: law,
+        telemetryCount: '1 ข้อกำหนด'
+      });
+    });
+
+    // 4. Site Engineering Practices (SITE-01 to SITE-04)
+    SITE_ENGINEERING_ITEMS.forEach((site) => {
+      cards.push({
+        id: site.id,
+        code: site.code,
+        title: site.title,
+        titleEn: site.titleEn,
+        category: 'site',
+        categoryLabel: site.categoryLabel,
+        badge: { label: 'มาตรฐานงานไซต์', className: 'badge bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30' },
+        codeBadgeClass: 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30',
+        summary: site.summary,
+        icon: <HardHat className="w-4 h-4 text-amber-600 dark:text-amber-400" />,
+        tags: ['งานไซต์โยธา', site.categoryLabel, 'มาตรฐาน วสท.'],
+        workflowTarget: site.recommendedToolTab ? { hash: `#/calculator/${site.recommendedToolTab}`, label: site.toolActionLabel || 'เปิดเครื่องมือ' } : null,
+        kind: 'site',
+        siteData: site,
+        telemetryCount: `${site.principles.length} หลักการ`
+      });
+    });
+
+    // 5. Field Troubleshooting (TRBL-01 to TRBL-04)
+    FIELD_TROUBLESHOOTING_ITEMS.forEach((trbl, i) => {
+      const code = `TRBL-0${i + 1}`;
+      cards.push({
+        id: trbl.id,
+        code,
+        title: trbl.title,
+        titleEn: trbl.categoryLabel,
+        category: 'troubleshooting',
+        categoryLabel: trbl.categoryLabel,
+        badge: { label: 'กู้วิกฤตสนาม', className: 'badge bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30' },
+        codeBadgeClass: 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/30',
+        summary: trbl.symptom,
+        icon: <Wrench className="w-4 h-4 text-rose-600 dark:text-rose-400" />,
+        tags: ['แก้ปัญหาเฉพาะหน้า', trbl.categoryLabel, 'Field Recovery'],
+        kind: 'troubleshooting',
+        troubleData: trbl,
+        telemetryCount: `${trbl.actionSteps.length} ขั้นตอนแก้ไข`
+      });
+    });
+
+    return cards;
+  }, []);
+
+  // Filtered Cards
+  const filteredCards = useMemo(() => {
+    let list = allCards;
+    if (selectedCategory !== 'all' && selectedCategory !== 'glossary') {
+      list = list.filter(c => c.category === selectedCategory);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter(c => 
+        c.title.toLowerCase().includes(q) ||
+        c.titleEn.toLowerCase().includes(q) ||
+        c.code.toLowerCase().includes(q) ||
+        c.summary.toLowerCase().includes(q) ||
+        c.tags.some(t => t.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  }, [allCards, selectedCategory, searchQuery]);
+
+  const activeCard = useMemo(() => {
+    return allCards.find(c => c.id === selectedTopicId) || null;
+  }, [allCards, selectedTopicId]);
+
+  const activeTopic = useMemo(() => {
+    return KNOWLEDGE_TOPICS.find((t) => t.id === selectedTopicId) || null;
+  }, [selectedTopicId]);
+
+  const deviceSteps: DeviceScreenStep[] = activeTopic?.deviceWorkflow || [];
+  const currentStep: DeviceScreenStep | undefined = deviceSteps[activeStepIndex] || deviceSteps[0];
+
+  const handleSelectCard = (card: UnifiedKnowledgeCard) => {
+    setSelectedTopicId(card.id);
     setActiveStepIndex(0);
     setAnatomyImgLoaded(false);
-    window.location.hash = `#/knowledge/${id}`;
+    window.location.hash = `#/knowledge/${card.id}`;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleBackToSearch = () => {
     setSelectedTopicId(null);
-    window.location.hash = '#/knowledge';
+    window.location.hash = selectedCategory === 'all' ? '#/knowledge' : `#/knowledge/${selectedCategory}`;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -253,189 +384,193 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
     }
   };
 
+  const categoryFilters: { id: KnowledgeCategoryFilter; label: string; count: number; icon: React.ReactNode }[] = [
+    { id: 'all', label: t.knowledge.categoryAll, count: allCards.length, icon: <Layers className="w-4 h-4" /> },
+    { id: 'equipment', label: t.knowledge.categoryEquipment, count: allCards.filter(c => c.category === 'equipment').length, icon: <Ruler className="w-4 h-4" /> },
+    { id: 'sop', label: t.knowledge.categorySop, count: allCards.filter(c => c.category === 'sop').length, icon: <Compass className="w-4 h-4" /> },
+    { id: 'laws', label: t.knowledge.categoryLaws, count: allCards.filter(c => c.category === 'laws').length, icon: <Scale className="w-4 h-4" /> },
+    { id: 'site', label: t.knowledge.categorySite, count: allCards.filter(c => c.category === 'site').length, icon: <HardHat className="w-4 h-4" /> },
+    { id: 'troubleshooting', label: t.knowledge.categoryTroubleshooting, count: allCards.filter(c => c.category === 'troubleshooting').length, icon: <Wrench className="w-4 h-4" /> },
+    { id: 'glossary', label: t.knowledge.categoryGlossary, count: 262, icon: <BookOpen className="w-4 h-4" /> },
+  ];
+
   return (
     <div className="space-y-8 pb-16">
 
       {/* ================================================================= */}
-      {/* 1. MESURV FUSION OVERVIEW (2-Col Hero Split + 3-Col Card Grid)    */}
+      {/* 1. UNIFIED KNOWLEDGE OVERVIEW (Hero + Search + Filters + Cards)    */}
       {/* ================================================================= */}
-      {!activeTopic && (
-        <div className="space-y-8">
+      {!activeCard && (
+        <div className="space-y-6">
 
-          {/* ── Hero Section (Streamlined Banner) ── */}
+          {/* ── Hero Section (Unified Banner) ── */}
           <div className="space-y-2">
             <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-1)] tracking-tight">
-              Knowledge Hub
+              {t.knowledge.heroTitle}
             </h1>
-            <p className="text-[var(--text-2)] text-sm max-w-3xl leading-relaxed">
-              มาตรฐานการตั้งกล้อง ขั้นตอนการรังวัดภาคสนาม สมการปรับแก้ความคลาดเคลื่อน และขั้นตอนการใช้งานเครื่องมือสำรวจตามเกณฑ์วิศวกรรมสำรวจและภูมิสารสนเทศ
+            <p className="text-[var(--text-2)] text-xs sm:text-sm max-w-3xl leading-relaxed">
+              {t.knowledge.heroSubtitle}
             </p>
           </div>
 
-          {/* ── Controls Near Content: Inline Search + Category Filter Bar ── */}
-          <div className="fusion-card p-3 sm:p-4 space-y-3">
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-3)] pointer-events-none" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                aria-label="ค้นหาคู่มือปฏิบัติงานสำรวจ"
-                placeholder="ค้นหาชื่อเครื่องมือ, คำสั่งกล้อง, เทคนิคสนาม (เช่น Two-Peg, Bowditch, RTK)... [กด /]"
-                className="w-full min-h-[44px] pl-10 pr-24 sm:pr-36 py-2.5 rounded-[var(--btn-radius)] border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-1)] placeholder-[var(--text-3)] text-xs sm:text-sm focus:outline-none focus:border-[var(--accent)] transition-colors"
-              />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="min-h-[32px] px-2 py-1 rounded text-xs font-semibold text-[var(--text-2)] hover:text-[var(--text-1)] bg-[var(--surface)] border border-[var(--border)] transition-colors shrink-0"
-                  >
-                    ล้าง
-                  </button>
-                )}
-                <span className="hidden xs:inline-block px-1.5 sm:px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--border)] text-[10px] sm:text-[11px] font-mono tabular-nums text-[var(--text-2)] shrink-0">
-                  {filteredTopics.length} SOPs
-                </span>
-              </div>
-            </div>
-
-            {/* Category Filter Underline Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 border-t border-[var(--border)]">
-              {categories.map((cat) => {
-                const isSelected = selectedCategory === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className={`group min-h-[44px] inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold shrink-0 border-b-2 transition-colors cursor-pointer ${
-                      isSelected
-                        ? 'border-[var(--accent)] text-[var(--text-1)] bg-[var(--surface-2)]'
-                        : 'border-transparent text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface-2)]/50'
-                    }`}
-                  >
-                    <span className={isSelected ? 'text-[var(--accent)]' : 'text-[var(--text-3)] group-hover:text-black dark:group-hover:text-white transition-colors'}>
-                      {cat.icon}
-                    </span>
-                    <span>{cat.label}</span>
-                    <span className="font-mono tabular-nums text-[10px] px-1.5 py-0.5 rounded bg-[var(--surface)] border border-[var(--border)] text-[var(--text-2)]">
-                      {cat.count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+          {/* ── Category Filter Pills Bar ── */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar p-1.5 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)]">
+            {categoryFilters.map((tab) => {
+              const isSelected = selectedCategory === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory(tab.id);
+                    if (tab.id === 'all') {
+                      window.location.hash = '#/knowledge';
+                    } else {
+                      window.location.hash = `#/knowledge/${tab.id}`;
+                    }
+                  }}
+                  className={`min-h-[40px] flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold shrink-0 transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-[var(--accent)] text-black dark:text-white shadow-sm'
+                      : 'text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface)]'
+                  }`}
+                >
+                  <span className={isSelected ? 'text-current' : 'text-[var(--text-3)]'}>
+                    {tab.icon}
+                  </span>
+                  <span>{tab.label}</span>
+                  <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                    isSelected ? 'bg-black/15 dark:bg-white/20 text-current' : 'bg-[var(--surface)] text-[var(--text-3)] border border-[var(--border)]'
+                  }`}>
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* ── 3-Column Knowledge Card Grid (champion-fusion.html spec) ── */}
-          {filteredTopics.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredTopics.map((topic) => {
-                const topicIndex = KNOWLEDGE_TOPICS.findIndex((t) => t.id === topic.id);
-                const sopCode = topic.code || `SOP-${String(topicIndex + 1).padStart(2, '0')}`;
-                const domainBadge = getTopicDomainBadge(topic.id);
-                const wf = getWorkflowTarget(topic);
+          {/* ── IN-PLACE GLOSSARY VIEW ── */}
+          {selectedCategory === 'glossary' ? (
+            <GlossaryView />
+          ) : (
+            <div className="space-y-6">
+              {/* Search Bar */}
+              <div className="fusion-card p-3 sm:p-4">
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-3)] pointer-events-none" />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    aria-label="ค้นหาคู่มือและมาตรฐานวิศวกรรม"
+                    placeholder={t.knowledge.searchPlaceholder}
+                    className="w-full min-h-[44px] pl-10 pr-24 sm:pr-36 py-2.5 rounded-[var(--btn-radius)] border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-1)] placeholder-[var(--text-3)] text-xs sm:text-sm focus:outline-none focus:border-[var(--accent)] transition-colors"
+                  />
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchQuery('')}
+                        className="min-h-[32px] px-2 py-1 rounded text-xs font-semibold text-[var(--text-2)] hover:text-[var(--text-1)] bg-[var(--surface)] border border-[var(--border)] transition-colors shrink-0"
+                      >
+                        {t.common.reset}
+                      </button>
+                    )}
+                    <span className="hidden xs:inline-block px-1.5 sm:px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--border)] text-[10px] sm:text-[11px] font-mono tabular-nums text-[var(--text-2)] shrink-0">
+                      {filteredCards.length} {language === 'en' ? 'items' : language === 'zh' ? '条' : 'รายการ'}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-                return (
-                  <div
-                    key={topic.id}
-                    onClick={() => handleSelectTopic(topic.id)}
-                    className="fusion-card group p-5 flex flex-col justify-between h-full cursor-pointer"
-                  >
-                    <div className="flex flex-col flex-grow">
-                      {/* Top Metadata Row: SOP Code + Survey Domain & Provenance Badge */}
-                      <div className="flex items-center justify-between gap-2 mb-4">
-                        <span className="font-mono text-xs bg-[var(--surface-2)] px-2 py-1 rounded text-[var(--text-2)] border border-[var(--border)]">
-                          {sopCode}
-                        </span>
-                        <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                          <span className={domainBadge.className}>{domainBadge.label}</span>
-                          {topic.verificationStatus === 'verified' ? (
-                            <span className="badge badge-beginner" title={topic.verificationProof}>
-                              VERIFIED
+              {/* 3-Column Knowledge Card Grid */}
+              {filteredCards.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredCards.map((card) => (
+                    <div
+                      key={card.id}
+                      onClick={() => handleSelectCard(card)}
+                      className="fusion-card group p-5 flex flex-col justify-between h-full cursor-pointer hover:border-[var(--accent)] transition-all"
+                    >
+                      <div className="flex flex-col flex-grow">
+                        {/* Top Metadata Row: Code + Domain Badge */}
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                          <span className={`font-mono text-xs px-2.5 py-1 rounded font-bold border ${card.codeBadgeClass}`}>
+                            {card.code}
+                          </span>
+                          <span className={card.badge.className}>{card.badge.label}</span>
+                        </div>
+
+                        {/* Title & Monospace Subtitle */}
+                        <h2 className="text-[16px] sm:text-[17px] font-bold text-[var(--text-1)] group-hover:text-[var(--accent)] transition-colors mb-1 leading-snug break-words">
+                          {getLocalizedTitle(card.id, card.title, card.titleEn, language)}
+                        </h2>
+                        {(card.titleEn || language === 'en') && (
+                          <p className="font-mono text-[11px] text-[var(--accent)] mb-3 break-words line-clamp-1">
+                            {language === 'en' ? cleanParenthesizedTitle(card.title) : card.titleEn}
+                          </p>
+                        )}
+
+                        {/* Summary */}
+                        <p className="text-[13px] text-[var(--text-2)] mb-4 leading-relaxed line-clamp-3 flex-grow break-words">
+                          {card.summary}
+                        </p>
+
+                        {/* Compact Technical Tags */}
+                        <div className="flex flex-wrap gap-1.5 mb-5">
+                          {card.tags.map((tag, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-0.5 rounded text-[10px] font-mono bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)]"
+                            >
+                              {tag}
                             </span>
-                          ) : (
-                            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-3)] border border-[var(--border)]">
-                              DRAFT
-                            </span>
-                          )}
+                          ))}
                         </div>
                       </div>
 
-                      {/* Title & Monospace English Subtitle */}
-                      <h2 className="text-[17px] sm:text-[18px] font-bold text-[var(--text-1)] group-hover:text-[var(--accent)] transition-colors mb-1 leading-snug break-words">
-                        {topic.title}
-                      </h2>
-                      <p className="font-mono text-[11px] sm:text-[12px] text-[var(--accent)] mb-3 break-words">
-                        {topic.titleEn}
-                      </p>
+                      {/* Card Footer: Telemetry Specs & Action Link */}
+                      <div className="pt-3.5 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 text-[11px] font-mono text-[var(--text-3)] shrink-0">
+                          {card.icon}
+                          <span>{card.telemetryCount}</span>
+                        </div>
 
-                      {/* Summary */}
-                      <p className="text-[13px] text-[var(--text-2)] mb-4 leading-relaxed line-clamp-3 flex-grow break-words">
-                        {topic.summary}
-                      </p>
-
-                      {/* Compact Technical Tags */}
-                      <div className="flex flex-wrap gap-1.5 mb-5">
-                        {getTopicTags(topic.id).slice(0, 3).map((tag, idx) => (
-                          <span
-                            key={idx}
-                            className="px-2 py-0.5 rounded text-[10px] font-mono bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)]"
-                          >
-                            {tag}
+                        <div className="flex items-center gap-2">
+                          <span className="text-[13px] font-semibold text-[var(--text-1)] group-hover:text-[var(--accent)] inline-flex items-center gap-1 transition-colors">
+                            <span>Inspect Spec</span>
+                            <span className="text-base leading-none">→</span>
                           </span>
-                        ))}
+                        </div>
                       </div>
                     </div>
-
-                    {/* Card Footer: Telemetry Specs & Action Link */}
-                    <div className="pt-3.5 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 text-[11px] font-mono text-[var(--text-3)] shrink-0">
-                        <span>{topic.fieldProcedures.length} ขั้นตอน</span>
-                        {topic.deviceWorkflow && topic.deviceWorkflow.length > 0 && (
-                          <span className="text-[var(--accent)] font-semibold">• {topic.deviceWorkflow.length} คำสั่งอุปกรณ์</span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="text-[13px] font-semibold text-[var(--text-1)] group-hover:text-[var(--accent)] inline-flex items-center gap-1 transition-colors">
-                          <span>Inspect Spec</span>
-                          <span className="text-base leading-none">→</span>
-                        </span>
-                      </div>
-                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="fusion-card p-12 text-center space-y-4">
+                  <Search className="w-10 h-10 mx-auto text-[var(--text-3)] stroke-1" />
+                  <div>
+                    <h3 className="text-base font-bold text-[var(--text-1)]">
+                      ไม่พบคู่มือที่ตรงกับคำค้นหา "{searchQuery}"
+                    </h3>
+                    <p className="text-xs text-[var(--text-2)] mt-1 max-w-sm mx-auto">
+                      ลองค้นหาด้วยคำสำคัญ เช่น "Two-Peg", "Bowditch", "ระยะร่น", "Strap Beam", "RTK" หรือเลือกหมวดหมู่ใหม่
+                    </p>
                   </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="fusion-card p-12 text-center space-y-4">
-              <Search className="w-10 h-10 mx-auto text-[var(--text-3)] stroke-1" />
-              <div>
-                <h3 className="text-base font-bold text-[var(--text-1)]">
-                  ไม่พบคู่มือที่ตรงกับคำค้นหา "{searchQuery}"
-                </h3>
-                <p className="text-xs text-[var(--text-2)] mt-1 max-w-sm mx-auto">
-                  ลองค้นหาด้วยคำสำคัญ เช่น "Two-Peg", "Bowditch", "0-SET", "Three-Wire", "RTK" หรือเลือกหมวดหมู่ใหม่
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
-                className="btn-outline min-h-[44px] text-xs"
-              >
-                แสดงคู่มือทั้งหมด
-              </button>
+                  <button
+                    type="button"
+                    onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
+                    className="btn-outline min-h-[44px] text-xs"
+                  >
+                    แสดงทั้งหมด
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
       )}
-
-      {/* ================================================================= */}
-      {/* 2. SPLIT-VIEW TECHNICAL READER (Left Content / Right Sticky LCD)  */}
-      {/* ================================================================= */}
       {activeTopic && (
         <div className="space-y-6">
 
@@ -557,10 +692,10 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
 
                   <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-1)] tracking-tight leading-tight">
-                      {activeTopic.title}
+                      {getLocalizedTitle(activeTopic.id, activeTopic.title, activeTopic.titleEn, language)}
                     </h1>
                     <p className="text-xs sm:text-sm font-mono text-[var(--accent)] mt-1">
-                      {activeTopic.titleEn}
+                      {language === 'en' ? cleanParenthesizedTitle(activeTopic.title) : activeTopic.titleEn}
                     </p>
                   </div>
 
@@ -838,7 +973,7 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                             <span className="w-6 h-6 rounded-full bg-[var(--surface-2)] text-[var(--accent)] border border-[var(--border)] flex items-center justify-center text-xs font-mono shrink-0">
                               {pIdx + 1}
                             </span>
-                            <span>{proc.title}</span>
+                            <span>{cleanParenthesizedTitle(proc.title)}</span>
                           </h3>
                           {pIdx < deviceSteps.length && (
                             <span className="badge badge-beginner shrink-0">
@@ -1068,7 +1203,410 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
         </div>
       )}
 
+      {/* ================================================================= */}
+      {/* 3. LAW DETAIL READER (Dedicated Viewer for LAW-01 to LAW-08)      */}
+      {/* ================================================================= */}
+      {activeCard?.kind === 'law' && activeCard.lawData && (
+        <div className="space-y-6">
+          <div className="fusion-card px-4 py-3 flex flex-wrap items-center justify-between gap-3 sticky top-16 z-30">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <button
+                type="button"
+                onClick={handleBackToSearch}
+                className="btn-outline min-h-[44px] inline-flex items-center gap-1.5 text-xs shrink-0"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>คลังคู่มือทั้งหมด</span>
+              </button>
+              <span className="text-[var(--border-strong)] hidden sm:inline">|</span>
+              <div className="hidden sm:flex items-center gap-2 text-xs truncate">
+                <span className="font-mono text-xs px-2 py-0.5 rounded bg-purple-500/10 text-purple-700 dark:text-purple-300 font-bold border border-purple-500/30 shrink-0">
+                  {activeCard.code}
+                </span>
+                <span className="truncate text-[var(--text-1)] font-bold">{activeCard.title}</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const t = `${activeCard.title}\n${activeCard.lawData?.legalClause}\n\nเงื่อนไข: ${activeCard.lawData?.condition}\nข้อกำหนด: ${activeCard.lawData?.requirement}\nบทลงโทษ/ความเสี่ยง: ${activeCard.lawData?.penaltyOrRisk}\nคำแนะนำสำหรับช่างสำรวจ: ${activeCard.lawData?.fieldTips}`;
+                navigator.clipboard.writeText(t);
+                setCopiedText(true);
+                setTimeout(() => setCopiedText(false), 2000);
+              }}
+              className="btn-outline min-h-[44px] inline-flex items-center gap-1.5 text-xs"
+            >
+              {copiedText ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-[var(--accent)]" />
+                  <span className="text-[var(--accent)] font-semibold">คัดลอกแล้ว</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-[var(--text-2)]" />
+                  <span>คัดลอกข้อกฎหมาย</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          <div className="fusion-card p-6 sm:p-8 space-y-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-mono text-xs px-2.5 py-1 rounded bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/30 font-bold">
+                {activeCard.code}
+              </span>
+              <span className="badge bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30">
+                {activeCard.categoryLabel}
+              </span>
+              <span className="font-mono text-[11px] text-[var(--text-3)]">
+                {activeCard.lawData.legalClause}
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-1)]">
+                {activeCard.title}
+              </h1>
+              <p className="text-xs font-mono text-purple-600 dark:text-purple-400">
+                {activeCard.lawData.legalClause}
+              </p>
+            </div>
+
+            {/* Condition & Requirement Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-[var(--border)]">
+              <div className="p-4 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] space-y-2">
+                <div className="text-xs font-semibold text-[var(--text-3)] uppercase tracking-wider">
+                  เงื่อนไขและประเภทอาคาร (Condition)
+                </div>
+                <p className="text-sm font-medium text-[var(--text-1)] leading-relaxed">
+                  {activeCard.lawData.condition}
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/20 space-y-2">
+                <div className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wider">
+                  ข้อกำหนดระยะร่นขั้นต่ำ (Requirement)
+                </div>
+                <p className="text-sm font-bold text-[var(--text-1)] leading-relaxed">
+                  {activeCard.lawData.requirement}
+                </p>
+              </div>
+            </div>
+
+            {/* Penalty & Field Tips */}
+            <div className="space-y-4 pt-4">
+              <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 space-y-1.5">
+                <div className="flex items-center gap-2 text-xs font-bold text-rose-600 dark:text-rose-400">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>ผลกระทบและบทลงโทษหากไม่ปฏิบัติตาม (Penalty & Risk)</span>
+                </div>
+                <p className="text-xs sm:text-sm text-[var(--text-2)] leading-relaxed">
+                  {activeCard.lawData.penaltyOrRisk}
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 space-y-1.5">
+                <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>คำแนะนำและข้อควรระวังสำหรับช่างสำรวจ (Field Surveyor Tips)</span>
+                </div>
+                <p className="text-xs sm:text-sm text-[var(--text-2)] leading-relaxed">
+                  {activeCard.lawData.fieldTips}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================= */}
+      {/* 4. SITE ENGINEERING READER (Dedicated Viewer for SITE-01 to 04)   */}
+      {/* ================================================================= */}
+      {activeCard?.kind === 'site' && activeCard.siteData && (
+        <div className="space-y-6">
+          <div className="fusion-card px-4 py-3 flex flex-wrap items-center justify-between gap-3 sticky top-16 z-30">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <button
+                type="button"
+                onClick={handleBackToSearch}
+                className="btn-outline min-h-[44px] inline-flex items-center gap-1.5 text-xs shrink-0"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>คลังคู่มือทั้งหมด</span>
+              </button>
+              <span className="text-[var(--border-strong)] hidden sm:inline">|</span>
+              <div className="hidden sm:flex items-center gap-2 text-xs truncate">
+                <span className="font-mono text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/30 shrink-0">
+                  {activeCard.code}
+                </span>
+                <span className="truncate text-[var(--text-1)] font-bold">{activeCard.title}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {activeCard.workflowTarget && (
+                <a
+                  href={activeCard.workflowTarget.hash}
+                  className="btn-accent min-h-[44px] inline-flex items-center gap-1.5 text-xs"
+                >
+                  <span>{activeCard.workflowTarget.label}</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </a>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  const t = `${activeCard.title}\n${activeCard.titleEn}\n\n${activeCard.summary}\n\nหลักการสำคัญ:\n` +
+                    activeCard.siteData?.principles.map((p, i) => `${i + 1}. ${p}`).join('\n') +
+                    '\n\nเช็กลิสต์หน้างาน:\n' +
+                    activeCard.siteData?.fieldChecklist.map((c) => `[ ] ${c}`).join('\n');
+                  navigator.clipboard.writeText(t);
+                  setCopiedText(true);
+                  setTimeout(() => setCopiedText(false), 2000);
+                }}
+                className="btn-outline min-h-[44px] inline-flex items-center gap-1.5 text-xs"
+              >
+                {copiedText ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-[var(--accent)]" />
+                    <span className="text-[var(--accent)] font-semibold">คัดลอกแล้ว</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 text-[var(--text-2)]" />
+                    <span>คัดลอกมาตรฐาน</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="fusion-card p-6 sm:p-8 space-y-8">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-mono text-xs px-2.5 py-1 rounded bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 font-bold">
+                {activeCard.code}
+              </span>
+              <span className="badge bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                {activeCard.categoryLabel}
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-1)]">
+                {activeCard.title}
+              </h1>
+              <p className="text-xs font-mono text-[var(--accent)]">
+                {activeCard.titleEn}
+              </p>
+              <p className="text-sm text-[var(--text-2)] leading-relaxed pt-2">
+                {activeCard.summary}
+              </p>
+            </div>
+
+            {/* Principles */}
+            <div className="space-y-4 pt-4 border-t border-[var(--border)]">
+              <h3 className="text-sm font-bold text-[var(--text-1)] uppercase tracking-wider flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-amber-500" />
+                <span>หลักการวิศวกรรมและข้อกำหนดมาตรฐาน (Engineering Principles)</span>
+              </h3>
+              <div className="space-y-2.5">
+                {activeCard.siteData.principles.map((pr, idx) => (
+                  <div key={idx} className="p-3.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                      {idx + 1}
+                    </span>
+                    <p className="text-xs sm:text-sm text-[var(--text-1)] leading-relaxed">
+                      {pr}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Key Formulas if any */}
+            {activeCard.siteData.keyFormulas && activeCard.siteData.keyFormulas.length > 0 && (
+              <div className="space-y-4 pt-4 border-t border-[var(--border)]">
+                <h3 className="text-sm font-bold text-[var(--text-1)] uppercase tracking-wider flex items-center gap-2">
+                  <Compass className="w-4 h-4 text-[var(--accent)]" />
+                  <span>สมการและสูตรคำนวณมาตรฐาน (Governing Formulas)</span>
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {activeCard.siteData.keyFormulas.map((f, idx) => (
+                    <div key={idx} className="p-4 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] space-y-2">
+                      <div className="text-xs font-bold text-[var(--text-1)]">{f.label}</div>
+                      <div className="p-2.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] font-mono text-xs sm:text-sm text-[var(--accent)] text-center overflow-x-auto">
+                        {f.formula}
+                      </div>
+                      <p className="text-[11px] text-[var(--text-2)]">{f.explanation}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Field Checklist */}
+            <div className="space-y-4 pt-4 border-t border-[var(--border)]">
+              <h3 className="text-sm font-bold text-[var(--text-1)] uppercase tracking-wider flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <span>เช็กลิสต์การตรวจคุมงานหน้างาน (Field Inspection Checklist)</span>
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {activeCard.siteData.fieldChecklist.map((item, idx) => (
+                  <div key={idx} className="p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] flex items-start gap-2.5">
+                    <span className="w-4 h-4 rounded border border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 text-[10px]">
+                      ✓
+                    </span>
+                    <span className="text-xs sm:text-sm text-[var(--text-2)]">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================= */}
+      {/* 5. TROUBLESHOOTING READER (Dedicated Viewer for TRBL-01 to 04)     */}
+      {/* ================================================================= */}
+      {activeCard?.kind === 'troubleshooting' && activeCard.troubleData && (
+        <div className="space-y-6">
+          <div className="fusion-card px-4 py-3 flex flex-wrap items-center justify-between gap-3 sticky top-16 z-30">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <button
+                type="button"
+                onClick={handleBackToSearch}
+                className="btn-outline min-h-[44px] inline-flex items-center gap-1.5 text-xs shrink-0"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>คลังคู่มือทั้งหมด</span>
+              </button>
+              <span className="text-[var(--border-strong)] hidden sm:inline">|</span>
+              <div className="hidden sm:flex items-center gap-2 text-xs truncate">
+                <span className="font-mono text-xs px-2 py-0.5 rounded bg-rose-500/10 text-rose-700 dark:text-rose-300 font-bold border border-rose-500/30 shrink-0">
+                  {activeCard.code}
+                </span>
+                <span className="truncate text-[var(--text-1)] font-bold">{activeCard.title}</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const t = `${activeCard.title}\n${activeCard.categoryLabel}\n\nอาการ: ${activeCard.troubleData?.symptom}\n\nสาเหตุแท้จริง:\n` +
+                  activeCard.troubleData?.rootCauses.map((r, i) => `${i + 1}. ${r}`).join('\n') +
+                  '\n\nวิธีแก้ปัญหา:\n' +
+                  activeCard.troubleData?.actionSteps.map((a, i) => `${i + 1}. ${a}`).join('\n') +
+                  `\n\nการป้องกัน: ${activeCard.troubleData?.prevention}`;
+                navigator.clipboard.writeText(t);
+                setCopiedText(true);
+                setTimeout(() => setCopiedText(false), 2000);
+              }}
+              className="btn-outline min-h-[44px] inline-flex items-center gap-1.5 text-xs"
+            >
+              {copiedText ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-[var(--accent)]" />
+                  <span className="text-[var(--accent)] font-semibold">คัดลอกแล้ว</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-[var(--text-2)]" />
+                  <span>คัดลอกคู่มือแก้ปัญหา</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          <div className="fusion-card p-6 sm:p-8 space-y-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-mono text-xs px-2.5 py-1 rounded bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/30 font-bold">
+                {activeCard.code}
+              </span>
+              <span className="badge bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30">
+                {activeCard.categoryLabel}
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-1)]">
+                {activeCard.title}
+              </h1>
+            </div>
+
+            {/* Symptom Box */}
+            <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span>อาการที่ตรวจพบหน้างาน (Field Symptom)</span>
+              </div>
+              <p className="text-sm font-semibold text-[var(--text-1)] leading-relaxed">
+                {activeCard.troubleData.symptom}
+              </p>
+            </div>
+
+            {/* Root Causes & Diagnostics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[var(--border)]">
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-[var(--text-3)] uppercase tracking-wider">
+                  สาเหตุแท้จริง (Root Causes)
+                </h3>
+                <ul className="space-y-2">
+                  {activeCard.troubleData.rootCauses.map((rc, idx) => (
+                    <li key={idx} className="p-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-xs text-[var(--text-2)] leading-relaxed flex items-start gap-2">
+                      <span className="text-rose-500 font-bold">•</span>
+                      <span>{rc}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-[var(--text-3)] uppercase tracking-wider">
+                  ขั้นตอนตรวจเช็ควิเคราะห์ (Field Diagnostics)
+                </h3>
+                <ul className="space-y-2">
+                  {activeCard.troubleData.fieldDiagnostics.map((fd, idx) => (
+                    <li key={idx} className="p-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-xs text-[var(--text-2)] leading-relaxed flex items-start gap-2">
+                      <span className="text-amber-500 font-bold">•</span>
+                      <span>{fd}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Step-by-Step Action Plan */}
+            <div className="space-y-3 pt-4 border-t border-[var(--border)]">
+              <h3 className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>ขั้นตอนการแก้ไขปัญหาเฉพาะหน้า (Immediate Action Steps)</span>
+              </h3>
+              <div className="space-y-2.5">
+                {activeCard.troubleData.actionSteps.map((step, idx) => (
+                  <div key={idx} className="p-3.5 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex items-start gap-3">
+                    <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                      {idx + 1}
+                    </span>
+                    <p className="text-xs sm:text-sm text-[var(--text-1)] leading-relaxed">
+                      {step}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Prevention */}
+            <div className="p-4 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] space-y-1.5">
+              <div className="text-xs font-bold text-[var(--text-3)] uppercase tracking-wider">
+                แนวทางการป้องกันปัญหาในอนาคต (Prevention)
+              </div>
+              <p className="text-xs sm:text-sm text-[var(--text-2)] leading-relaxed">
+                {activeCard.troubleData.prevention}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
-
