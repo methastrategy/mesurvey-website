@@ -103,6 +103,9 @@ describe('MESURV Phase 2 PWA & 100% Offline Field Mode Test Suite', () => {
 
     it('vite.config.ts defines specialized runtimeCaching for tiles, fonts, and telemetry', () => {
       const config = fs.readFileSync(viteConfigPath, 'utf-8');
+      // Knowledge images offline cache (Phase 1 Roadmap)
+      expect(config).toContain('mesurv-knowledge-images-v1');
+      expect(config).toContain('CacheFirst');
       // Tile caching
       expect(config).toContain('mesurv-map-tiles-cache');
       expect(config).toContain('openstreetmap');
