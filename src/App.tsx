@@ -146,9 +146,13 @@ export function App() {
 
   const isFullscreenView = activeTab === 'map';
   const isScientificFullscreen = activeTab === 'calculator' && route.subTab === 'scientific';
+  const isReadingTopic = activeTab === 'knowledge' && !!route.topicId && !['laws', 'troubleshooting', 'glossary', 'equipment', 'sop', 'site'].includes(route.topicId);
 
   return (
-    <div className="relative flex flex-col min-h-screen w-full max-w-full overflow-x-hidden bg-[var(--bg)] text-[var(--text-1)] font-sans antialiased">
+    <div 
+      className="relative flex flex-col min-h-screen w-full max-w-full overflow-x-hidden bg-[var(--bg)] text-[var(--text-1)] font-sans antialiased"
+      data-fullscreen={isFullscreenView || isScientificFullscreen ? 'true' : 'false'}
+    >
       {/* 100% Offline Field Mode Banner */}
       <OfflineBanner network={network} />
 
@@ -157,6 +161,7 @@ export function App() {
         className={`relative z-10 flex flex-col flex-1 min-w-0 w-full max-w-full ${
           isFullscreenView || isScientificFullscreen ? 'h-screen h-[100dvh] overflow-hidden' : 'min-h-screen overflow-x-hidden'
         }`}
+        data-fullscreen={isFullscreenView || isScientificFullscreen ? 'true' : 'false'}
       >
         {/* Top Navigation Bar (Hidden in Map and Scientific modes) */}
         {!isFullscreenView && !isScientificFullscreen && (
@@ -177,7 +182,7 @@ export function App() {
           className={`flex-1 w-full max-w-full ${
             isFullscreenView || isScientificFullscreen
               ? 'h-screen h-[100dvh] p-0 m-0 overflow-hidden relative'
-              : 'w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-16'
+              : 'w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-16 min-h-[calc(100vh+2px)]'
           }`}
         >
           <Suspense fallback={<GeomaticsLoadingFallback fullHeight={isFullscreenView || isScientificFullscreen} />}>
@@ -208,8 +213,8 @@ export function App() {
           />
         )}
 
-        {/* Footer: Hidden on mobile bottom nav, map and calculator modes */}
-        {!isFullscreenView && activeTab !== 'calculator' && (
+        {/* Footer: Hidden on mobile bottom nav, map, calculator modes, and topic reading view */}
+        {!isFullscreenView && activeTab !== 'calculator' && !isReadingTopic && (
           <Footer onOpenAbout={() => setIsAboutOpen(true)} />
         )}
       </div>

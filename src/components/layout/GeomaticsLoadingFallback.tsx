@@ -16,8 +16,8 @@ export const GeomaticsLoadingFallback: React.FC<GeomaticsLoadingFallbackProps> =
   sublabel = 'GEOMATICS ENGINE INITIALIZING',
   fullHeight = false,
   styleMode = 'mascot',
-  size = 'md',
-  cycleMessages = false,
+  size = 'lg',
+  cycleMessages = true,
 }) => {
   if (styleMode === 'mascot') {
     return (

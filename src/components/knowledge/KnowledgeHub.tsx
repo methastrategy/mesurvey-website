@@ -25,12 +25,17 @@ import {
   Plane,
   Layers,
   Scale,
-  Wrench
+  Wrench,
+  ExternalLink,
+  Calculator
 } from 'lucide-react';
 import { KNOWLEDGE_TOPICS } from '../../data/knowledge-topics';
-import { KnowledgeTopic, KnowledgeCategory, DeviceScreenStep } from '../../types/survey';
+import { KnowledgeTopic, KnowledgeCategory, DeviceScreenStep, QuickToleranceCallout } from '../../types/survey';
+import { MathFormulaRenderer } from '../common/MathFormulaRenderer';
 import { 
   BUILDING_LAW_ITEMS, 
+  CONSOLIDATED_LAW_ENACTMENTS,
+  ConsolidatedLawEnactment,
   FIELD_TROUBLESHOOTING_ITEMS, 
   SITE_ENGINEERING_ITEMS,
   BuildingLawItem,
@@ -39,6 +44,7 @@ import {
 } from '../../data/site-knowledge';
 import { GlossaryView } from './GlossaryView';
 import { useI18n, cleanParenthesizedTitle, getLocalizedTitle } from '../../core/i18n';
+import { DragonSurveyorLoader } from '../common/DragonSurveyorLoader';
 
 interface KnowledgeHubProps {
   onNavigateTab?: (tab: 'calculator' | 'map') => void;
@@ -60,9 +66,11 @@ export interface UnifiedKnowledgeCard {
   icon: React.ReactNode;
   tags: string[];
   workflowTarget?: { hash: string; label: string } | null;
+  quickTolerance?: QuickToleranceCallout;
   kind: 'topic' | 'law' | 'site' | 'troubleshooting';
   topicData?: KnowledgeTopic;
   lawData?: BuildingLawItem;
+  consolidatedLawData?: ConsolidatedLawEnactment;
   siteData?: SiteEngineeringItem;
   troubleData?: TroubleshootingItem;
   telemetryCount?: string;
@@ -252,30 +260,42 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
         icon: getTopicIcon(t.iconName, 'w-4 h-4 text-emerald-600 dark:text-emerald-400'),
         tags: getTopicTags(t.id).slice(0, 3),
         workflowTarget: getWorkflowTarget(t),
+        quickTolerance: t.quickTolerance,
         kind: 'topic',
         topicData: t,
         telemetryCount: `${t.fieldProcedures.length} ขั้นตอน`
       });
     });
 
-    // 3. Building & Land Laws (LAW-01 to LAW-08)
-    BUILDING_LAW_ITEMS.forEach((law, i) => {
-      const code = `LAW-0${i + 1}`;
+    // 3. Consolidated Law Enactments (LAW-01 to LAW-06: 6 เสาหลักกฎหมายวิศวกรรมสำรวจ)
+    CONSOLIDATED_LAW_ENACTMENTS.forEach((law) => {
+      let clauseBadge = 'ข้อกำหนดกฎหมาย';
+      if (law.id === 'law-building-control') clauseBadge = 'พ.ร.บ. ควบคุมอาคาร (ม.55, 66)';
+      else if (law.id === 'law-land-cadastral') clauseBadge = 'ประมวลกฎหมายที่ดิน (ม.69, 69 ทวิ)';
+      else if (law.id === 'law-uav-drone-aviation') clauseBadge = 'การบินโดรน (กพท. CAAT / กสทช.)';
+      else if (law.id === 'law-excavation-soil-filling') clauseBadge = 'พ.ร.บ. ขุดดินถมดิน (ม.17, 26)';
+      else if (law.id === 'law-waterways-marine-ingress') clauseBadge = 'ล่วงล้ำลำน้ำ (กรมเจ้าท่า ม.117)';
+      else if (law.id === 'law-engineering-practice-safety') clauseBadge = 'วิศวกรรมควบคุม & จป. (วสท.)';
+
       cards.push({
         id: law.id,
-        code,
+        code: law.code,
         title: law.title,
-        titleEn: law.legalClause,
+        titleEn: law.enactmentName,
         category: 'laws',
-        categoryLabel: law.categoryLabel,
-        badge: { label: 'ข้อกำหนดกฎหมาย', className: 'badge bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30' },
+        categoryLabel: law.authority,
+        badge: { label: clauseBadge, className: 'badge bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30' },
         codeBadgeClass: 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/30',
-        summary: `${law.condition} — ${law.requirement}`,
+        summary: law.summary,
         icon: <Scale className="w-4 h-4 text-purple-600 dark:text-purple-400" />,
-        tags: ['ระยะร่นอาคาร', 'พ.ร.บ. ควบคุมอาคาร', law.categoryLabel],
+        tags: [
+          'กฎหมายทางการ',
+          law.enactmentYear,
+          ...law.provisions.map((p) => p.clauseRef ? p.clauseRef.replace(/^(กฎกระทรวง|ประมวลกฎหมายที่ดิน|ป\.พ\.พ\.|พ\.ร\.บ\.)\s*/, '') : '').filter(Boolean)
+        ].slice(0, 4),
         kind: 'law',
-        lawData: law,
-        telemetryCount: '1 ข้อกำหนด'
+        consolidatedLawData: law,
+        telemetryCount: `${law.provisions.length} ข้อกำหนดในหมวดนี้`
       });
     });
 
@@ -403,18 +423,23 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
       {!activeCard && (
         <div className="space-y-6">
 
-          {/* ── Hero Section (Unified Banner) ── */}
-          <div className="text-center max-w-3xl mx-auto space-y-2 py-1 sm:py-2">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[var(--text-1)] tracking-tight">
-              {t.knowledge.heroTitle}
-            </h1>
-            <p className="text-[var(--text-2)] text-xs sm:text-sm md:text-base leading-relaxed">
-              {t.knowledge.heroSubtitle}
-            </p>
+          {/* ── Hero Section with Surveyor Mascot (Standardized Fixed Height Slot) ── */}
+          <div className="flex items-center justify-center gap-3.5 sm:gap-5 max-w-3xl mx-auto h-[76px] sm:h-[84px]">
+            <div className="shrink-0 flex items-center justify-center drop-shadow-sm transition-transform hover:scale-105">
+              <DragonSurveyorLoader size="sm" variant="minimal" />
+            </div>
+            <div className="text-left min-w-0">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[var(--text-1)] tracking-tight truncate">
+                {t.knowledge.heroTitle}
+              </h1>
+              <p className="text-[var(--text-2)] text-xs sm:text-sm leading-normal truncate max-w-xl">
+                {t.knowledge.heroSubtitle}
+              </p>
+            </div>
           </div>
 
-          {/* ── Category Filter Pills Bar ── */}
-          <div className="flex items-center justify-start lg:justify-center gap-2 overflow-x-auto no-scrollbar p-1.5 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)]">
+          {/* ── Category Filter Pills Bar (Clean Floating Chips without Bounding Outer Box) ── */}
+          <div className="flex items-center justify-start lg:justify-center gap-2 overflow-x-auto no-scrollbar py-1 min-h-[46px]">
             {categoryFilters.map((tab) => {
               const isSelected = selectedCategory === tab.id;
               return (
@@ -429,18 +454,18 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       window.location.hash = `#/knowledge/${tab.id}`;
                     }
                   }}
-                  className={`min-h-[40px] flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold shrink-0 transition-all cursor-pointer ${
+                  className={`min-h-[38px] h-[38px] whitespace-nowrap flex items-center justify-center gap-2 px-3.5 sm:px-4 rounded-xl text-xs sm:text-sm font-semibold shrink-0 transition-all cursor-pointer border ${
                     isSelected
-                      ? 'bg-[var(--accent)] text-black dark:text-white shadow-sm'
-                      : 'text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface)]'
+                      ? 'bg-[var(--accent)] text-black dark:text-white border-[var(--accent)] shadow-sm'
+                      : 'bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-2)] hover:text-[var(--text-1)] border-[var(--border)]'
                   }`}
                 >
                   <span className={isSelected ? 'text-current' : 'text-[var(--text-3)]'}>
                     {tab.icon}
                   </span>
                   <span>{tab.label}</span>
-                  <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
-                    isSelected ? 'bg-black/15 dark:bg-white/20 text-current' : 'bg-[var(--surface)] text-[var(--text-3)] border border-[var(--border)]'
+                  <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${
+                    isSelected ? 'bg-black/15 dark:bg-white/20 text-current border-transparent' : 'bg-[var(--surface)] text-[var(--text-3)] border-[var(--border)]/60'
                   }`}>
                     {tab.count}
                   </span>
@@ -454,33 +479,31 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             <GlossaryView />
           ) : (
             <div className="space-y-6">
-              {/* Search Bar */}
-              <div className="fusion-card p-3 sm:p-4 max-w-4xl mx-auto w-full">
-                <div className="relative">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-3)] pointer-events-none" />
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    aria-label="ค้นหาคู่มือและมาตรฐานวิศวกรรม"
-                    placeholder={t.knowledge.searchPlaceholder}
-                    className="w-full min-h-[44px] pl-10 pr-24 sm:pr-36 py-2.5 rounded-[var(--btn-radius)] border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-1)] placeholder-[var(--text-3)] text-xs sm:text-sm focus:outline-none focus:border-[var(--accent)] transition-colors"
-                  />
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-                    {searchQuery && (
-                      <button
-                        type="button"
-                        onClick={() => setSearchQuery('')}
-                        className="min-h-[32px] px-2 py-1 rounded text-xs font-semibold text-[var(--text-2)] hover:text-[var(--text-1)] bg-[var(--surface)] border border-[var(--border)] transition-colors shrink-0"
-                      >
-                        {t.common.reset}
-                      </button>
-                    )}
-                    <span className="hidden xs:inline-block px-1.5 sm:px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--border)] text-[10px] sm:text-[11px] font-mono tabular-nums text-[var(--text-2)] shrink-0">
-                      {filteredCards.length} {language === 'en' ? 'items' : language === 'zh' ? '条' : 'รายการ'}
-                    </span>
-                  </div>
+              {/* Search Bar (Unified Direct Input Bar, No Outer Card Frame) */}
+              <div className="relative max-w-4xl mx-auto w-full">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-3)] pointer-events-none" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="ค้นหาคู่มือและมาตรฐานวิศวกรรม"
+                  placeholder={t.knowledge.searchPlaceholder}
+                  className="w-full min-h-[46px] pl-10 pr-28 sm:pr-36 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-1)] placeholder-[var(--text-3)] text-xs sm:text-sm focus:outline-none focus:border-[var(--accent)] transition-colors shadow-2xs"
+                />
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="min-h-[28px] px-2 py-0.5 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-[var(--text-1)] bg-[var(--surface)] border border-[var(--border)] transition-colors shrink-0 cursor-pointer"
+                    >
+                      {t.common.reset}
+                    </button>
+                  )}
+                  <span className="hidden xs:inline-block px-2 py-0.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[10px] sm:text-[11px] font-mono tabular-nums text-[var(--text-2)] shrink-0">
+                    {filteredCards.length} {language === 'en' ? 'items' : language === 'zh' ? '条' : 'รายการ'}
+                  </span>
                 </div>
               </div>
 
@@ -495,34 +518,59 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                     >
                       <div className="flex flex-col flex-grow">
                         {/* Top Metadata Row: Code + Domain Badge */}
-                        <div className="flex items-center justify-between gap-2 mb-3">
+                        <div className="flex items-center justify-between gap-2 mb-3 h-7">
                           <span className={`font-mono text-xs px-2.5 py-1 rounded font-bold border ${card.codeBadgeClass}`}>
                             {card.code}
                           </span>
                           <span className={card.badge.className}>{card.badge.label}</span>
                         </div>
 
-                        {/* Title & Monospace Subtitle */}
-                        <h2 className="text-[16px] sm:text-[17px] font-bold text-[var(--text-1)] group-hover:text-[var(--accent)] transition-colors mb-1 leading-snug break-words">
-                          {getLocalizedTitle(card.id, card.title, card.titleEn, language)}
-                        </h2>
-                        {(card.titleEn || language === 'en') && (
-                          <p className="font-mono text-[11px] text-[var(--accent)] mb-3 break-words line-clamp-1">
-                            {language === 'en' ? cleanParenthesizedTitle(card.title) : card.titleEn}
+                        {/* Title Container: Strict 2-line slot height (46px) */}
+                        <div className="h-[46px] mb-1 flex items-start overflow-hidden">
+                          <h2 className="text-[16px] sm:text-[17px] font-bold text-[var(--text-1)] group-hover:text-[var(--accent)] transition-colors leading-snug break-words line-clamp-2">
+                            {getLocalizedTitle(card.id, card.title, card.titleEn, language)}
+                          </h2>
+                        </div>
+
+                        {/* Subtitle Container: Strict 1-line slot height (20px) */}
+                        <div className="h-5 mb-3 flex items-center overflow-hidden">
+                          <p className="font-mono text-[11px] text-[var(--accent)] truncate">
+                            {language === 'en' 
+                              ? cleanParenthesizedTitle(card.title) 
+                              : (card.titleEn || getLocalizedTitle(card.id, card.title, card.titleEn, 'en'))}
                           </p>
+                        </div>
+
+                        {/* Quick Tolerance Callout Bar on Card */}
+                        {card.quickTolerance && (
+                          <div className="mb-3 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-start gap-1.5 text-xs">
+                            <Scale className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300">
+                                  TOLERANCE
+                                </span>
+                                <span className="font-semibold text-amber-900 dark:text-amber-200 text-[11px] leading-tight truncate">
+                                  {card.quickTolerance.primaryLimit}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
                         )}
 
-                        {/* Summary */}
-                        <p className="text-[13px] text-[var(--text-2)] mb-4 leading-relaxed line-clamp-3 flex-grow break-words">
-                          {card.summary}
-                        </p>
+                        {/* Summary: Strict 3-line slot height (60px) */}
+                        <div className="h-[60px] mb-4 overflow-hidden">
+                          <p className="text-[13px] text-[var(--text-2)] leading-relaxed line-clamp-3 break-words">
+                            {card.summary}
+                          </p>
+                        </div>
 
-                        {/* Compact Technical Tags */}
-                        <div className="flex flex-wrap gap-1.5 mb-5">
+                        {/* Compact Technical Tags: Strict 1-line slot height (26px) */}
+                        <div className="h-[26px] mb-5 overflow-hidden flex items-center gap-1.5">
                           {card.tags.map((tag, idx) => (
                             <span
                               key={idx}
-                              className="px-2 py-0.5 rounded text-[10px] font-mono bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)]"
+                              className="px-2 py-0.5 rounded text-[10px] font-mono bg-[var(--surface-2)] text-[var(--text-2)] border border-[var(--border)] whitespace-nowrap shrink-0"
                             >
                               {tag}
                             </span>
@@ -530,8 +578,8 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                         </div>
                       </div>
 
-                      {/* Card Footer: Telemetry Specs & Action Link */}
-                      <div className="pt-3.5 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-2">
+                      {/* Card Footer: Strict height (42px) */}
+                      <div className="h-[42px] mt-auto pt-3.5 border-t border-[var(--border)] flex items-center justify-between gap-2">
                         <div className="flex items-center gap-1.5 text-[11px] font-mono text-[var(--text-3)] shrink-0">
                           {card.icon}
                           <span>{card.telemetryCount}</span>
@@ -548,8 +596,10 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                   ))}
                 </div>
               ) : (
-                <div className="fusion-card p-12 text-center space-y-4">
-                  <Search className="w-10 h-10 mx-auto text-[var(--text-3)] stroke-1" />
+                <div className="fusion-card p-10 text-center space-y-4">
+                  <div className="flex justify-center">
+                    <DragonSurveyorLoader size="md" variant="minimal" />
+                  </div>
                   <div>
                     <h3 className="text-base font-bold text-[var(--text-1)]">
                       ไม่พบคู่มือที่ตรงกับคำค้นหา "{searchQuery}"
@@ -599,6 +649,23 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
+              {/* Direct Downstream Workflow Jump Button */}
+              {(() => {
+                const target = getWorkflowTarget(activeTopic);
+                if (!target) return null;
+                return (
+                  <a
+                    href={target.hash}
+                    className="btn-primary min-h-[44px] inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl shadow-xs shrink-0 cursor-pointer"
+                    title={`ส่งข้อมูลไปคำนวณต่อที่ ${target.label}`}
+                  >
+                    <Calculator className="w-4 h-4" />
+                    <span>{target.label}</span>
+                    <ExternalLink className="w-3 h-3 opacity-80" />
+                  </a>
+                );
+              })()}
+
               {activeTopic.deviceWorkflow && activeTopic.deviceWorkflow.length > 0 && (
                 <button
                   type="button"
@@ -708,6 +775,69 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                       {activeTopic.summary}
                     </p>
                   </div>
+
+                  {activeTopic.quickTolerance && (
+                    <div className="p-4 sm:p-5 rounded-[var(--btn-radius)] bg-amber-500/10 border border-amber-500/30 border-l-4 border-l-amber-500 space-y-2">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div className="text-xs sm:text-sm font-bold text-amber-900 dark:text-amber-200 flex items-center gap-2">
+                          <Scale className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                          <span>เกณฑ์ค่าความคลาดเคลื่อนที่ยอมรับได้หน้างาน (Field Acceptance Tolerance / SOP Criteria)</span>
+                        </div>
+                        <span className="px-2.5 py-0.5 text-[10px] font-mono font-bold rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40">
+                          {activeTopic.quickTolerance.badge}
+                        </span>
+                      </div>
+                      <div className="text-xs sm:text-sm font-semibold text-amber-950 dark:text-amber-100">
+                        {activeTopic.quickTolerance.primaryLimit}
+                      </div>
+                      {activeTopic.quickTolerance.secondaryLimit && (
+                        <div className="text-xs font-mono text-amber-900/80 dark:text-amber-300/80">
+                          {activeTopic.quickTolerance.secondaryLimit}
+                        </div>
+                      )}
+                      <div className="pt-1.5 border-t border-amber-500/20 text-[11px] text-amber-800/90 dark:text-amber-400 font-mono">
+                        มาตรฐานอ้างอิง: {activeTopic.quickTolerance.standard}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Downstream Computational Workflow Box */}
+                  {activeTopic.downstreamWorkflow && (
+                    <div className="p-4 sm:p-5 rounded-[var(--btn-radius)] bg-indigo-500/10 border border-indigo-500/30 border-l-4 border-l-indigo-500 space-y-3">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div className="text-xs sm:text-sm font-bold text-indigo-950 dark:text-indigo-200 flex items-center gap-2">
+                          <Calculator className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                          <span>เวิร์กโฟลว์เชื่อมโยงสู่เครื่องมือคำนวณ (Downstream Computational Workflow)</span>
+                        </div>
+                        {(() => {
+                          const target = getWorkflowTarget(activeTopic);
+                          if (!target) return null;
+                          return (
+                            <a
+                              href={target.hash}
+                              className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs flex items-center gap-1.5 shadow-xs transition"
+                            >
+                              <span>{target.label}</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          );
+                        })()}
+                      </div>
+                      <div className="text-xs text-indigo-900/90 dark:text-indigo-200/90 space-y-1">
+                        <div>
+                          <span className="font-semibold text-indigo-950 dark:text-indigo-100">รูปแบบผลลัพธ์ข้อมูลสนาม:</span>{' '}
+                          <span className="font-mono bg-indigo-500/20 px-1.5 py-0.5 rounded text-[11px] font-bold">
+                            {activeTopic.downstreamWorkflow.outputDataFormat}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="font-semibold text-indigo-950 dark:text-indigo-100">ขั้นตอนถัดไป:</span>{' '}
+                          <strong className="text-indigo-950 dark:text-white">{activeTopic.downstreamWorkflow.nextStepTitle}</strong> —{' '}
+                          <span>{activeTopic.downstreamWorkflow.nextStepProcedure}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* SECTION 0A: INSTRUMENT VARIANTS & FIELD USE CASES (ประเภทเครื่องมือและรูปแบบงานที่นำไปใช้) */}
@@ -905,6 +1035,29 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                   </div>
                 )}
 
+                {/* SECTION 0C: FIELD SOP ILLUSTRATION & REAL FIELD PHOTO */}
+                {activeTopic.fieldIllustration && (
+                  <div id="sec-field-photo" className="space-y-4 scroll-mt-24">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h2 className="text-base font-bold text-[var(--text-1)] flex items-center gap-2 border-l-2 border-[var(--accent)] pl-3">
+                        <Compass className="w-4 h-4 text-[var(--accent)]" />
+                        <span>ภาพถ่ายและไดอะแกรมการปฏิบัติงานจริงในสนาม (Field Visual Reference)</span>
+                      </h2>
+                    </div>
+                    <div className="rounded-[var(--btn-radius)] bg-[var(--surface-2)] border border-[var(--border)] overflow-hidden shadow-2xs">
+                      <img
+                        src={activeTopic.fieldIllustration.imagePath}
+                        alt={activeTopic.fieldIllustration.imageCaption}
+                        className="w-full max-h-[420px] object-cover bg-[var(--surface)] border-b border-[var(--border)]"
+                      />
+                      <div className="p-3.5 bg-[var(--surface-2)] text-xs text-[var(--text-2)] flex items-start sm:items-center gap-2">
+                        <span className="font-bold text-[var(--accent)] shrink-0">📷 ภาพถ่ายหน้างานจริง:</span>
+                        <span className="leading-relaxed">{activeTopic.fieldIllustration.imageCaption}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* SECTION 1: EQUIPMENT */}
                 {activeTopic.equipmentRequired && activeTopic.equipmentRequired.length > 0 && (
                   <div id="sec-equipment" className="space-y-3.5 scroll-mt-24">
@@ -1010,8 +1163,8 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                           <span className="text-xs sm:text-sm font-bold text-[var(--text-1)] block">
                             {f.label}
                           </span>
-                          <div className="font-mono text-xs sm:text-sm font-bold text-[var(--accent)] bg-[var(--surface)] px-4 py-3 rounded-[var(--btn-radius)] border border-[var(--border)] overflow-x-auto tabular-nums">
-                            {f.formula}
+                          <div className="text-xs sm:text-sm font-bold text-[var(--accent)] bg-[var(--surface)] px-4 py-3 rounded-[var(--btn-radius)] border border-[var(--border)] overflow-x-auto">
+                            <MathFormulaRenderer formula={f.formula} />
                           </div>
                           <p className="text-xs text-[var(--text-2)] leading-relaxed">
                             {f.explanation}
@@ -1204,9 +1357,233 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
       )}
 
       {/* ================================================================= */}
-      {/* 3. LAW DETAIL READER (Dedicated Viewer for LAW-01 to LAW-08)      */}
+      {/* 3. CONSOLIDATED LAW DETAIL READER (LAW-01 to LAW-04)              */}
       {/* ================================================================= */}
-      {activeCard?.kind === 'law' && activeCard.lawData && (
+      {activeCard?.kind === 'law' && activeCard.consolidatedLawData && (
+        <div className="space-y-6">
+          <div className="fusion-card px-4 py-3 flex flex-wrap items-center justify-between gap-3 sticky top-16 z-30">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <button
+                type="button"
+                onClick={handleBackToSearch}
+                className="btn-outline min-h-[44px] inline-flex items-center gap-1.5 text-xs shrink-0"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>คลังคู่มือทั้งหมด</span>
+              </button>
+              <span className="text-[var(--border-strong)] hidden sm:inline">|</span>
+              <div className="hidden sm:flex items-center gap-2 text-xs truncate">
+                <span className="font-mono text-xs px-2 py-0.5 rounded bg-purple-500/10 text-purple-700 dark:text-purple-300 font-bold border border-purple-500/30 shrink-0">
+                  {activeCard.code}
+                </span>
+                <span className="truncate text-[var(--text-1)] font-bold">{activeCard.title}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {activeCard.consolidatedLawData.officialUrl && (
+                <a
+                  href={activeCard.consolidatedLawData.officialUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-outline min-h-[44px] inline-flex items-center gap-1.5 text-xs text-purple-600 dark:text-purple-400 font-semibold shrink-0"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">เว็บไซต์ทางการ</span>
+                  <span className="sm:hidden">เอกสาร</span>
+                </a>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  const law = activeCard.consolidatedLawData!;
+                  const t = `${law.title}\n${law.enactmentName} (${law.enactmentYear})\nหน่วยงานกำกับดูแล: ${law.authority}\nเอกสารอ้างอิง: ${law.officialGazetteRef || '-'}\nลิงก์ทางการ: ${law.officialUrl || '-'}\n\nบทสรุป:\n${law.summary}\n\n` +
+                    law.provisions.map((p, idx) => `[ข้อกำหนดที่ ${idx + 1}] ${p.title} (${p.clauseRef || 'มาตราที่เกี่ยวข้อง'})\nข้อกำหนด: ${p.requirement}\nรายละเอียด: ${p.details}` + (p.penaltyOrRisk ? `\nบทลงโทษ/ความเสี่ยง: ${p.penaltyOrRisk}` : '')).join('\n\n') +
+                    `\n\nคำแนะนำและข้อควรระวังสำหรับช่างสำรวจในสนาม:\n` +
+                    law.fieldSurveyorGuidance.map((g, idx) => `${idx + 1}. ${g}`).join('\n');
+                  navigator.clipboard.writeText(t);
+                  setCopiedText(true);
+                  setTimeout(() => setCopiedText(false), 2000);
+                }}
+                className="btn-outline min-h-[44px] inline-flex items-center gap-1.5 text-xs"
+              >
+                {copiedText ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-[var(--accent)]" />
+                    <span className="text-[var(--accent)] font-semibold">คัดลอกแล้ว</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 text-[var(--text-2)]" />
+                    <span>คัดลอกข้อกฎหมายทั้งหมดในหมวดนี้</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="fusion-card p-6 sm:p-8 space-y-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-mono text-xs px-2.5 py-1 rounded bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/30 font-bold">
+                {activeCard.code}
+              </span>
+              <span className="badge bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30">
+                {activeCard.badge.label}
+              </span>
+              <span className="font-mono text-[11px] text-[var(--text-3)]">
+                {activeCard.consolidatedLawData.enactmentYear}
+              </span>
+              <span className="text-[var(--border-strong)]">•</span>
+              <span className="text-xs text-[var(--text-2)] font-medium">
+                {activeCard.consolidatedLawData.authority}
+              </span>
+              {activeCard.consolidatedLawData.officialGazetteRef && (
+                <>
+                  <span className="text-[var(--border-strong)] hidden sm:inline">•</span>
+                  <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-[var(--surface-3)] text-[var(--text-2)] border border-[var(--border)] max-w-full truncate">
+                    {activeCard.consolidatedLawData.officialGazetteRef}
+                  </span>
+                </>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-1)] leading-snug">
+                {activeCard.title}
+              </h1>
+              <p className="text-xs sm:text-sm font-mono text-purple-600 dark:text-purple-400">
+                {activeCard.consolidatedLawData.enactmentName}
+              </p>
+              <p className="text-xs sm:text-sm text-[var(--text-2)] leading-relaxed pt-1">
+                {activeCard.consolidatedLawData.summary}
+              </p>
+            </div>
+
+            {/* Visual Law Illustration / Cross-Section Diagram */}
+            {activeCard.consolidatedLawData.imagePath && (
+              <div className="rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--surface-2)] shadow-2xs">
+                <img
+                  src={activeCard.consolidatedLawData.imagePath}
+                  alt={activeCard.consolidatedLawData.imageCaption || activeCard.title}
+                  className="w-full max-h-[380px] object-cover bg-[var(--surface)]"
+                />
+                {activeCard.consolidatedLawData.imageCaption && (
+                  <div className="p-3 bg-[var(--surface-2)] text-xs text-[var(--text-2)] flex items-start sm:items-center gap-2 border-t border-[var(--border)]">
+                    <span className="font-bold text-purple-600 dark:text-purple-400 shrink-0">📐 ไดอะแกรมข้อกำหนด:</span>
+                    <span className="leading-relaxed">{activeCard.consolidatedLawData.imageCaption}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Provisions List: All related sections in this law */}
+            <div className="space-y-4 pt-4 border-t border-[var(--border)]">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-[var(--text-1)] flex items-center gap-2">
+                  <Scale className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <span>มาตราและข้อกำหนดที่เกี่ยวข้องกันในหมวดนี้ ({activeCard.consolidatedLawData.provisions.length} ข้อกำหนด)</span>
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                {activeCard.consolidatedLawData.provisions.map((prov, pIdx) => (
+                  <div 
+                    key={pIdx} 
+                    className="p-5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] space-y-3 hover:border-purple-500/40 transition-colors"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-purple-500/15 text-purple-700 dark:text-purple-300 font-mono text-xs font-bold flex items-center justify-center shrink-0">
+                          {pIdx + 1}
+                        </span>
+                        <h4 className="text-sm font-bold text-[var(--text-1)]">
+                          {prov.title}
+                        </h4>
+                      </div>
+                      {prov.clauseRef && (
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/25">
+                          {prov.clauseRef}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Requirement Highlight */}
+                    <div className="p-3.5 rounded-xl bg-purple-500/5 border border-purple-500/25 space-y-1">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-purple-700 dark:text-purple-300">
+                        <CheckCircle2 className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                        <span>ข้อกำหนดระยะร่น / เกณฑ์มาตรฐาน:</span>
+                      </div>
+                      <p className="text-sm font-bold text-[var(--text-1)] leading-relaxed pl-5">
+                        {prov.requirement}
+                      </p>
+                    </div>
+
+                    {/* Details */}
+                    {prov.details && (
+                      <div className="text-xs text-[var(--text-2)] leading-relaxed pl-1">
+                        <strong className="text-[var(--text-1)]">รายละเอียดการบังคับใช้: </strong>
+                        {prov.details}
+                      </div>
+                    )}
+
+                    {/* Penalty / Risk Warning */}
+                    {prov.penaltyOrRisk && (
+                      <div className="flex items-start gap-2 p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-700 dark:text-rose-300">
+                        <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />
+                        <span><strong>บทลงโทษ / ความเสี่ยงหากฝ่าฝืน:</strong> {prov.penaltyOrRisk}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Field Surveyor Guidance Section */}
+            {activeCard.consolidatedLawData.fieldSurveyorGuidance.length > 0 && (
+              <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>แนวทางปฏิบัติและข้อควรระวังสำหรับช่างสำรวจในสนาม (Field Surveyor Guidance)</span>
+                </div>
+                <div className="space-y-2">
+                  {activeCard.consolidatedLawData.fieldSurveyorGuidance.map((guidance, gIdx) => (
+                    <div key={gIdx} className="flex items-start gap-2 text-xs sm:text-sm text-[var(--text-1)]">
+                      <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold shrink-0">{gIdx + 1}.</span>
+                      <p className="leading-relaxed">{guidance}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Official Source & Legal Provenance Banner */}
+            {activeCard.consolidatedLawData.officialUrl && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1 min-w-0">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[var(--text-1)]">
+                    <BookOpen className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                    <span>แหล่งอ้างอิงและราชกิจจานุเบกษาฉบับทางการ (Official Legal Reference)</span>
+                  </div>
+                  <p className="text-xs text-[var(--text-3)] truncate">
+                    {activeCard.consolidatedLawData.officialGazetteRef || activeCard.consolidatedLawData.enactmentName}
+                  </p>
+                </div>
+                <a
+                  href={activeCard.consolidatedLawData.officialUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary min-h-[44px] inline-flex items-center justify-center gap-2 text-xs font-semibold px-4 py-2 shrink-0 rounded-xl"
+                >
+                  <span>เปิดดูประกาศฉบับเต็มบนเว็บทางการ</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Fallback Legacy Single Law Reader */}
+      {activeCard?.kind === 'law' && !activeCard.consolidatedLawData && activeCard.lawData && (
         <div className="space-y-6">
           <div className="fusion-card px-4 py-3 flex flex-wrap items-center justify-between gap-3 sticky top-16 z-30">
             <div className="flex items-center gap-2.5 min-w-0">
@@ -1403,6 +1780,23 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
               </p>
             </div>
 
+            {/* Visual Site Engineering Photo / Detail Drawing */}
+            {activeCard.siteData.imagePath && (
+              <div className="rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--surface-2)] shadow-2xs">
+                <img
+                  src={activeCard.siteData.imagePath}
+                  alt={activeCard.siteData.imageCaption || activeCard.title}
+                  className="w-full max-h-[380px] object-cover bg-[var(--surface)]"
+                />
+                {activeCard.siteData.imageCaption && (
+                  <div className="p-3 bg-[var(--surface-2)] text-xs text-[var(--text-2)] flex items-start sm:items-center gap-2 border-t border-[var(--border)]">
+                    <span className="font-bold text-amber-600 dark:text-amber-400 shrink-0">🏗️ ภาพจริงหน้างาน:</span>
+                    <span className="leading-relaxed">{activeCard.siteData.imageCaption}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Principles */}
             <div className="space-y-4 pt-4 border-t border-[var(--border)]">
               <h3 className="text-sm font-bold text-[var(--text-1)] uppercase tracking-wider flex items-center gap-2">
@@ -1434,8 +1828,8 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                   {activeCard.siteData.keyFormulas.map((f, idx) => (
                     <div key={idx} className="p-4 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] space-y-2">
                       <div className="text-xs font-bold text-[var(--text-1)]">{f.label}</div>
-                      <div className="p-2.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] font-mono text-xs sm:text-sm text-[var(--accent)] text-center overflow-x-auto">
-                        {f.formula}
+                      <div className="p-2.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-xs sm:text-sm text-[var(--accent)] text-center overflow-x-auto">
+                        <MathFormulaRenderer formula={f.formula} />
                       </div>
                       <p className="text-[11px] text-[var(--text-2)]">{f.explanation}</p>
                     </div>
@@ -1542,6 +1936,23 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
                 {activeCard.troubleData.symptom}
               </p>
             </div>
+
+            {/* Visual Troubleshooting Photo / Diagnostic Screen */}
+            {activeCard.troubleData.imagePath && (
+              <div className="rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--surface-2)] shadow-2xs">
+                <img
+                  src={activeCard.troubleData.imagePath}
+                  alt={activeCard.troubleData.imageCaption || activeCard.title}
+                  className="w-full max-h-[380px] object-cover bg-[var(--surface)]"
+                />
+                {activeCard.troubleData.imageCaption && (
+                  <div className="p-3 bg-[var(--surface-2)] text-xs text-[var(--text-2)] flex items-start sm:items-center gap-2 border-t border-[var(--border)]">
+                    <span className="font-bold text-rose-600 dark:text-rose-400 shrink-0">⚠️ จุดสังเกตปัญหา:</span>
+                    <span className="leading-relaxed">{activeCard.troubleData.imageCaption}</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Root Causes & Diagnostics */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[var(--border)]">

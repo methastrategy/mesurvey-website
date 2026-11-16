@@ -1,7 +1,14 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { SupportedLanguage, SUPPORTED_LANGUAGES, LanguageMeta } from './types';
-import { TRANSLATIONS, TOPIC_TITLES_ZH, TOOL_TITLES_ZH, Translations } from './translations';
+import { 
+  TRANSLATIONS, 
+  TOPIC_TITLES_EN,
+  TOPIC_TITLES_TH,
+  TOPIC_TITLES_ZH, 
+  TOOL_TITLES_ZH, 
+  Translations 
+} from './translations';
 
 export * from './types';
 export * from './translations';
@@ -27,7 +34,7 @@ export const useLanguageStore = create<LanguageState>()(
     }),
     {
       name: 'mesurv-lang-storage',
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => (typeof window !== 'undefined' ? window.localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} })),
     }
   )
 );
@@ -57,11 +64,13 @@ export function getLocalizedTitle(
 ): string {
   if (lang === 'zh') {
     if (TOPIC_TITLES_ZH[id]) return TOPIC_TITLES_ZH[id];
+    if (TOPIC_TITLES_EN[id]) return TOPIC_TITLES_EN[id];
     if (titleEn) return titleEn;
     return cleanParenthesizedTitle(rawTitle);
   }
 
   if (lang === 'en') {
+    if (TOPIC_TITLES_EN[id]) return TOPIC_TITLES_EN[id];
     if (titleEn && titleEn.trim().length > 0) return titleEn.trim();
     // Check if rawTitle has parenthesized English
     const match = rawTitle.match(/\(([A-Za-z0-9\s/&,._\-+°%—–:#]+)\)\s*$/);
@@ -72,6 +81,7 @@ export function getLocalizedTitle(
   }
 
   // Default 'th'
+  if (TOPIC_TITLES_TH[id]) return TOPIC_TITLES_TH[id];
   return cleanParenthesizedTitle(rawTitle);
 }
 

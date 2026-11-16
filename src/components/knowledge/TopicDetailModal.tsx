@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { X, CheckCircle2, AlertTriangle, BookOpen, Layers, Activity, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
+import { X, CheckCircle2, AlertTriangle, BookOpen, Layers, Activity, Clock, ShieldCheck, ArrowRight, Scale } from 'lucide-react';
 import { KnowledgeTopic } from '../../types/survey';
+import { MathFormulaRenderer } from '../common/MathFormulaRenderer';
 
 interface TopicDetailModalProps {
   topic: KnowledgeTopic | null;
@@ -113,6 +114,32 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
             </div>
           )}
           
+          {/* Quick Tolerance Callout Banner */}
+          {topic.quickTolerance && (
+            <div className="p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/30 text-amber-950 dark:text-amber-200 space-y-1.5">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-amber-800 dark:text-amber-300">
+                  <Scale className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span>เกณฑ์ค่าความคลาดเคลื่อนที่ยอมรับได้หน้างาน (Field Acceptance Tolerance)</span>
+                </div>
+                <span className="px-2.5 py-0.5 text-[10px] font-mono font-bold rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40">
+                  {topic.quickTolerance.badge}
+                </span>
+              </div>
+              <div className="text-xs sm:text-sm font-semibold text-amber-900 dark:text-amber-100">
+                {topic.quickTolerance.primaryLimit}
+              </div>
+              {topic.quickTolerance.secondaryLimit && (
+                <div className="text-xs font-mono text-amber-800/90 dark:text-amber-300/90">
+                  {topic.quickTolerance.secondaryLimit}
+                </div>
+              )}
+              <div className="pt-1.5 mt-1 border-t border-amber-500/20 text-[11px] text-amber-700 dark:text-amber-400 font-mono">
+                มาตรฐานอ้างอิง: {topic.quickTolerance.standard}
+              </div>
+            </div>
+          )}
+
           {/* Summary */}
           <div className="p-4 rounded-2xl bg-surface-2 dark:bg-[#161618] border border-hairline">
             <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-1 flex items-center gap-1.5">
@@ -187,8 +214,8 @@ export const TopicDetailModal: React.FC<TopicDetailModalProps> = ({ topic, onClo
                     <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 block mb-1">
                       {f.label}
                     </span>
-                    <div className="font-mono text-sm font-semibold text-indigo-600 dark:text-indigo-400 bg-surface-1 dark:bg-[#0a0a0b] px-3 py-1.5 rounded-lg border border-hairline mb-1">
-                      {f.formula}
+                    <div className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 bg-surface-1 dark:bg-[#0a0a0b] px-3 py-2 rounded-lg border border-hairline mb-1 overflow-x-auto">
+                      <MathFormulaRenderer formula={f.formula} />
                     </div>
                     <span className="text-xs text-slate-500 dark:text-slate-400">
                       {f.explanation}

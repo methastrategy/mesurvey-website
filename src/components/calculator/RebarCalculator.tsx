@@ -39,6 +39,13 @@ export interface BbsItem {
   quantityPieces: number;
 }
 
+export const SAMPLE_BBS_ITEMS: BbsItem[] = [
+  { id: '1', memberLabel: 'F1 ฐานราก (เหล็กแกนล่าง)', barCode: 'DB16', lengthPerBarM: 2.5, quantityPieces: 40 },
+  { id: '2', memberLabel: 'C1 เสาตอม่อ (เหล็กแกนเสา)', barCode: 'DB20', lengthPerBarM: 4.0, quantityPieces: 24 },
+  { id: '3', memberLabel: 'C1 เหล็กปลอกเสา', barCode: 'RB9', lengthPerBarM: 1.1, quantityPieces: 60 },
+  { id: '4', memberLabel: 'B1 คานคอดิน (เหล็กบน-ล่าง)', barCode: 'DB16', lengthPerBarM: 6.0, quantityPieces: 32 },
+];
+
 export const RebarCalculator: React.FC = () => {
   // Quick Converter State
   const [selectedBar, setSelectedBar] = useState<string>('DB16');
@@ -48,13 +55,12 @@ export const RebarCalculator: React.FC = () => {
   const [lapType, setLapType] = useState<'tension-b' | 'tension-a' | 'compression'>('tension-b');
   const [isTopBar, setIsTopBar] = useState<boolean>(false);
 
-  // BBS Table State
-  const [bbsItems, setBbsItems] = useState<BbsItem[]>([
-    { id: '1', memberLabel: 'F1 ฐานราก (เหล็กแกนล่าง)', barCode: 'DB16', lengthPerBarM: 2.5, quantityPieces: 40 },
-    { id: '2', memberLabel: 'C1 เสาตอม่อ (เหล็กแกนเสา)', barCode: 'DB20', lengthPerBarM: 4.0, quantityPieces: 24 },
-    { id: '3', memberLabel: 'C1 เหล็กปลอกเสา', barCode: 'RB9', lengthPerBarM: 1.1, quantityPieces: 60 },
-    { id: '4', memberLabel: 'B1 คานคอดิน (เหล็กบน-ล่าง)', barCode: 'DB16', lengthPerBarM: 6.0, quantityPieces: 32 },
-  ]);
+  // BBS Table State (Blank Slate Default)
+  const [bbsItems, setBbsItems] = useState<BbsItem[]>([]);
+
+  const loadSampleBbs = () => {
+    setBbsItems(SAMPLE_BBS_ITEMS);
+  };
 
   const [newLabel, setNewLabel] = useState<string>('');
   const [newBar, setNewBar] = useState<string>('DB16');
@@ -361,17 +367,25 @@ export const RebarCalculator: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+            <button
+              onClick={loadSampleBbs}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 transition-colors shadow-xs cursor-pointer"
+              title="โหลดชุดข้อมูลตัวอย่างชิ้นส่วนโครงสร้าง BBS"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>⚡ โหลดตัวอย่าง BBS</span>
+            </button>
             <button
               onClick={handleCopyBbs}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--text-2)] border border-[var(--border)] transition-colors"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--text-2)] border border-[var(--border)] transition-colors cursor-pointer"
             >
               {isCopied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{isCopied ? 'คัดลอกแล้ว' : 'คัดลอกตาราง'}</span>
             </button>
             <button
               onClick={handleExportCsv}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--accent)] text-black dark:text-white font-medium hover:opacity-90 transition-opacity"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--accent)] text-black dark:text-white font-medium hover:opacity-90 transition-opacity cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>ส่งออก CSV</span>
@@ -445,34 +459,64 @@ export const RebarCalculator: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
-              {bbsItems.map(item => {
-                const itemSpec = THAI_REBAR_SPECS[item.barCode];
-                const totM = item.lengthPerBarM * item.quantityPieces;
-                const kg = totM * (itemSpec ? itemSpec.nominalWeightKgM : 0);
+              {bbsItems.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 px-4 text-center">
+                    <div className="max-w-md mx-auto space-y-3 font-sans">
+                      <div className="w-12 h-12 mx-auto rounded-2xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center text-indigo-500 shadow-xs">
+                        <Layers className="w-6 h-6" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-bold text-[var(--text-1)]">
+                          ยังไม่มีรายการในบัญชีตัดเหล็ก (Empty BBS Worksheet)
+                        </h4>
+                        <p className="text-xs text-[var(--text-2)] leading-relaxed">
+                          เพิ่มรายการชิ้นส่วนโครงสร้างด้วยแถบด้านบน หรือคลิกโหลดชุดตัวอย่าง BBS สำหรับทดสอบทันที
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center gap-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={loadSampleBbs}
+                          className="btn-primary min-h-[36px] px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer font-sans"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>⚡ โหลดตัวอย่าง BBS (Load Sample BBS)</span>
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                bbsItems.map(item => {
+                  const itemSpec = THAI_REBAR_SPECS[item.barCode];
+                  const totM = item.lengthPerBarM * item.quantityPieces;
+                  const kg = totM * (itemSpec ? itemSpec.nominalWeightKgM : 0);
 
-                return (
-                  <tr key={item.id} className="hover:bg-[var(--surface-2)] transition-colors">
-                    <td className="py-2.5 px-3 text-[var(--text-1)] font-sans font-medium">{item.memberLabel}</td>
-                    <td className="py-2.5 px-3 text-center">
-                      <span className="px-2 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border)] text-[var(--accent)] font-bold">
-                        {item.barCode}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-3 text-right text-[var(--text-1)]">{item.lengthPerBarM.toFixed(2)}</td>
-                    <td className="py-2.5 px-3 text-right text-[var(--text-1)]">{item.quantityPieces}</td>
-                    <td className="py-2.5 px-3 text-right text-[var(--text-1)]">{totM.toFixed(2)}</td>
-                    <td className="py-2.5 px-3 text-right text-[var(--text-1)] font-bold">{kg.toFixed(1)}</td>
-                    <td className="py-2.5 px-3 text-center">
-                      <button
-                        onClick={() => handleRemoveBbsItem(item.id)}
-                        className="p-1 rounded text-[var(--text-3)] hover:text-red-500 hover:bg-red-500/10 transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                  return (
+                    <tr key={item.id} className="hover:bg-[var(--surface-2)] transition-colors">
+                      <td className="py-2.5 px-3 text-[var(--text-1)] font-sans font-medium">{item.memberLabel}</td>
+                      <td className="py-2.5 px-3 text-center">
+                        <span className="px-2 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border)] text-[var(--accent)] font-bold">
+                          {item.barCode}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-[var(--text-1)]">{item.lengthPerBarM.toFixed(2)}</td>
+                      <td className="py-2.5 px-3 text-right text-[var(--text-1)]">{item.quantityPieces}</td>
+                      <td className="py-2.5 px-3 text-right text-[var(--text-1)]">{totM.toFixed(2)}</td>
+                      <td className="py-2.5 px-3 text-right text-[var(--text-1)] font-bold">{kg.toFixed(1)}</td>
+                      <td className="py-2.5 px-3 text-center">
+                        <button
+                          onClick={() => handleRemoveBbsItem(item.id)}
+                          className="p-1 rounded text-[var(--text-3)] hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

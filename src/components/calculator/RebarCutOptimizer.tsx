@@ -31,12 +31,7 @@ export type { PlacedCut, OptimizedStockBar, OptimizationResult };
 export const RebarCutOptimizer: React.FC = () => {
   const [stockLengthM, setStockLengthM] = useState<number>(10);
   const [kerfMm, setKerfMm] = useState<number>(3); // 3mm saw cut width
-  const [pieces, setPieces] = useState<CutPieceRequest[]>([
-    { id: '1', label: 'B1 คานล่าง (เหล็กแกน)', lengthM: 4.20, quantity: 8 },
-    { id: '2', label: 'C1 เสาตอม่อ (เหล็กแกน)', lengthM: 3.50, quantity: 12 },
-    { id: '3', label: 'F1 ฐานราก (ตะแกรงล่าง)', lengthM: 2.10, quantity: 16 },
-    { id: '4', label: 'D1 เหล็กเดือยเข็ม', lengthM: 1.20, quantity: 14 },
-  ]);
+  const [pieces, setPieces] = useState<CutPieceRequest[]>([]);
 
   const [newLabel, setNewLabel] = useState<string>('');
   const [newLength, setNewLength] = useState<string>('3.00');
@@ -397,48 +392,95 @@ export const RebarCutOptimizer: React.FC = () => {
 
             {/* Pieces Table */}
             <div className="space-y-2 max-h-[300px] overflow-y-auto no-scrollbar">
-              {pieces.map((p, idx) => (
-                <div
-                  key={p.id}
-                  className="p-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] flex items-center justify-between gap-3 text-xs"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span
-                      className="w-3 h-3 rounded-full shrink-0"
-                      style={{ backgroundColor: PALETTE[idx % PALETTE.length] }}
-                    />
-                    <div className="min-w-0">
-                      <span className="font-semibold text-[var(--text-1)] block truncate">
-                        {p.label}
+              {pieces.length === 0 ? (
+                <div className="p-6 text-center text-xs text-[var(--text-3)] border border-dashed border-[var(--border)] rounded-xl space-y-2.5">
+                  <Scissors className="w-6 h-6 mx-auto opacity-30 text-[var(--accent)]" />
+                  <p className="font-semibold text-[var(--text-2)]">ยังไม่มีรายการชิ้นงานตัดเหล็ก</p>
+                  <button
+                    type="button"
+                    onClick={() => applyPreset('house')}
+                    className="px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--accent)] font-semibold border border-[var(--border)] transition text-xs cursor-pointer shadow-xs"
+                  >
+                    ⚡ โหลดตัวอย่างชิ้นงาน
+                  </button>
+                </div>
+              ) : (
+                pieces.map((p, idx) => (
+                  <div
+                    key={p.id}
+                    className="p-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] flex items-center justify-between gap-3 text-xs"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span
+                        className="w-3 h-3 rounded-full shrink-0"
+                        style={{ backgroundColor: PALETTE[idx % PALETTE.length] }}
+                      />
+                      <div className="min-w-0">
+                        <span className="font-semibold text-[var(--text-1)] block truncate">
+                          {p.label}
+                        </span>
+                        <span className="text-[10px] text-[var(--text-3)] font-mono">
+                          ความยาว {p.lengthM.toFixed(2)} ม.
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="px-2 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border)] font-mono font-bold text-[var(--text-1)]">
+                        {p.quantity} ชิ้น
                       </span>
-                      <span className="text-[10px] text-[var(--text-3)] font-mono">
-                        ความยาว {p.lengthM.toFixed(2)} ม.
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemovePiece(p.id)}
+                        className="p-1 text-[var(--text-3)] hover:text-rose-500 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className="px-2 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border)] font-mono font-bold text-[var(--text-1)]">
-                      {p.quantity} ชิ้น
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemovePiece(p.id)}
-                      className="p-1 text-[var(--text-3)] hover:text-rose-500 transition-colors"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
 
         {/* Right Column: Optimization Dashboard & Bar Patterns (7 Cols) */}
         <div className="lg:col-span-7 space-y-5">
-          {/* KPI Summary Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {pieces.length === 0 ? (
+            <div className="fusion-card p-8 sm:p-12 text-center space-y-4">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center text-indigo-500 shadow-sm">
+                <Scissors className="w-8 h-8" />
+              </div>
+              <div className="space-y-1.5 max-w-md mx-auto">
+                <h3 className="text-base sm:text-lg font-bold text-[var(--text-1)]">
+                  ยังไม่มีรายการตัดเหล็ก (Empty Cut Optimizer)
+                </h3>
+                <p className="text-xs sm:text-sm text-[var(--text-2)] leading-relaxed">
+                  เพิ่มขนาดและความยาวชิ้นงานเหล็กที่ต้องการตัดในแผงด้านซ้าย หรือคลิกโหลดชุดตัวอย่างเพื่อเริ่มวิเคราะห์ลดเศษสูญเสีย (BFD Algorithm)
+                </p>
+              </div>
+              <div className="flex items-center justify-center gap-3 pt-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => applyPreset('house')}
+                  className="btn-primary min-h-[40px] px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs cursor-pointer"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>⚡ โหลดตัวอย่างงานบ้านพัก (House 10m)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyPreset('wall')}
+                  className="btn-outline min-h-[40px] px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>ตัวอย่างกำแพงกันดิน (Wall 12m)</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* KPI Summary Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="fusion-card p-3 text-center space-y-1">
               <span className="text-[10px] font-mono text-[var(--text-3)] block uppercase">สั่งซื้อเหล็กมาตรฐาน</span>
               <span className="text-xl sm:text-2xl font-bold font-mono text-[var(--accent)]">
@@ -573,7 +615,9 @@ export const RebarCutOptimizer: React.FC = () => {
               </p>
             </div>
           </div>
-        </div>
+        </>
+      )}
+    </div>
       </div>
     </div>
   );

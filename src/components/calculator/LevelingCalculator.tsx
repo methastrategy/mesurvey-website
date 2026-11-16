@@ -4,7 +4,7 @@ import { useSurveyStore } from '../../store/useSurveyStore';
 import {
   Plus, Trash2, RotateCcw, CheckCircle2, XCircle, AlertCircle,
   Download, Save, Eraser, BookOpen, AlertTriangle, ChevronDown, ChevronUp,
-  FileSpreadsheet, HelpCircle, Info, Upload
+  FileSpreadsheet, HelpCircle, Info, Upload, Calculator
 } from 'lucide-react';
 import { trackEvent } from '../../lib/telemetry';
 import { exportToCsv } from '../../utils/csv-export';
@@ -13,6 +13,7 @@ import {
   downloadLevelingFieldbookTemplateCsv,
   parseLevelingFieldbookCsv
 } from '../../utils/survey-csv-parser';
+import { MathFormulaRenderer } from '../common/MathFormulaRenderer';
 
 import { type StadiaRowInput } from '../../types/survey';
 
@@ -82,7 +83,7 @@ function p(s: string): number | null {
   return isNaN(v) || s.trim() === '' ? null : v;
 }
 
-function computeStadia(rows: StadiaRow[], startElev: number, totalDistKm: number): StadiaResult {
+export function computeStadia(rows: StadiaRow[], startElev: number, totalDistKm: number): StadiaResult {
   const midTol = 0.002; // 2 mm check
   const midCheckWarnings: string[] = [];
   const resultRows: StadiaRowResult[] = [];
@@ -107,16 +108,6 @@ function computeStadia(rows: StadiaRow[], startElev: number, totalDistKm: number
     let bsMidOk = true;
     let fsMidOk = true;
 
-    if (hasBS) {
-      bsDist = Math.abs(bsT! - bsB!) * 100;
-      totalDist += bsDist;
-      const bsMidExpected = (bsT! + bsB!) / 2;
-      bsMidOk = Math.abs(bsM! - bsMidExpected) <= midTol;
-      if (!bsMidOk) midCheckWarnings.push(`⚠️ สถานี ${r.station} ค่า BS Mid (${bsM!.toFixed(3)}) ≠ (Top+Bot)/2 (${bsMidExpected.toFixed(3)})`);
-      sumBs += bsM!;
-      currentHI = currentElev + bsM!;
-    }
-
     if (hasFS) {
       fsDist = Math.abs(fsT! - fsB!) * 100;
       totalDist += fsDist;
@@ -130,8 +121,18 @@ function computeStadia(rows: StadiaRow[], startElev: number, totalDistKm: number
       }
     }
 
-    const rise = (!hasBS && hasFS && currentElev > prevElev) ? currentElev - prevElev : null;
-    const fall = (!hasBS && hasFS && currentElev <= prevElev) ? prevElev - currentElev : null;
+    const rise = (hasFS && currentElev > prevElev) ? currentElev - prevElev : null;
+    const fall = (hasFS && currentElev <= prevElev) ? prevElev - currentElev : null;
+
+    if (hasBS) {
+      bsDist = Math.abs(bsT! - bsB!) * 100;
+      totalDist += bsDist;
+      const bsMidExpected = (bsT! + bsB!) / 2;
+      bsMidOk = Math.abs(bsM! - bsMidExpected) <= midTol;
+      if (!bsMidOk) midCheckWarnings.push(`⚠️ สถานี ${r.station} ค่า BS Mid (${bsM!.toFixed(3)}) ≠ (Top+Bot)/2 (${bsMidExpected.toFixed(3)})`);
+      sumBs += bsM!;
+      currentHI = currentElev + bsM!;
+    }
 
     resultRows.push({
       station: r.station,
@@ -211,6 +212,7 @@ export const LevelingCalculator: React.FC = () => {
 
   const [mode, setMode] = useState<LevelingMode>('hi');
   const [showResults, setShowResults] = useState(true);
+  const [showDerivation, setShowDerivation] = useState<boolean>(false);
   const [showFormatGuide, setShowFormatGuide] = useState<boolean>(false);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -246,10 +248,12 @@ export const LevelingCalculator: React.FC = () => {
   // HI mode result
   let hiResult: ReturnType<typeof calculateLevelingLoop> | null = null;
   let hiError: string | null = null;
-  try {
-    hiResult = calculateLevelingLoop(levelingRows, startElevNum, startElevNum, distKmNum);
-  } catch (err: any) {
-    hiError = err.message;
+  if (levelingRows.length >= 2) {
+    try {
+      hiResult = calculateLevelingLoop(levelingRows, startElevNum, startElevNum, distKmNum);
+    } catch (err: any) {
+      hiError = err.message;
+    }
   }
 
   // Stadia result
@@ -351,11 +355,11 @@ export const LevelingCalculator: React.FC = () => {
             {mode === 'hi' && (
               <>
                 <button onClick={resetLevelingToSample}
-                  className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border transition"
-                  style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
-                  title="โหลดข้อมูลตัวอย่างสาธิต"
+                  className="min-h-[36px] px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-indigo-500/40 text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 transition shadow-xs"
+                  title="โหลดข้อมูลตัวอย่างงานระดับพร้อมคำนวณและตรวจสอบเกณฑ์ทันที"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" /> ตัวอย่าง
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Load Sample Data</span>
                 </button>
                 <button onClick={() => { if (window.confirm('ล้างตารางทั้งหมดเพื่อเริ่มต้นฟอร์มว่างเปล่า (Blank Slate)?')) clearLeveling(); }}
                   className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400 transition"
@@ -368,11 +372,11 @@ export const LevelingCalculator: React.FC = () => {
             {mode === 'stadia' && (
               <>
                 <button onClick={resetLevelingStadiaToSample}
-                  className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border transition"
-                  style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
-                  title="โหลดข้อมูลตัวอย่างสาธิต Stadia"
+                  className="min-h-[36px] px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-indigo-500/40 text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 transition shadow-xs"
+                  title="โหลดข้อมูลตัวอย่างสาธิต Stadia 3-Wire"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" /> ตัวอย่าง
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Load Sample Data</span>
                 </button>
                 <button onClick={() => { if (window.confirm('ล้างตาราง Stadia เพื่อเริ่มต้นฟอร์มว่างเปล่า (Blank Slate)?')) clearLevelingStadia(); }}
                   className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400 transition"
@@ -547,8 +551,8 @@ export const LevelingCalculator: React.FC = () => {
                           className="w-full bg-transparent border-0 outline-none text-xs py-1" style={{ color: 'var(--text-3)' }} />
                       </td>
                       <td className="text-center py-1 px-1">
-                        <button onClick={() => removeLevelingRow(idx)} disabled={levelingRows.length <= 1}
-                          className="p-1 rounded text-rose-400 hover:bg-rose-500/10 disabled:opacity-30 transition inline-flex items-center justify-center">
+                        <button onClick={() => removeLevelingRow(idx)}
+                          className="p-1 rounded text-rose-400 hover:bg-rose-500/10 transition inline-flex items-center justify-center cursor-pointer">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </td>
@@ -692,14 +696,40 @@ export const LevelingCalculator: React.FC = () => {
                           className="w-full bg-transparent border-0 outline-none text-xs py-1" style={{ color: 'var(--text-3)' }} />
                       </td>
                       <td className="text-center py-1 px-1">
-                        <button onClick={() => removeStadia(idx)} disabled={stadiaRows.length <= 1}
-                          className="p-1 rounded text-rose-400 hover:bg-rose-500/10 disabled:opacity-30 transition inline-flex items-center justify-center">
+                        <button onClick={() => removeStadia(idx)}
+                          className="p-1 rounded text-rose-400 hover:bg-rose-500/10 transition inline-flex items-center justify-center cursor-pointer">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </td>
                     </tr>
                   );
                 })}
+                {stadiaRows.length === 0 && (
+                  <tr>
+                    <td colSpan={11} className="py-8 text-center text-xs" style={{ color: 'var(--text-3)' }}>
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <FileSpreadsheet className="w-8 h-8 opacity-40 text-emerald-500" />
+                        <p className="font-semibold text-sm" style={{ color: 'var(--text-2)' }}>ตารางว่างเปล่า (Blank Slate 3-Wire Stadia)</p>
+                        <p className="text-xs">กด &quot;เพิ่มแถว&quot; ด้านบนเพื่อเริ่มกรอกสถานีแรก, หรือคลิกปุ่มเพื่อโหลดตัวอย่างสายใย 3 เส้น</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <button
+                            onClick={addStadia}
+                            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs flex items-center gap-1 cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5" /> เพิ่มแถวแรก
+                          </button>
+                          <button
+                            onClick={resetLevelingStadiaToSample}
+                            className="px-3 py-1.5 rounded-lg border font-medium text-xs flex items-center gap-1 cursor-pointer"
+                            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)', color: 'var(--text-1)' }}
+                          >
+                            <RotateCcw className="w-3.5 h-3.5 text-emerald-500" /> ⚡ โหลดตัวอย่าง 3-Wire Stadia
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
                 {/* Σ row */}
                 {stadiaResult && (
                   <tr className="font-bold border-t-2" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
@@ -802,6 +832,104 @@ export const LevelingCalculator: React.FC = () => {
                         </div>
                       ))}
                     </div>
+                  </div>
+                );
+              })()}
+
+              {/* Show Math Derivation Accordion */}
+              {(() => {
+                const r = mode === 'hi' ? hiResult : stadiaResult;
+                if (!r) return null;
+                const lastRow = r.rows[r.rows.length - 1];
+                const lastElevation = lastRow?.elevation ?? startElevNum;
+                const deltaElev = lastElevation - startElevNum;
+                const sqrtK = Math.sqrt(distKmNum).toFixed(3);
+                return (
+                  <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowDerivation(v => !v)}
+                      className="w-full px-4 py-2.5 flex items-center justify-between text-xs font-semibold hover:bg-[var(--surface)] transition text-left"
+                      style={{ color: 'var(--text-1)' }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Calculator className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <span>Show Math Derivation (แสดงวิธีทำและขั้นตอนแทนค่าสูตร)</span>
+                      </div>
+                      {showDerivation ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+
+                    {showDerivation && (
+                      <div className="p-4 space-y-4 border-t text-xs" style={{ borderColor: 'var(--border)' }}>
+                        {/* Step 1: Three-fold Page Check */}
+                        <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                          <div className="font-bold text-emerald-600 dark:text-emerald-400">
+                            1. การตรวจสอบเลขคณิตหน้าสมุดรังวัด (Three-fold Arithmetic Page Check)
+                          </div>
+                          <div className="text-[var(--text-2)] space-y-1">
+                            <p>สูตรกฎความสอดคล้องทางคณิตศาสตร์:</p>
+                            <MathFormulaRenderer formula="\sum \text{BS} - \sum \text{FS} = \text{Last RL} - \text{First RL}" />
+                            <p>แทนค่าฝั่งซ้าย: ΣBS = {r.sumBs.toFixed(4)} m, ΣFS = {r.sumFs.toFixed(4)} m</p>
+                            <p>ΣBS - ΣFS = {r.sumBs.toFixed(4)} - {r.sumFs.toFixed(4)} = {r.diffBsFs.toFixed(4)} เมตร</p>
+                            <p>แทนค่าฝั่งขวา: ระดับหมุดสุดท้าย = {lastElevation.toFixed(4)} m, ระดับหมุดเริ่มต้น = {startElevNum.toFixed(4)} m</p>
+                            <p>Last RL - First RL = {lastElevation.toFixed(4)} - {startElevNum.toFixed(4)} = {deltaElev.toFixed(4)} เมตร</p>
+                            <p className="font-semibold text-[var(--text-1)]">
+                              สถานะการตรวจสอบ: {r.arithmeticCheckPassed ? '✓ สอดคล้องกันถูกต้องสมบูรณ์ (Passed)' : '✗ ตรวจพบค่าคลาดเคลื่อนทางเลขคณิต'}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Step 2: Closure and RTSD Standard */}
+                        <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                          <div className="font-bold text-emerald-600 dark:text-emerald-400">
+                            2. ค่าระดับปิดและเกณฑ์ความคลาดเคลื่อนชั้นงาน (Closure Error & RTSD Tolerance)
+                          </div>
+                          <div className="text-[var(--text-2)] space-y-1">
+                            <p>สูตรค่าระดับปิดวงรอบ (Misclosure Error c):</p>
+                            <MathFormulaRenderer formula="c = (\sum \text{BS} - \sum \text{FS}) - (\text{Elev}_{\text{known, end}} - \text{Elev}_{\text{known, start}})" />
+                            <p>คำนวณได้: c = {r.closureErrorMeters.toFixed(4)} เมตร ({r.closureErrorMm.toFixed(2)} มม.)</p>
+                            <p>ระยะทางวงรอบรวม: K = {distKmNum.toFixed(3)} กม. (√K = {sqrtK})</p>
+                            <p>สูตรเกณฑ์ยอมรับได้ตามระเบียบกรมแผนที่ทหาร (RTSD C_max = ±k√K):</p>
+                            <MathFormulaRenderer formula="C_{\text{max}} = \pm k \sqrt{K} \quad (\text{มิลลิเมตร})" />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1 text-[11px] font-mono">
+                              <p>• ชั้น 1 (±4√K): ±{r.orderCompliance.firstOrderMaxMm} มม.</p>
+                              <p>• ชั้น 2 (±8√K): ±{r.orderCompliance.secondOrderMaxMm} มม.</p>
+                              <p>• ชั้น 3 (±12√K): ±{r.orderCompliance.thirdOrderMaxMm} มม.</p>
+                              <p>• ก่อสร้าง (±24√K): ±{r.orderCompliance.constructionMaxMm} มม.</p>
+                            </div>
+                            <p className="pt-1 font-semibold text-[var(--text-1)]">
+                              ผลการประเมินชั้นงาน: {r.orderCompliance.achievedOrder}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Step 3: HI vs Stadia Method */}
+                        {mode === 'hi' ? (
+                          <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                            <div className="font-bold text-emerald-600 dark:text-emerald-400">
+                              3. หลักการคำนวณแบบความสูงกล้อง (Height of Instrument Method - HI)
+                            </div>
+                            <div className="text-[var(--text-2)] space-y-1">
+                              <MathFormulaRenderer formula="\text{HI} = \text{Elev}_{\text{BM}} + \text{BS}, \quad \text{Elev}_{\text{target}} = \text{HI} - \text{FS}" />
+                              <p>ที่จุดตั้งกล้องใหม่ (Turning Point): ส่องหลัง BS เข้า TP เพื่อตั้งค่า HI ใหม่: HI_ใหม่ = Elev_TP + BS_ใหม่</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                            <div className="font-bold text-emerald-600 dark:text-emerald-400">
+                              3. หลักการคำนวณและตรวจสอบ 3 สายใย (Stadia 3-Wire Tacheometry Method)
+                            </div>
+                            <div className="text-[var(--text-2)] space-y-1">
+                              <p>การตรวจสอบความถูกต้องของการอ่านสายใย (Three-Wire Mean Check):</p>
+                              <MathFormulaRenderer formula="M_{\text{calc}} = \frac{\text{Upper} + \text{Lower}}{2}, \quad |M_{\text{read}} - M_{\text{calc}}| \le 2\text{ mm}" />
+                              <p>สูตรคำนวณระยะทางแนวราบจากระยะช่วงสายใยสเตเดีย (Stadia Distance):</p>
+                              <MathFormulaRenderer formula="D = 100 \times (\text{Upper} - \text{Lower}) \quad (\text{เมตร})" />
+                              <p>ความสูงกล้องและระดับ: HI = Elev_BM + M_BS, Elev_target = HI - M_FS</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })()}

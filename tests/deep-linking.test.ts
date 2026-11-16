@@ -1,43 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { KNOWLEDGE_TOPICS } from '../src/data/knowledge-topics';
-
-/**
- * Canonical route parser matching App.tsx and CalculatorHub.tsx contract
- */
-export function parseRouteHash(rawHash: string) {
-  const hash = rawHash.replace(/^#\/?/, '').trim();
-  const parts = hash.split('/').filter(Boolean);
-  const first = parts[0];
-
-  if (first === 'calculator') {
-    const validSubs = ['coord', 'traverse', 'leveling', 'area'] as const;
-    const sub = validSubs.includes(parts[1] as any) ? (parts[1] as 'coord' | 'traverse' | 'leveling' | 'area') : undefined;
-    return {
-      tab: 'calculator' as const,
-      subTab: sub,
-      topicId: undefined
-    };
-  }
-  if (first === 'map') {
-    return {
-      tab: 'map' as const,
-      subTab: undefined,
-      topicId: undefined
-    };
-  }
-  return {
-    tab: 'knowledge' as const,
-    subTab: undefined,
-    topicId: first === 'knowledge' ? parts[1] : undefined
-  };
-}
+import { parseRouteHash } from '../src/utils/routing';
 
 /**
  * Route hash generator matching navigation components and downstream CTAs
  */
 export function buildRouteHash(
   tab: 'knowledge' | 'calculator' | 'map',
-  sub?: 'coord' | 'traverse' | 'leveling' | 'area' | string
+  sub?: string
 ): string {
   if (tab === 'calculator') {
     return sub ? `#/calculator/${sub}` : '#/calculator';
@@ -50,7 +20,10 @@ export function buildRouteHash(
 
 describe('Deep-Linking & Hash Routing Engine', () => {
   describe('Calculator Subtabs Hash Routing', () => {
-    const expectedSubTabs = ['coord', 'traverse', 'leveling', 'area'] as const;
+    const expectedSubTabs = [
+      'coord', 'traverse', 'leveling', 'area',
+      'earthwork', 'curve', 'strap-beam', 'rebar', 'rebar-optimizer', 'scientific'
+    ] as const;
 
     expectedSubTabs.forEach(subTab => {
       it(`should correctly resolve and parse #/calculator/${subTab}`, () => {

@@ -93,12 +93,15 @@ describe('Site Knowledge & Engineering Data Layer Invariants', () => {
     }
   });
 
-  it('guarantees CONSOLIDATED_LAW_ENACTMENTS groups laws into 4 master enactments', () => {
-    expect(CONSOLIDATED_LAW_ENACTMENTS.length).toBe(4);
+  it('guarantees CONSOLIDATED_LAW_ENACTMENTS groups laws into 6 master enactments', () => {
+    expect(CONSOLIDATED_LAW_ENACTMENTS.length).toBe(6);
     for (const law of CONSOLIDATED_LAW_ENACTMENTS) {
       expect(law.id).toBeTruthy();
-      expect(law.code).toMatch(/^LAW-0[1-4]$/);
+      expect(law.code).toMatch(/^LAW-0[1-6]$/);
       expect(law.title).toBeTruthy();
+      expect(law.enactmentName).toBeTruthy();
+      expect(law.authority).toBeTruthy();
+      expect(law.officialUrl).toBeTruthy();
       expect(law.provisions.length).toBeGreaterThan(0);
       expect(law.fieldSurveyorGuidance.length).toBeGreaterThan(0);
     }

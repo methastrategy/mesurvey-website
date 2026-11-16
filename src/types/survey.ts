@@ -206,7 +206,7 @@ export interface DownstreamWorkflow {
   outputDescription: string;
   nextStepTitle: string;
   nextStepProcedure: string;
-  recommendedToolTab?: 'coord' | 'converter' | 'traverse' | 'leveling' | 'map';
+  recommendedToolTab?: 'coord' | 'converter' | 'traverse' | 'leveling' | 'map' | 'earthwork' | 'curve' | 'strap-beam' | 'rebar' | 'rebar-optimizer' | 'area' | 'scientific' | 'adjustment';
   toolActionLabel?: string;
 }
 
@@ -230,6 +230,18 @@ export interface InstrumentVariantUseCase {
   useCases: string[];
 }
 
+export interface QuickToleranceCallout {
+  standard: string;
+  primaryLimit: string;
+  secondaryLimit?: string;
+  badge: string;
+}
+
+export interface FieldIllustration {
+  imagePath: string;
+  imageCaption: string;
+}
+
 export interface KnowledgeTopic {
   id: string;
   code?: string;
@@ -242,8 +254,10 @@ export interface KnowledgeTopic {
   iconName: string;
   verificationStatus: 'draft' | 'verified';
   verificationProof?: string;
+  quickTolerance?: QuickToleranceCallout;
   instrumentVariants?: InstrumentVariantUseCase[];
   instrumentAnatomy?: InstrumentAnatomy;
+  fieldIllustration?: FieldIllustration;
   equipmentRequired?: string[];
   workingPrinciple: string[];
   fieldProcedures: FieldChecklistStep[];

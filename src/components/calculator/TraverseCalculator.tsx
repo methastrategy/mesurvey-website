@@ -5,11 +5,12 @@ import { polarToRect, rectToPolar } from '../../core/traverse';
 import {
   Plus, Trash2, RotateCcw, CheckCircle2, XCircle, Download, Save,
   Eraser, MapPin, BookOpen, AlertTriangle, ChevronDown, ChevronUp,
-  Upload, FileSpreadsheet, HelpCircle, Info
+  Upload, FileSpreadsheet, HelpCircle, Info, Calculator, Compass
 } from 'lucide-react';
 import { trackEvent } from '../../lib/telemetry';
 import { exportToCsv } from '../../utils/csv-export';
 import { parseTraverseCsv, downloadTraverseTemplateCsv } from '../../utils/survey-csv-parser';
+import { MathFormulaRenderer } from '../common/MathFormulaRenderer';
 
 // ─── DMS helpers ────────────────────────────────────────────────────────────
 function dmsToDecDeg(d: number, m: number, s: number): number {
@@ -249,6 +250,7 @@ export const TraverseCalculator: React.FC = () => {
   } = useSurveyStore();
 
   const [showResults, setShowResults] = useState(true);
+  const [showDerivation, setShowDerivation] = useState<boolean>(false);
   const traverseFileInputRef = useRef<HTMLInputElement>(null);
   const [showFormatGuide, setShowFormatGuide] = useState<boolean>(false);
   const [csvError, setCsvError] = useState<string | null>(null);
@@ -294,11 +296,12 @@ export const TraverseCalculator: React.FC = () => {
   const addLeg = () => {
     const last = legs[legs.length - 1];
     const newFrom = last ? last.targetStation : 'A';
-    const newTarget = String.fromCharCode((last ? last.targetStation.charCodeAt(0) : 65) + 1);
+    const newTarget = last
+      ? String.fromCharCode((last.targetStation.charCodeAt(0) || 65) + 1)
+      : 'B';
     setLegs([...legs, makeLeg(newFrom, newTarget, '100.000', '90', '00', '00')]);
   };
   const removeLeg = (idx: number) => {
-    if (legs.length <= 1) return;
     setLegs(legs.filter((_, i) => i !== idx));
   };
 
@@ -429,11 +432,11 @@ export const TraverseCalculator: React.FC = () => {
               คู่มือ
             </a>
             <button onClick={resetSample}
-              className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border transition"
-              style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
-              title="โหลดข้อมูลตัวอย่างวงรอบ 5 หมุด"
+              className="min-h-[36px] px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-indigo-500/40 text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 transition shadow-xs"
+              title="โหลดข้อมูลตัวอย่างวงรอบ 5 หมุด พร้อมคำนวณและทดสอบทันที"
             >
-              <RotateCcw className="w-3.5 h-3.5" /> ตัวอย่าง
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Load Sample Data</span>
             </button>
             <button onClick={() => { if (window.confirm('ล้างตารางเพื่อเริ่มงานใหม่ว่างเปล่า?')) clearAll(); }}
               className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border transition bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400"
@@ -590,67 +593,105 @@ export const TraverseCalculator: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {legs.map((leg, idx) => {
-                const cl = result?.legs[idx];
-                const rowBg = idx % 2 === 0 ? 'transparent' : 'var(--surface-2)';
-                return (
-                  <tr key={leg.id} style={{ backgroundColor: rowBg, borderBottom: '1px solid var(--border)' }}>
-                    {/* # */}
-                    <td className="text-center font-mono py-1 border-r" style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}>{idx + 1}</td>
-                    {/* Station */}
-                    <td className={inputCell + ' border-r'} style={{ borderColor: 'var(--border)' }}>
-                      <input value={leg.station} onChange={e => updateLeg(idx, 'station', e.target.value)}
-                        className={cellInput} style={{ color: 'var(--text-1)' }} />
-                    </td>
-                    <td className={inputCell + ' border-r'} style={{ borderColor: 'var(--border)' }}>
-                      <input value={leg.targetStation} onChange={e => updateLeg(idx, 'targetStation', e.target.value)}
-                        className={cellInput} style={{ color: 'var(--text-1)' }} />
-                    </td>
-                    {/* Distance */}
-                    <td className={inputCell + ' border-r'} style={{ borderColor: 'var(--border)' }}>
-                      <input value={leg.distance} onChange={e => updateLeg(idx, 'distance', e.target.value)}
-                        type="number" step="0.001" className={cellInput} style={{ color: 'var(--text-1)' }} />
-                    </td>
-                    {/* DMS */}
-                    <td className={'border-r ' + inputCell} style={{ borderColor: 'var(--border)', borderRight: '1px dashed var(--border)' }}>
-                      <input value={leg.obsD} onChange={e => updateLeg(idx, 'obsD', e.target.value)}
-                        type="number" placeholder="D" className={cellInput + ' w-12'} style={{ color: 'var(--text-1)' }} />
-                    </td>
-                    <td className={'border-r ' + inputCell} style={{ borderColor: 'var(--border)', borderRight: '1px dashed var(--border)' }}>
-                      <input value={leg.obsM} onChange={e => updateLeg(idx, 'obsM', e.target.value)}
-                        type="number" placeholder="M" className={cellInput + ' w-12'} style={{ color: 'var(--text-1)' }} />
-                    </td>
-                    <td className={'border-r ' + inputCell} style={{ borderColor: 'var(--border)' }}>
-                      <input value={leg.obsS} onChange={e => updateLeg(idx, 'obsS', e.target.value)}
-                        type="number" step="0.1" placeholder="S" className={cellInput + ' w-16'} style={{ color: 'var(--text-1)' }} />
-                    </td>
-                    {/* Auto-computed */}
-                    <td className={autoCell + ' border-r'} style={{ borderColor: 'var(--border)', color: '#818cf8', backgroundColor: 'rgba(99,102,241,0.05)' }}>
-                      {cl ? fmtDms(cl.azimuthDeg) : '—'}
-                    </td>
-                    <td className={autoCell + ' border-r'} style={{ borderColor: 'var(--border)', color: 'var(--text-3)', backgroundColor: 'rgba(0,0,0,0.03)' }}>
-                      {cl ? fmtNum(cl.rawDe) : '—'}
-                    </td>
-                    <td className={autoCell + ' border-r'} style={{ borderColor: 'var(--border)', color: 'var(--text-3)', backgroundColor: 'rgba(0,0,0,0.03)' }}>
-                      {cl ? fmtNum(cl.rawDn) : '—'}
-                    </td>
-                    <td className={autoCell + ' border-r font-bold'} style={{ borderColor: 'var(--border)', color: '#34d399', backgroundColor: 'rgba(52,211,153,0.07)' }}>
-                      {cl ? fmtNum(cl.adjEasting) : '—'}
-                    </td>
-                    <td className={autoCell + ' border-r font-bold'} style={{ borderColor: 'var(--border)', color: '#34d399', backgroundColor: 'rgba(52,211,153,0.07)' }}>
-                      {cl ? fmtNum(cl.adjNorthing) : '—'}
-                    </td>
-                    {/* Delete */}
-                    <td className="text-center py-1">
-                      <button onClick={() => removeLeg(idx)} disabled={legs.length <= 1}
-                        className="p-1 rounded text-rose-400 hover:bg-rose-500/10 disabled:opacity-30 transition inline-flex items-center justify-center"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+              {legs.length === 0 ? (
+                <tr>
+                  <td colSpan={13} className="py-12 px-4 text-center">
+                    <div className="max-w-md mx-auto space-y-3">
+                      <div className="w-12 h-12 mx-auto rounded-2xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center text-indigo-500 shadow-xs">
+                        <Compass className="w-6 h-6" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-bold text-[var(--text-1)]">
+                          ยังไม่มีข้อมูลหมุดวงรอบในตาราง (Empty Traverse Worksheet)
+                        </h4>
+                        <p className="text-xs text-[var(--text-2)] leading-relaxed">
+                          เริ่มต้นโดยการเพิ่มสถานีด้วยปุ่ม <span className="font-semibold text-indigo-600 dark:text-indigo-400">+ เพิ่มสถานี</span>, นำเข้าไฟล์ CSV หรือคลิกโหลดชุดข้อมูลตัวอย่าง 5 หมุด
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center gap-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={resetSample}
+                          className="btn-primary min-h-[36px] px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>⚡ โหลดข้อมูลตัวอย่าง (Load Sample Data)</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={addLeg}
+                          className="btn-outline min-h-[36px] px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>เพิ่มสถานีแรก</span>
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                legs.map((leg, idx) => {
+                  const cl = result?.legs[idx];
+                  const rowBg = idx % 2 === 0 ? 'transparent' : 'var(--surface-2)';
+                  return (
+                    <tr key={leg.id} style={{ backgroundColor: rowBg, borderBottom: '1px solid var(--border)' }}>
+                      {/* # */}
+                      <td className="text-center font-mono py-1 border-r" style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}>{idx + 1}</td>
+                      {/* Station */}
+                      <td className={inputCell + ' border-r'} style={{ borderColor: 'var(--border)' }}>
+                        <input value={leg.station} onChange={e => updateLeg(idx, 'station', e.target.value)}
+                          className={cellInput} style={{ color: 'var(--text-1)' }} />
+                      </td>
+                      <td className={inputCell + ' border-r'} style={{ borderColor: 'var(--border)' }}>
+                        <input value={leg.targetStation} onChange={e => updateLeg(idx, 'targetStation', e.target.value)}
+                          className={cellInput} style={{ color: 'var(--text-1)' }} />
+                      </td>
+                      {/* Distance */}
+                      <td className={inputCell + ' border-r'} style={{ borderColor: 'var(--border)' }}>
+                        <input value={leg.distance} onChange={e => updateLeg(idx, 'distance', e.target.value)}
+                          type="number" step="0.001" className={cellInput} style={{ color: 'var(--text-1)' }} />
+                      </td>
+                      {/* DMS */}
+                      <td className={'border-r ' + inputCell} style={{ borderColor: 'var(--border)', borderRight: '1px dashed var(--border)' }}>
+                        <input value={leg.obsD} onChange={e => updateLeg(idx, 'obsD', e.target.value)}
+                          type="number" placeholder="D" className={cellInput + ' w-12'} style={{ color: 'var(--text-1)' }} />
+                      </td>
+                      <td className={'border-r ' + inputCell} style={{ borderColor: 'var(--border)', borderRight: '1px dashed var(--border)' }}>
+                        <input value={leg.obsM} onChange={e => updateLeg(idx, 'obsM', e.target.value)}
+                          type="number" placeholder="M" className={cellInput + ' w-12'} style={{ color: 'var(--text-1)' }} />
+                      </td>
+                      <td className={'border-r ' + inputCell} style={{ borderColor: 'var(--border)' }}>
+                        <input value={leg.obsS} onChange={e => updateLeg(idx, 'obsS', e.target.value)}
+                          type="number" step="0.1" placeholder="S" className={cellInput + ' w-16'} style={{ color: 'var(--text-1)' }} />
+                      </td>
+                      {/* Auto-computed */}
+                      <td className={autoCell + ' border-r'} style={{ borderColor: 'var(--border)', color: '#818cf8', backgroundColor: 'rgba(99,102,241,0.05)' }}>
+                        {cl ? fmtDms(cl.azimuthDeg) : '—'}
+                      </td>
+                      <td className={autoCell + ' border-r'} style={{ borderColor: 'var(--border)', color: 'var(--text-3)', backgroundColor: 'rgba(0,0,0,0.03)' }}>
+                        {cl ? fmtNum(cl.rawDe) : '—'}
+                      </td>
+                      <td className={autoCell + ' border-r'} style={{ borderColor: 'var(--border)', color: 'var(--text-3)', backgroundColor: 'rgba(0,0,0,0.03)' }}>
+                        {cl ? fmtNum(cl.rawDn) : '—'}
+                      </td>
+                      <td className={autoCell + ' border-r font-bold'} style={{ borderColor: 'var(--border)', color: '#34d399', backgroundColor: 'rgba(52,211,153,0.07)' }}>
+                        {cl ? fmtNum(cl.adjEasting) : '—'}
+                      </td>
+                      <td className={autoCell + ' border-r font-bold'} style={{ borderColor: 'var(--border)', color: '#34d399', backgroundColor: 'rgba(52,211,153,0.07)' }}>
+                        {cl ? fmtNum(cl.adjNorthing) : '—'}
+                      </td>
+                      {/* Delete */}
+                      <td className="text-center py-1">
+                        <button onClick={() => removeLeg(idx)}
+                          className="p-1 rounded text-rose-400 hover:bg-rose-500/10 transition inline-flex items-center justify-center cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
               {/* Σ totals row */}
               {result && (
                 <tr className="font-bold border-t-2" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
@@ -736,6 +777,96 @@ export const TraverseCalculator: React.FC = () => {
                   </p>
                 </div>
               )}
+
+              {/* Show Math Derivation Accordion */}
+              <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowDerivation(v => !v)}
+                  className="w-full px-4 py-2.5 flex items-center justify-between text-xs font-semibold hover:bg-[var(--surface)] transition text-left"
+                  style={{ color: 'var(--text-1)' }}
+                >
+                  <div className="flex items-center gap-2">
+                    <Calculator className="w-4 h-4 text-indigo-500" />
+                    <span>Show Math Derivation (แสดงวิธีทำและขั้นตอนแทนค่าสูตร)</span>
+                  </div>
+                  {showDerivation ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+
+                {showDerivation && (
+                  <div className="p-4 space-y-4 border-t text-xs" style={{ borderColor: 'var(--border)' }}>
+                    {/* Step 1: Angular Misclosure */}
+                    <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                      <div className="font-bold text-indigo-600 dark:text-indigo-400">
+                        1. การคำนวณและปรับแก้มุม ({mode === 'loop' ? 'Angular Misclosure & Correction' : 'Azimuth Transfer & Bearing Control'})
+                      </div>
+                      <div className="text-[var(--text-2)] space-y-1">
+                        {mode === 'loop' ? (
+                          <>
+                            <p>สูตรผลรวมมุมเชิงทฤษฎีรูปหลายเหลี่ยม (n={result.nAngles} สถานี):</p>
+                            <MathFormulaRenderer formula="\sum \theta_{\text{ideal}} = (n - 2) \times 180^\circ" />
+                            <p>แทนค่า: ( {result.nAngles} - 2 ) × 180° = {result.theoreticalAngles}°</p>
+                            <p>ผลรวมมุมที่รังวัดได้: Σθ = {fmtDms(result.sumAngles)}</p>
+                            <p>ผลต่างมุมปิด (Angular Error):</p>
+                            <MathFormulaRenderer formula={`c_\\theta = \\sum \\theta_{\\text{obs}} - \\sum \\theta_{\\text{ideal}} = ${result.angularErrorSec > 0 ? '+' : ''}${result.angularErrorSec.toFixed(1)}''`} />
+                            <p>เกณฑ์ความคลาดเคลื่อนที่ยอมรับได้ (RTSD Class 3 / วสท.): c_allow = ±1.5'√n = ±{result.allowableAngularSec.toFixed(1)}'' ({result.angularOk ? '✓ ผ่านเกณฑ์' : '✗ ไม่ผ่าน'})</p>
+                            <p>ค่าปรับแก้มุมต่อสถานี: Corr = -c_θ / n = {(-result.angularError / result.nAngles * 3600).toFixed(1)}'' ต่อมุม</p>
+                          </>
+                        ) : (
+                          <>
+                            <p>การรังวัดวงรอบเปิดแบบเชื่อมโยง (Connecting Link Traverse):</p>
+                            <p>มุมภาคเริ่มต้น: Az_start = {startAz.d}° {startAz.m}' {startAz.s}", จุดบรรจบปลายทาง: ({endE}, {endN})</p>
+                            <MathFormulaRenderer formula="\text{Az}_{\text{forward}} = (\text{Az}_{\text{back}} + \theta_{\text{obs}}) \pmod{360^\circ}" />
+                            <p>ถ่ายทอดมุมทิศต่อเนื่องตามแนวเดินสำรวจจนถึงหมุดปลายทางเพื่อควบคุมแนวทิศทาง</p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Step 2: Azimuth and Coordinate Components */}
+                    <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                      <div className="font-bold text-indigo-600 dark:text-indigo-400">
+                        2. สูตรคำนวณพิกัดราบและทิศทาง (Azimuth & Coordinate Deltas)
+                      </div>
+                      <div className="text-[var(--text-2)] space-y-1.5">
+                        <p>การถ่ายทอดมุมทิศต่อเนื่อง:</p>
+                        <MathFormulaRenderer formula="\text{Az}_{i} = \text{Az}_{i-1} + 180^\circ + \theta_{\text{corr}, i} \pmod{360^\circ}" />
+                        <p>การคำนวณส่วนต่างทางพิกัดราบ (Latitude & Departure):</p>
+                        <MathFormulaRenderer formula="\Delta N = L \cdot \cos(\text{Az}), \quad \Delta E = L \cdot \sin(\text{Az})" />
+                        <p>ผลรวมในสนาม: ΣΔN = {fmtNum(result.sumDn)} ม., ΣΔE = {fmtNum(result.sumDe)} ม.</p>
+                      </div>
+                    </div>
+
+                    {/* Step 3: Linear Misclosure & Precision */}
+                    <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                      <div className="font-bold text-indigo-600 dark:text-indigo-400">
+                        3. ค่าคลาดเคลื่อนเชิงเส้นและอัตราส่วนชั้นงาน (Linear Misclosure & Precision)
+                      </div>
+                      <div className="text-[var(--text-2)] space-y-1">
+                        <p>สูตรความคลาดเคลื่อนเชิงเส้นรวม (Vector Sum of Misclosures):</p>
+                        <MathFormulaRenderer formula="E_L = \sqrt{(\Delta N_{\text{mis}})^2 + (\Delta E_{\text{mis}})^2}" />
+                        <p>แทนค่า: EL = √(({fmtNum(result.misclosureN, 4)})² + ({fmtNum(result.misclosureE, 4)})²) = {fmtNum(result.linearMisclosure, 4)} เมตร</p>
+                        <p>ความยาวเส้นรอบรูปทั้งหมด: Perimeter P = {fmtNum(result.totalPerimeter, 3)} เมตร</p>
+                        <p>อัตราส่วนความถูกต้องเชิงสัมพัทธ์ (Relative Precision Ratio):</p>
+                        <MathFormulaRenderer formula={`\\text{Precision} = 1 : \\left( \\frac{P}{E_L} \\right) = 1 : ${result.precisionRatio.toLocaleString()}`} />
+                        <p>ระดับชั้นงานที่ได้: <strong className="text-[var(--text-1)]">{result.precisionGrade}</strong></p>
+                      </div>
+                    </div>
+
+                    {/* Step 4: Bowditch Compass Balancing */}
+                    <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                      <div className="font-bold text-indigo-600 dark:text-indigo-400">
+                        4. การปรับแก้พิกัดด้วยกฎเข็มทิศ (Bowditch Compass Rule)
+                      </div>
+                      <div className="text-[var(--text-2)] space-y-1">
+                        <p>กระจายปรับแก้ตามสัดส่วนความยาวแต่ละด้าน:</p>
+                        <MathFormulaRenderer formula="C_{\Delta N, i} = -\left( \frac{\sum \Delta N}{P} \right) \times L_i, \quad C_{\Delta E, i} = -\left( \frac{\sum \Delta E}{P} \right) \times L_i" />
+                        <p>พิกัดปรับแก้สถานีถัดไป: E_next = E_prev + ΔE_i + C_ΔE,i และ N_next = N_prev + ΔN_i + C_ΔN,i</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Actions */}
               <div className="flex items-center gap-2 flex-wrap pt-1">

@@ -83,8 +83,8 @@ export default {
         xl: '16px',
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'Prompt', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
-        heading: ['"Plus Jakarta Sans"', 'Prompt', 'sans-serif'],
+        sans: ['"Inter"', '"IBM Plex Sans Thai"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        heading: ['"Inter"', '"IBM Plex Sans Thai"', 'sans-serif'],
         mono: ['"Geist Mono"', '"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       boxShadow: {

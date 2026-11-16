@@ -178,18 +178,30 @@ body[data-theme="nordic"] {
     box-sizing: border-box;
   }
 
+  /* Zero Layout Shift (CLS = 0) Invariant: Permanent Stable Scrollbar */
+  html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+  }
+
+  html:has([data-fullscreen="true"]),
+  body:has([data-fullscreen="true"]) {
+    overflow-y: hidden;
+  }
+
   html, body {
-    height: 100%;
+    min-height: 100%;
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
     position: relative;
     background-color: var(--bg);
     color: var(--text-1);
-    font-family: 'Plus Jakarta Sans', 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif;
-    line-height: 1.5; /* Diacritic Headroom Rule (1.5) to prevent Thai tone marks clipping */
+    font-family: 'Inter', 'IBM Plex Sans Thai', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.65; /* Diacritic Headroom Rule for Thai Tone Marks & Latin vertical equilibrium */
+    letter-spacing: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -203,8 +215,17 @@ body[data-theme="nordic"] {
     overflow-x: hidden;
   }
 
-  h1, h2, h3, h4 {
-    letter-spacing: -0.025em;
+  /* Latin-First Bilingual Heading Hierarchy */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', 'IBM Plex Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: -0.015em;
+    line-height: 1.35;
+  }
+
+  /* Universal Thai Typographic Invariant: Zero Negative Letter-Spacing */
+  :lang(th) h1, :lang(th) h2, :lang(th) h3, :lang(th) h4, :lang(th) p, :lang(th) span,
+  h1:lang(th), h2:lang(th), h3:lang(th), h4:lang(th), p:lang(th), span:lang(th) {
+    letter-spacing: 0;
   }
 
   /* WCAG 2.1 AA Keyboard Navigation Focus Indicator */
@@ -654,7 +675,7 @@ body[data-theme="nordic"] {
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--bg);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -840,6 +861,28 @@ body[data-theme="nordic"] {
 .dragon-walk-strip-anim-paused {
   animation-play-state: paused;
 }
+
+/* ==========================================================================
+   KATEX MATHEMATICAL FORMULA PRECISION STYLING
+   ========================================================================== */
+.katex {
+  font-size: 1.05em;
+  text-rendering: geometricPrecision;
+}
+
+.katex-html {
+  color: inherit;
+}
+
+.katex-display {
+  margin: 0.35em 0 !important;
+}
+
+.katex .base {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
 
 
 

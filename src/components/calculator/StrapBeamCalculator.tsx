@@ -13,9 +13,14 @@ import {
   Info,
   Maximize2,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  RotateCcw,
+  ChevronDown,
+  ChevronUp,
+  Calculator
 } from 'lucide-react';
 import { exportToCsv } from '../../utils/csv-export';
+import { MathFormulaRenderer } from '../common/MathFormulaRenderer';
 import { 
   computeStrapBeamComplete, 
   type StrapBeamInputs, 
@@ -26,6 +31,7 @@ import {
 export type { StrapBeamInputs, StrapBeamResults, RebarOption };
 
 export const StrapBeamCalculator: React.FC = () => {
+  const [isConfigured, setIsConfigured] = useState<boolean>(false);
   // Inputs state with practical defaults
   const [inputs, setInputs] = useState<StrapBeamInputs>({
     p1Tons: 40,
@@ -41,6 +47,43 @@ export const StrapBeamCalculator: React.FC = () => {
   });
 
   const [copied, setCopied] = useState<boolean>(false);
+  const [showDerivation, setShowDerivation] = useState<boolean>(false);
+
+  const loadSampleData = (preset: 'commercial' | 'factory' = 'commercial') => {
+    setIsConfigured(true);
+    if (preset === 'commercial') {
+      setInputs({
+        p1Tons: 40,
+        p2Tons: 70,
+        colSpacingM: 5.0,
+        footing1LengthM: 1.8,
+        col1WidthM: 0.30,
+        qaTonsPerSqm: 15.0,
+        beamWidthCm: 40,
+        beamDepthCm: 70,
+        rebarGrade: 'SD40',
+        designMethod: 'WSD',
+      });
+    } else {
+      setInputs({
+        p1Tons: 25,
+        p2Tons: 50,
+        colSpacingM: 6.0,
+        footing1LengthM: 1.5,
+        col1WidthM: 0.25,
+        qaTonsPerSqm: 18.0,
+        beamWidthCm: 35,
+        beamDepthCm: 65,
+        rebarGrade: 'SD40',
+        designMethod: 'WSD',
+      });
+    }
+  };
+
+  const updateInput = <K extends keyof StrapBeamInputs>(field: K, value: StrapBeamInputs[K]) => {
+    setIsConfigured(true);
+    setInputs(prev => ({ ...prev, [field]: value }));
+  };
 
   // Calculations via pure mechanics solver
   const results = useMemo(() => {
@@ -122,11 +165,29 @@ export const StrapBeamCalculator: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
+          <button
+            type="button"
+            onClick={() => loadSampleData('commercial')}
+            className="btn-outline min-h-[38px] text-xs inline-flex items-center gap-1.5 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20"
+            title="โหลดข้อมูลตัวอย่างฐานรากชิดเขตอาคารพาณิชย์ P1=40t, P2=70t"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Load Sample Data</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsConfigured(false)}
+            className="btn-outline min-h-[38px] text-xs inline-flex items-center gap-1.5 text-rose-500 hover:bg-rose-500/10 border-rose-500/30"
+            title="ล้างการคำนวณเพื่อเริ่มฟอร์มว่างเปล่า (Blank Slate)"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>ว่างเปล่า</span>
+          </button>
           <button
             type="button"
             onClick={handleCopySummary}
-            disabled={results.isInvalidGeometry}
+            disabled={!isConfigured || results.isInvalidGeometry}
             className="btn-outline min-h-[38px] text-xs inline-flex items-center gap-1.5 disabled:opacity-50"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
@@ -135,7 +196,7 @@ export const StrapBeamCalculator: React.FC = () => {
           <button
             type="button"
             onClick={handleExportCsv}
-            disabled={results.isInvalidGeometry}
+            disabled={!isConfigured || results.isInvalidGeometry}
             className="btn-outline min-h-[38px] text-xs inline-flex items-center gap-1.5 disabled:opacity-50"
           >
             <Download className="w-3.5 h-3.5" />
@@ -191,7 +252,7 @@ export const StrapBeamCalculator: React.FC = () => {
                   min="1"
                   step="0.5"
                   value={inputs.p1Tons}
-                  onChange={e => setInputs({ ...inputs, p1Tons: parseFloat(e.target.value) || 0 })}
+                  onChange={e => updateInput('p1Tons', parseFloat(e.target.value) || 0)}
                   className="w-full px-3 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] font-mono text-sm"
                 />
               </div>
@@ -205,7 +266,7 @@ export const StrapBeamCalculator: React.FC = () => {
                   min="1"
                   step="0.5"
                   value={inputs.p2Tons}
-                  onChange={e => setInputs({ ...inputs, p2Tons: parseFloat(e.target.value) || 0 })}
+                  onChange={e => updateInput('p2Tons', parseFloat(e.target.value) || 0)}
                   className="w-full px-3 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] font-mono text-sm"
                 />
               </div>
@@ -219,7 +280,7 @@ export const StrapBeamCalculator: React.FC = () => {
                   min="2"
                   step="0.1"
                   value={inputs.colSpacingM}
-                  onChange={e => setInputs({ ...inputs, colSpacingM: parseFloat(e.target.value) || 0 })}
+                  onChange={e => updateInput('colSpacingM', parseFloat(e.target.value) || 0)}
                   className="w-full px-3 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] font-mono text-sm"
                 />
               </div>
@@ -233,7 +294,7 @@ export const StrapBeamCalculator: React.FC = () => {
                   min="0.15"
                   step="0.05"
                   value={inputs.col1WidthM}
-                  onChange={e => setInputs({ ...inputs, col1WidthM: parseFloat(e.target.value) || 0 })}
+                  onChange={e => updateInput('col1WidthM', parseFloat(e.target.value) || 0)}
                   className="w-full px-3 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] font-mono text-sm"
                 />
               </div>
@@ -247,7 +308,7 @@ export const StrapBeamCalculator: React.FC = () => {
                   min="0.5"
                   step="0.1"
                   value={inputs.footing1LengthM}
-                  onChange={e => setInputs({ ...inputs, footing1LengthM: parseFloat(e.target.value) || 0 })}
+                  onChange={e => updateInput('footing1LengthM', parseFloat(e.target.value) || 0)}
                   className="w-full px-3 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] font-mono text-sm"
                 />
               </div>
@@ -261,7 +322,7 @@ export const StrapBeamCalculator: React.FC = () => {
                   min="5"
                   step="1"
                   value={inputs.qaTonsPerSqm}
-                  onChange={e => setInputs({ ...inputs, qaTonsPerSqm: parseFloat(e.target.value) || 0 })}
+                  onChange={e => updateInput('qaTonsPerSqm', parseFloat(e.target.value) || 0)}
                   className="w-full px-3 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] font-mono text-sm"
                 />
               </div>
@@ -288,7 +349,7 @@ export const StrapBeamCalculator: React.FC = () => {
                   min="20"
                   step="5"
                   value={inputs.beamWidthCm}
-                  onChange={e => setInputs({ ...inputs, beamWidthCm: parseFloat(e.target.value) || 0 })}
+                  onChange={e => updateInput('beamWidthCm', parseFloat(e.target.value) || 0)}
                   className="w-full px-3 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] font-mono text-sm"
                 />
               </div>
@@ -302,7 +363,7 @@ export const StrapBeamCalculator: React.FC = () => {
                   min="30"
                   step="5"
                   value={inputs.beamDepthCm}
-                  onChange={e => setInputs({ ...inputs, beamDepthCm: parseFloat(e.target.value) || 0 })}
+                  onChange={e => updateInput('beamDepthCm', parseFloat(e.target.value) || 0)}
                   className="w-full px-3 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] font-mono text-sm"
                 />
               </div>
@@ -313,7 +374,7 @@ export const StrapBeamCalculator: React.FC = () => {
                 </label>
                 <select
                   value={inputs.rebarGrade}
-                  onChange={e => setInputs({ ...inputs, rebarGrade: e.target.value as any })}
+                  onChange={e => updateInput('rebarGrade', e.target.value as any)}
                   className="w-full px-3 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] text-xs"
                 >
                   <option value="SD30">SD30 (fy = 3,000 ksc)</option>
@@ -328,7 +389,7 @@ export const StrapBeamCalculator: React.FC = () => {
                 </label>
                 <select
                   value={inputs.designMethod}
-                  onChange={e => setInputs({ ...inputs, designMethod: e.target.value as any })}
+                  onChange={e => updateInput('designMethod', e.target.value as any)}
                   className="w-full px-3 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-1)] text-xs"
                 >
                   <option value="WSD">WSD (หน่วยแรงใช้งาน)</option>
@@ -341,9 +402,41 @@ export const StrapBeamCalculator: React.FC = () => {
 
         {/* Right Output Dashboard & SVG Diagrams (7 Cols) */}
         <div className="lg:col-span-7 space-y-5">
-          
-          {/* Reaction Summary Cards (4 Cards) */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {!isConfigured ? (
+            <div className="fusion-card p-8 sm:p-12 text-center space-y-4">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center text-indigo-500 shadow-sm">
+                <Building2 className="w-8 h-8" />
+              </div>
+              <div className="space-y-1.5 max-w-md mx-auto">
+                <h3 className="text-base sm:text-lg font-bold text-[var(--text-1)]">
+                  ยังไม่ได้เริ่มการคำนวณคานรั้ง (Blank Slate)
+                </h3>
+                <p className="text-xs sm:text-sm text-[var(--text-2)] leading-relaxed">
+                  ปรับเปลี่ยนค่าน้ำหนักบรรทุกเสาและขนาดฐานรากในแผงด้านซ้าย หรือคลิกเพื่อโหลดชุดข้อมูลตัวอย่างสำหรับวิเคราะห์สมดุลแรงและตรวจสอบการงัดตัว (Uplift Check) ทันที
+                </p>
+              </div>
+              <div className="flex items-center justify-center gap-3 pt-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => loadSampleData('commercial')}
+                  className="btn-primary min-h-[40px] px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs cursor-pointer"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>⚡ โหลดตัวอย่างอาคารพาณิชย์ (P1=40t, P2=70t)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => loadSampleData('factory')}
+                  className="btn-outline min-h-[40px] px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>ตัวอย่างโรงงาน (P1=25t, P2=50t)</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Reaction Summary Cards (4 Cards) */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="fusion-card p-3 text-center space-y-1">
               <span className="text-[10px] font-mono text-[var(--text-3)] block uppercase">แรงตีนเป็ด R1</span>
               <span className="text-base sm:text-lg font-bold font-mono text-[var(--accent)]">{results.r1}</span>
@@ -497,6 +590,115 @@ export const StrapBeamCalculator: React.FC = () => {
               </div>
             </div>
 
+            {/* Show Math Derivation Accordion */}
+            <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
+              <button
+                type="button"
+                onClick={() => setShowDerivation(v => !v)}
+                className="w-full px-4 py-2.5 flex items-center justify-between text-xs font-semibold hover:bg-[var(--surface)] transition text-left"
+                style={{ color: 'var(--text-1)' }}
+              >
+                <div className="flex items-center gap-2">
+                  <Calculator className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>Show Math Derivation (แสดงวิธีทำและขั้นตอนแทนค่าสูตรสมดุลคานรั้ง)</span>
+                </div>
+                {showDerivation ? <ChevronUp className="w-4 h-4 text-[var(--text-3)]" /> : <ChevronDown className="w-4 h-4 text-[var(--text-3)]" />}
+              </button>
+
+              {showDerivation && (
+                <div className="p-4 space-y-4 border-t text-xs" style={{ borderColor: 'var(--border)' }}>
+                  {results.isInvalidGeometry ? (
+                    <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-300 space-y-1.5">
+                      <div className="font-bold flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-rose-500" />
+                        <span>ข้อจำกัดทางเรขาคณิต (Invalid Footing Geometry)</span>
+                      </div>
+                      <p className="text-xs">
+                        ระยะเยื้องศูนย์ e = ({inputs.footing1LengthM} - {inputs.col1WidthM}) / 2 = {eccentricityM.toFixed(3)} ม.
+                        มีค่ามากกว่าหรือเท่ากับระยะห่างเสา L = {inputs.colSpacingM} ม. ส่งผลให้ช่วงคานประสิทธิผล L' = L - e ≤ 0 ม.
+                      </p>
+                      <p className="text-xs">
+                        ไม่สามารถจัดวางฐานรากและคานรั้งได้ กรุณาลดขนาดความยาวฐานราก L1 หรือขยายระยะห่างศูนย์กลางเสา L ให้กว้างขึ้น
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Step 1: Eccentricity & Effective Span */}
+                      <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                        <div className="font-bold text-emerald-600 dark:text-emerald-400">
+                          1. ระยะเยื้องศูนย์และช่วงคานประสิทธิผล (Eccentricity & Effective Span)
+                        </div>
+                        <div className="text-[var(--text-2)] space-y-1">
+                          <MathFormulaRenderer formula="e = \frac{L_1 - c_1}{2}, \quad L' = L - e" />
+                          <p>ระยะเยื้องศูนย์: e = ({inputs.footing1LengthM} - {inputs.col1WidthM}) / 2 = <strong>{eccentricityM.toFixed(3)} ม.</strong></p>
+                          <p>ระยะช่วงคานระหว่างจุดศูนย์กลางแรงลัพธ์: L' = {inputs.colSpacingM} - {eccentricityM.toFixed(3)} = <strong>{(inputs.colSpacingM - eccentricityM).toFixed(3)} ม.</strong></p>
+                        </div>
+                      </div>
+
+                      {/* Step 2: Reactions & Moment Equilibrium */}
+                      <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                        <div className="font-bold text-emerald-600 dark:text-emerald-400">
+                          2. การถ่ายเทแรงปฏิกิริยาและสมดุลโมเมนต์ (Moment Equilibrium & Reactions)
+                        </div>
+                        <div className="text-[var(--text-2)] space-y-1.5">
+                          <p>เทกโมเมนต์รอบจุดศูนย์กลางฐานราก F2 (ΣM_F2 = 0):</p>
+                          <MathFormulaRenderer formula="R_1 \times (L - e) = P_1 \times L \implies R_1 = P_1 + \frac{P_1 \times e}{L - e}" />
+                          <p>แทนค่า: R1 = {inputs.p1Tons} + ({inputs.p1Tons} × {eccentricityM.toFixed(3)}) / {(inputs.colSpacingM - eccentricityM).toFixed(3)} = <strong className="text-emerald-600 dark:text-emerald-400">{results.r1} ตัน</strong> (แรงถ่ายลงดินเพิ่มขึ้น +{results.r1IncreasePct}%)</p>
+                          <p>จากสมดุลแนวดิ่ง (ΣFy = 0):</p>
+                          <MathFormulaRenderer formula="R_2 = (P_1 + P_2) - R_1 = P_2 - \frac{P_1 \times e}{L - e}" />
+                          <p>แทนค่า: R2 = {inputs.p2Tons} - ({inputs.p1Tons} × {eccentricityM.toFixed(3)}) / {(inputs.colSpacingM - eccentricityM).toFixed(3)} = <strong className="text-emerald-600 dark:text-emerald-400">{results.r2} ตัน</strong></p>
+                          <p className="font-semibold text-[var(--text-1)]">
+                            การตรวจสอบการยกตัว (Uplift Check): {results.isUplift ? '❌ CRITICAL UPLIFT!' : '✓ SAFE ไม่มีการยกตัว (R2 > 0)'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Step 3: Maximum Bending Moment & Shear */}
+                      <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                        <div className="font-bold text-emerald-600 dark:text-emerald-400">
+                          3. โมเมนต์ดัดและแรงเฉือนสูงสุด (Bending Moment & Shear Force)
+                        </div>
+                        <div className="text-[var(--text-2)] space-y-1">
+                          <p>โมเมนต์ดัดลบสูงสุด (ดึงบน) ในคานรั้งช่วงชิดเสา C1:</p>
+                          <MathFormulaRenderer formula="M_{\text{max}} = P_1 \times e" />
+                          <p>แทนค่า: Mmax = {inputs.p1Tons} × {eccentricityM.toFixed(3)} = <strong>{results.mMaxTonM} ตัน-เมตร</strong></p>
+                          <p>แรงเฉือนสูงสุดในคานรั้ง:</p>
+                          <MathFormulaRenderer formula="V_{\text{max}} = \max(P_1, R_1 - P_1)" />
+                          <p>แทนค่า: Vmax = <strong>{results.maxShearTon} ตัน</strong></p>
+                        </div>
+                      </div>
+
+                      {/* Step 4: Reinforcement Design */}
+                      <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                        <div className="font-bold text-emerald-600 dark:text-emerald-400">
+                          4. การคำนวณพื้นที่เหล็กเสริมรับแรงดัด (Flexural Reinforcement As)
+                        </div>
+                        <div className="text-[var(--text-2)] space-y-1">
+                          {inputs.designMethod === 'WSD' ? (
+                            <>
+                              <p>สูตรการออกแบบวิธีหน่วยแรงใช้งาน (WSD / {inputs.rebarGrade}):</p>
+                              <MathFormulaRenderer formula="A_s = \frac{M_{\text{max}} \times 10^5}{f_s \cdot j \cdot d}" />
+                              <p>โดยที่ fs = {inputs.rebarGrade === 'SD40' || inputs.rebarGrade === 'SD50' ? '1,700' : '1,500'} ksc, j ≈ 0.875, d = {(inputs.beamDepthCm - 6.5).toFixed(1)} ซม.</p>
+                            </>
+                          ) : (
+                            <>
+                              <p>สูตรการออกแบบวิธีกำลังประลัย (SDM / {inputs.rebarGrade}):</p>
+                              <MathFormulaRenderer formula="M_u = 1.4 \times M_{\text{max}}, \quad A_s = \frac{M_u \times 10^5}{\phi \cdot f_y \cdot 0.90 \cdot d}" />
+                              <p>โดยที่ ϕ = 0.90, fy = {inputs.rebarGrade === 'SD50' ? '5,000' : inputs.rebarGrade === 'SD40' ? '4,000' : '3,000'} ksc, d = {(inputs.beamDepthCm - 6.5).toFixed(1)} ซม.</p>
+                            </>
+                          )}
+                          <p>พื้นที่เหล็กเสริมบนต้องการ: As = <strong>{results.finalAsCm2} ตร.ซม.</strong> (As,min = {results.asMinCm2} ตร.ซม.)</p>
+                          <p>เหล็กเสริมบนที่จัด: <strong className="text-emerald-600 dark:text-emerald-400">{results.bestBar.text}</strong></p>
+                          <p>เหล็กปลอกรับแรงเฉือน: <strong>{results.stirrupText}</strong></p>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
             {/* Technical Rule Note */}
             <div className="p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[11px] text-[var(--text-2)] space-y-1">
               <div className="flex items-center gap-1 font-bold text-[var(--text-1)]">
@@ -509,8 +711,9 @@ export const StrapBeamCalculator: React.FC = () => {
                 3. ดินใต้คานรั้งช่วงระหว่าง F1 และ F2 ควรขุดเปิดช่องว่าง 5-10 ซม. ไม่ให้ดินรับแรง เพื่อบังคับให้แรงถ่ายลงเฉพาะฐานรากทั้งสอง
               </p>
             </div>
-          </div>
-        </div>
+          </>
+        )}
+      </div>
       </div>
     </div>
   );

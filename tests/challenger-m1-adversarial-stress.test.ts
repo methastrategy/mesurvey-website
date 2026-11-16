@@ -6,7 +6,7 @@ import { forwardWgs84ToUtm, inverseUtmToWgs84, forwardWgs84ToIndian1975, inverse
 describe('Challenger 1 Adversarial Stress Suite: MeMaps UI/UX Redesign', () => {
   const rootDir = path.resolve(__dirname, '..');
   const indexCss = fs.readFileSync(path.join(rootDir, 'src/index.css'), 'utf-8');
-  const adaptiveWorkspace = fs.readFileSync(path.join(rootDir, 'src/components/map/AdaptiveWorkspace.tsx'), 'utf-8');
+  const adaptiveWorkspace = fs.readFileSync(path.join(rootDir, 'src/components/map/AdaptiveWorkspace.tsx'), 'utf-8').replace(/\r\n/g, '\n');
   const mapControls = fs.readFileSync(path.join(rootDir, 'src/components/map/memaps/MeMapsMapControls.tsx'), 'utf-8');
   const searchBox = fs.readFileSync(path.join(rootDir, 'src/components/map/memaps/MeMapsSearchBox.tsx'), 'utf-8');
   const placeCard = fs.readFileSync(path.join(rootDir, 'src/components/map/memaps/MeMapsPlaceCard.tsx'), 'utf-8');

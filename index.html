@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th" class="h-full" data-theme="warmsand">
+<html lang="th" class="min-h-full" data-theme="warmsand">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -35,10 +35,10 @@
 
     <title>MESURV | Survey & Geomatics Engineering Field Terminal</title>
 
-    <!-- Google Fonts: Plus Jakarta Sans (Heading/Body), Prompt (Thai Headroom), Geist Mono & JetBrains Mono (Geodetic Numbers) -->
+    <!-- Google Fonts: Inter (Latin Master), IBM Plex Sans Thai (Precision Geomatics Thai), Geist Mono & JetBrains Mono (Field Metrics) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -63,8 +63,14 @@
       })();
     </script>
   </head>
-  <body class="h-full bg-[var(--bg)] text-[var(--text-1)] font-sans antialiased" data-theme="warmsand">
-    <div id="root" class="h-full flex flex-col"></div>
+  <body class="min-h-full bg-[var(--bg)] text-[var(--text-1)] font-sans antialiased" data-theme="warmsand">
+    <div id="root" class="min-h-screen flex flex-col">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background-color:#f7f5f2;font-family:system-ui,-apple-system,sans-serif;user-select:none;">
+        <img src="/assets/mascot/dragon_surveyor_loading.webp" alt="MESURV Surveyor Dragon" style="width:105px;height:auto;margin-bottom:12px;" />
+        <div style="font-size:17px;font-weight:800;letter-spacing:1px;color:#1e293b;margin-bottom:4px;">MESURV GEO PLATFORM</div>
+        <div style="font-size:11px;font-family:monospace;color:#64748b;letter-spacing:0.5px;">INITIALIZING GEOMATICS TERMINAL...</div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

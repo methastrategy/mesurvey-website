@@ -37,6 +37,9 @@ import {
   type BatchCoordinateSourceType 
 } from '../../utils/survey-csv-parser';
 
+export const SAMPLE_BATCH_RAW_TEXT =
+  'KU_MAIN, 13.846640, 100.569820, มหาวิทยาลัยเกษตรศาสตร์\nMONUMENT, 13.764920, 100.538310, อนุสาวรีย์ชัยสมรภูมิ\nSUVARNABHUMI, 13.690000, 100.750100, ท่าอากาศยานสุวรรณภูมิ';
+
 interface CoordinateConverterProps {
   onPlotOnMap?: (lat: number, lng: number, label: string) => void;
 }
@@ -50,11 +53,9 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
   // Input Modes: 'dd' | 'dms' | 'utm' | 'indian'
   const [inputMode, setInputMode] = useState<'dd' | 'dms' | 'utm' | 'indian'>('dd');
 
-  // Batch states
+  // Batch states (Blank Slate Default)
   const [batchSourceType, setBatchSourceType] = useState<BatchCoordinateSourceType>('wgs84_dd');
-  const [batchRawText, setBatchRawText] = useState<string>(
-    'KU_MAIN, 13.846640, 100.569820, มหาวิทยาลัยเกษตรศาสตร์\nMONUMENT, 13.764920, 100.538310, อนุสาวรีย์ชัยสมรภูมิ\nSUVARNABHUMI, 13.690000, 100.750100, ท่าอากาศยานสุวรรณภูมิ'
-  );
+  const [batchRawText, setBatchRawText] = useState<string>('');
   const [batchPoints, setBatchPoints] = useState<ConvertedBatchCoordinate[]>([]);
   const [batchErrors, setBatchErrors] = useState<string[]>([]);
   const batchFileInputRef = useRef<HTMLInputElement>(null);
@@ -722,14 +723,28 @@ export const CoordinateConverter: React.FC<CoordinateConverterProps> = ({ onPlot
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                 <span>กรอกหรือวางข้อความพิกัด (บรรทัดละจุด: ชื่อจุด, พิกัด1, พิกัด2, [หมายเหตุ]):</span>
-                <button
-                  type="button"
-                  onClick={() => { setBatchRawText(''); setBatchPoints([]); setBatchErrors([]); }}
-                  className="hover:text-rose-500 transition-colors flex items-center gap-1"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>ล้างข้อความ</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBatchRawText(SAMPLE_BATCH_RAW_TEXT);
+                      setBatchErrors([]);
+                    }}
+                    className="hover:text-indigo-500 transition-colors flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-semibold cursor-pointer"
+                    title="โหลดชุดข้อมูลพิกัดตัวอย่างสำหรับทดสอบ"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>⚡ โหลดพิกัดตัวอย่าง</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setBatchRawText(''); setBatchPoints([]); setBatchErrors([]); }}
+                    className="hover:text-rose-500 transition-colors flex items-center gap-1 cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>ล้างข้อความ</span>
+                  </button>
+                </div>
               </div>
               <textarea
                 value={batchRawText}

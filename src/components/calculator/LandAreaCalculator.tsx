@@ -16,11 +16,15 @@ import {
   Download,
   CheckCircle2,
   AlertTriangle,
-  BookOpen
+  BookOpen,
+  Calculator,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { useSurveyStore } from '../../store/useSurveyStore';
 import { parseCadastralCsv, downloadCadastralTemplateCsv } from '../../utils/survey-csv-parser';
 import { exportToCsv } from '../../utils/csv-export';
+import { MathFormulaRenderer } from '../common/MathFormulaRenderer';
 
 type LandAreaMode = 'polygon' | 'converter';
 
@@ -39,18 +43,26 @@ export const LandAreaCalculator: React.FC = () => {
 
   const [activeMode, setActiveMode] = useState<LandAreaMode>('polygon');
   const [showFormatGuide, setShowFormatGuide] = useState(false);
+  const [showDerivation, setShowDerivation] = useState<boolean>(false);
   const [csvError, setCsvError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Converter state
-  const [sqMetersInput, setSqMetersInput] = useState<string>('3450');
-  const [raiInput, setRaiInput] = useState<string>('2');
-  const [nganInput, setNganInput] = useState<string>('0');
-  const [wahInput, setWahInput] = useState<string>('62.5');
-  const [currentM2, setCurrentM2] = useState<number>(3450);
+  // Converter state - Blank slate defaults
+  const [sqMetersInput, setSqMetersInput] = useState<string>('');
+  const [raiInput, setRaiInput] = useState<string>('');
+  const [nganInput, setNganInput] = useState<string>('');
+  const [wahInput, setWahInput] = useState<string>('');
+  const [currentM2, setCurrentM2] = useState<number>(0);
 
   const handleUpdateM2 = (val: string) => {
     setSqMetersInput(val);
+    if (!val || val.trim() === '') {
+      setCurrentM2(0);
+      setRaiInput('');
+      setNganInput('');
+      setWahInput('');
+      return;
+    }
     const m2 = parseFloat(val) || 0;
     setCurrentM2(m2);
     const t = sqMetersToThaiLand(m2);
@@ -63,9 +75,26 @@ export const LandAreaCalculator: React.FC = () => {
     setRaiInput(r);
     setNganInput(n);
     setWahInput(w);
+    if (!r && !n && !w) {
+      setCurrentM2(0);
+      setSqMetersInput('');
+      return;
+    }
     const m2 = thaiLandToSqMeters(parseFloat(r) || 0, parseFloat(n) || 0, parseFloat(w) || 0);
     setCurrentM2(m2);
-    setSqMetersInput(m2.toString());
+    setSqMetersInput(m2 > 0 ? m2.toString() : '');
+  };
+
+  const handleLoadSampleConverter = () => {
+    handleUpdateThai('2', '0', '62.5'); // 3,450 sq.m.
+  };
+
+  const handleClearConverter = () => {
+    setSqMetersInput('');
+    setRaiInput('');
+    setNganInput('');
+    setWahInput('');
+    setCurrentM2(0);
   };
 
   const converterResult = sqMetersToThaiLand(currentM2);
@@ -292,12 +321,11 @@ export const LandAreaCalculator: React.FC = () => {
             <button
               type="button"
               onClick={resetCadastralToSample}
-              className="min-h-[34px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border transition"
-              style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-2)' }}
-              title="โหลดตัวอย่างแปลงที่ดินสี่เหลี่ยม 100x100 ม."
+              className="min-h-[34px] px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-indigo-500/40 text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 transition shadow-xs"
+              title="โหลดตัวอย่างแปลงที่ดินสี่เหลี่ยม 100x100 ม. (10,000 ตร.ม. / 6-1-0 ไร่) พร้อมคำนวณทันที"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>ตัวอย่าง</span>
+              <span>Load Sample Data</span>
             </button>
             <button
               type="button"
@@ -318,6 +346,30 @@ export const LandAreaCalculator: React.FC = () => {
                 <span>ส่งออก CSV</span>
               </button>
             )}
+          </div>
+        )}
+
+        {/* Action Toolbar for Converter Mode */}
+        {activeMode === 'converter' && (
+          <div className="flex items-center gap-2 flex-wrap mt-3 pt-3 border-t border-[var(--border)]">
+            <button
+              type="button"
+              onClick={handleLoadSampleConverter}
+              className="min-h-[34px] px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-indigo-500/40 text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 transition shadow-xs"
+              title="โหลดตัวอย่างแปลงที่ดิน 2 ไร่ 62.5 ตร.ว. (3,450 ตร.ม.)"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>⚡ โหลดตัวอย่างแปลงที่ดิน (2 ไร่ 62.5 วา)</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleClearConverter}
+              className="min-h-[34px] px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 border transition bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400"
+              title="ล้างค่าทั้งหมดเป็นฟอร์มว่างเปล่า"
+            >
+              <Eraser className="w-3.5 h-3.5" />
+              <span>ล้างเป็นฟอร์มว่าง</span>
+            </button>
           </div>
         )}
       </div>
@@ -444,11 +496,40 @@ export const LandAreaCalculator: React.FC = () => {
 
                     {cadastralPoints.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="py-8 text-center text-xs" style={{ color: 'var(--text-3)' }}>
-                          <div className="flex flex-col items-center justify-center gap-2">
-                            <Layers className="w-8 h-8 opacity-40 text-indigo-500" />
-                            <p className="font-semibold text-sm" style={{ color: 'var(--text-2)' }}>ตารางว่างเปล่า (Blank Slate)</p>
-                            <p>กด &quot;เพิ่มหมุด&quot; เพื่อเริ่มกรอก หรือกด &quot;ตัวอย่าง&quot; เพื่อโหลดแปลงที่ดินสาธิต</p>
+                        <td colSpan={5} className="py-10 text-center text-xs" style={{ color: 'var(--text-3)' }}>
+                          <div className="flex flex-col items-center justify-center gap-3 max-w-sm mx-auto px-4">
+                            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                              <MapPin className="w-6 h-6" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-sm" style={{ color: 'var(--text-1)' }}>ตารางว่างเปล่า (Blank Slate)</p>
+                              <p className="text-xs mt-1" style={{ color: 'var(--text-2)' }}>
+                                เริ่มต้นโดยการเพิ่มพิกัดหมุดทีละจุด นำเข้าไฟล์ CSV หรือคลิกโหลดชุดตัวอย่างเพื่อทดสอบระบบทันที
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2 pt-1 flex-wrap justify-center">
+                              <button
+                                type="button"
+                                onClick={resetCadastralToSample}
+                                className="min-h-[36px] px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-indigo-500/50 bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm transition"
+                              >
+                                <RotateCcw className="w-3.5 h-3.5" />
+                                <span>⚡ โหลดตัวอย่างแปลงที่ดิน 4 หมุด</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => addCadastralPoint({
+                                  id: crypto.randomUUID ? crypto.randomUUID() : `pt_${Date.now()}`,
+                                  name: 'หมุด 1',
+                                  easting: 669500,
+                                  northing: 1531000
+                                })}
+                                className="min-h-[36px] px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-1)] hover:bg-[var(--surface)] transition"
+                              >
+                                <Plus className="w-3.5 h-3.5 text-indigo-500" />
+                                <span>เพิ่มหมุดแรก</span>
+                              </button>
+                            </div>
                           </div>
                         </td>
                       </tr>
@@ -508,9 +589,23 @@ export const LandAreaCalculator: React.FC = () => {
                     </svg>
                   </div>
                 ) : (
-                  <div className="h-60 rounded-xl border border-dashed flex flex-col items-center justify-center text-xs text-center p-4" style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}>
-                    <MapPin className="w-8 h-8 opacity-30 text-indigo-500 mb-2" />
-                    <span>กรุณากรอกพิกัดอย่างน้อย 3 หมุดเพื่อแสดงรูปแปลงที่ดิน</span>
+                  <div className="h-64 rounded-xl border border-dashed flex flex-col items-center justify-center text-xs text-center p-6 space-y-3" style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}>
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500">
+                      <MapPin className="w-6 h-6 opacity-70" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-xs" style={{ color: 'var(--text-2)' }}>ยังไม่มีรูปแปลงที่ดินแสดงผล</p>
+                      <p className="text-[11px] mt-0.5">กรุณากรอกพิกัดอย่างน้อย 3 หมุดวนรอบแปลงเพื่อสร้างผัง 2D</p>
+                    </div>
+                    {cadastralPoints.length === 0 && (
+                      <button
+                        type="button"
+                        onClick={resetCadastralToSample}
+                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold border border-indigo-500/40 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 transition"
+                      >
+                        ⚡ โหลดตัวอย่างสาธิตทันที
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -581,6 +676,56 @@ export const LandAreaCalculator: React.FC = () => {
                   <ArrowRightLeft className="w-3 h-3" />
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* Show Math Derivation Accordion */}
+          {polygonCalc.isValid && (
+            <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
+              <button
+                type="button"
+                onClick={() => setShowDerivation(v => !v)}
+                className="w-full px-4 py-2.5 flex items-center justify-between text-xs font-semibold hover:bg-[var(--surface)] transition text-left"
+                style={{ color: 'var(--text-1)' }}
+              >
+                <div className="flex items-center gap-2">
+                  <Calculator className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span className="font-bold text-[var(--text-1)]">Show Math Derivation (แสดงวิธีทำและขั้นตอนสูตรคำนวณเนื้อที่)</span>
+                </div>
+                {showDerivation ? <ChevronUp className="w-4 h-4 text-[var(--text-3)]" /> : <ChevronDown className="w-4 h-4 text-[var(--text-3)]" />}
+              </button>
+
+              {showDerivation && (
+                <div className="p-4 space-y-4 border-t text-xs" style={{ borderColor: 'var(--border)' }}>
+                  {/* Step 1: Gauss Shoelace Formula */}
+                  <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                    <div className="font-bold text-emerald-600 dark:text-emerald-400">
+                      1. สูตรพิกัดฉากคูณไขว้แบบเกาส์ (Gauss / Shoelace Coordinate Formula)
+                    </div>
+                    <div className="text-[var(--text-2)] space-y-1">
+                      <p>สูตรคำนวณเนื้อที่รูปหลายเหลี่ยมปิดจากพิกัดฉากราบ (Easting, Northing):</p>
+                      <MathFormulaRenderer formula="2A = \left| \sum_{i=1}^{n} (E_i N_{i+1} - E_{i+1} N_i) \right| \implies A = \frac{1}{2} |2A|" />
+                      <p>คำนวณผลรวมคูณไขว้ได้: 2A = {(polygonCalc.areaSqM * 2).toFixed(2)} ตร.ม.</p>
+                      <p>เนื้อที่สุทธิ (Area): <strong>{polygonCalc.areaSqM.toFixed(2)} ตารางเมตร</strong></p>
+                      <p>ความยาวเส้นรอบแปลง (Perimeter): <strong>{polygonCalc.perimeterM.toFixed(3)} เมตร</strong> ({cadastralPoints.length} สถานีหมุด)</p>
+                    </div>
+                  </div>
+
+                  {/* Step 2: Thai Land Units Conversion */}
+                  <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                    <div className="font-bold text-emerald-600 dark:text-emerald-400">
+                      2. การแปลงเป็นมาตราวัดที่ดินไทย (Rai-Ngan-Wah Conversion)
+                    </div>
+                    <div className="text-[var(--text-2)] space-y-1">
+                      <MathFormulaRenderer formula="1 \text{ ไร่} = 1,600 \text{ ม.}^2, \quad 1 \text{ งาน} = 400 \text{ ม.}^2, \quad 1 \text{ ตร.วา} = 4 \text{ ม.}^2" />
+                      <p>แปลงเป็นตารางวารวม: {polygonCalc.areaSqM.toFixed(2)} / 4 = {polygonCalc.totalWah.toFixed(2)} ตารางวา</p>
+                      <p className="font-semibold text-[var(--text-1)]">
+                        ผลลัพธ์มาตราวัดไทย: {formatThaiLandString(polygonCalc.thaiLand.rai, polygonCalc.thaiLand.ngan, polygonCalc.thaiLand.wah)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

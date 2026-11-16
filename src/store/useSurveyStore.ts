@@ -165,18 +165,18 @@ interface SurveyStoreState {
 export const useSurveyStore = create<SurveyStoreState>()(
   persist(
     (set, get) => ({
-      // Default Traverse
+      // Default Traverse (Blank Slate)
       traverseStartE: SAMPLE_TRAVERSE_START.easting.toString(),
       traverseStartN: SAMPLE_TRAVERSE_START.northing.toString(),
       traverseIsClosedLoop: true,
       traverseEndE: SAMPLE_TRAVERSE_START.easting.toString(),
       traverseEndN: SAMPLE_TRAVERSE_START.northing.toString(),
-      traverseLegs: SAMPLE_TRAVERSE_LEGS,
+      traverseLegs: [],
       traverseLastSaved: Date.now(),
 
-      // Modern DMS Traverse Defaults
+      // Modern DMS Traverse Defaults (Blank Slate)
       traverseMode: 'loop',
-      traverseDmsLegs: SAMPLE_TRAVERSE_DMS_LEGS,
+      traverseDmsLegs: [],
       traverseStartAz: { d: '45', m: '30', s: '00' },
       traverseEndAz: { d: '225', m: '30', s: '00' },
 
@@ -240,6 +240,7 @@ export const useSurveyStore = create<SurveyStoreState>()(
           traverseEndE: SAMPLE_TRAVERSE_START.easting.toString(),
           traverseEndN: SAMPLE_TRAVERSE_START.northing.toString(),
           traverseLegs: SAMPLE_TRAVERSE_LEGS,
+          traverseDmsLegs: SAMPLE_TRAVERSE_DMS_LEGS,
           traverseLastSaved: Date.now()
         });
         trackEvent('traverse_reset_sample');
@@ -247,9 +248,7 @@ export const useSurveyStore = create<SurveyStoreState>()(
 
       clearTraverse: () => {
         set({
-          traverseLegs: [
-            { station: 'ST-1', targetStation: 'ST-2', distance: 100, azimuthDeg: 0 }
-          ],
+          traverseLegs: [],
           traverseLastSaved: Date.now()
         });
         trackEvent('traverse_clear');
@@ -288,19 +287,17 @@ export const useSurveyStore = create<SurveyStoreState>()(
 
       clearTraverseDms: () => {
         set({
-          traverseDmsLegs: [
-            { id: 'leg-1', station: 'ST-1', targetStation: 'ST-2', distance: '100.000', obsD: '90', obsM: '00', obsS: '00' }
-          ],
+          traverseDmsLegs: [],
           traverseLastSaved: Date.now()
         });
         trackEvent('traverse_dms_clear');
       },
 
-      // Default Leveling
+      // Default Leveling (Blank Slate)
       levelingStartElevation: SAMPLE_LEVELING_START_ELEVATION.toString(),
       levelingLoopDistanceKm: '0.85',
-      levelingRows: SAMPLE_LEVELING_ROWS,
-      levelingStadiaRows: SAMPLE_STADIA_ROWS,
+      levelingRows: [],
+      levelingStadiaRows: [],
       levelingLastSaved: Date.now(),
 
       setLevelingStartElevation: (elev) => {
@@ -350,7 +347,6 @@ export const useSurveyStore = create<SurveyStoreState>()(
 
       removeLevelingRow: (index) => {
         const { levelingRows } = get();
-        if (levelingRows.length <= 1) return;
         set({
           levelingRows: levelingRows.filter((_, i) => i !== index),
           levelingLastSaved: Date.now()
@@ -362,6 +358,7 @@ export const useSurveyStore = create<SurveyStoreState>()(
           levelingStartElevation: SAMPLE_LEVELING_START_ELEVATION.toString(),
           levelingLoopDistanceKm: '0.85',
           levelingRows: SAMPLE_LEVELING_ROWS,
+          levelingStadiaRows: SAMPLE_STADIA_ROWS,
           levelingLastSaved: Date.now()
         });
         trackEvent('leveling_reset_sample');
@@ -376,10 +373,7 @@ export const useSurveyStore = create<SurveyStoreState>()(
 
       clearLeveling: () => {
         set({
-          levelingRows: [
-            { id: '1', station: 'BM-1', bs: 1.5, ifs: null, fs: null, remark: 'Start Bench Mark' },
-            { id: '2', station: 'TP-1', bs: null, ifs: null, fs: 1.2, remark: '' }
-          ],
+          levelingRows: [],
           levelingLastSaved: Date.now()
         });
         trackEvent('leveling_clear');
@@ -387,9 +381,7 @@ export const useSurveyStore = create<SurveyStoreState>()(
 
       clearLevelingStadia: () => {
         set({
-          levelingStadiaRows: [
-            { id: '1', station: 'BM1', bsTop: '', bsMid: '', bsBot: '', fsTop: '', fsMid: '', fsBot: '', remark: 'Start BM' }
-          ],
+          levelingStadiaRows: [],
           levelingLastSaved: Date.now()
         });
       },
@@ -425,8 +417,8 @@ export const useSurveyStore = create<SurveyStoreState>()(
         });
       },
 
-      // --- Cadastral Parcel Polygon State (Shoelace Area) ---
-      cadastralPoints: SAMPLE_CADASTRAL_POINTS,
+      // --- Cadastral Parcel Polygon State (Shoelace Area — Blank Slate) ---
+      cadastralPoints: [],
       cadastralPricePerWah: '25000',
 
       setCadastralPoints: (points) => set({ cadastralPoints: points }),
@@ -495,7 +487,7 @@ export const useSurveyStore = create<SurveyStoreState>()(
     }),
     {
       name: 'mesurv-survey-storage-v1',
-      version: 3,
+      version: 4,
       partialize: (state) => {
         // Exclude transient map overlays and inspected pins from persistence
         // so that the map starts 100% clean with zero phantom pins on page load.
@@ -507,9 +499,14 @@ export const useSurveyStore = create<SurveyStoreState>()(
         return rest;
       },
       migrate: (persistedState: any, version: number) => {
-        if (version < 3 && persistedState) {
+        if (version < 4 && persistedState) {
           return {
             ...persistedState,
+            traverseLegs: [],
+            traverseDmsLegs: [],
+            levelingRows: [],
+            levelingStadiaRows: [],
+            cadastralPoints: [],
             networkStations2D: [],
             networkObs2D: [],
             networkPoints1D: [],
@@ -520,7 +517,7 @@ export const useSurveyStore = create<SurveyStoreState>()(
         }
         return persistedState;
       },
-      storage: createJSONStorage(() => localStorage)
+      storage: createJSONStorage(() => (typeof window !== 'undefined' ? window.localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }))
     }
   )
 );

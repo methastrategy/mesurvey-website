@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ErrorBoundary } from './components/layout/ErrorBoundary';
 import { initPWA } from './pwa';
+import 'katex/dist/katex.min.css';
 import './index.css';
 
 // Initialize PWA auto-update and offline service worker

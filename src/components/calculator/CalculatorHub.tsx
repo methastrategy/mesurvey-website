@@ -15,7 +15,8 @@ import {
   CheckCircle2,
   Sparkles,
   Search,
-  Grid
+  Grid,
+  Mountain
 } from 'lucide-react';
 import { CoordinateConverter } from './CoordinateConverter';
 import { TraverseCalculator } from './TraverseCalculator';
@@ -27,7 +28,9 @@ import { CurveCalculator } from './CurveCalculator';
 import { RebarCalculator } from './RebarCalculator';
 import { StrapBeamCalculator } from './StrapBeamCalculator';
 import { RebarCutOptimizer } from './RebarCutOptimizer';
+import { EarthworkVolumeCalculator } from './EarthworkVolumeCalculator';
 import { useI18n, cleanParenthesizedTitle, TOOL_TITLES_ZH } from '../../core/i18n';
+import { DragonSurveyorLoader } from '../common/DragonSurveyorLoader';
 
 export type ToolId = 
   | 'scientific' 
@@ -39,7 +42,8 @@ export type ToolId =
   | 'curve' 
   | 'rebar'
   | 'strap-beam'
-  | 'rebar-optimizer';
+  | 'rebar-optimizer'
+  | 'earthwork';
 
 export type DomainWorkspace = 'all' | 'geodesy' | 'civil' | 'cadastral' | 'qaqc';
 
@@ -75,7 +79,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
         const sub = parts[1] as ToolId;
         const validSubs: ToolId[] = [
           'scientific', 'coord', 'traverse', 'leveling', 'area', 
-          'adjustment', 'curve', 'rebar', 'strap-beam', 'rebar-optimizer'
+          'adjustment', 'curve', 'rebar', 'strap-beam', 'rebar-optimizer', 'earthwork'
         ];
         if (validSubs.includes(sub)) {
           setActiveSubTab(sub);
@@ -198,6 +202,17 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       tags: ['casio', 'fx-991', 'trig', 'dms', 'degrees', 'sin', 'cos', 'tan', 'sqrt', 'scientific'],
       features: ['Natural 2-line display', 'แปลงมุม DMS ↔ ทศนิยม', 'ฟังก์ชันตรีโกณมิติครบครัน']
     },
+    {
+      id: 'earthwork',
+      name: 'คำนวณปริมาตรดินขุด-ถม 2.5D TIN',
+      nameEn: 'Earthwork Cut/Fill Volume & TIN Calculator',
+      shortDesc: 'สร้างโครงข่ายสามเหลี่ยม Delaunay 2.5D TIN คำนวณปริมาตรดินขุด-ดินถมวิธี Prismoidal Truncated Prism เทียบระดับคงที่หรือผิว OGL vs FGL แทนซอฟต์แวร์ Carlson / Civil 3D',
+      domain: 'civil',
+      domainLabel: 'Civil & Site Operations',
+      icon: Mountain,
+      tags: ['earthwork', 'cut and fill', 'tin', 'delaunay', 'prismoidal', 'civil 3d', 'carlson', 'grading', 'volume', 'contour'],
+      features: ['Delaunay 2.5D TIN Triangulation', 'Exact Prismoidal Cut/Fill Integration', 'นำเข้าพิกัด CSV & แผนผังสี 2D Mesh']
+    },
 
     // ── 3. Cadastral & Land Desk ──
     {
@@ -283,6 +298,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
         {activeSubTab === 'rebar-optimizer' && <RebarCutOptimizer />}
         {activeSubTab === 'area' && <LandAreaCalculator />}
         {activeSubTab === 'adjustment' && <NetworkAdjustment onPlotOnMap={onPlotOnMap} />}
+        {activeSubTab === 'earthwork' && <EarthworkVolumeCalculator />}
       </div>
     );
   }
@@ -292,65 +308,75 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
   // ─────────────────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-8 pb-16">
-      
-      {/* ── Hero Section ── */}
-      <div className="text-center max-w-3xl mx-auto space-y-2 py-1 sm:py-2">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[var(--text-1)] tracking-tight">
-          {t.tools.heroTitle}
-        </h1>
-        <p className="text-[var(--text-2)] text-xs sm:text-sm md:text-base leading-relaxed">
-          {t.tools.heroSubtitle}
-        </p>
-      </div>
+      <div className="space-y-6">
+        {/* ── Hero Section with Surveyor Mascot (Standardized Fixed Height Slot) ── */}
+        <div className="flex items-center justify-center gap-3.5 sm:gap-5 max-w-3xl mx-auto h-[76px] sm:h-[84px]">
+          <div className="shrink-0 flex items-center justify-center drop-shadow-sm transition-transform hover:scale-105">
+            <DragonSurveyorLoader size="sm" variant="minimal" />
+          </div>
+          <div className="text-left min-w-0">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[var(--text-1)] tracking-tight truncate">
+              {t.tools.heroTitle}
+            </h1>
+            <p className="text-[var(--text-2)] text-xs sm:text-sm leading-normal truncate max-w-xl">
+              {t.tools.heroSubtitle}
+            </p>
+          </div>
+        </div>
 
-      {/* ── 4 Domain Workspaces Selector Tabs ── */}
-      <div className="flex items-center justify-start lg:justify-center gap-2 overflow-x-auto no-scrollbar p-1.5 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)]">
-        {domains.map((dom) => {
-          const isSelected = activeDomain === dom.id;
-          const Icon = dom.icon;
-          return (
-            <button
-              key={dom.id}
-              type="button"
-              onClick={() => setActiveDomain(dom.id as DomainWorkspace)}
-              className={`min-h-[42px] flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold shrink-0 transition-all cursor-pointer ${
-                isSelected
-                  ? 'bg-[var(--accent)] text-black dark:text-white shadow-sm'
-                  : 'text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface)]'
-              }`}
-            >
-              <Icon className="w-4 h-4 shrink-0" />
-              <span>{dom.label}</span>
-              <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
-                isSelected ? 'bg-black/15 dark:bg-white/20 text-current' : 'bg-[var(--surface)] text-[var(--text-3)] border border-[var(--border)]'
-              }`}>
-                {dom.badge}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+        {/* ── 4 Domain Workspaces Selector Tabs (Clean Floating Chips without Bounding Outer Box) ── */}
+        <div className="flex items-center justify-start lg:justify-center gap-2 overflow-x-auto no-scrollbar py-1 min-h-[46px]">
+          {domains.map((dom) => {
+            const isSelected = activeDomain === dom.id;
+            const Icon = dom.icon;
+            return (
+              <button
+                key={dom.id}
+                type="button"
+                onClick={() => setActiveDomain(dom.id as DomainWorkspace)}
+                className={`min-h-[38px] h-[38px] whitespace-nowrap flex items-center justify-center gap-2 px-3.5 sm:px-4 rounded-xl text-xs sm:text-sm font-semibold shrink-0 transition-all cursor-pointer border ${
+                  isSelected
+                    ? 'bg-[var(--accent)] text-black dark:text-white border-[var(--accent)] shadow-sm'
+                    : 'bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-2)] hover:text-[var(--text-1)] border-[var(--border)]'
+                }`}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                <span>{dom.label}</span>
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${
+                  isSelected ? 'bg-black/15 dark:bg-white/20 text-current border-transparent' : 'bg-[var(--surface)] text-[var(--text-3)] border-[var(--border)]/60'
+                }`}>
+                  {dom.badge}
+                </span>
+              </button>
+            );
+          })}
+        </div>
 
-      {/* ── Search Bar within Tools ── */}
-      <div className="relative max-w-4xl mx-auto w-full">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-3)] pointer-events-none" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={t.tools.searchPlaceholder}
-          className="w-full min-h-[44px] pl-10 pr-24 py-2.5 rounded-[var(--btn-radius)] border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-1)] placeholder-[var(--text-3)] text-xs sm:text-sm focus:outline-none focus:border-[var(--accent)] transition-colors"
-        />
-        {searchQuery && (
-          <button
-            type="button"
-            onClick={() => setSearchQuery('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded text-xs font-semibold text-[var(--text-2)] hover:text-[var(--text-1)] bg-[var(--surface)] border border-[var(--border)] transition-colors"
-          >
-            {t.tools.clearSearch}
-          </button>
-        )}
-      </div>
+        {/* ── Search Bar within Tools (Identical Unified Direct Input Bar) ── */}
+        <div className="relative max-w-4xl mx-auto w-full">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-3)] pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t.tools.searchPlaceholder}
+            className="w-full min-h-[46px] pl-10 pr-28 sm:pr-36 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-1)] placeholder-[var(--text-3)] text-xs sm:text-sm focus:outline-none focus:border-[var(--accent)] transition-colors shadow-2xs"
+          />
+          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="min-h-[28px] px-2 py-0.5 rounded-lg text-xs font-semibold text-[var(--text-2)] hover:text-[var(--text-1)] bg-[var(--surface)] border border-[var(--border)] transition-colors shrink-0 cursor-pointer"
+              >
+                {t.tools.clearSearch}
+              </button>
+            )}
+            <span className="hidden xs:inline-block px-2 py-0.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[10px] sm:text-[11px] font-mono tabular-nums text-[var(--text-2)] shrink-0">
+              {filteredTools.length} {language === 'en' ? 'tools' : language === 'zh' ? '个工具' : 'เครื่องมือ'}
+            </span>
+          </div>
+        </div>
 
       {/* ── Modern Tool Grid (Responsive 1-Col / 2-Col / 3-Col / 4-Col) ── */}
       {filteredTools.length > 0 ? (
@@ -386,24 +412,30 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
                     >
                       <Icon className="w-5 h-5 text-[var(--accent)] group-hover:text-black dark:group-hover:text-white transition-colors" />
                     </div>
-                    <div className="min-w-0">
-                      <h2 className="text-base sm:text-lg font-bold text-[var(--text-1)] group-hover:text-[var(--accent)] transition-colors leading-snug">
-                        {language === 'zh'
-                          ? (TOOL_TITLES_ZH[tool.id]?.name || tool.nameEn)
-                          : language === 'en'
-                          ? tool.nameEn
-                          : cleanParenthesizedTitle(tool.name)}
-                      </h2>
-                      <p className="text-xs font-mono text-[var(--text-3)] truncate">
-                        {language === 'en' ? cleanParenthesizedTitle(tool.name) : tool.nameEn}
-                      </p>
+                    <div className="min-w-0 flex-1">
+                      <div className="h-[48px] flex items-start overflow-hidden">
+                        <h2 className="text-base sm:text-lg font-bold text-[var(--text-1)] group-hover:text-[var(--accent)] transition-colors leading-snug line-clamp-2">
+                          {language === 'zh'
+                            ? (TOOL_TITLES_ZH[tool.id]?.name || tool.nameEn)
+                            : language === 'en'
+                            ? tool.nameEn
+                            : cleanParenthesizedTitle(tool.name)}
+                        </h2>
+                      </div>
+                      <div className="h-5 flex items-center overflow-hidden">
+                        <p className="text-xs font-mono text-[var(--text-3)] truncate">
+                          {language === 'en' ? cleanParenthesizedTitle(tool.name) : tool.nameEn}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Description */}
-                  <p className="text-xs sm:text-sm text-[var(--text-2)] leading-relaxed line-clamp-3">
-                    {language === 'zh' ? (TOOL_TITLES_ZH[tool.id]?.desc || tool.shortDesc) : tool.shortDesc}
-                  </p>
+                  {/* Description: Fixed height 60px 3-line slot */}
+                  <div className="h-[60px] overflow-hidden">
+                    <p className="text-xs sm:text-sm text-[var(--text-2)] leading-relaxed line-clamp-3">
+                      {language === 'zh' ? (TOOL_TITLES_ZH[tool.id]?.desc || tool.shortDesc) : tool.shortDesc}
+                    </p>
+                  </div>
 
                   {/* Feature Tags */}
                   <div className="flex flex-wrap gap-1.5 pt-1">
@@ -430,8 +462,10 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
           })}
         </div>
       ) : (
-        <div className="fusion-card p-12 text-center space-y-3">
-          <Calculator className="w-10 h-10 mx-auto text-[var(--text-3)] opacity-40" />
+        <div className="fusion-card p-10 text-center space-y-3">
+          <div className="flex justify-center">
+            <DragonSurveyorLoader size="md" variant="minimal" />
+          </div>
           <h3 className="text-base font-bold text-[var(--text-1)]">
             ไม่พบเครื่องมือที่ตรงกับ "{searchQuery}"
           </h3>
@@ -447,6 +481,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 };

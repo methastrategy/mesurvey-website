@@ -8,7 +8,6 @@ import {
   Moon, 
   Check, 
   ChevronDown, 
-  Wifi, 
   WifiOff, 
   ArrowLeft 
 } from 'lucide-react';
@@ -102,53 +101,57 @@ export const Header: React.FC<HeaderProps> = ({
       icon: Calculator,
       countBadge: '10',
     },
-    {
-      id: 'map' as const,
-      label: t.nav.map,
-      icon: Map,
-      countBadge: 'GIS',
-    },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full select-none bg-[var(--surface)]/95 backdrop-blur-md border-b border-[var(--border)] transition-colors h-16">
-      <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-2 sm:gap-4">
+    <header className="sticky top-0 z-50 w-full select-none bg-[var(--surface)]/90 backdrop-blur-xl border-b border-[var(--border)] transition-colors h-16 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_1px_2px_rgba(0,0,0,0.03)]">
+      <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 h-full relative flex items-center justify-between gap-4">
         
         {/* ================================================================= */}
-        {/* ZONE 1 (LEFT): Brand Identity & Contextual Return Breadcrumb     */}
+        {/* ZONE 1 (LEFT): Brand Logo & WebGIS Map Direct Entry               */}
         {/* ================================================================= */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0 z-20">
           <button
-            onClick={() => {
-              if (onOpenAbout) {
-                onOpenAbout();
-              } else {
-                setActiveTab('knowledge');
-              }
-            }}
-            className="group flex items-center gap-2.5 min-h-[44px] py-1 px-2 -ml-2 rounded-xl hover:bg-[var(--surface-2)] transition-all micro-press focus-ring shrink-0 cursor-pointer"
-            title="เกี่ยวกับระบบ MESURV (คลิกเพื่อดูข้อมูล)"
-            aria-label="เกี่ยวกับระบบ MESURV"
+            type="button"
+            onClick={() => setActiveTab('map')}
+            aria-current={activeTab === 'map' ? 'page' : undefined}
+            className={`group flex items-center gap-2.5 min-h-[44px] py-1 px-2.5 -ml-2 rounded-xl transition-all micro-press focus-ring shrink-0 cursor-pointer border ${
+              activeTab === 'map'
+                ? 'bg-[var(--accent)]/15 border-[var(--accent)]/40 shadow-xs'
+                : 'hover:bg-[var(--surface-2)] border-transparent'
+            }`}
+            title={language === 'th' ? 'เปิดแผนที่สนาม WebGIS (คลิกเพื่อเข้าสู่หน้าแผนที่)' : language === 'zh' ? '打开外业地图 WebGIS' : 'Open WebGIS Field Map'}
+            aria-label="MESURV WebGIS Field Map"
           >
-            {/* High-Precision Geomatics Reticle / Prism Icon */}
-            <div className="relative w-8 h-8 rounded-lg bg-[var(--surface-2)] group-hover:bg-[var(--accent)]/15 border border-[var(--border)] group-hover:border-[var(--accent)]/40 flex items-center justify-center transition-all shadow-sm">
-              <svg 
-                className="w-4 h-4 text-[var(--accent)] transition-transform duration-300 group-hover:rotate-45" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2.2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="9" strokeDasharray="3 3" opacity="0.6" />
-                <path d="M12 3v4m0 10v4M3 12h4m10 0h4" />
-                <circle cx="12" cy="12" r="2.5" fill="currentColor" />
-              </svg>
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[var(--accent)] shadow-[0_0_6px_var(--accent)] animate-pulse" />
+            {/* High-Precision Geomatics Reticle / Map Icon */}
+            <div className={`relative w-8 h-8 rounded-lg flex items-center justify-center transition-all shadow-sm ${
+              activeTab === 'map'
+                ? 'bg-[var(--accent)] text-black dark:text-white shadow-[0_0_12px_var(--accent)]/30'
+                : 'bg-[var(--surface-2)] group-hover:bg-[var(--accent)]/15 border border-[var(--border)] group-hover:border-[var(--accent)]/40'
+            }`}>
+              {activeTab === 'map' ? (
+                <Map className="w-4 h-4 transition-transform duration-200" />
+              ) : (
+                <svg 
+                  className="w-4 h-4 text-[var(--accent)] transition-transform duration-300 group-hover:rotate-45" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="9" strokeDasharray="3 3" opacity="0.6" />
+                  <path d="M12 3v4m0 10v4M3 12h4m10 0h4" />
+                  <circle cx="12" cy="12" r="2.5" fill="currentColor" />
+                </svg>
+              )}
+              <span className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ${
+                activeTab === 'map' ? 'bg-emerald-400 animate-ping' : 'bg-[var(--accent)] shadow-[0_0_6px_var(--accent)] animate-pulse'
+              }`} />
             </div>
 
-            {/* Stylized Modern Brand Typography */}
+            {/* Stylized Modern Brand Typography with dynamic Map indicator */}
             <div className="flex flex-col text-left">
               <div className="flex items-center tracking-tight leading-none">
                 <span className="font-extrabold text-base sm:text-lg tracking-wider font-mono text-[var(--text-1)] group-hover:text-[var(--accent)] transition-colors">
@@ -157,12 +160,16 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="font-black text-base sm:text-lg tracking-widest font-mono text-[var(--accent)] drop-shadow-sm">
                   SURV
                 </span>
-                <span className="ml-1 text-[9px] font-mono font-semibold px-1 py-0.5 rounded bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/30 leading-none">
-                  GEO
+                <span className={`ml-1 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border leading-none transition-colors ${
+                  activeTab === 'map'
+                    ? 'bg-[var(--accent)] text-black dark:text-white border-[var(--accent)]'
+                    : 'bg-[var(--accent)]/15 text-[var(--accent)] border-[var(--accent)]/30'
+                }`}>
+                  {activeTab === 'map' ? 'MAP' : 'GEO'}
                 </span>
               </div>
               <span className="text-[9px] font-mono text-[var(--text-3)] group-hover:text-[var(--text-2)] tracking-wider uppercase transition-colors">
-                PLATFORM ⓘ
+                {activeTab === 'map' ? 'FIELD MAP' : 'PLATFORM'}
               </span>
             </div>
           </button>
@@ -207,13 +214,13 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* ================================================================= */}
-        {/* ZONE 2 (CENTER): Precision Floating Segmented Navigation Island  */}
+        {/* ZONE 2 (CENTER): Frameless Floating Precision Navigation Chips    */}
         {/* ================================================================= */}
         <nav
           aria-label="Primary Workspace Navigation"
-          className="hidden md:flex items-center justify-center flex-1 shrink-0"
+          className="hidden md:flex items-center absolute left-1/2 -translate-x-1/2 z-10 pointer-events-auto"
         >
-          <div className="inline-flex items-center p-1 rounded-2xl bg-[var(--surface-2)]/90 border border-[var(--border)] shadow-2xs gap-1 backdrop-blur-xs">
+          <div className="flex items-center gap-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -223,17 +230,14 @@ export const Header: React.FC<HeaderProps> = ({
                   type="button"
                   onClick={() => setActiveTab(item.id)}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`min-h-[40px] px-3.5 lg:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-150 flex items-center gap-2 micro-press cursor-pointer select-none ${
+                  className={`min-h-[40px] w-[200px] lg:w-[212px] justify-center px-4 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-150 flex items-center gap-2 micro-press cursor-pointer select-none border ${
                     isActive
-                      ? 'bg-[var(--surface)] text-[var(--accent)] font-bold shadow-xs border border-[var(--border)]/80 scale-[1.02]'
-                      : 'text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface)]/50 border border-transparent'
+                      ? 'border-[var(--accent)] bg-[var(--accent)] text-black dark:text-white shadow-2xs'
+                      : 'border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface-3)]'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 shrink-0 transition-transform ${isActive ? 'scale-110 text-[var(--accent)]' : 'text-[var(--text-3)]'}`} />
-                  <span>{item.label}</span>
-                  {isActive && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_6px_var(--accent)] shrink-0" />
-                  )}
+                  <Icon className={`w-4 h-4 shrink-0 transition-transform ${isActive ? 'scale-110' : 'text-[var(--text-3)]'}`} />
+                  <span className="whitespace-nowrap">{item.label}</span>
                 </button>
               );
             })}
@@ -241,72 +245,61 @@ export const Header: React.FC<HeaderProps> = ({
         </nav>
 
         {/* ================================================================= */}
-        {/* ZONE 3 (RIGHT): Modular Utility Dock (Language + Status + Theme)   */}
+        {/* ZONE 3 (RIGHT): Frameless Floating Precision Utility Cockpit      */}
         {/* ================================================================= */}
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 relative" ref={themeMenuRef}>
-          
-          {/* Module 1: Language Switcher Capsule */}
-          <div 
-            className="flex items-center p-0.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] shrink-0 shadow-2xs"
-            role="group"
-            aria-label={t.header.languageSelector}
-          >
-            {allLanguages.map((langItem) => {
-              const isSelected = language === langItem.code;
-              return (
-                <button
-                  key={langItem.code}
-                  type="button"
-                  onClick={() => setLanguage(langItem.code)}
-                  className={`min-h-[34px] min-w-[32px] sm:min-w-[36px] px-2 py-0.5 rounded-lg text-[11px] sm:text-xs font-mono font-bold transition-all micro-press cursor-pointer ${
-                    isSelected
-                      ? 'bg-[var(--accent)] text-black dark:text-white shadow-xs'
-                      : 'text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--surface)]/60'
-                  }`}
-                  title={`${langItem.label} - ${langItem.nameNative}`}
-                  aria-pressed={isSelected}
-                  aria-label={`Switch to ${langItem.nameEn}`}
-                >
-                  {langItem.shortLabel}
-                </button>
-              );
-            })}
-          </div>
+        <div className="flex items-center shrink-0 z-20 relative" ref={themeMenuRef}>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            
+            {/* Sub-item A: Language Switcher Capsule */}
+            <div 
+              className="flex items-center p-0.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] shadow-2xs"
+              role="group"
+              aria-label={t.header.languageSelector}
+            >
+              {allLanguages.map((langItem) => {
+                const isSelected = language === langItem.code;
+                return (
+                  <button
+                    key={langItem.code}
+                    type="button"
+                    onClick={() => setLanguage(langItem.code)}
+                    className={`min-h-[32px] w-[30px] sm:w-[34px] justify-center text-center px-1 py-0.5 rounded-lg text-[11px] font-mono font-bold transition-all micro-press cursor-pointer ${
+                      isSelected
+                        ? 'bg-[var(--accent)] text-black dark:text-white shadow-xs'
+                        : 'text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--surface)]'
+                    }`}
+                    title={`${langItem.label} - ${langItem.nameNative}`}
+                    aria-pressed={isSelected}
+                    aria-label={`Switch to ${langItem.nameEn}`}
+                  >
+                    {langItem.shortLabel}
+                  </button>
+                );
+              })}
+            </div>
 
-          {/* Module 2: Live Network Telemetry Badge */}
-          {network && (
-            network.isOnline ? (
-              <div
-                className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-3)] text-[11px] font-mono select-none"
-                title="เชื่อมต่ออินเทอร์เน็ตปกติ (Live Online)"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="font-semibold tracking-wider">ONLINE</span>
-              </div>
-            ) : (
+            {/* Sub-item B: Offline Alert (Surfaced exclusively in Offline Field Mode) */}
+            {network && !network.isOnline && (
               <button
                 type="button"
                 onClick={network.resetDismissed}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-500 dark:text-amber-400 text-[11px] font-mono font-bold hover:bg-amber-500/25 transition-colors micro-press focus-ring"
+                className="inline-flex items-center gap-1.5 px-2 py-1 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-500 dark:text-amber-400 text-[11px] font-mono font-bold hover:bg-amber-500/25 transition-colors micro-press focus-ring"
                 title="คลิกเพื่อดูรายละเอียดโหมดรังวัดออฟไลน์ภาคสนาม (Offline Field Mode 100%)"
                 aria-label="สถานะออฟไลน์ภาคสนาม คลิกเพื่อดูรายละเอียด"
               >
                 <WifiOff className="w-3.5 h-3.5 shrink-0 animate-pulse" />
                 <span className="hidden sm:inline tracking-wider">OFFLINE</span>
               </button>
-            )
-          )}
+            )}
 
-          {/* Module 3: Appearance & Curated Palette Dock */}
-          <div className="flex items-center p-0.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] shrink-0 shadow-2xs gap-0.5">
-            {/* Quick Dark/Light Toggle Button */}
+            {/* Sub-item C: Quick Light/Dark Toggle */}
             {onToggleTheme && (
               <button
                 type="button"
                 onClick={onToggleTheme}
                 aria-label={currentThemeObj.isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด'}
                 title={currentThemeObj.isDark ? 'สลับเป็นโหมดสว่าง (Light Mode)' : 'สลับเป็นโหมดมืด (Dark Mode)'}
-                className="min-h-[34px] min-w-[34px] p-2 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-2)] text-[var(--text-1)] flex items-center justify-center transition-colors micro-press focus-ring cursor-pointer"
+                className="min-h-[34px] min-w-[34px] p-1.5 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] flex items-center justify-center transition-all micro-press focus-ring cursor-pointer shadow-2xs"
               >
                 {currentThemeObj.isDark ? (
                   <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />
@@ -316,24 +309,25 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
 
-            {/* Theme Dropdown Trigger Button */}
+            {/* Sub-item D: Theme Palette Menu Trigger */}
             <button
               type="button"
               onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
               aria-expanded={isThemeMenuOpen}
               aria-label="เลือกธีมสีของระบบ"
               title={`ธีมปัจจุบัน: ${currentThemeObj.name} (คลิกเพื่อเลือกจาก ${isDark ? 'โหมดมืด 2 แบบ' : 'โหมดสว่าง 2 แบบ'})`}
-              className="min-h-[34px] px-2.5 py-1 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-2)] text-[var(--text-1)] flex items-center gap-2 transition-all micro-press focus-ring cursor-pointer"
+              className="min-h-[34px] px-2.5 py-1 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-1)] border border-[var(--border)] flex items-center gap-1.5 transition-all micro-press focus-ring cursor-pointer shadow-2xs"
             >
               <span
                 className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs border border-black/10 dark:border-white/20"
                 style={{ backgroundColor: currentThemeObj.accent }}
               />
-              <span className="hidden md:inline font-mono text-[11px] font-bold tracking-wide w-[80px] truncate text-left">
+              <span className="hidden xl:inline font-mono text-[11px] font-bold tracking-wide max-w-[80px] truncate text-left">
                 {currentThemeObj.name.toUpperCase()}
               </span>
-              <ChevronDown className={`w-3.5 h-3.5 text-[var(--text-3)] transition-transform duration-150 shrink-0 ${isThemeMenuOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3 h-3 text-[var(--text-3)] transition-transform duration-150 shrink-0 ${isThemeMenuOpen ? 'rotate-180' : ''}`} />
             </button>
+
           </div>
 
           {/* Dropdown Menu Popover */}

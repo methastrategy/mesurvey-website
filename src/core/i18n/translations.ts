@@ -90,19 +90,20 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
         rebar: 'คำนวณเหล็กเสริม',
         'strap-beam': 'คานรั้งฐานราก',
         'rebar-optimizer': 'ตัดเหล็กลดเศษ',
+        earthwork: 'ดินขุด-ถม TIN',
       },
     },
     tools: {
       heroTitle: 'สถานีคำนวณและเวิร์กสเปซ',
-      heroSubtitle: 'สถานีคำนวณวิศวกรรมสำรวจและปฏิบัติการสนามครบวงจร แบ่งออกเป็น 4 เวิร์กสเปซหลัก: Geodesy & Survey, Civil & Site, Cadastral & Land, และ QA/QC Studio',
+      heroSubtitle: 'สถานีคำนวณวิศวกรรมสำรวจและปฏิบัติการสนาม Geodesy, Civil, Cadastral, QA/QC',
       searchPlaceholder: 'ค้นหาเครื่องมือ (เช่น วงรอบ, ระดับ, โค้ง, แปลงพิกัด, คานรั้ง, ตัดเหล็ก)...',
       clearSearch: 'ล้าง',
       backToDirectory: '← กลับสู่หน้ารวมเครื่องมือ',
       domainAll: 'ทั้งหมด',
-      domainGeodesy: '🧭 งานรังวัดและยีโอเดซี',
+      domainGeodesy: '🧭 งานรังวัด & Geodesy',
       domainCivil: '🏗️ วิศวกรรมโยธาและหน้างาน',
-      domainCadastral: '📐 งานที่ดินและแผนที่ระวาง',
-      domainQaqc: '🔬 ศูนย์ตรวจสอบคุณภาพ',
+      domainCadastral: '📐 งานที่ดิน & Cadastral',
+      domainQaqc: '🔬 ศูนย์ตรวจสอบ QA/QC',
       toolLabel: 'เครื่องมือ',
       launchTool: 'เปิดใช้งาน',
     },
@@ -164,11 +165,12 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
         rebar: 'Rebar Estimator',
         'strap-beam': 'Strap Beam Design',
         'rebar-optimizer': '1D Rebar Optimizer',
+        earthwork: 'Earthwork TIN Volume',
       },
     },
     tools: {
-      heroTitle: 'Tools & Workspaces',
-      heroSubtitle: 'Integrated Geomatics and field calculation station categorized into 4 core workspaces: Geodesy & Survey, Civil & Site, Cadastral & Land, and QA/QC Studio',
+      heroTitle: 'Calculation Workstations',
+      heroSubtitle: 'Integrated field geomatics workstations: Geodesy, Civil, Cadastral, and QA/QC Studio',
       searchPlaceholder: 'Search tools (e.g. Traverse, Leveling, Curve, Coordinates, Strap Beam, Rebar)...',
       clearSearch: 'Clear',
       backToDirectory: '← Back to Tools Directory',
@@ -182,7 +184,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
     },
     knowledge: {
       heroTitle: 'Survey Knowledge Hub',
-      heroSubtitle: 'Instrument manuals, field standard operating procedures (SOP), building laws, and field troubleshooting',
+      heroSubtitle: 'Instrument manuals, field SOPs, building laws, and field troubleshooting',
       searchPlaceholder: 'Search knowledge (e.g. Level, Total Station, GNSS, Drone, Setback, Datum)...',
       clearSearch: 'Clear',
       categoryAll: 'All Categories',
@@ -238,11 +240,12 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
         rebar: '钢筋搭接计算',
         'strap-beam': '地界基础连系梁',
         'rebar-optimizer': '钢筋截断下料',
+        earthwork: '土方量与TIN',
       },
     },
     tools: {
       heroTitle: '计算工具与作业平台',
-      heroSubtitle: '集成的测绘工程与外业计算终端，分为4个核心工作区: 大地测量与测绘、土木工程与施工、地籍测量与土地管理、质量核验与控制中心',
+      heroSubtitle: '全流程外业计算终端：大地测量、土木施工、地籍测量与质量核验控制',
       searchPlaceholder: '搜索工具 (如: 导线平差, 水准测量, 圆曲线, 坐标转换, 连系梁, 钢筋优化)...',
       clearSearch: '清除',
       backToDirectory: '← 返回工具目录',
@@ -256,7 +259,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
     },
     knowledge: {
       heroTitle: '测绘工程专业知识库',
-      heroSubtitle: '测量仪器操作手册、外业作业规程(SOP)、建筑与地籍法规标准、以及现场疑难故障排查指南',
+      heroSubtitle: '测绘仪器操作手册、外业作业规程(SOP)、建筑法规标准、以及现场疑难排查',
       searchPlaceholder: '搜索知识库 (如: 水准仪, 全站仪, GNSS, 无人机, 退让间距, 坐标系)...',
       clearSearch: '清除',
       categoryAll: '全部分类',
@@ -290,14 +293,98 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
 };
 
 /**
+ * English concise titles lookup for topics & cards
+ */
+export const TOPIC_TITLES_EN: Record<string, string> = {
+  // Equipment (EQ-01 to EQ-05)
+  'level-instrument-manual': 'Optical & Digital Level Guide',
+  'theodolite-station-setup': 'Theodolite & Total Station Guide',
+  'gnss-instrument-manual': 'GNSS Receiver & RTK Guide',
+  'uav-instrument-manual': 'Survey Drone & LiDAR Guide',
+  'lidar-slam-instrument-manual': '3D Laser Scanner & SLAM Guide',
+
+  // Field SOPs (SOP-01 to SOP-08)
+  'differential-leveling-survey': 'Differential Leveling & Arithmetic Check SOP',
+  'closed-loop-traverse': 'Closed Loop Traverse SOP',
+  'link-open-traverse': 'Connecting Link Traverse SOP',
+  'gnss-rtk-static-survey': 'GNSS Static & RTK Survey SOP',
+  'uav-drone-photogrammetry': 'UAV Photogrammetry & GCP SOP',
+  'terrestrial-lidar-slam': 'Terrestrial LiDAR & SLAM SOP',
+  'hydrographic-bathymetric-survey': 'Hydrographic Survey SOP',
+  'tbm-tunnel-guidance-survey': 'TBM Tunnel Guidance SOP',
+
+  // Consolidated Laws (LAW-01 to LAW-06)
+  'law-building-control': 'Building Setbacks & Codes',
+  'law-land-cadastral': 'Land Cadastral & Boundary Act',
+  'law-uav-drone-aviation': 'UAV Aviation & Drone Law',
+  'law-excavation-soil-filling': 'Excavation & Soil Filling Act',
+  'law-waterways-marine-ingress': 'Navigation in Thai Waters Act',
+  'law-engineering-practice-safety': 'Engineering Practice & Safety',
+
+  // Legacy law IDs (for backwards compatibility)
+  'law-setback-openspace': 'Building Setback & Codes',
+  'law-highrise-extralarge': 'High-Rise & Large Building Codes',
+  'law-fire-safety-survey': 'Fire Safety & Egress Standards',
+  'law-land-act-cadastral': 'Land Code & Boundary Disputes',
+
+  // Site Engineering (SITE-01 to SITE-04)
+  'site-strap-beam-control': 'Boundary Footing & Strap Beam',
+  'site-rebar-cut-management': 'Rebar BBS & Cut Optimizer',
+  'site-scurve-progress-tracking': 'S-Curve Progress Tracking',
+  'site-building-defect-checklist': 'Building Defect Punch List',
+
+  // Legacy site IDs
+  'site-strap-beam': 'Boundary Footing & Strap Beam',
+  'site-retaining-wall': 'Retaining Wall Alignment Control',
+  'site-piling-cutoff': 'Piling Cutoff & Axis Verification',
+  'site-borehole-soil': 'Borehole Staking & Geotechnical',
+  'site-precast-alignment': 'Precast Plumbness & Axis Control',
+
+  // Field Troubleshooting (TRBL-01 to TRBL-06)
+  'trouble-gnss-float': 'GNSS Stuck in Float Solution',
+  'trouble-leveling-twopeg': 'Two-Peg Collimation Failure',
+  'trouble-traverse-misclosure': 'Traverse Misclosure Exceeded',
+  'trouble-boundary-dispute': 'Boundary Marker Lost / Dispute',
+  'trouble-resection-geometry': 'Resection Error Too High',
+  'trouble-pile-eccentric': 'Pile Eccentricity Out of Spec',
+  'trouble-leveling-misclosure': 'Leveling Misclosure Exceeded',
+  'trouble-theodolite-prism': 'Total Station Signal Lost',
+  'trouble-uav-blur': 'UAV Motion Blur Recovery',
+  'trouble-lidar-multipath': 'LiDAR Ghost Point Cloud Noise',
+  'trouble-grid-convergence': 'UTM Grid Convergence Exceeded',
+};
+
+/**
+ * Thai concise titles lookup for cards
+ */
+export const TOPIC_TITLES_TH: Record<string, string> = {
+  // Consolidated Laws (LAW-01 to LAW-06)
+  'law-building-control': 'พ.ร.บ. ควบคุมอาคารและระยะร่น',
+  'law-land-cadastral': 'ประมวลกฎหมายที่ดินและแนวเขต',
+  'law-uav-drone-aviation': 'กฎหมายการบินโดรนสำรวจ (CAAT/NBTC)',
+  'law-excavation-soil-filling': 'พ.ร.บ. การขุดดินและถมดิน',
+  'law-waterways-marine-ingress': 'พ.ร.บ. การเดินเรือในน่านน้ำไทย',
+  'law-engineering-practice-safety': 'พ.ร.บ. วิศวกรและความปลอดภัยไซต์',
+
+  // Site Engineering (SITE-01 to SITE-04)
+  'site-strap-beam-control': 'การควบคุมฐานรากชิดเขตและคานรั้ง',
+  'site-rebar-cut-management': 'การตัดดัดเหล็กเส้นและลดเศษสูญเสีย',
+  'site-scurve-progress-tracking': 'การติดตามความก้าวหน้าด้วย S-Curve',
+  'site-building-defect-checklist': 'เกณฑ์การตรวจรับมอบงานอาคาร',
+};
+
+/**
  * Chinese titles lookup for topics
  */
 export const TOPIC_TITLES_ZH: Record<string, string> = {
+  // Equipment (EQ-01 to EQ-05)
   'level-instrument-manual': '自动与数字水准仪操作指南',
   'theodolite-station-setup': '电子经纬仪与全站仪操作指南',
   'gnss-instrument-manual': 'GNSS RTK与CORS接收机操作指南',
   'uav-instrument-manual': '无人机测绘与航测系统操作指南',
   'lidar-slam-instrument-manual': '地面三维激光扫描仪与移动SLAM操作指南',
+
+  // Field SOPs (SOP-01 to SOP-08)
   'differential-leveling-survey': '外业几何水准测量与算术检核规程',
   'closed-loop-traverse': '闭合导线测量与Bowditch平差规程',
   'link-open-traverse': '附合导线测量与施工轴线控制规程',
@@ -306,16 +393,41 @@ export const TOPIC_TITLES_ZH: Record<string, string> = {
   'terrestrial-lidar-slam': '地面激光扫描与点云拼接配准规程',
   'hydrographic-bathymetric-survey': '水体水深测量与水下地形测绘规程',
   'tbm-tunnel-guidance-survey': '盾构机(TBM)地下隧道掘进激光导向测量规程',
+
+  // Consolidated Laws (LAW-01 to LAW-06)
+  'law-building-control': '建筑法与退让间距规范',
+  'law-land-cadastral': '土地法典与地界调处规程',
+  'law-uav-drone-aviation': '无人机航空管制与空域法规',
+  'law-excavation-soil-filling': '开挖与填土工程安全法规',
+  'law-waterways-marine-ingress': '水路通航与临水建筑法规',
+  'law-engineering-practice-safety': '执业工程师与现场安全法',
+
+  // Legacy law IDs
   'law-setback-openspace': '建筑退让间距与空地率规范',
   'law-highrise-extralarge': '高层与超大型建筑控制指标',
   'law-fire-safety-survey': '消防疏散通道与防灾测绘标准',
   'law-land-act-cadastral': '土地法典与地界纠纷调处规程 (第69条)',
+
+  // Site Engineering (SITE-01 to SITE-04)
+  'site-strap-beam-control': '边界偏心基础与连系梁施工',
+  'site-rebar-cut-management': '钢筋配料下料与损耗优化',
+  'site-scurve-progress-tracking': 'S曲线施工进度跟踪分析',
+  'site-building-defect-checklist': '建筑工程验收与缺陷排查',
+
+  // Legacy site IDs
   'site-strap-beam': '边界偏心基础与连系梁设计',
   'site-retaining-wall': '挡土墙与钢板桩轴线监测',
   'site-piling-cutoff': '桩位放样与桩顶截桩高程核验',
   'site-borehole-soil': '地质勘探孔坐标测放与地层标注',
   'site-precast-alignment': '预制装配构件垂直度与轴线控制',
+
+  // Troubleshooting (TRBL-01 to TRBL-06)
   'trouble-gnss-float': 'GNSS处于FLOAT单点解无法FIX锁定',
+  'trouble-leveling-twopeg': '水准仪视准轴误差超限',
+  'trouble-traverse-misclosure': '导线闭合差超限分析',
+  'trouble-boundary-dispute': '界桩遗失与边界争议',
+  'trouble-resection-geometry': '后方交会几何误差超限',
+  'trouble-pile-eccentric': '桩位偏心偏差超标处置',
   'trouble-leveling-misclosure': '水准路线闭合差超限',
   'trouble-theodolite-prism': '全站仪测距信号丢失/反射棱镜无返回',
   'trouble-uav-blur': '航拍照相动态模糊导致三维建模失败',
@@ -366,5 +478,9 @@ export const TOOL_TITLES_ZH: Record<string, { name: string; desc: string }> = {
   adjustment: {
     name: 'GNSS与控制网平差中心',
     desc: '集成GNSS双差基线解算、RINEX星历图、一维/二维最小二乘平差与95%误差椭圆评估',
+  },
+  earthwork: {
+    name: '2.5D TIN土方挖填方量计算',
+    desc: '基于Delaunay 2.5D不规则三角网与精确棱柱截断积分计算土石方挖填方量，替代Carlson / Civil 3D',
   },
 };

@@ -8,9 +8,13 @@ import {
   Info, 
   Layers, 
   ChevronRight,
-  Calculator
+  ChevronDown,
+  ChevronUp,
+  Calculator,
+  BookOpen
 } from 'lucide-react';
 import { exportToCsv } from '../../utils/csv-export';
+import { MathFormulaRenderer } from '../common/MathFormulaRenderer';
 
 export interface StakingPoint {
   station: number;
@@ -60,17 +64,49 @@ function formatStation(sta: number): string {
 }
 
 export const CurveCalculator: React.FC = () => {
-  // Inputs
-  const [radiusInput, setRadiusInput] = useState<string>('200');
+  // Inputs (Blank Slate Defaults)
+  const [radiusInput, setRadiusInput] = useState<string>('');
   const [angleMode, setAngleMode] = useState<'DMS' | 'DEC'>('DMS');
-  const [deltaDeg, setDeltaDeg] = useState<string>('35');
-  const [deltaMin, setDeltaMin] = useState<string>('30');
-  const [deltaSec, setDeltaSec] = useState<string>('00');
-  const [deltaDec, setDeltaDec] = useState<string>('35.5');
-  const [piStationInput, setPiStationInput] = useState<string>('10250');
+  const [deltaDeg, setDeltaDeg] = useState<string>('');
+  const [deltaMin, setDeltaMin] = useState<string>('');
+  const [deltaSec, setDeltaSec] = useState<string>('');
+  const [deltaDec, setDeltaDec] = useState<string>('');
+  const [piStationInput, setPiStationInput] = useState<string>('');
   const [intervalInput, setIntervalInput] = useState<string>('10');
+  const [showDerivation, setShowDerivation] = useState<boolean>(false);
   
   const [isCopied, setIsCopied] = useState<boolean>(false);
+
+  const loadSampleData = (preset: 'highway' | 'ramp' | 'railway' = 'highway') => {
+    if (preset === 'highway') {
+      setRadiusInput('250');
+      setAngleMode('DMS');
+      setDeltaDeg('38');
+      setDeltaMin('15');
+      setDeltaSec('00');
+      setDeltaDec('38.25');
+      setPiStationInput('10250');
+      setIntervalInput('10');
+    } else if (preset === 'ramp') {
+      setRadiusInput('85');
+      setAngleMode('DMS');
+      setDeltaDeg('55');
+      setDeltaMin('30');
+      setDeltaSec('00');
+      setDeltaDec('55.5');
+      setPiStationInput('1500');
+      setIntervalInput('5');
+    } else if (preset === 'railway') {
+      setRadiusInput('600');
+      setAngleMode('DMS');
+      setDeltaDeg('24');
+      setDeltaMin('40');
+      setDeltaSec('00');
+      setDeltaDec('24.667');
+      setPiStationInput('25000');
+      setIntervalInput('20');
+    }
+  };
 
   // Compute Delta Angle in Decimal Degrees
   const computedDelta = useMemo(() => {
@@ -201,13 +237,13 @@ export const CurveCalculator: React.FC = () => {
   };
 
   const handleReset = () => {
-    setRadiusInput('200');
+    setRadiusInput('');
     setAngleMode('DMS');
-    setDeltaDeg('35');
-    setDeltaMin('30');
-    setDeltaSec('00');
-    setDeltaDec('35.5');
-    setPiStationInput('10250');
+    setDeltaDeg('');
+    setDeltaMin('');
+    setDeltaSec('');
+    setDeltaDec('');
+    setPiStationInput('');
     setIntervalInput('10');
   };
 
@@ -230,13 +266,23 @@ export const CurveCalculator: React.FC = () => {
           </p>
         </div>
 
-        <button
-          onClick={handleReset}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--text-2)] border border-[var(--border)] transition-colors self-start sm:self-auto"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>ค่าเริ่มต้น</span>
-        </button>
+        <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+          <button
+            onClick={() => loadSampleData('highway')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 transition-colors shadow-xs"
+            title="โหลดข้อมูลตัวอย่างโค้งถนนหลวง R=250m พร้อมคำนวณทันที"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Load Sample Data</span>
+          </button>
+          <button
+            onClick={handleReset}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--text-2)] border border-[var(--border)] transition-colors"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>ค่าเริ่มต้น</span>
+          </button>
+        </div>
       </div>
 
       {/* ── Inputs Grid ── */}
@@ -458,12 +504,143 @@ export const CurveCalculator: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="fusion-card p-8 text-center text-[var(--text-3)]">
-              กรุณากรอกรัศมี R และมุม Δ เพื่อคำนวณองค์ประกอบโค้ง
+            <div className="fusion-card p-8 sm:p-10 text-center space-y-4">
+              <div className="w-14 h-14 mx-auto rounded-2xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center text-indigo-500 shadow-xs">
+                <Compass className="w-7 h-7" />
+              </div>
+              <div className="space-y-1.5 max-w-sm mx-auto">
+                <h4 className="text-sm sm:text-base font-bold text-[var(--text-1)]">
+                  ยังไม่ได้กำหนดพารามิเตอร์แนวโค้ง (Blank Slate)
+                </h4>
+                <p className="text-xs text-[var(--text-2)] leading-relaxed">
+                  กรอกรัศมีความโค้ง $R$, มุมเบี่ยงเบน $\Delta$, และสถานีจุดตัด $PI$ ในแผงด้านซ้าย หรือคลิกเพื่อโหลดชุดข้อมูลตัวอย่าง
+                </p>
+              </div>
+              <div className="flex items-center justify-center gap-2 pt-1 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => loadSampleData('highway')}
+                  className="btn-primary min-h-[36px] px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>⚡ โหลดโค้งทางหลวง (R=250m)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => loadSampleData('ramp')}
+                  className="btn-outline min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>ทางลาดชัน (R=85m)</span>
+                </button>
+              </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* ── Show Math Derivation Accordion ── */}
+      {curveElements && (
+        <div className="fusion-card overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setShowDerivation(v => !v)}
+            className="w-full p-4 flex items-center justify-between text-xs sm:text-sm font-semibold hover:bg-[var(--surface-2)] transition text-left"
+          >
+            <div className="flex items-center gap-2">
+              <Calculator className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-[var(--text-1)] font-bold">Show Math Derivation (แสดงวิธีทำและขั้นตอนแทนค่าสูตรคำนวณโค้ง)</span>
+            </div>
+            {showDerivation ? <ChevronUp className="w-4 h-4 text-[var(--text-3)]" /> : <ChevronDown className="w-4 h-4 text-[var(--text-3)]" />}
+          </button>
+
+          {showDerivation && (
+            <div className="p-5 space-y-4 border-t border-[var(--border)] text-xs bg-[var(--surface-2)]/40">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* 1. Tangent Length */}
+                <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                  <div className="font-bold text-[var(--text-1)]">
+                    1. ความยาวเส้นสัมผัสโค้ง (Tangent Length, T)
+                  </div>
+                  <MathFormulaRenderer formula="T = R \cdot \tan\left(\frac{\Delta}{2}\right)" />
+                  <p className="text-[var(--text-2)]">
+                    แทนค่า: T = {curveElements.R} × tan({(curveElements.delta / 2).toFixed(4)}°) = <strong>{curveElements.T.toFixed(3)} ม.</strong>
+                  </p>
+                </div>
+
+                {/* 2. Curve Length */}
+                <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                  <div className="font-bold text-[var(--text-1)]">
+                    2. ความยาวส่วนโค้งทั้งหมด (Curve Length, L)
+                  </div>
+                  <MathFormulaRenderer formula="L = R \cdot \Delta_{\text{rad}} = R \cdot \left(\frac{\Delta^\circ \cdot \pi}{180^\circ}\right)" />
+                  <p className="text-[var(--text-2)]">
+                    แทนค่า: L = {curveElements.R} × ({curveElements.delta.toFixed(4)}° × π / 180°) = <strong>{curveElements.L.toFixed(3)} ม.</strong>
+                  </p>
+                </div>
+
+                {/* 3. External Distance */}
+                <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                  <div className="font-bold text-[var(--text-1)]">
+                    3. ระยะภายนอกจาก PI ถึงยอดโค้ง (External Distance, E)
+                  </div>
+                  <MathFormulaRenderer formula="E = R \cdot \left(\frac{1}{\cos(\Delta/2)} - 1\right)" />
+                  <p className="text-[var(--text-2)]">
+                    แทนค่า: E = {curveElements.R} × (1/cos({(curveElements.delta / 2).toFixed(4)}°) - 1) = <strong>{curveElements.E.toFixed(3)} ม.</strong>
+                  </p>
+                </div>
+
+                {/* 4. Middle Ordinate */}
+                <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                  <div className="font-bold text-[var(--text-1)]">
+                    4. ระยะกึ่งกลางคอร์ดถึงยอดโค้ง (Middle Ordinate, M)
+                  </div>
+                  <MathFormulaRenderer formula="M = R \cdot \left(1 - \cos\left(\frac{\Delta}{2}\right)\right)" />
+                  <p className="text-[var(--text-2)]">
+                    แทนค่า: M = {curveElements.R} × (1 - cos({(curveElements.delta / 2).toFixed(4)}°)) = <strong>{curveElements.M.toFixed(3)} ม.</strong>
+                  </p>
+                </div>
+
+                {/* 5. Long Chord */}
+                <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                  <div className="font-bold text-[var(--text-1)]">
+                    5. ระยะคอร์ดยาวรวม (Long Chord, C)
+                  </div>
+                  <MathFormulaRenderer formula="C = 2 R \cdot \sin\left(\frac{\Delta}{2}\right)" />
+                  <p className="text-[var(--text-2)]">
+                    แทนค่า: C = 2 × {curveElements.R} × sin({(curveElements.delta / 2).toFixed(4)}°) = <strong>{curveElements.C.toFixed(3)} ม.</strong>
+                  </p>
+                </div>
+
+                {/* 6. Stationing */}
+                <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                  <div className="font-bold text-[var(--text-1)]">
+                    6. การคำนวณสถานีหลัก (PC & PT Stationing)
+                  </div>
+                  <MathFormulaRenderer formula="\text{Sta. PC} = \text{Sta. PI} - T, \quad \text{Sta. PT} = \text{Sta. PC} + L" />
+                  <p className="text-[var(--text-2)]">
+                    PC = {formatStation(curveElements.PI)} - {curveElements.T.toFixed(3)} = <strong>{formatStation(curveElements.staPC)}</strong>
+                  </p>
+                  <p className="text-[var(--text-2)]">
+                    PT = {formatStation(curveElements.staPC)} + {curveElements.L.toFixed(3)} = <strong>{formatStation(curveElements.staPT)}</strong>
+                  </p>
+                </div>
+              </div>
+
+              {/* 7. Deflection Angle and Subchord Method */}
+              <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] space-y-2">
+                <div className="font-bold text-[var(--text-1)]">
+                  7. สูตรเปิดมุมเล็งเบี่ยงเบนและระยะคอร์ดย่อยสำหรับกล้อง Total Station (Deflection Angle & Chord Method)
+                </div>
+                <div className="text-[var(--text-2)] space-y-1">
+                  <MathFormulaRenderer formula="\delta_i = \left( \frac{l_i}{2R} \right) \times \left( \frac{180^\circ}{\pi} \right), \quad c_i = 2 R \cdot \sin(\delta_i)" />
+                  <p className="text-[var(--text-2)]">โดยที่ li คือความยาวส่วนโค้งสะสมจากจุดสัมผัส PC ถึงสเตชั่นที่ i (li = Sta_i - Sta. PC)</p>
+                  <p className="text-[var(--text-2)]">มุมเปิดเล็งเบี่ยงเบนทั้งหมดจาก PC ถึง PT ต้องเท่ากับครึ่งหนึ่งของมุมเบี่ยงเบนแนวสัมผัสพอดี: δ_PT = Δ / 2 = {(curveElements.delta / 2).toFixed(4)}°</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── Staking Out Table ── */}
       {curveElements && (
