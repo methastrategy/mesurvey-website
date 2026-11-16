@@ -49,6 +49,7 @@ export const EarthworkVolumeCalculator: React.FC = () => {
   const [datumElevation, setDatumElevation] = useState<string>('12.000');
   const [slopeXPercent, setSlopeXPercent] = useState<string>('0.0');
   const [slopeYPercent, setSlopeYPercent] = useState<string>('0.0');
+  const [maxEdgeLength, setMaxEdgeLength] = useState<string>('0');
 
   // Visualization toggles
   const [showLabels, setShowLabels] = useState<boolean>(true);
@@ -191,26 +192,27 @@ export const EarthworkVolumeCalculator: React.FC = () => {
     if (existingPoints.length < 3) return null;
 
     try {
+      const maxEdge = parseFloat(maxEdgeLength) > 0 ? parseFloat(maxEdgeLength) : undefined;
       if (mode === 'datum') {
         const datum = parseFloat(datumElevation) || 0;
-        return calculateSurfaceToDatumVolume(existingPoints, datum);
+        return calculateSurfaceToDatumVolume(existingPoints, datum, maxEdge);
       } else if (mode === 'sloped-plane') {
         const datum = parseFloat(datumElevation) || 0;
         const sX = parseFloat(slopeXPercent) || 0;
         const sY = parseFloat(slopeYPercent) || 0;
         const basePt = { x: existingPoints[0]?.x || 0, y: existingPoints[0]?.y || 0 };
-        return calculateSurfaceToSlopedPlaneVolume(existingPoints, datum, basePt, sX, sY);
+        return calculateSurfaceToSlopedPlaneVolume(existingPoints, datum, basePt, sX, sY, maxEdge);
       } else {
         // Surface-to-Surface (OGL vs FGL)
         if (designPoints.length < 3) {
           return null; // Explicitly require design points
         }
-        return calculateSurfaceToSurfaceVolume(existingPoints, designPoints);
+        return calculateSurfaceToSurfaceVolume(existingPoints, designPoints, maxEdge);
       }
     } catch {
       return null;
     }
-  }, [existingPoints, designPoints, mode, datumElevation, slopeXPercent, slopeYPercent]);
+  }, [existingPoints, designPoints, mode, datumElevation, slopeXPercent, slopeYPercent, maxEdgeLength]);
 
   // ── CSV Export Report ───────────────────────────────────────────────────────
   const handleExportCsv = () => {
@@ -538,6 +540,29 @@ export const EarthworkVolumeCalculator: React.FC = () => {
               </div>
             </div>
           )}
+        </div>
+
+        {/* ── Alpha Boundary Filter (Max Triangle Edge Threshold) ── */}
+        <div className="pt-2.5 border-t border-[var(--border)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-[var(--text-1)]">กรองขอบเขตสามเหลี่ยมชายขอบ (Alpha Boundary Filter):</span>
+            <span className="text-[11px] text-[var(--text-3)] hidden md:inline">(ขจัดสามเหลี่ยมลอยข้ามแปลงรูป L หรือบ่อน้ำกลางแปลง)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-[11px] text-[var(--text-2)] whitespace-nowrap">ความยาวด้านสูงสุด:</label>
+            <input
+              type="number"
+              step="1"
+              min="0"
+              value={maxEdgeLength}
+              onChange={(e) => setMaxEdgeLength(e.target.value)}
+              placeholder="0 (ไม่จำกัด)"
+              className="w-24 min-h-[32px] px-2 py-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-1)] font-mono text-xs text-center focus:outline-none focus:border-[var(--accent)]"
+            />
+            <span className="text-[11px] text-[var(--text-3)] font-mono whitespace-nowrap">
+              ม. {parseFloat(maxEdgeLength) > 0 ? `(≤ ${maxEdgeLength}m)` : '(0 = ไม่จำกัด)'}
+            </span>
+          </div>
         </div>
       </div>
 

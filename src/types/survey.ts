@@ -206,7 +206,7 @@ export interface DownstreamWorkflow {
   outputDescription: string;
   nextStepTitle: string;
   nextStepProcedure: string;
-  recommendedToolTab?: 'coord' | 'converter' | 'traverse' | 'leveling' | 'map' | 'earthwork' | 'curve' | 'strap-beam' | 'rebar' | 'rebar-optimizer' | 'area' | 'scientific' | 'adjustment';
+  recommendedToolTab?: 'coord' | 'converter' | 'traverse' | 'leveling' | 'map' | 'earthwork' | 'curve' | 'strap-beam' | 'rebar' | 'rebar-optimizer' | 'area' | 'scientific' | 'adjustment' | 'encroachment' | 'bathymetric';
   toolActionLabel?: string;
 }
 

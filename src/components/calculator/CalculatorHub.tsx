@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { 
   ArrowRightLeft, 
   Compass, 
@@ -16,21 +16,28 @@ import {
   Sparkles,
   Search,
   Grid,
-  Mountain
+  Mountain,
+  Waves,
+  ShieldAlert
 } from 'lucide-react';
-import { CoordinateConverter } from './CoordinateConverter';
-import { TraverseCalculator } from './TraverseCalculator';
-import { LevelingCalculator } from './LevelingCalculator';
-import { LandAreaCalculator } from './LandAreaCalculator';
-import { ScientificCalculator } from './ScientificCalculator';
-import { NetworkAdjustment } from './NetworkAdjustment';
-import { CurveCalculator } from './CurveCalculator';
-import { RebarCalculator } from './RebarCalculator';
-import { StrapBeamCalculator } from './StrapBeamCalculator';
-import { RebarCutOptimizer } from './RebarCutOptimizer';
-import { EarthworkVolumeCalculator } from './EarthworkVolumeCalculator';
 import { useI18n, cleanParenthesizedTitle, TOOL_TITLES_ZH } from '../../core/i18n';
 import { DragonSurveyorLoader } from '../common/DragonSurveyorLoader';
+import { GeomaticsLoadingFallback } from '../layout/GeomaticsLoadingFallback';
+
+// ── Code-Splitting (Lazy-loaded Calculators) ──
+const CoordinateConverter = lazy(() => import('./CoordinateConverter').then(m => ({ default: m.CoordinateConverter })));
+const TraverseCalculator = lazy(() => import('./TraverseCalculator').then(m => ({ default: m.TraverseCalculator })));
+const LevelingCalculator = lazy(() => import('./LevelingCalculator').then(m => ({ default: m.LevelingCalculator })));
+const LandAreaCalculator = lazy(() => import('./LandAreaCalculator').then(m => ({ default: m.LandAreaCalculator })));
+const ScientificCalculator = lazy(() => import('./ScientificCalculator').then(m => ({ default: m.ScientificCalculator })));
+const NetworkAdjustment = lazy(() => import('./NetworkAdjustment').then(m => ({ default: m.NetworkAdjustment })));
+const CurveCalculator = lazy(() => import('./CurveCalculator').then(m => ({ default: m.CurveCalculator })));
+const RebarCalculator = lazy(() => import('./RebarCalculator').then(m => ({ default: m.RebarCalculator })));
+const StrapBeamCalculator = lazy(() => import('./StrapBeamCalculator').then(m => ({ default: m.StrapBeamCalculator })));
+const RebarCutOptimizer = lazy(() => import('./RebarCutOptimizer').then(m => ({ default: m.RebarCutOptimizer })));
+const EarthworkVolumeCalculator = lazy(() => import('./EarthworkVolumeCalculator').then(m => ({ default: m.EarthworkVolumeCalculator })));
+const CadastralEncroachmentCalculator = lazy(() => import('./CadastralEncroachmentCalculator').then(m => ({ default: m.CadastralEncroachmentCalculator })));
+const BathymetricSoundingCalculator = lazy(() => import('./BathymetricSoundingCalculator').then(m => ({ default: m.BathymetricSoundingCalculator })));
 
 export type ToolId = 
   | 'scientific' 
@@ -43,7 +50,9 @@ export type ToolId =
   | 'rebar'
   | 'strap-beam'
   | 'rebar-optimizer'
-  | 'earthwork';
+  | 'earthwork'
+  | 'encroachment'
+  | 'bathymetric';
 
 export type DomainWorkspace = 'all' | 'geodesy' | 'civil' | 'cadastral' | 'qaqc';
 
@@ -79,7 +88,8 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
         const sub = parts[1] as ToolId;
         const validSubs: ToolId[] = [
           'scientific', 'coord', 'traverse', 'leveling', 'area', 
-          'adjustment', 'curve', 'rebar', 'strap-beam', 'rebar-optimizer', 'earthwork'
+          'adjustment', 'curve', 'rebar', 'strap-beam', 'rebar-optimizer', 'earthwork',
+          'encroachment', 'bathymetric'
         ];
         if (validSubs.includes(sub)) {
           setActiveSubTab(sub);
@@ -143,7 +153,7 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       domainLabel: 'Geodesy & Survey',
       icon: ArrowRightLeft,
       tags: ['wgs84', 'utm', 'indian 1975', 'datum', 'gps', 'epsg:4326', 'zone 47n', 'zone 48n'],
-      features: ['Helmert 7-Parameter Datum Shift', 'คำนวณ Grid Convergence & Scale Factor', 'ส่งออกหมุดไปยังแผนที่ WebGIS']
+      features: ['RTSD 3-Parameter Geocentric Shift', 'คำนวณ Grid Convergence & Scale Factor', 'ส่งออกหมุดไปยังแผนที่ WebGIS']
     },
     {
       id: 'curve',
@@ -155,6 +165,17 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       icon: Route,
       tags: ['curve', 'circular curve', 'staking out', 'deflection angle', 'subchord', 'route survey', 'road', 'civil'],
       features: ['คำนวณองค์ประกอบโค้ง T, L, E, M, C', 'ตาราง Deflection Angle & Chord', 'ส่งออก CSV & Copy สำหรับหน้างาน']
+    },
+    {
+      id: 'bathymetric',
+      name: 'หยั่งความลึกน้ำ & ชดเชยน้ำขึ้น-ลง',
+      nameEn: 'Bathymetric Sounding & Tide Reduction',
+      shortDesc: 'รวมตำแหน่งเรือ GNSS, ข้อมูลความลึก Echo Sounder, และระดับน้ำขึ้น-น้ำลง คำนวณระดับท้องน้ำจริงเทียบ MSL ตามมาตรฐาน IHO S-44',
+      domain: 'geodesy',
+      domainLabel: 'Geodesy & Survey',
+      icon: Waves,
+      tags: ['bathymetric', 'hydrographic', 'sounding', 'echo sounder', 'tide', 'iho s-44', 'msl', 'water depth', 'riverbed'],
+      features: ['IHO S-44 Special Order Standard', 'รูปตัดขวางร่องน้ำและท้องน้ำจริง SVG', 'ชดเชยหัววัด Draft & Heave อัตโนมัติ']
     },
 
     // ── 2. Civil & Site Operations ──
@@ -226,6 +247,17 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
       tags: ['rai', 'ngan', 'tarang wa', 'land', 'cadastral', 'hectare', 'acre', 'sqm'],
       features: ['แยกสัดส่วน ไร่ - งาน - ตร.ว. อัตโนมัติ', 'แปลงสองทิศทางแบบเรียลไทม์', 'มาตรฐานกรมที่ดิน']
     },
+    {
+      id: 'encroachment',
+      name: 'ตรวจสอบการรุกล้ำแนวเขตโฉนด',
+      nameEn: 'Cadastral Boundary Encroachment Detector',
+      shortDesc: 'คำนวณระยะรังวัดรั้วและสิ่งปลูกสร้างเทียบแนวเขตโฉนดที่ดิน ชี้เป้าจุดรุกล้ำระดับเซนติเมตรและวิเคราะห์ข้อกฎหมาย ป.พ.พ. มาตรา 1312',
+      domain: 'cadastral',
+      domainLabel: 'Cadastral & Land Desk',
+      icon: ShieldAlert,
+      tags: ['cadastral', 'encroachment', 'boundary', 'title deed', 'land dispute', 'offset', 'โฉนด', 'รุกล้ำ'],
+      features: ['ตรวจสอบระยะรุกล้ำระดับเซนติเมตร', 'แผนผัง 2D Interactive Vector', 'วิเคราะห์ข้อกฎหมาย ป.พ.พ. 1312']
+    },
 
     // ── 4. QA/QC Studio ──
     {
@@ -270,7 +302,11 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
   // ─────────────────────────────────────────────────────────────────────────────
   if (activeSubTab) {
     if (activeSubTab === 'scientific') {
-      return <ScientificCalculator onBackToDirectory={() => selectTool(null)} />;
+      return (
+        <Suspense fallback={<GeomaticsLoadingFallback fullHeight={false} />}>
+          <ScientificCalculator onBackToDirectory={() => selectTool(null)} />
+        </Suspense>
+      );
     }
 
     return (
@@ -289,16 +325,20 @@ export const CalculatorHub: React.FC<CalculatorHubProps> = ({ onPlotOnMap, initi
           </span>
         </div>
 
-        {activeSubTab === 'traverse' && <TraverseCalculator />}
-        {activeSubTab === 'leveling' && <LevelingCalculator />}
-        {activeSubTab === 'coord' && <CoordinateConverter onPlotOnMap={onPlotOnMap} />}
-        {activeSubTab === 'curve' && <CurveCalculator />}
-        {activeSubTab === 'rebar' && <RebarCalculator />}
-        {activeSubTab === 'strap-beam' && <StrapBeamCalculator />}
-        {activeSubTab === 'rebar-optimizer' && <RebarCutOptimizer />}
-        {activeSubTab === 'area' && <LandAreaCalculator />}
-        {activeSubTab === 'adjustment' && <NetworkAdjustment onPlotOnMap={onPlotOnMap} />}
-        {activeSubTab === 'earthwork' && <EarthworkVolumeCalculator />}
+        <Suspense fallback={<GeomaticsLoadingFallback fullHeight={false} />}>
+          {activeSubTab === 'traverse' && <TraverseCalculator />}
+          {activeSubTab === 'leveling' && <LevelingCalculator />}
+          {activeSubTab === 'coord' && <CoordinateConverter onPlotOnMap={onPlotOnMap} />}
+          {activeSubTab === 'curve' && <CurveCalculator />}
+          {activeSubTab === 'rebar' && <RebarCalculator />}
+          {activeSubTab === 'strap-beam' && <StrapBeamCalculator />}
+          {activeSubTab === 'rebar-optimizer' && <RebarCutOptimizer />}
+          {activeSubTab === 'area' && <LandAreaCalculator />}
+          {activeSubTab === 'adjustment' && <NetworkAdjustment onPlotOnMap={onPlotOnMap} />}
+          {activeSubTab === 'earthwork' && <EarthworkVolumeCalculator />}
+          {activeSubTab === 'encroachment' && <CadastralEncroachmentCalculator />}
+          {activeSubTab === 'bathymetric' && <BathymetricSoundingCalculator />}
+        </Suspense>
       </div>
     );
   }

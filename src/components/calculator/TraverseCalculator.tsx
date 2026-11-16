@@ -10,6 +10,7 @@ import {
 import { trackEvent } from '../../lib/telemetry';
 import { exportToCsv } from '../../utils/csv-export';
 import { parseTraverseCsv, downloadTraverseTemplateCsv } from '../../utils/survey-csv-parser';
+import { decodeTotalStationFile } from '../../utils/raw-converters/total-station-decoder';
 import { MathFormulaRenderer } from '../common/MathFormulaRenderer';
 
 // ─── DMS helpers ────────────────────────────────────────────────────────────
@@ -75,7 +76,7 @@ interface ComputedLeg {
   adjEasting: number; adjNorthing: number;
 }
 
-interface TraverseResult {
+export interface TraverseResult {
   legs: ComputedLeg[];
   nAngles: number;
   sumAngles: number;
@@ -92,9 +93,11 @@ interface TraverseResult {
   precisionRatio: number;
   precisionGrade: string;
   warnings: string[];
+  closingAzObs?: number;
+  closingAzKnown?: number;
 }
 
-function computeTraverse(
+export function computeTraverse(
   legs: TraverseLeg[],
   startE: number,
   startN: number,
@@ -117,20 +120,39 @@ function computeTraverse(
   if (distances.some(d => d <= 0)) return null;
 
   const warnings: string[] = [];
+  const startAzDeg = dmsToDecDeg(startAzD, startAzM, startAzS);
+  const hasEndAz = mode === 'link' && (endAzD > 0 || endAzM > 0 || endAzS > 0);
+  const knownEndAzDeg = hasEndAz ? dmsToDecDeg(endAzD, endAzM, endAzS) : 0;
 
-  // Angular closure
+  // Angular closure calculation
   const sumAngles = obsAngles.reduce((a, b) => a + b, 0);
-  const theoreticalAngles = mode === 'loop' ? (n - 2) * 180 : 0; // open/link: depends on azimuths
-  const angularError = mode === 'loop' ? sumAngles - theoreticalAngles : 0;
+  let theoreticalAngles = 0;
+  let angularError = 0;
+  let closingAzObs: number | undefined;
+
+  if (mode === 'loop') {
+    theoreticalAngles = (n - 2) * 180;
+    angularError = sumAngles - theoreticalAngles;
+  } else if (hasEndAz) {
+    // Propagate uncorrected azimuth through n stations
+    let testAz = startAzDeg;
+    for (let i = 0; i < n; i++) {
+      testAz = ((testAz + obsAngles[i] + 180) % 360 + 360) % 360;
+    }
+    closingAzObs = testAz;
+    // Difference between observed closing azimuth and known closing azimuth
+    let azDiff = ((closingAzObs - knownEndAzDeg + 180) % 360 + 360) % 360 - 180;
+    angularError = azDiff;
+  }
+
   const angularErrorSec = angularError * 3600;
   const allowableAngularSec = 60 * Math.sqrt(n);
-  const angularOk = mode === 'loop' ? Math.abs(angularErrorSec) <= allowableAngularSec : true;
-  const corrPerAngle = mode === 'loop' ? -angularError / n : 0;
+  const angularOk = (mode === 'loop' || hasEndAz) ? Math.abs(angularErrorSec) <= allowableAngularSec : true;
+  const corrPerAngle = (mode === 'loop' || hasEndAz) ? -angularError / n : 0;
 
   const corrAngles = obsAngles.map(a => a + corrPerAngle);
 
   // Compute running azimuth
-  let startAzDeg = dmsToDecDeg(startAzD, startAzM, startAzS);
   const azimuths: number[] = [];
   let currentAz = startAzDeg;
   for (let i = 0; i < n; i++) {
@@ -164,7 +186,7 @@ function computeTraverse(
   else if (precisionRatio >= 5000) precisionGrade = 'ชั้น 2B — ≥ 1:5,000';
   else if (precisionRatio >= 2500) precisionGrade = 'ชั้น 3 — ≥ 1:2,500';
 
-  if (mode === 'loop' && !angularOk) {
+  if ((mode === 'loop' || hasEndAz) && !angularOk) {
     warnings.push(`⚠️ Angular Error ${angularErrorSec.toFixed(1)}" เกิน Allowable ${allowableAngularSec.toFixed(1)}" — ตรวจสอบการอ่านมุม`);
   }
   if (precisionRatio < 2500) {
@@ -223,6 +245,8 @@ function computeTraverse(
     precisionRatio,
     precisionGrade,
     warnings,
+    closingAzObs,
+    closingAzKnown: hasEndAz ? knownEndAzDeg : undefined,
   };
 }
 
@@ -261,6 +285,28 @@ export const TraverseCalculator: React.FC = () => {
     setCsvError(null);
     try {
       const text = await file.text();
+      const ext = file.name.split('.').pop()?.toLowerCase();
+
+      // Check if it is a Total Station Raw Stream (GSI, GT7, SDR, RAW)
+      if (['gsi', 'gt7', 'sdr', 'raw'].includes(ext || '')) {
+        const decoded = decodeTotalStationFile(text);
+        if (decoded.traverseLegs.length > 0) {
+          const rawLegs: TraverseLeg[] = decoded.traverseLegs.map(l => ({
+            id: crypto.randomUUID(),
+            station: l.station,
+            targetStation: l.targetStation,
+            distance: l.distance.toFixed(3),
+            obsD: String(l.angleD),
+            obsM: String(l.angleM),
+            obsS: String(l.angleS),
+          }));
+          setLegs(rawLegs);
+          trackEvent('traverse_import_total_station_raw', { format: decoded.format, count: rawLegs.length });
+          return;
+        }
+      }
+
+      // Default CSV Parsing
       const parsed = parseTraverseCsv(text);
       if (parsed.errors.length > 0 && parsed.legs.length === 0) {
         setCsvError(parsed.errors.join(' | '));
@@ -391,18 +437,18 @@ export const TraverseCalculator: React.FC = () => {
             <input
               ref={traverseFileInputRef}
               type="file"
-              accept=".csv,.txt"
+              accept=".csv,.txt,.gsi,.gt7,.sdr,.raw"
               onChange={handleUploadCsv}
               className="hidden"
             />
             <button
               onClick={() => traverseFileInputRef.current?.click()}
-              className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition"
+              className="min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition cursor-pointer"
               style={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-1)' }}
-              title="นำเข้าวงรอบจากไฟล์ CSV"
+              title="นำเข้าวงรอบจากไฟล์ CSV หรือ Total Station Raw (Leica GSI, Topcon GT7, Sokkia SDR, Nikon RAW)"
             >
               <Upload className="w-3.5 h-3.5 text-indigo-500" />
-              <span>นำเข้า CSV</span>
+              <span>นำเข้า CSV / Raw</span>
             </button>
             <button
               onClick={downloadTraverseTemplateCsv}
@@ -765,15 +811,16 @@ export const TraverseCalculator: React.FC = () => {
                 ))}
               </div>
 
-              {/* Angular closure detail (loop only) */}
-              {mode === 'loop' && (
+              {/* Angular closure detail (loop or link with closing azimuth) */}
+              {(mode === 'loop' || (mode === 'link' && result.closingAzKnown !== undefined)) && (
                 <div className="rounded-xl border p-3 text-xs font-mono" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
                   <p style={{ color: 'var(--text-2)' }}>
-                    <span className="font-bold">Angular Closure Check</span> · n = {result.nAngles} สถานี · (n-2)×180° = {result.theoreticalAngles}°
+                    <span className="font-bold">{mode === 'loop' ? 'Angular Closure Check' : 'Link Traverse Azimuth Misclosure Check'}</span> · n = {result.nAngles} สถานี {mode === 'loop' ? `· (n-2)×180° = ${result.theoreticalAngles}°` : `· Closing Azimuth = ${fmtDms(result.closingAzKnown || 0)}`}
                   </p>
                   <p className="mt-1" style={{ color: 'var(--text-3)' }}>
-                    ΣAngles = {fmtDms(result.sumAngles)} · Error = {fmtDms(Math.abs(result.angularError))} ({result.angularErrorSec.toFixed(1)}")
-                    · Correction/station = {(-result.angularError / result.nAngles * 3600).toFixed(1)}" each
+                    {mode === 'loop' ? `ΣAngles = ${fmtDms(result.sumAngles)} · ` : `Obs Closing Az = ${fmtDms(result.closingAzObs || 0)} · `}
+                    Error = {result.angularErrorSec >= 0 ? '+' : ''}{result.angularErrorSec.toFixed(1)}" (เกณฑ์ RTSD SOP-03: ±{result.allowableAngularSec.toFixed(1)}")
+                    · ค่าแก้ต่อสถานี = {(-result.angularError / result.nAngles * 3600).toFixed(1)}" each
                   </p>
                 </div>
               )}
@@ -798,7 +845,7 @@ export const TraverseCalculator: React.FC = () => {
                     {/* Step 1: Angular Misclosure */}
                     <div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-2">
                       <div className="font-bold text-indigo-600 dark:text-indigo-400">
-                        1. การคำนวณและปรับแก้มุม ({mode === 'loop' ? 'Angular Misclosure & Correction' : 'Azimuth Transfer & Bearing Control'})
+                        1. การคำนวณและปรับแก้มุม ({mode === 'loop' ? 'Angular Misclosure & Correction' : result.closingAzKnown !== undefined ? 'Closing Azimuth Misclosure & Adjustment' : 'Azimuth Transfer & Bearing Control'})
                       </div>
                       <div className="text-[var(--text-2)] space-y-1">
                         {mode === 'loop' ? (
@@ -810,6 +857,16 @@ export const TraverseCalculator: React.FC = () => {
                             <p>ผลต่างมุมปิด (Angular Error):</p>
                             <MathFormulaRenderer formula={`c_\\theta = \\sum \\theta_{\\text{obs}} - \\sum \\theta_{\\text{ideal}} = ${result.angularErrorSec > 0 ? '+' : ''}${result.angularErrorSec.toFixed(1)}''`} />
                             <p>เกณฑ์ความคลาดเคลื่อนที่ยอมรับได้ (RTSD Class 3 / วสท.): c_allow = ±1.5'√n = ±{result.allowableAngularSec.toFixed(1)}'' ({result.angularOk ? '✓ ผ่านเกณฑ์' : '✗ ไม่ผ่าน'})</p>
+                            <p>ค่าปรับแก้มุมต่อสถานี: Corr = -c_θ / n = {(-result.angularError / result.nAngles * 3600).toFixed(1)}'' ต่อมุม</p>
+                          </>
+                        ) : result.closingAzKnown !== undefined ? (
+                          <>
+                            <p>การรังวัดวงรอบเปิดแบบเชื่อมโยง (Connecting Link Traverse with Azimuth Control):</p>
+                            <p>มุมภาคเริ่มต้น: Az_start = {startAz.d}° {startAz.m}' {startAz.s}", จุดบรรจบปลายทาง: ({endE}, {endN})</p>
+                            <p>มุมภาคบรรจบที่ทราบค่า: Az_known = {fmtDms(result.closingAzKnown)}, จากการรังวัด: Az_obs = {fmtDms(result.closingAzObs || 0)}</p>
+                            <p>ผลต่างมุมทิศบรรจบ (Closing Azimuth Misclosure):</p>
+                            <MathFormulaRenderer formula={`c_\\theta = \\text{Az}_{\\text{obs}} - \\text{Az}_{\\text{known}} = ${result.angularErrorSec > 0 ? '+' : ''}${result.angularErrorSec.toFixed(1)}''`} />
+                            <p>เกณฑ์ความคลาดเคลื่อนทางมุม (RTSD SOP-03 / วสท.): c_allow = ±1.0'√n = ±{result.allowableAngularSec.toFixed(1)}'' ({result.angularOk ? '✓ ผ่านเกณฑ์' : '✗ ไม่ผ่าน'})</p>
                             <p>ค่าปรับแก้มุมต่อสถานี: Corr = -c_θ / n = {(-result.angularError / result.nAngles * 3600).toFixed(1)}'' ต่อมุม</p>
                           </>
                         ) : (

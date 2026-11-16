@@ -91,6 +91,8 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
         'strap-beam': 'คานรั้งฐานราก',
         'rebar-optimizer': 'ตัดเหล็กลดเศษ',
         earthwork: 'ดินขุด-ถม TIN',
+        encroachment: 'ตรวจรุกล้ำโฉนด',
+        bathymetric: 'หยั่งความลึกน้ำ',
       },
     },
     tools: {
@@ -166,6 +168,8 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
         'strap-beam': 'Strap Beam Design',
         'rebar-optimizer': '1D Rebar Optimizer',
         earthwork: 'Earthwork TIN Volume',
+        encroachment: 'Cadastral Encroachment',
+        bathymetric: 'Bathymetric Sounding',
       },
     },
     tools: {
@@ -241,6 +245,8 @@ export const TRANSLATIONS: Record<SupportedLanguage, Translations> = {
         'strap-beam': '地界基础连系梁',
         'rebar-optimizer': '钢筋截断下料',
         earthwork: '土方量与TIN',
+        encroachment: '地籍越界检测',
+        bathymetric: '水深测量与潮汐',
       },
     },
     tools: {
@@ -482,5 +488,13 @@ export const TOOL_TITLES_ZH: Record<string, { name: string; desc: string }> = {
   earthwork: {
     name: '2.5D TIN土方挖填方量计算',
     desc: '基于Delaunay 2.5D不规则三角网与精确棱柱截断积分计算土石方挖填方量，替代Carlson / Civil 3D',
+  },
+  encroachment: {
+    name: '地籍越界检测与红线验算',
+    desc: '根据地籍契约边界比对实测界桩或构筑物，计算厘米级越界距离并评估泰国民商法典第1312条合规性',
+  },
+  bathymetric: {
+    name: '水深测量与动态潮位改正',
+    desc: '集成GNSS船载定位、测深仪水深与验潮站潮位，计算符合IHO S-44标准的水底绝对高程剖面',
   },
 };

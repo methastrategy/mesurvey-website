@@ -141,7 +141,7 @@ export function deduplicatePoints(points: TinPoint[], tolerance = 0.001): TinPoi
 /**
  * Bowyer-Watson 2D Delaunay Triangulation
  */
-export function delaunayTriangulate2D(rawPoints: TinPoint[]): TinTriangle[] {
+export function delaunayTriangulate2D(rawPoints: TinPoint[], maxEdgeLength?: number): TinTriangle[] {
   const points = deduplicatePoints(rawPoints);
   if (points.length < 3) return [];
 
@@ -255,6 +255,14 @@ export function delaunayTriangulate2D(rawPoints: TinPoint[]): TinTriangle[] {
     if (!sharesSuper) {
       const area = calculateTriangle2DArea(tri.a, tri.b, tri.c);
       if (area > 1e-6) {
+        if (maxEdgeLength !== undefined && maxEdgeLength > 0) {
+          const e1 = Math.hypot(tri.a.x - tri.b.x, tri.a.y - tri.b.y);
+          const e2 = Math.hypot(tri.b.x - tri.c.x, tri.b.y - tri.c.y);
+          const e3 = Math.hypot(tri.c.x - tri.a.x, tri.c.y - tri.a.y);
+          if (e1 > maxEdgeLength || e2 > maxEdgeLength || e3 > maxEdgeLength) {
+            continue;
+          }
+        }
         finalTriangles.push({
           id: `T-${triIdCounter++}`,
           p1: tri.a,
@@ -430,10 +438,11 @@ export function computePrismoidTriangle(
  */
 export function calculateSurfaceToDatumVolume(
   points: TinPoint[],
-  datumElevation: number
+  datumElevation: number,
+  maxEdgeLength?: number
 ): EarthworkVolumeResult {
   const cleanPoints = deduplicatePoints(points);
-  const triangles = delaunayTriangulate2D(cleanPoints);
+  const triangles = delaunayTriangulate2D(cleanPoints, maxEdgeLength);
 
   let totalArea = 0;
   let totalCutVol = 0;
@@ -512,10 +521,11 @@ export function calculateSurfaceToSlopedPlaneVolume(
   baseElevation: number,
   basePoint: { x: number; y: number },
   slopeXPercent: number, // slope along Easting (+% means rising to East)
-  slopeYPercent: number  // slope along Northing (+% means rising to North)
+  slopeYPercent: number, // slope along Northing (+% means rising to North)
+  maxEdgeLength?: number
 ): EarthworkVolumeResult {
   const cleanPoints = deduplicatePoints(points);
-  const triangles = delaunayTriangulate2D(cleanPoints);
+  const triangles = delaunayTriangulate2D(cleanPoints, maxEdgeLength);
 
   const getDesignZ = (x: number, y: number) => {
     const dx = x - basePoint.x;
@@ -626,13 +636,14 @@ export function interpolateElevationOnTin(
  */
 export function calculateSurfaceToSurfaceVolume(
   existingPoints: TinPoint[],
-  designPoints: TinPoint[]
+  designPoints: TinPoint[],
+  maxEdgeLength?: number
 ): EarthworkVolumeResult {
   const cleanEx = deduplicatePoints(existingPoints);
   const cleanDes = deduplicatePoints(designPoints);
 
-  const exTIN = delaunayTriangulate2D(cleanEx);
-  const desTIN = delaunayTriangulate2D(cleanDes);
+  const exTIN = delaunayTriangulate2D(cleanEx, maxEdgeLength);
+  const desTIN = delaunayTriangulate2D(cleanDes, maxEdgeLength);
 
   // Combine point sets to create composite evaluation vertices
   const compositePoints: { x: number; y: number; zEx: number; zDes: number }[] = [];

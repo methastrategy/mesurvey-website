@@ -1629,41 +1629,174 @@ export const NetworkAdjustment: React.FC<NetworkAdjustmentProps> = ({ onPlotOnMa
                 />
 
                 {result2D && adjustmentMode === '2d' && (
-                  <div className="p-4 rounded-xl bg-[var(--surface-2)]/50 border border-[var(--border)] space-y-3">
-                    <h4 className="text-xs font-bold text-[var(--text-1)]">
-                      พิกัดปรับแก้และวงรีความคลาดเคลื่อน 95% Confidence (Adjusted Stations)
-                    </h4>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse text-xs font-mono">
-                        <thead>
-                          <tr className="border-b border-[var(--border)] text-[var(--text-3)] text-[11px]">
-                            <th className="py-2 px-2">หมุด</th>
-                            <th className="py-2 px-2">สถานะ</th>
-                            <th className="py-2 px-2 text-right">Easting (m)</th>
-                            <th className="py-2 px-2 text-right">Northing (m)</th>
-                            <th className="py-2 px-2 text-right">σE (mm)</th>
-                            <th className="py-2 px-2 text-right">σN (mm)</th>
-                            <th className="py-2 px-2 text-right">95% a₉₅ (mm)</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-[var(--border)]">
-                          {result2D.stations.map((s) => (
-                            <tr key={s.id} className="hover:bg-[var(--surface-2)]">
-                              <td className="py-1.5 px-2 font-bold text-[var(--text-1)]">{s.id}</td>
-                              <td className="py-1.5 px-2">
-                                <span className={`px-1.5 py-0.5 rounded text-[10px] ${s.isFixed ? 'bg-emerald-500/15 text-emerald-500 font-bold' : 'bg-[var(--surface-2)] text-[var(--text-2)]'}`}>
-                                  {s.isFixed ? 'FIXED' : 'ADJUSTED'}
-                                </span>
-                              </td>
-                              <td className="py-1.5 px-2 text-right">{s.easting.toFixed(4)}</td>
-                              <td className="py-1.5 px-2 text-right">{s.northing.toFixed(4)}</td>
-                              <td className="py-1.5 px-2 text-right">{s.sigmaEMm.toFixed(1)}</td>
-                              <td className="py-1.5 px-2 text-right">{s.sigmaNMm.toFixed(1)}</td>
-                              <td className="py-1.5 px-2 text-right font-bold text-amber-500">{s.errorEllipse?.conf95MajorMm.toFixed(1) ?? '-'}</td>
-                            </tr>
+                  <div className="space-y-4">
+                    {/* Baarda Data Snooping Outlier Alert Banner */}
+                    {result2D.observations.some(o => o.isOutlier) && (
+                      <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs space-y-1.5">
+                        <div className="flex items-center gap-2 font-bold">
+                          <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" />
+                          <span>ตรวจพบจุดส่องผิดพลาดทางสถิติ (Baarda Data Snooping & Blunder Detected):</span>
+                        </div>
+                        <ul className="list-disc list-inside space-y-1 font-mono text-[11px] pl-1">
+                          {result2D.observations.filter(o => o.isOutlier).map((o, idx) => (
+                            <li key={idx}>
+                              เส้น <b>{o.fromStation} &rarr; {o.toStation}</b> ({o.type}): Residual = {o.residual.toFixed(4)}, Normalized = <b>{o.normalizedResidual.toFixed(2)}&sigma;</b> (เกินเกณฑ์นัยสำคัญ &alpha;=0.01: &plusmn;2.58&sigma;) &mdash; แนะนำให้ตัดออกหรือส่องซ้ำ
+                            </li>
                           ))}
-                        </tbody>
-                      </table>
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Interactive 2D Error Ellipses SVG Canvas */}
+                    {(() => {
+                      const stations = result2D.stations;
+                      if (stations.length < 2) return null;
+                      let minE = Infinity, maxE = -Infinity, minN = Infinity, maxN = -Infinity;
+                      stations.forEach(s => {
+                        if (s.easting < minE) minE = s.easting;
+                        if (s.easting > maxE) maxE = s.easting;
+                        if (s.northing < minN) minN = s.northing;
+                        if (s.northing > maxN) maxN = s.northing;
+                      });
+                      const spanE = Math.max(1, maxE - minE);
+                      const spanN = Math.max(1, maxN - minN);
+                      const maxSpan = Math.max(spanE, spanN);
+                      const pad = maxSpan * 0.25;
+                      const svgW = 520, svgH = 340;
+                      const toSvgX = (e: number) => 50 + ((e - (minE - pad)) / (maxSpan + 2 * pad)) * (svgW - 100);
+                      const toSvgY = (n: number) => (svgH - 50) - ((n - (minN - pad)) / (maxSpan + 2 * pad)) * (svgH - 100);
+
+                      return (
+                        <div className="p-4 rounded-xl bg-[var(--surface-2)]/60 border border-[var(--border)] space-y-3">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <h4 className="text-xs font-bold text-[var(--text-1)] flex items-center gap-2">
+                              <Compass className="w-4 h-4 text-[var(--accent)]" />
+                              <span>ผังโครงข่ายและวงรีความคลาดเคลื่อน 95% (Interactive 2D Error Ellipses Canvas)</span>
+                            </h4>
+                            <div className="flex items-center gap-3 text-[10px] font-mono text-[var(--text-3)]">
+                              <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-emerald-500 rounded-sm" /> หมุด Fixed</span>
+                              <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-cyan-500" /> หมุด Adjusted</span>
+                              <span className="flex items-center gap-1"><span className="w-3.5 h-2 border border-amber-500 rounded-full bg-amber-500/20" /> วงรี 95%</span>
+                            </div>
+                          </div>
+
+                          <div className="rounded-xl overflow-hidden bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center p-2">
+                            <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full h-auto max-h-[380px]">
+                              {/* Observation lines */}
+                              {result2D.observations.map(obs => {
+                                const stFrom = stations.find(s => s.id === obs.fromStation);
+                                const stTo = stations.find(s => s.id === obs.toStation);
+                                if (!stFrom || !stTo) return null;
+                                const x1 = toSvgX(stFrom.easting), y1 = toSvgY(stFrom.northing);
+                                const x2 = toSvgX(stTo.easting), y2 = toSvgY(stTo.northing);
+                                return (
+                                  <line
+                                    key={obs.id}
+                                    x1={x1} y1={y1} x2={x2} y2={y2}
+                                    stroke={obs.isOutlier ? '#ef4444' : 'var(--border)'}
+                                    strokeWidth={obs.isOutlier ? '2.5' : '1.2'}
+                                    strokeDasharray={obs.isOutlier ? '4 3' : undefined}
+                                  />
+                                );
+                              })}
+
+                              {/* Stations and Error Ellipses */}
+                              {stations.map(s => {
+                                const sx = toSvgX(s.easting);
+                                const sy = toSvgY(s.northing);
+                                const ell = s.errorEllipse;
+                                const rx = ell ? Math.max(8, Math.min(48, ell.conf95MajorMm * 1.5)) : 0;
+                                const ry = ell ? Math.max(5, Math.min(32, ell.conf95MinorMm * 1.5)) : 0;
+                                const rot = ell ? ell.orientationDeg : 0;
+
+                                return (
+                                  <g key={s.id} className="cursor-pointer">
+                                    {ell && !s.isFixed && (
+                                      <ellipse
+                                        cx={sx} cy={sy} rx={rx} ry={ry}
+                                        transform={`rotate(${rot}, ${sx}, ${sy})`}
+                                        fill="rgba(245, 158, 11, 0.18)"
+                                        stroke="#f59e0b"
+                                        strokeWidth="1.5"
+                                      />
+                                    )}
+                                    {s.isFixed ? (
+                                      <polygon
+                                        points={`${sx},${sy - 7} ${sx + 6},${sy + 5} ${sx - 6},${sy + 5}`}
+                                        fill="#10b981"
+                                        stroke="#047857"
+                                        strokeWidth="1.5"
+                                      />
+                                    ) : (
+                                      <circle
+                                        cx={sx} cy={sy} r="4.5"
+                                        fill="#06b6d4"
+                                        stroke="#0891b2"
+                                        strokeWidth="1.5"
+                                      />
+                                    )}
+                                    <text
+                                      x={sx} y={sy - (ell && !s.isFixed ? ry + 4 : 10)}
+                                      textAnchor="middle"
+                                      className="text-[10px] font-mono font-bold fill-[var(--text-1)]"
+                                    >
+                                      {s.id}
+                                    </text>
+                                    {ell && !s.isFixed && (
+                                      <text
+                                        x={sx} y={sy + ry + 12}
+                                        textAnchor="middle"
+                                        className="text-[9px] font-mono fill-[var(--accent)] font-semibold"
+                                      >
+                                        a₉₅={ell.conf95MajorMm.toFixed(1)}mm
+                                      </text>
+                                    )}
+                                  </g>
+                                );
+                              })}
+                            </svg>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Adjusted Stations Table */}
+                    <div className="p-4 rounded-xl bg-[var(--surface-2)]/50 border border-[var(--border)] space-y-3">
+                      <h4 className="text-xs font-bold text-[var(--text-1)]">
+                        พิกัดปรับแก้และวงรีความคลาดเคลื่อน 95% Confidence (Adjusted Stations)
+                      </h4>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-xs font-mono">
+                          <thead>
+                            <tr className="border-b border-[var(--border)] text-[var(--text-3)] text-[11px]">
+                              <th className="py-2 px-2">หมุด</th>
+                              <th className="py-2 px-2">สถานะ</th>
+                              <th className="py-2 px-2 text-right">Easting (m)</th>
+                              <th className="py-2 px-2 text-right">Northing (m)</th>
+                              <th className="py-2 px-2 text-right">σE (mm)</th>
+                              <th className="py-2 px-2 text-right">σN (mm)</th>
+                              <th className="py-2 px-2 text-right">95% a₉₅ (mm)</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[var(--border)]">
+                            {result2D.stations.map((s) => (
+                              <tr key={s.id} className="hover:bg-[var(--surface-2)]">
+                                <td className="py-1.5 px-2 font-bold text-[var(--text-1)]">{s.id}</td>
+                                <td className="py-1.5 px-2">
+                                  <span className={`px-1.5 py-0.5 rounded text-[10px] ${s.isFixed ? 'bg-emerald-500/15 text-emerald-500 font-bold' : 'bg-[var(--surface-2)] text-[var(--text-2)]'}`}>
+                                    {s.isFixed ? 'FIXED' : 'ADJUSTED'}
+                                  </span>
+                                </td>
+                                <td className="py-1.5 px-2 text-right">{s.easting.toFixed(4)}</td>
+                                <td className="py-1.5 px-2 text-right">{s.northing.toFixed(4)}</td>
+                                <td className="py-1.5 px-2 text-right">{s.sigmaEMm.toFixed(1)}</td>
+                                <td className="py-1.5 px-2 text-right">{s.sigmaNMm.toFixed(1)}</td>
+                                <td className="py-1.5 px-2 text-right font-bold text-amber-500">{s.errorEllipse?.conf95MajorMm.toFixed(1) ?? '-'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 )}

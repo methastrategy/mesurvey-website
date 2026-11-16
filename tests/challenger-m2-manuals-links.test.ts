@@ -6,7 +6,7 @@ import { renderToString } from 'react-dom/server';
 import { KNOWLEDGE_TOPICS } from '../src/data/knowledge-topics';
 import { KnowledgeTopic, DownstreamWorkflow } from '../src/types/survey';
 import { EquipmentCard } from '../src/components/knowledge/EquipmentCard';
-import { TopicDetailModal } from '../src/components/knowledge/TopicDetailModal';
+import { KnowledgeHub } from '../src/components/knowledge/KnowledgeHub';
 import { THEME_OPTIONS } from '../src/components/layout/Header';
 
 /**
@@ -207,89 +207,86 @@ describe('Challenger 1 Adversarial Suite: Manuals, Badges & Deep-Linking', () =>
       expect(html).not.toContain('undefined');
     });
 
-    it('renders TopicDetailModal with Draft disclaimer banner when verificationStatus is "draft"', () => {
+    it('renders KnowledgeHub inline reader with Draft disclaimer banner when verificationStatus is "draft"', () => {
       const html = renderToString(
-        React.createElement(TopicDetailModal, {
-          topic: { ...sampleTopic, verificationStatus: 'draft' },
-          onClose: () => {}
+        React.createElement(KnowledgeHub, {
+          initialTopicId: 'differential-leveling-survey'
         })
       );
 
-      expect(html).toContain('DRAFT / รอดำเนินการตรวจสอบ (Preliminary Draft SOP)');
-      expect(html).toContain('bg-amber-50/80');
+      expect(html).toContain('DRAFT · เอกสารทางเทคนิคฉบับร่าง');
       expect(html).toContain('border-amber-500/30');
-      expect(html).not.toContain('VERIFIED / ผ่านการตรวจรับรองมาตรฐานวิศวกรรม');
+      expect(html).not.toContain('VERIFIED · ผ่านการตรวจรับรองมาตรฐานวิศวกรรม');
     });
 
-    it('renders TopicDetailModal with Emerald certification banner when switched to "verified"', () => {
-      const verifiedTopic: KnowledgeTopic = {
-        ...sampleTopic,
-        verificationStatus: 'verified',
-        verificationProof: 'คณะกรรมการมาตรฐานวิศวกรรมสำรวจ วสท. 2568'
-      };
+    it('renders KnowledgeHub inline reader with Emerald certification banner when switched to "verified"', () => {
+      const orig = KNOWLEDGE_TOPICS[5].verificationStatus;
+      const origProof = KNOWLEDGE_TOPICS[5].verificationProof;
+      try {
+        KNOWLEDGE_TOPICS[5].verificationStatus = 'verified';
+        KNOWLEDGE_TOPICS[5].verificationProof = 'คณะกรรมการมาตรฐานวิศวกรรมสำรวจ วสท. 2568';
+        const html = renderToString(
+          React.createElement(KnowledgeHub, {
+            initialTopicId: 'differential-leveling-survey'
+          })
+        );
 
+        expect(html).toContain('VERIFIED · ผ่านการตรวจรับรองมาตรฐานวิศวกรรม');
+        expect(html).toContain('border-emerald-500/30');
+        expect(html).toContain('คณะกรรมการมาตรฐานวิศวกรรมสำรวจ วสท. 2568');
+        expect(html).not.toContain('DRAFT · เอกสารทางเทคนิคฉบับร่าง');
+      } finally {
+        KNOWLEDGE_TOPICS[5].verificationStatus = orig;
+        KNOWLEDGE_TOPICS[5].verificationProof = origProof;
+      }
+    });
+
+    it('renders KnowledgeHub cleanly when topic is null', () => {
       const html = renderToString(
-        React.createElement(TopicDetailModal, {
-          topic: verifiedTopic,
-          onClose: () => {}
+        React.createElement(KnowledgeHub, {
+          initialTopicId: null
         })
       );
 
-      expect(html).toContain('VERIFIED / ผ่านการตรวจรับรองมาตรฐานวิศวกรรม (Verified SOP)');
-      expect(html).toContain('bg-emerald-50/80');
-      expect(html).toContain('border-emerald-500/30');
-      expect(html).toContain('คณะกรรมการมาตรฐานวิศวกรรมสำรวจ วสท. 2568');
-      expect(html).not.toContain('DRAFT / รอดำเนินการตรวจสอบ (Preliminary Draft SOP)');
-    });
-
-    it('renders TopicDetailModal cleanly when topic is null', () => {
-      const html = renderToString(
-        React.createElement(TopicDetailModal, {
-          topic: null,
-          onClose: () => {}
-        })
-      );
-
-      expect(html).toBe('');
+      expect(html).toBeDefined();
+      expect(html).toContain('คลังความรู้วิศวกรรมสำรวจ');
     });
 
     it('handles adversarial HTML characters in verificationProof without throwing', () => {
-      const xssProofTopic: KnowledgeTopic = {
-        ...sampleTopic,
-        verificationStatus: 'verified',
-        verificationProof: 'Standard <script>alert("xss")</script> & RTSD 100% "quotes" \'single\''
-      };
+      const orig = KNOWLEDGE_TOPICS[5].verificationProof;
+      try {
+        KNOWLEDGE_TOPICS[5].verificationProof = 'Standard <script>alert("xss")</script> & RTSD 100% "quotes" \'single\'';
+        const html = renderToString(
+          React.createElement(KnowledgeHub, {
+            initialTopicId: 'differential-leveling-survey'
+          })
+        );
 
-      const html = renderToString(
-        React.createElement(TopicDetailModal, {
-          topic: xssProofTopic,
-          onClose: () => {}
-        })
-      );
-
-      expect(html).toBeDefined();
-      // React escapes raw HTML tags in text nodes
-      expect(html).not.toContain('<script>');
-      expect(html).toContain('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+        expect(html).toBeDefined();
+        // React escapes raw HTML tags in text nodes
+        expect(html).not.toContain('<script>');
+        expect(html).toContain('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+      } finally {
+        KNOWLEDGE_TOPICS[5].verificationProof = orig;
+      }
     });
 
     it('survives an ultra-long verificationProof string (2,000+ characters)', () => {
+      const orig = KNOWLEDGE_TOPICS[5].verificationProof;
       const ultraLongProof = 'RTSD Standard Citation '.repeat(100);
-      const longProofTopic: KnowledgeTopic = {
-        ...sampleTopic,
-        verificationStatus: 'verified',
-        verificationProof: ultraLongProof
-      };
+      try {
+        KNOWLEDGE_TOPICS[5].verificationProof = ultraLongProof;
+        const html = renderToString(
+          React.createElement(KnowledgeHub, {
+            initialTopicId: 'differential-leveling-survey'
+          })
+        );
 
-      const html = renderToString(
-        React.createElement(TopicDetailModal, {
-          topic: longProofTopic,
-          onClose: () => {}
-        })
-      );
-
-      expect(html).toBeDefined();
-      expect(html).toContain(ultraLongProof.slice(0, 100));
+        expect(html).toBeDefined();
+        expect(html).toContain(ultraLongProof.slice(0, 100));
+      } finally {
+        KNOWLEDGE_TOPICS[5].verificationProof = orig;
+      }
     });
   });
 
@@ -532,17 +529,15 @@ describe('Challenger 1 Adversarial Suite: Manuals, Badges & Deep-Linking', () =>
         expect(html.replace(/&amp;/g, '&')).toContain(eqTopic.title);
       });
 
-      it('renders TopicDetailModal with the assigned engineering code in the header', () => {
+      it('renders KnowledgeHub inline reader with the assigned engineering code in the header', () => {
         const sopTopic = KNOWLEDGE_TOPICS[5]; // differential-leveling-survey
         const html = renderToString(
-          React.createElement(TopicDetailModal, {
-            topic: sopTopic,
-            onClose: () => {}
+          React.createElement(KnowledgeHub, {
+            initialTopicId: sopTopic.id
           })
         );
 
         expect(html).toContain('SOP-01');
-        expect(html).toContain('คู่มือทำงาน');
         expect(html.replace(/&amp;/g, '&')).toContain(sopTopic.title);
       });
     });

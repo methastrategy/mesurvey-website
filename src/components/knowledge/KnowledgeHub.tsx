@@ -96,6 +96,47 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
   const [anatomyImgLoaded, setAnatomyImgLoaded] = useState<boolean>(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Site checklist localStorage sync (SITE-01..04)
+  const [siteChecklistState, setSiteChecklistState] = useState<Record<string, boolean>>(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = localStorage.getItem('mesurv_site_checklist_v1');
+        return saved ? JSON.parse(saved) : {};
+      }
+      return {};
+    } catch {
+      return {};
+    }
+  });
+
+  const toggleSiteChecklist = (code: string, idx: number) => {
+    const key = `${code}_${idx}`;
+    setSiteChecklistState(prev => {
+      const updated = { ...prev, [key]: !prev[key] };
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('mesurv_site_checklist_v1', JSON.stringify(updated));
+        }
+      } catch {}
+      return updated;
+    });
+  };
+
+  const resetSiteChecklist = (code: string, count: number) => {
+    setSiteChecklistState(prev => {
+      const updated = { ...prev };
+      for (let i = 0; i < count; i++) {
+        delete updated[`${code}_${i}`];
+      }
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('mesurv_site_checklist_v1', JSON.stringify(updated));
+        }
+      } catch {}
+      return updated;
+    });
+  };
+
   // Synchronize category and selectedTopicId when URL hash / initialTopicId updates
   useEffect(() => {
     if (!initialTopicId) {
@@ -1838,21 +1879,53 @@ export const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ initialTopicId, onNa
               </div>
             )}
 
-            {/* Field Checklist */}
+            {/* Field Checklist (Interactive with localStorage) */}
             <div className="space-y-4 pt-4 border-t border-[var(--border)]">
-              <h3 className="text-sm font-bold text-[var(--text-1)] uppercase tracking-wider flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                <span>เช็กลิสต์การตรวจคุมงานหน้างาน (Field Inspection Checklist)</span>
-              </h3>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-sm font-bold text-[var(--text-1)] uppercase tracking-wider flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span>เช็กลิสต์การตรวจคุมงานหน้างาน (Interactive Field Checklist)</span>
+                </h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono px-2 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)]">
+                    ตรวจแล้ว {activeCard.siteData.fieldChecklist.filter((_, i) => siteChecklistState[`${activeCard.code}_${i}`]).length} / {activeCard.siteData.fieldChecklist.length} รายการ
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => resetSiteChecklist(activeCard.code, activeCard.siteData!.fieldChecklist.length)}
+                    className="text-[11px] text-[var(--text-3)] hover:text-rose-500 hover:underline transition cursor-pointer"
+                  >
+                    ล้างเช็กลิสต์
+                  </button>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {activeCard.siteData.fieldChecklist.map((item, idx) => (
-                  <div key={idx} className="p-3 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] flex items-start gap-2.5">
-                    <span className="w-4 h-4 rounded border border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 text-[10px]">
-                      ✓
-                    </span>
-                    <span className="text-xs sm:text-sm text-[var(--text-2)]">{item}</span>
-                  </div>
-                ))}
+                {activeCard.siteData.fieldChecklist.map((item, idx) => {
+                  const isChecked = !!siteChecklistState[`${activeCard.code}_${idx}`];
+                  return (
+                    <div 
+                      key={idx}
+                      onClick={() => toggleSiteChecklist(activeCard.code, idx)}
+                      className={`p-3.5 rounded-xl border flex items-start gap-3 cursor-pointer transition-all ${
+                        isChecked 
+                          ? 'bg-emerald-500/10 border-emerald-500/40 text-[var(--text-1)]' 
+                          : 'bg-[var(--surface-2)] border-[var(--border)] text-[var(--text-2)] hover:border-[var(--accent)]'
+                      }`}
+                    >
+                      <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                        isChecked 
+                          ? 'bg-emerald-500 border-emerald-600 text-white' 
+                          : 'border-[var(--border)] bg-[var(--surface)] text-transparent'
+                      }`}>
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      </div>
+                      <span className={`text-xs sm:text-sm leading-relaxed ${isChecked ? 'line-through opacity-80' : ''}`}>
+                        {item}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

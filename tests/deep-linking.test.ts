@@ -22,7 +22,8 @@ describe('Deep-Linking & Hash Routing Engine', () => {
   describe('Calculator Subtabs Hash Routing', () => {
     const expectedSubTabs = [
       'coord', 'traverse', 'leveling', 'area',
-      'earthwork', 'curve', 'strap-beam', 'rebar', 'rebar-optimizer', 'scientific'
+      'earthwork', 'curve', 'strap-beam', 'rebar', 'rebar-optimizer', 'scientific',
+      'encroachment', 'bathymetric'
     ] as const;
 
     expectedSubTabs.forEach(subTab => {

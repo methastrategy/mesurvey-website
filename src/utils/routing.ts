@@ -1,6 +1,6 @@
 export type MesurvRoute = {
   tab: 'knowledge' | 'calculator' | 'map';
-  subTab?: 'scientific' | 'coord' | 'traverse' | 'leveling' | 'area' | 'adjustment' | 'curve' | 'rebar' | 'strap-beam' | 'rebar-optimizer' | 'earthwork';
+  subTab?: 'scientific' | 'coord' | 'traverse' | 'leveling' | 'area' | 'adjustment' | 'curve' | 'rebar' | 'strap-beam' | 'rebar-optimizer' | 'earthwork' | 'encroachment' | 'bathymetric';
   topicId?: string;
 };
 
@@ -10,7 +10,7 @@ export function parseRouteHash(rawHash: string): MesurvRoute {
   const first = parts[0];
 
   if (first === 'calculator') {
-    const validSubs = ['scientific', 'coord', 'traverse', 'leveling', 'area', 'adjustment', 'curve', 'rebar', 'strap-beam', 'rebar-optimizer', 'earthwork'] as const;
+    const validSubs = ['scientific', 'coord', 'traverse', 'leveling', 'area', 'adjustment', 'curve', 'rebar', 'strap-beam', 'rebar-optimizer', 'earthwork', 'encroachment', 'bathymetric'] as const;
     const sub = validSubs.includes(parts[1] as any) ? (parts[1] as typeof validSubs[number]) : undefined;
     return {
       tab: 'calculator',

@@ -133,6 +133,21 @@ export default defineConfig({
               },
             },
           },
+          // Knowledge Hub and Field Reference Images (Offline PWA)
+          {
+            urlPattern: /\/images\/.*\.(?:jpg|jpeg|webp|png)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'mesurv-knowledge-images-v1',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 24 * 60 * 60,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
         ],
       },
     }),
